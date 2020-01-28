@@ -3,6 +3,56 @@
 // UTILITIES
 //
 
+// check whether user data can fulfill input requirements of a specific tool
+function isUserDataMatchingToolRequirements($tool_input_files){
+	//get tool input requirements based on data_types # TODO consider also formats
+	$tool_dts = array();
+	foreach ($tool_input_files as $in_name=>$in){
+		if ($in['required']){
+			foreach ($in['data_type'] as $dt){
+				if (!isset($tool_dts[$dt])){
+					$tool_dts[$dt]=1;
+				}else{
+					$tool_dts[$dt]+=1;
+				}
+			}
+		}
+	}
+	// tools has no compulsory data_type requirements
+	if (!$tool_dts){
+		return 1;
+	}else{
+		//get user's files with tool required data_types
+		$files_list = getGSFiles_filteredBy(array("data_type" => array('$in' => array_keys($tool_dts)),"visible"   => true));
+
+		if (count($files_list) == 0){
+			return 0;
+		}else{
+			//count num of files with required data_types
+			$file_dts = array();
+			foreach ($files_list as $f){
+				$dt = $f['data_type'];
+                                if (!isset($file_dts[$dt])){
+                                        $file_dts[$dt]=1;
+                                }else{
+                                        $file_dts[$dt]+=1;
+                                }
+                        }
+			//if num. of files available of a certain data_type is not enought to run the tool, return 0
+			foreach ($tool_dts as $dt => $minimal_tool_count){
+				if (!isset($file_dts[$dt]) || $file_dts[$dt] < $minimal_tool_count){
+					return 0;
+				}
+			}
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+
+
 // get files from $fileList matching with given file type
 function matchFormat_File($type, $fileList) {
 

@@ -979,4 +979,6 @@ h3.progress-title,  h4.progress-title  {
 .progress-tracker.progress-tracker--vertical  {
      margin: 10px auto;
  }
-
+.dimmed{
+     opacity: 0.3; display:block; pointer-events: none;
+}
