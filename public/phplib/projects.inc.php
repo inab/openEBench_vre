@@ -335,7 +335,7 @@ function save_fromSampleDataMetadata($meta_folder,$dataDir,$sampleData,$type,$ve
 	    $sourceId   = getGSFileId_fromPath($sourcePath,1);
 	    array_push($t,$sourceId);
        }
-       $meta_folder['sources'] = $t;
+       $meta_folder['input_files'] = $t;
     }
 
     // validate sample data metadata
@@ -1356,7 +1356,7 @@ function processPendingFiles($sessionId,$files=array()){
 					    print "SOURCES ORI = $source_path RFN = $source_rfn  FN = $source_fn ID = $sourceid <br/>";
 					}
     			    	}	
-			    	$out_data['sources'] = $sources;
+			    	$out_data['input_files'] = $sources;
     		    	}
 		    
 
@@ -1444,7 +1444,7 @@ function processPendingFiles($sessionId,$files=array()){
 				$job_in_err=1;
 
 			}else{
-				$_SESSION['errorData']['Error'][]="Job output outfile ($out_name) generated (".basename($rfn).").";
+				$_SESSION['errorData']['Error'][]="Job output outfile ($out_name) not generated (".basename($rfn).").";
 			    	log_addOutregister($pid,"Failed to register outfile $out_name '$rfn'. File NOT found in disk");
 				if ($debug){
 					print "<br/>JOB $pid FINISHED BUT NO EXPECTED OUTFILE '$rfn' FOUND  IN DISK. Set ERROR<br>";
@@ -1635,7 +1635,6 @@ function saveResults($filePath,$metaData=array(),$job=array(),$rfn=0,$asRoot=0){
 	}
 }
 
-
 function  build_outputs_list($tool,$stageout_job,$stageout_file){
 
 	$outs_meta= Array();
@@ -1650,18 +1649,21 @@ function  build_outputs_list($tool,$stageout_job,$stageout_file){
 
 	// parse stageout file
 	$stageout_meta = Array();
-    if (isset($stageout_file) && is_file($stageout_file) ){
-      	$content = file_get_contents($stageout_file);
+	if (isset($stageout_file) && is_file($stageout_file) ){
+      		$content = file_get_contents($stageout_file);
 		$data    = json_decode($content, true);
 		if (count($data) == 0 || count($data['output_files'])==0){
 			$_SESSION['errorData']['Warning'][]="Tool stageout file '".basename($stageout_file)."' is empty or bad formatted";
 		}
-		//index by name
+		//index by name and filtering out attributes with 'null' values
 		foreach ($data['output_files'] as $out){
 			if (isset($out['name'])){
+				// ignore attributes with 'null' values
+				$out_clean = array_filter($out,function ($v){ return(!is_null($v));});
+				// index attributes by 'name'
 				if (!isset($stageout_meta[$out['name']]))
 					$stageout_meta[$out['name']]=Array();
-				array_push($stageout_meta[$out['name']],$out);
+				array_push($stageout_meta[$out['name']],$out_clean);
 			}else{
 				$_SESSION['errorData']['Warning'][]="Tool stageout file '".basename($stageout_file)."' is bad formatted. Missing 'name' in 'output_files' list";
 				continue;
@@ -1717,6 +1719,7 @@ function  build_outputs_list($tool,$stageout_job,$stageout_file){
 			array_push($outs_meta[$out_name],$file_merged);
 		}
 	}
+
 	return $outs_meta;
 }
 
