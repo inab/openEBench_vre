@@ -6,7 +6,7 @@
  *
  */
 
-require "phplib/genlibraries.php";
+require __DIR__."/../../config/bootstrap.php";
 
 /*
  * IMPORTANT:
@@ -17,16 +17,16 @@ require "phplib/genlibraries.php";
 
 
 $caduca_readme = 7;     // expiration for README.md files
-$dry_run   = false ;     // true: evaluate files but dont delete them. false; clean files
+$dry_run   = false;     // true: evaluate files but dont delete them. false; clean files
 $soft_mode = true;      // true: only README files are cleaned, consequently cleaning only not-used anon users. false: REGISTERED USERS FILES ARE CLEANED
 
 // disk
-$GLOBALS['shared']     = "/data/MuG/"; // MuGdev/";
-$GLOBALS['dataDir']    = $GLOBALS['shared']."MuG_userdata/";
+$GLOBALS['shared']     = "/gpfs/VRE/"; // MuGdev/";
+$GLOBALS['dataDir']    = $GLOBALS['shared']."userdata/";
 
 // db
-$GLOBALS['dbname_VRE']  = "MuGVRE_irb";
-require "phplib/db.inc.php";
+$GLOBALS['dbname_VRE']  = "oeb_submission";
+require __DIR__."/../../public/phplib/db.inc.php";
 
 
 

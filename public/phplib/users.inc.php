@@ -345,7 +345,7 @@ var_dump(json_encode($data));
                 return true;
             }
         }else{
-            $_SESSION['errorData']['Warning'][]="User not valid to be used outside VRE. Could not inject 'vre_id' into Auth Server. Cannot get ".$aux['_id']." from its registry";
+#            $_SESSION['errorData']['Warning'][]="User not valid to be used outside VRE. Could not inject 'vre_id' into Auth Server. Cannot get ".$aux['_id']." from its registry";
             return false;
         }
     }else{
