@@ -220,7 +220,7 @@ function prepare_getData_fromURL($url,$outdir,$referer,$meta=array()) {
     }
 
     if ($size > ($diskLimit-$usedDisk) ) {
-        $msg = "Cannot import file. There will be not enough space left in the workspace (size = ".getSize($size).")";
+        $msg = "Cannot import file. There will be not enough space left in the workspace (dataset size = ".getSize($size).")";
 	if($referer == "die"){
 		$_SESSION['errorData']['Error'][] =$msg; 
 		redirect($GLOBALS['BASEURL']."workspace/");
@@ -594,7 +594,7 @@ function getData_fromRepository_ToPublic($params=array()) { //url, untar, data_t
 
     }
     if ($size > ($diskLimit-$usedDisk) ) {
-        $_SESSION['errorData']['Error'][] = "Cannot import file. There will be not enough space left in the workspace (size = $size)";
+        $_SESSION['errorData']['Error'][] = "Cannot import file. There will be not enough space left in the workspace (Dataset Size = ".getSize($size).")";
         redirect($_SERVER['HTTP_REFERER']);
     }
     curl_close($ch);
@@ -733,31 +733,53 @@ function process_URL($url){
 		"filename"      => false,
 		"effective_url" => false);
 
-    // get URL header
-    $headers_data = get_headers($url,1);
-    var_dump($headers_data);
-   
-    //check server and status
-    if ($headers_data === false){
-        $_SESSION['errorData']['Error'][] = "Resource URL ('$url') is not valid or unaccessible. Server not found";
+    $scheme = parse_url($url,PHP_URL_SCHEME);
+
+    if (!$scheme){
+	//invalid URL format
+        $_SESSION['errorData']['Error'][] = "Resource URL ('$url') had not scheme. Invalid URL format?";
 	return false;
-    }
 
-    // corrects url when 301/302 redirect(s) lead(s) to 200
-    $response['effective_url'] = (isset($headers_data['Location']) && preg_match("/^Location: (.+)$/",$headers_data['Location'],$m)? $m[1] : $url );
+    }elseif ($scheme == "ftp" || $scheme == "ftps"){
+	//do not check headers
+    	$FTP = parse_url($url);
+	$conn = ftp_connect($FTP['host']);
+	if (!$conn){
+        	$_SESSION['errorData']['Error'][] = "Cannot connect to resource URL ('$url'). FTP server ".$FTP['host']." not accessible.";
+		return false;
+	}
+	$response['status'] = 200;
+	$response['effective_url'] = $url;
+	$response['size'] = 99;
+	$response['filename'] = basename($FTP['path']);
+	  
+    }elseif ($scheme == "http" || $scheme == "https"){
+    	// get URL header
+    	$headers_data = get_headers($url,1);
+  	//check server and status
+	if ($headers_data === false){
+	    $_SESSION['errorData']['Error'][] = "Resource URL ('$url') is not valid or unaccessible. Server not found";
+	    return false;
+	}
+    	// corrects url when 301/302 redirect(s) lead(s) to 200
+	$response['effective_url'] = (isset($headers_data['Location']) && preg_match("/^Location: (.+)$/",$headers_data['Location'],$m)? $m[1] : $url );
 
-    // grabs last code, in case of redirect(s):
-    $response['status'] = (preg_match("/^HTTP.* (\d\d\d) /",$headers_data[0],$m)? $m[1] : $response['status']);
+	// grabs last code, in case of redirect(s):
+	$response['status'] = (preg_match("/^HTTP.* (\d\d\d) /",$headers_data[0],$m)? $m[1] : $response['status']);
 
-    // grabs filename
-    $response['filename'] = (isset($headers_data['Content-Disposition']) && preg_match('/filename=(?<f>[^\s]+|\x22[^\x22]+\x22)\x3B?.*$/m',$headers_data['Content-Disposition'],$m)? $m[1] : $response['filename']);
-    $response['size'] = (isset($headers_data['Content-Disposition']) && preg_match("/filename=.+/",$headers_data['Content-Disposition']) && $headers_data['Content-Length']? $headers_data['Content-Length'] : $response['size']);
+    	// grabs filename
+	$response['filename'] = (isset($headers_data['Content-Disposition']) && preg_match('/filename=(?<f>[^\s]+|\x22[^\x22]+\x22)\x3B?.*$/m',$headers_data['Content-Disposition'],$m)? $m[1] : $response['filename']);
+	$response['size'] = (isset($headers_data['Content-Disposition']) && preg_match("/filename=.+/",$headers_data['Content-Disposition']) && $headers_data['Content-Length']? $headers_data['Content-Length'] : $response['size']);
     
-
-    $status = substr($headers[0], 9, 3);
-    if (!preg_match('/(200)/',$headers_data[0]) && !preg_match('/^3/',$status) ){
-        $_SESSION['errorData']['Error'][] = "Resource URL ('$url') is not valid or unaccessible. Status: $status";
-        redirect($_SERVER['HTTP_REFERER']);
+    	$status = substr($headers[0], 9, 3);
+    	if (!preg_match('/(200)/',$headers_data[0]) && !preg_match('/^3/',$status) ){
+            $_SESSION['errorData']['Error'][] = "Resource URL ('$url') is not valid or unaccessible. Status: $status";
+            redirect($_SERVER['HTTP_REFERER']);
+ 	}
+    }else{
+	//unsupported URL format
+        $_SESSION['errorData']['Error'][] = "Resource URL ('$url') scheme is not supported";
+	return false;
     }
     //filename
     /*
@@ -845,7 +867,7 @@ function getData_fromRepository($params=array()) { //url, repo, id, taxon, filen
 
     }
     if ($size > ($diskLimit-$usedDisk) ) {
-        $_SESSION['errorData']['Error'][] = "Cannot import file. There will be not enough space left in the workspace (size = $size)";
+        $_SESSION['errorData']['Error'][] = "Cannot import file. There will be not enough space left in the workspace (data size = ".getSize($size).")";
         redirect($_SERVER['HTTP_REFERER']);
     }
     //curl_close($ch);
