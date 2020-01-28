@@ -23,7 +23,11 @@
 	<!-- END GLOBAL MANDATORY STYLES -->
 	<!-- BEGIN PAGE LEVEL PLUGINS -->
 	<?php
+
 	switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
+		case 'errordb': ?>
+			<link href="assets/pages/css/login.min.css" rel="stylesheet" type="text/css" />
+			<?php break;
 		case 'index2': ?>
 			<?php if (dirname($_SERVER['PHP_SELF']) == '/workspace') { ?>
 				<link href="assets/pages/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css" />
@@ -143,7 +147,6 @@
 		case 'visualizers': ?>
 			<link href="assets/global/plugins/cubeportfolio/css/cubeportfolio.css" rel="stylesheet" type="text/css" />
 			<?php break ?>;
-
 		<?php } ?>
 		<!-- END PAGE LEVEL PLUGINS -->
 		<!-- BEGIN THEME GLOBAL STYLES -->
@@ -242,6 +245,7 @@
 		case 'restoreLink':
 		case 'form':
 		case 'logs':
+		case 'errordb':
 
 			?>
 		<link href="assets/layouts/layout/css/layout.min.css" rel="stylesheet" type="text/css" />

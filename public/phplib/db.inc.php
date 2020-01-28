@@ -11,14 +11,16 @@ if (($F = fopen($GLOBALS['db_credentials'], "r")) !== FALSE) {
     }
     fclose($F);
 }   
-
 // connect DB
+
 try {
 	$VREConn = new MongoClient("mongodb://".$conf[0].":".$conf[1]."@".$conf[2].":27017");
 
 } catch (MongoConnectionException $e){
 	//die('Error Connecting Mongo DB: ' . $e->getMessage());
-	header('Location: '.$GLOBALS['BASEURL'].'/htmlib/errordb.php?msg=Cannot connect to VRE MuG database');	
+	$_SESSION['errorData']['Error'][]="Cannot connect to VRE MuG database";
+	redirect("htmlib/errordb.php");
+	//header('Location: '.$GLOBALS['BASEURL'].'/htmlib/errordb.php?msg=Cannot connect to VRE MuG database');	
 
 } catch (MongoException $e) {
 	die('Error: ' . $e->getMessage());
