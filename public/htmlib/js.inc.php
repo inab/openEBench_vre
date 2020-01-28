@@ -211,6 +211,8 @@ switch(pathinfo($_SERVER['PHP_SELF'])['filename']){
 			<script src="tools/tool_skeleton/assets/js/output.js?v=<?php echo rand(); ?>" type="text/javascript"></script>
 		<?php } elseif(dirname($_SERVER['PHP_SELF']) == '/tools/GMI_OD'){ ?>
 			<script src="tools/GMI_OD/assets/js/output.js?v=<?php echo rand(); ?>" type="text/javascript"></script>
+		<?php } elseif(dirname($_SERVER['PHP_SELF']) == '/tools/QFO_6'){ ?>
+                        <script src="tools/QFO_6/assets/js/output.js?v=<?php echo rand(); ?>" type="text/javascript"></script>
 		<?php } elseif (dirname($_SERVER['PHP_SELF']) == '/tools/TCGA_CD'){ ?>
 			<script src="tools/TCGA_CD/assets/js/output.js?v=<?php echo rand(); ?>" type="text/javascript"></script>
 		<?php } break;
@@ -492,7 +494,7 @@ switch(pathinfo($_SERVER['PHP_SELF'])['filename']){
 	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
 		m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 		})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-			ga('create', 'UA-92062634-1', 'auto');
+			ga('create', 'UA-143782781-3', 'auto');
 			ga('send', 'pageview');
 </script>
 
