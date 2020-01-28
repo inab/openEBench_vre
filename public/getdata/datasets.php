@@ -53,82 +53,82 @@ $communities = getCommunities();
         <!-- END PAGE HEADER-->
 
         <?php if (isset($_SESSION['errorData'])) {
-						if (isset($_SESSION['errorData']['Info'])) {
-							?>
-								<div class="alert alert-info">
-								<?php
-							} else {
-								?>
-									<div class="alert alert-warning">
-									<?php } ?>
-									<?php foreach ($_SESSION['errorData'] as $subTitle => $txts) {
-										print "$subTitle<br/>";
-										foreach ($txts as $txt) {
-											print "<div style=\"margin-left:20px;\">$txt</div>";
-										}
-									}
-									unset($_SESSION['errorData']);
-									?>
-								</div>
-
-							<?php } ?>
-        <div class="row">
-          <div class="col-md-12">
-            <!-- BEGIN EXAMPLE TABLE PORTLET-->
-            <div class="portlet light portlet-fit bordered">
-              <div class="portlet-title">
-                <div class="caption">
-                  <i class="icon-share font-red-sunglo hide"></i>
-                  <span class="caption-subject font-dark bold uppercase">Browse Datasets</span>
-                </div>
+          if (isset($_SESSION['errorData']['Info'])) {
+        ?>
+            <div class="alert alert-info">
+            <?php
+          } else {
+            ?>
+              <div class="alert alert-warning">
+              <?php } ?>
+              <?php foreach ($_SESSION['errorData'] as $subTitle => $txts) {
+                print "$subTitle<br/>";
+                foreach ($txts as $txt) {
+                  print "<div style=\"margin-left:20px;\">$txt</div>";
+                }
+              }
+              unset($_SESSION['errorData']);
+              ?>
               </div>
-              <div class="portlet-body">
-                <div id="loading-datatable">
-                  <div id="loading-spinner">LOADING</div>
-                </div>
 
-                <table class="table table-striped table-hover table-bordered" id="table-repository">
-                  <thead>
-                    <tr>
-                      <th> Id </th>
-                      <th> Title </th>
-                      <th> Description </th>
-                      <th> Version </th>
-                      <th> Type </th>
-                      <th> Community </th>
-                      <th> Visibility </th>
-                      <th> Import </th>
+            <?php } ?>
+            <div class="row">
+              <div class="col-md-12">
+                <!-- BEGIN EXAMPLE TABLE PORTLET-->
+                <div class="portlet light portlet-fit bordered">
+                  <div class="portlet-title">
+                    <div class="caption">
+                      <i class="icon-share font-red-sunglo hide"></i>
+                      <span class="caption-subject font-dark bold uppercase">Browse Datasets</span>
+                    </div>
+                  </div>
+                  <div class="portlet-body">
+                    <div id="loading-datatable">
+                      <div id="loading-spinner">LOADING</div>
+                    </div>
 
-                    </tr>
-                  </thead>
-  
-                  <tbody>
-                    <!-- process and display each result row -->
-                    
-                    <?php foreach (getDatasets() as $obj) {
-                            if($obj->type != "participant") {
-                        ?>
+                    <table class="table table-striped table-hover table-bordered" id="table-repository">
+                      <thead>
                         <tr>
-                          <td> <?php echo "$obj->_id"; ?> </td>
-                          <td> <?php echo "$obj->name"; ?> </td>
-                          <td> <?php echo "$obj->description"; ?> </td>
-                          <td> <?php echo "$obj->version"; ?> </td>
-                          <td> <?php echo getDataTypeName($obj->type); ?> </td>
-                          <td> <?php 
-                            foreach ($obj->community_ids as $id) {
-                              echo $communities[$id]["acronym"]." ";
-                            }
-                          ?> </td>
-                          <td> <?php echo "$obj->visibility"; ?> </td>
-                          <td style="vertical-align:middle;">
-			    
-                            <?php
-                              $dataset_uri = ($obj->datalink->uri? $obj->datalink->uri:"");
-			    ?> 
-			    <!-- Send via GET url and metadata to getData.php // CURRENTLY DONE VIA POST-->
+                          <th> Id </th>
+                          <th> Title </th>
+                          <th> Description </th>
+                          <th> Version </th>
+                          <th> Type </th>
+                          <th> Community </th>
+                          <th> Visibility </th>
+                          <th> Import </th>
 
-                            <?php  
-			      /*
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        <!-- process and display each result row -->
+
+                        <?php foreach (getDatasets() as $obj) {
+                          if ($obj->type != "participant") {
+                        ?>
+                            <tr>
+                              <td> <?php echo "$obj->_id"; ?> </td>
+                              <td> <?php echo "$obj->name"; ?> </td>
+                              <td> <?php echo "$obj->description"; ?> </td>
+                              <td> <?php echo "$obj->version"; ?> </td>
+                              <td> <?php echo getDataTypeName($obj->type); ?> </td>
+                              <td> <?php
+                                    foreach ($obj->community_ids as $id) {
+                                      echo $communities[$id]["acronym"] . " ";
+                                    }
+                                    ?> </td>
+                              <td> <?php echo "$obj->visibility"; ?> </td>
+                              <td style="vertical-align:middle;">
+
+                                <?php
+                                $dataset_uri = ($obj->datalink->uri ? $obj->datalink->uri : "");
+                                ?>
+                                <!-- Send via GET url and metadata to getData.php // CURRENTLY DONE VIA POST-->
+
+                                <?php
+                                /*
                               $GET_metadata = http_build_query(array(
                                 "uploadType"       => "repository",
                                 "url"              => $dataset_uri,
@@ -138,52 +138,55 @@ $communities = getCommunities();
                                 "oeb_community_ids"=> (array) $obj->community_ids
                               ));
                               */
-                            ?>
-                            <!-- <a <?php //if(!$dataset_uri){echo 'class="disabled" style="opacity: 0.4;"';}?> href="applib/getData.php?<?php //echo $GET_metadata; ?>">
+                                ?>
+                                <!-- <a <?php //if(!$dataset_uri){echo 'class="disabled" style="opacity: 0.4;"';}
+                                        ?> href="applib/getData.php?<?php //echo $GET_metadata; 
+                                                                    ?>">
                               <i class="font-green fa fa-download tooltips disabled" aria-hidden="true" style="font-size:22px;" data-container="body" data-html="true" data-placement="right" data-original-title="<p align='left' style='margin:0'>Import dataset to workspace</p>"></i></a> -->
 
-			    <!-- Send via POST url and metadata to getData.php -->
+                                <!-- Send via POST url and metadata to getData.php -->
 
-			    <form action="applib/getData.php" method="post">
-				<input type="hidden" name="uploadType"        value="repository"/> 
-				<input type="hidden" name="url"               value="<?php echo htmlspecialchars($dataset_uri);?>" />
-				<input type="hidden" name="data_type"         value="<?php echo htmlspecialchars($obj->type);?>"/>
-				<input type="hidden" name="description"       value="<?php echo htmlspecialchars($obj->description);?>"/>
-				<input type="hidden" name="oeb_dataset_id"    value="<?php echo htmlspecialchars($obj->_id);?>" />
-				<?php foreach((array)$obj->community_ids as $community_id){ ?>
-				    <input type="hidden" name="oeb_community_ids[]" value="<?php echo htmlspecialchars($community_id);?>" />
-				<?php } ?> 
-				<button type="submit" class="btn green dropdown-toggle" value="submit">
-				    <i class="fa fa-download tooltips font-white" data-original-title="Import dataset to workspace"></i>
-				</button>
-			    </form>
+                                <form action="applib/getData.php" method="post">
+                                  <input type="hidden" name="uploadType" value="repository" />
+                                  <input type="hidden" name="url" value="<?php echo htmlspecialchars($dataset_uri); ?>" />
+                                  <input type="hidden" name="data_type" value="<?php echo htmlspecialchars($obj->type); ?>" />
+                                  <input type="hidden" name="description" value="<?php echo htmlspecialchars($obj->description); ?>" />
+                                  <input type="hidden" name="oeb_dataset_id" value="<?php echo htmlspecialchars($obj->_id); ?>" />
+                                  <?php foreach ((array) $obj->community_ids as $community_id) { ?>
+                                    <input type="hidden" name="oeb_community_ids[]" value="<?php echo htmlspecialchars($community_id); ?>" />
+                                  <?php } ?>
 
-                          </td>
-                          
-                        </tr>
-                          
-                        
-                      <?php }
-                     }  ?>
+                                  <button type="submit" <?php if ($dataset_uri == "") echo "disabled"; ?> class="btn green dropdown-toggle" value="submit">
+                                    <i class="fa fa-download tooltips font-white" data-original-title="Import dataset to workspace"></i>
+                                  </button>
+                                </form>
 
-                  </tbody>
-                </table>
+                              </td>
+
+                            </tr>
+
+
+                        <?php }
+                        }  ?>
+
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <!-- END EXAMPLE TABLE PORTLET-->
               </div>
             </div>
-            <!-- END EXAMPLE TABLE PORTLET-->
-          </div>
-        </div>
+            </div>
+            <!-- END CONTENT BODY -->
       </div>
-      <!-- END CONTENT BODY -->
-    </div>
-    <!-- END CONTENT -->
+      <!-- END CONTENT -->
 
-    <?php
+      <?php
 
-    require "../htmlib/footer.inc.php";
-    require "../htmlib/js.inc.php";
-    
-    
-    
+      require "../htmlib/footer.inc.php";
+      require "../htmlib/js.inc.php";
 
-    ?>
+
+
+
+      ?>
