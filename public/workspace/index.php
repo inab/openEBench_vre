@@ -131,7 +131,9 @@ $proj_name_active   = getAttr_fromGSFileId($_SESSION['User']['dataDir'], "name")
 							</div>
 						<?php }
 
-					if ($_SESSION['User']['Type'] == 3) {
+
+
+						if ($_SESSION['User']['Type'] == 3) {
 
 						?>
 
@@ -169,12 +171,12 @@ $proj_name_active   = getAttr_fromGSFileId($_SESSION['User']['dataDir'], "name")
 								</div>
 							</div>
 
-						<?php
+							<?php
 
-					}
+						}
 
-					if (isset($_SESSION['errorData'])) {
-						if (isset($_SESSION['errorData']['Info'])) {
+						if (isset($_SESSION['errorData'])) {
+							if (isset($_SESSION['errorData']['Info'])) {
 							?>
 								<div class="alert alert-info">
 								<?php
@@ -190,72 +192,72 @@ $proj_name_active   = getAttr_fromGSFileId($_SESSION['User']['dataDir'], "name")
 									}
 									unset($_SESSION['errorData']);
 									?>
-								</div>
-
-							<?php }
-
-
-
-
-						$toolsList = getTools_List();
-						sort($toolsList);
-						?>
-
-							<!-- BEGIN EXAMPLE TABLE PORTLET -->
-
-							<div class="row">
-								<div class="col-md-12 col-sm-12">
-
-									<div class="portlet light bordered">
-
-										<div class="portlet-title">
-											<div class="caption">
-												<i class="icon-share font-dark hide"></i>
-												<span class="caption-subject font-dark bold uppercase">Select File(s)</span> <small style="font-size:75%;">Please select the file or files you want to use</small>
-											</div>
-											<div class="actions">
-												<a href="<?php echo $GLOBALS['BASEURL']; ?>workspace/" class="btn green"> Reload Workspace </a>
-											</div>
-										</div>
-
-										<div class="portlet-body">
-
-											<div class="input-group" style="margin-bottom:20px;">
-												<span class="input-group-addon" style="background:#5e738b;"><i class="fa fa-wrench font-white"></i></span>
-												<select class="form-control" style="width:100%;" onchange="loadWSTool(this)">
-													<option value="">Filter files by tool</option>
-													<?php foreach ($toolsList as $tl) { ?>
-														<option value="<?php echo $tl["_id"]; ?>" <?php if ($_REQUEST["tool"] == $tl["_id"]) echo 'selected'; ?>><?php echo $tl["name"]; ?></option>
-													<?php } ?>
-												</select>
-											</div>
-
-											<div id="loading-datatable">
-												<div id="loading-spinner">LOADING</div>
-											</div>
-
-											<form name="gesdir" action="workspace/workspace.php" method="post" enctype="multipart/form-data">
-												<input type="hidden" name="op" value="" />
-												<input type="hidden" name="userId" value="<?php echo $_SESSION['userId']; ?>" />
-												<input type="hidden" id="base-url" value="<?php echo $GLOBALS['BASEURL']; ?>" />
-												<input type="hidden" id="toolSelected" value="<?php echo $_REQUEST['tool']; ?>" />
-												<input type="hidden" id="from" value="<?php echo $_REQUEST["from"]; ?>" />
-
-												<?php
-												print printTable($files);
-												?>
-
-
-											</form>
-											<!--<button class="btn green" type="submit" id="btn-run-files" style="margin-top:20px;" >Run Selected Files</button>-->
-										</div>
 									</div>
-									<!-- END EXAMPLE TABLE PORTLET-->
+
+								<?php }
 
 
+
+
+							$toolsList = getTools_List();
+							sort($toolsList);
+								?>
+
+								<!-- BEGIN EXAMPLE TABLE PORTLET -->
+
+								<div class="row">
+									<div class="col-md-12 col-sm-12">
+
+										<div class="portlet light bordered">
+
+											<div class="portlet-title">
+												<div class="caption">
+													<i class="icon-share font-dark hide"></i>
+													<span class="caption-subject font-dark bold uppercase">Select File(s)</span> <small style="font-size:75%;">Please select the file or files you want to use</small>
+												</div>
+												<div class="actions">
+													<a href="<?php echo $GLOBALS['BASEURL']; ?>workspace/" class="btn green"> Reload Workspace </a>
+												</div>
+											</div>
+
+											<div class="portlet-body">
+
+												<div class="input-group" style="margin-bottom:20px;">
+													<span class="input-group-addon" style="background:#5e738b;"><i class="fa fa-wrench font-white"></i></span>
+													<select class="form-control" style="width:100%;" onchange="loadWSTool(this)">
+														<option value="">Filter files by tool</option>
+														<?php foreach ($toolsList as $tl) { ?>
+															<option value="<?php echo $tl["_id"]; ?>" <?php if ($_REQUEST["tool"] == $tl["_id"]) echo 'selected'; ?>><?php echo $tl["name"]; ?></option>
+														<?php } ?>
+													</select>
+												</div>
+
+												<div id="loading-datatable">
+													<div id="loading-spinner">LOADING</div>
+												</div>
+
+												<form name="gesdir" action="workspace/workspace.php" method="post" enctype="multipart/form-data">
+													<input type="hidden" name="op" value="" />
+													<input type="hidden" name="userId" value="<?php echo $_SESSION['userId']; ?>" />
+													<input type="hidden" id="base-url" value="<?php echo $GLOBALS['BASEURL']; ?>" />
+													<input type="hidden" id="toolSelected" value="<?php echo $_REQUEST['tool']; ?>" />
+													<input type="hidden" id="from" value="<?php echo $_REQUEST["from"]; ?>" />
+
+													<?php
+													print printTable($files);
+													?>
+
+
+												</form>
+												<!--<button class="btn green" type="submit" id="btn-run-files" style="margin-top:20px;" >Run Selected Files</button>-->
+											</div>
+										</div>
+										<!-- END EXAMPLE TABLE PORTLET-->
+
+
+									</div>
 								</div>
-							</div>
-						</div>
+								</div>
 					</div>
 
 					<div class="row">
@@ -349,14 +351,14 @@ $proj_name_active   = getAttr_fromGSFileId($_SESSION['User']['dataDir'], "name")
 										if ($_REQUEST["tool"] != "") {
 											$expcol = "collapse";
 											$portlet = "";
-											?>
+										?>
 
 											<small>Below users can find all the possible data type combinations for the selected tool</small>
 
 										<?php
-									} else {
-										$expcol = "expand";
-										$portlet = "portlet-collapsed";
+										} else {
+											$expcol = "expand";
+											$portlet = "portlet-collapsed";
 										?>
 
 											<small style="font-size:75%;">Below users can find all the possible data type combinations for each tool (click expand button)</small>
@@ -388,7 +390,7 @@ $proj_name_active   = getAttr_fromGSFileId($_SESSION['User']['dataDir'], "name")
 											foreach ($toolsList as $tl) {
 
 												if ($tl["_id"] == $_REQUEST["tool"]) {
-													?>
+											?>
 													<div class="panel panel-default">
 														<div class="panel-heading">
 															<h4 class="panel-title">
@@ -428,25 +430,25 @@ $proj_name_active   = getAttr_fromGSFileId($_SESSION['User']['dataDir'], "name")
 																						<td><?php echo implode("<br>", $content["format"]); ?></td>
 																						<td><?php echo implode("<br>", $content["data_type"]); ?></td>
 																					</tr>
-																					<?php
+																				<?php
 																					$cc++;
 																				} ?>
 
-																			<?php
+																		<?php
+																			}
 																		}
-																	}
 
-																	?>
+																		?>
 																	</tbody>
 																</table>
 															</div>
 														</div>
 													</div>
-												<?php
+											<?php
+												}
+												$c++;
 											}
-											$c++;
-										}
-										?>
+											?>
 										</div>
 
 									<?php } else { ?>
@@ -455,7 +457,7 @@ $proj_name_active   = getAttr_fromGSFileId($_SESSION['User']['dataDir'], "name")
 											<?php
 											$c = 0;
 											foreach ($toolsList as $tl) {
-												?>
+											?>
 												<div class="panel panel-default">
 													<div class="panel-heading">
 														<h4 class="panel-title">
@@ -496,21 +498,21 @@ $proj_name_active   = getAttr_fromGSFileId($_SESSION['User']['dataDir'], "name")
 																					<td><?php echo implode("<br>", $content["format"]); ?></td>
 																					<td><?php echo implode("<br>", $content["data_type"]); ?></td>
 																				</tr>
-																				<?php
+																			<?php
 																				$cc++;
 																			} ?>
 
-																		<?php
+																	<?php
+																		}
 																	}
-																}
 
-																?>
+																	?>
 																</tbody>
 															</table>
 														</div>
 													</div>
 												</div>
-												<?php
+											<?php
 												$c++;
 											}
 											?>
@@ -795,6 +797,13 @@ If you want to <strong>re-use your session</strong>, make sure you save the <str
 			</div>
 
 
+			<!-- QUICK GUIDE HTML -->
+			<?php require('./quickGuideModal.php'); ?>
+
+
+
+
+
 			<div class="modal fade bs-modal" id="modalProgress" tabindex="-1" role="basic" aria-hidden="true">
 				<div class="modal-dialog modal-lg">
 					<div class="modal-content">
@@ -846,9 +855,6 @@ If you want to <strong>re-use your session</strong>, make sure you save the <str
 
 				require "../tools/" . $_REQUEST["from"] . "/assets/ws/modal.php";
 			}
-
-
-
 			?>
 
 
