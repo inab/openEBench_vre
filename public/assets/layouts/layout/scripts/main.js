@@ -1,23 +1,21 @@
 
 function openTermsOfUse() {
-//Decomment for tearms of use to work
 
-	// $('#modalTerms').modal({ show: 'true' });
+	 $('#modalTerms').modal({ show: 'true' });
 
-	// $.ajax({
-	// 	type: "POST",
-	// 	url: baseURL + "/applib/getTermsOfUse.php",
-	// 	data:"id=1",
-	// 	success: function(data) {
+	 $.ajax({
+	 	type: "POST",
+	 	url: baseURL + "/applib/termsofuse.html",
+	 	data:"id=1",
+	 	success: function(data) {
 
-	// 		$('#modalTerms .modal-body .container-terms').html(data);
-	// 	}
-	// });
+	 		$('#modalTerms .modal-body .container-terms').html(data);
+	 	}
+	 });
 }
 
 
 function checkSessionState() {
-
 	$.ajax({
 		type: "POST",
 		url: baseURL + "/applib/checkSession.php",
@@ -33,7 +31,7 @@ function checkSessionState() {
 			if(!obj.hasSession) {
 				$('#session-expire-top').hide();
 				$('#modalSessionExpired').modal({ show: 'true', backdrop: 'static', keyboard: false});
-				$('#modalSessionExpired .modal-body #session-text').html('Your session has expired after ' + obj.duration + ' of inactivity, please log in again or keep using the MuG VRE as a non-registered user.');
+				$('#modalSessionExpired .modal-body #session-text').html('Your session has expired after ' + obj.duration + ' of inactivity, please log in again or keep using the VRE as a non-registered user.');
 
 			}
 			
