@@ -43,45 +43,105 @@ redirectOutside();
 
 				<div id="html-content-help">
 
+					<h3>
+						<p>The VRE provides two ways for getting data:</p>
+					</h3>
 					<ul>
-						<li><a href="help/upload.php#step1">First Step: Upload Data</a>
-							<ul>
-								<li><a href="help/upload.php#files">Upload Files</a></li>
-								<li><a href="help/upload.php#repository">From Repository</a></li>
-								<li><a href="help/upload.php#sample">Import Sample Data</a></li>
-							</ul>
-						</li>
-						<li><a href="help/upload.php#step2">Second Step: Edit File Metadata</a></li>
+						<li><a href="help/upload.php#uploadfile">Upload Data</a></li>
+						<ul>
+							<li><a href="help/upload.php#firststep">First Step: Upload Data</a></li>
+							<li><a href="help/upload.php#secondstep">Second Step: Edit File Metadata</a></li>
+						</ul>
+						<!-- <li><a href="help/upload.php#repository">From Repository</a></li> -->
+						<li><a href="help/upload.php#sample">Import Sample Data</a></li>
 					</ul>
 
 
-					<p><span id="step1">&nbsp;</span></p>
 
-					<h2>First Step: Upload Data</h2>
 
-					<p><strong>  VRE</strong> provides three ways fot getting data:</p>
 
-					<p><span id="files">&nbsp;</span></p>
-				
-					<h4> Upload files from your local computer </h4>
+					<p><span id="uploadfile">&nbsp;</span></p>
 
-					<p><img src="assets/layouts/layout/img/help/upload01.png" style="width:800px;max-width:100%;" /></p>
 
-					<p>To upload a file from the computer, users just have to drag and drop the files to the specified area or click on it.</p>
 
-					<h4> Create new file from text </h4>
+					<ul>
+						<li>
+							<h2>Upload Data</h2>
+							<ul>
+								<li>
+									<h3 id="firststep"> <i>First Step: Upload data</i></h3>
+									<p><span>&nbsp;</span></p>
+									<h4> Upload files from your local computer </h4>
+									<p><img src="assets/layouts/layout/img/help/upload01.png" style="width:800px;max-width:100%;" /></p>
+									<p>To upload a file from the computer, users just have to drag and drop the files to the specified area or click on it.</p>
+									<h4> Create new file</h4>
+									<p><img src="assets/layouts/layout/img/help/upload02.png" style="width:800px;max-width:100%;" /></p>
+									<p>To create a new file from text, users just have to insert the file name and the text data (i.g. a DNA sequence) and click the button <em>SEND DATA</em>.</p>
+									<h4> Load file from an external URL </h4>
+									<p><img src="assets/layouts/layout/img/help/upload03.png" style="width:800px;max-width:100%;" /></p>
+									<p>To load a file from an external URL, users just have to insert the URL in the input file and click the button <em>SEND DATA</em></p>
+									<p><span id="repository">&nbsp;</span></p>
+								</li>
+								<li>
+									<h3 id="secondstep"> <i>Second Step: Edit File Metadata</i></h3>
+									<p><span>&nbsp;</span></p>
+									<ol>
+										<li>
+											<p>Choose the file format.</p>
+										</li>
+										<li>
+											<p>Choose the Data type.</p>
+										</li>
+									</ol>
+									<h4> Fill in the Metadata</h4>
+									<p><img src="assets/layouts/layout/img/help/metadataform.png" style="width:800px;max-width:100%;" /></p>
+								</li>
+							</ul>
+						</li>
+						<li>
+							<h3 id="sample"> <i> Import Sample Data</i></h3>
+							<p><span>&nbsp;</span></p>
+							<p> You can import sample datasets which are provided by the VRE as shown below</p>
+							<h4> Import predefined dataset for the tool you want to run</h4>
+							<p><img src="assets/layouts/layout/img/help/importExampleDataset1.png" style="width:800px;max-width:100%;" /></p>
+							<p>Once the sample datasets have been imported you will be redirected to the workspace</p>
+							<h4> Information about the imported dataset </h4>
+							<p><img src="assets/layouts/layout/img/help/importExampleDataset2.png" style="width:800px;max-width:100%;" /></p>
+							<p>You can then run a tool or visualizer directly from your workspace</p>
+							<h4> Launch Tool/Visualizer from the workspace</h4>
+							<p><img src="assets/layouts/layout/img/help/importExampleDataset3.png" style="width:800px;max-width:100%;" /></p>
+							<p><span id="repository">&nbsp;</span></p>
+						</li>
+					</ul>
 
-					<p><img src="assets/layouts/layout/img/help/upload02.png" style="width:800px;max-width:100%;" /></p>
 
-					<p>To create a new file from text, users just have to insert the file name and the text data (i.g. a DNA sequence) and click the button <em>SEND DATA</em>.</p>
 
-					<h4> Load file from an external URL </h4>
-
-					<p><img src="assets/layouts/layout/img/help/upload03.png" style="width:800px;max-width:100%;" /></p>
-
-					<p>To load a file from an external URL, users just have to insert the URL in the input file and click the button <em>SEND DATA</em></p>
-
-					<p><span id="repository">&nbsp;</span></p>
+					<h3>
+						<p><i>Edit File Metadata</i> </p>
+					</h3>
+					<ul>
+						<ol>
+							<li>
+								<p>Select the project you want to work with (default: MyFirstProject)</p>
+							</li>
+							<li>
+								<p>Set a name for your execution</p>
+							</li>
+							<li>
+								<p>Add a description</p>
+							</li>
+							<li>
+								<p>Select your input file</p>
+							</li>
+							<li>
+								<p>Select one or more challenges to participate in</p>
+							</li>
+							<li>
+								<p>Set a name for you method</p>
+							</li>
+						</ol>
+						<p><img src="assets/layouts/layout/img/help/secondStep.png" style="width:800px;max-width:100%;" /></p>
+					</ul>
 
 					<!-- <h3>From OpenEBench</h3>
 
