@@ -1,10 +1,9 @@
 
 <?php
+// Adapt user data, both, in disk and DB, from VRE v0.* to VRE v1.1 ( w/ Projects)
+// Creates a default project for those users that have none
 
-// Adapt user data, both, in disk and DB, to Projects
-// by creating a default project for those users that have none
-
-require "phplib/genlibraries.php";
+require __DIR__."/../../config/bootstrap.php";
 
 
 $ids = array();
@@ -30,11 +29,14 @@ if (!isset($_SESSION['errorData'])){
 }
 
 // ensure dryrun
-$_REQUEST['dryrun'] = 1;
+$_REQUEST['dryrun'] = 1; // 0 DOES NOTHING ; 1 runs full script
 
 // list all users
-//$fu = $GLOBALS['usersCol']->find(array());
-$fu = $GLOBALS['usersCol']->find(array("_id" => "ebb7713428c9245dbb9277139"));
+$fu = $GLOBALS['usersCol']->find(array());
+//$fu = $GLOBALS['usersCol']->find(array("_id" => "123456")); 
+
+
+// -------------------------- // ------------------------ // --------------------
 
 // for each user
 foreach ( array_values(iterator_to_array($fu)) as $u ){
@@ -124,7 +126,8 @@ foreach ( array_values(iterator_to_array($fu)) as $u ){
         print "- Creating foo project! - user is old model, have  no other projects<br/>\n";
 
         if ($_REQUEST['dryrun']){continue;}
-                
+               
+	print "Really doing it in ".$GLOBALS['dataDir']." !<br/>\n";
         $proj_code = createLabel_proj();
         //$proj_code = "__PROJ5b4e0c02decf67.81076887";
         $proj_sd   = "0";
