@@ -94,3 +94,6 @@ if (file_exists($avatarImg)) {
     <!-- END HEADER INNER -->
 </div>
 <!-- END HEADER -->
+<!--<div style="background-color: blanchedalmond; padding: 20px; text-align: center; border-left: 4px yellow solid; margin-top:40px;">
+        <p><b>NOTICE : </b>This service will be unavailable from <b>Monday, 5th of August, 15.00 CEST</b> until <b>Thursday, 8th of August, 18.00 CEST</b> due to system maintenance. We apologize for the inconvenience.</p>
+    </div> -->
