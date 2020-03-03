@@ -6,16 +6,16 @@
 
 
 // Main config
-$GLOBALS['SERVER']    = "https://openebench.bsc.es"; // host 
+$GLOBALS['SERVER']    = "https://dev-openebench.bsc.es"; // host 
 $GLOBALS['BASEURL']   = "/vre/"; // prefix
 $GLOBALS['AppPrefix'] = "OpEB"; // project abbreviation
-$GLOBALS['NAME']      = "OpenEBench VRE"; // project name 
-$GLOBALS['SITETITLE'] = "OpenEBench | Virtual Research Environment"; // site title
+$GLOBALS['NAME']      = "OpenEBench VRE Development"; // project name 
+$GLOBALS['SITETITLE'] = "OpenEBench Development | Virtual Research Environment"; // site title
 $GLOBALS['TIMEOUT']   = 3600; // session and cookies timeout
 
 // Email
 $GLOBALS['mail_credentials'] = __DIR__."/mail.conf"; // SMTP credentials
-$GLOBALS['FROMNAME']  = "OpEB VRE"; // 'From' for VRE tickets and notifications
+$GLOBALS['FROMNAME']  = "OpEB VRE Dev"; // 'From' for VRE tickets and notifications
 $GLOBALS['ADMINMAIL'] = "openebench@bsc.es"; // BBC address for VRE ticket emails
 
 // SGE
@@ -23,12 +23,12 @@ $GLOBALS['queueTask']  = "local.q"; //default queue
 
 // Mongo databases
 $GLOBALS['db_credentials'] = __DIR__."/mongo.conf"; // Mongo access 
-$GLOBALS['dbname_VRE']     = "oeb_submission"; // Database name
+$GLOBALS['dbname_VRE']     = "oeb-vre-dev"; // Database name
 
 //VRE installation paths
 $GLOBALS['root']       = dirname(__DIR__); // VRE root directory
 $GLOBALS['logFile']    = $GLOBALS['root']."/logs/VRE.log"; // Log file path 
-$GLOBALS['shared']     = "/gpfs/VRE/"; // VRE data directory
+$GLOBALS['shared']     = "/gpfs/VRE-dev/"; // VRE data directory
 $GLOBALS['dataDir']    = $GLOBALS['shared']."userdata/"; // User data directory
 $GLOBALS['pubDir']     = $GLOBALS['shared']."public/"; // Public data directory
 $GLOBALS['sampleData'] = $GLOBALS['shared']."sampleData/"; // Tool dataset directory 
@@ -86,6 +86,12 @@ $GLOBALS['tool_status'] = Array(
 		1  => "Active",
 		2   => "Disabled",
 		3   => "Testing"
+);
+
+// Process and visualizer status
+$GLOBALS['process_status'] = Array(
+	0  => "Private",
+	1  => "Public",
 );
 
 // File 'compression' attribute (extension => compression model)

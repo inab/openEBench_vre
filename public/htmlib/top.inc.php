@@ -1,5 +1,6 @@
 <?php
-
+// error_reporting(E_ALL);
+// ini_set('display_errors', '1');
 $firstLetterName =  substr($_SESSION['User']['Name'], 0, 1);
 $firstLetterSurname =  substr($_SESSION['User']['Surname'], 0, 1);
 
@@ -28,7 +29,7 @@ if (file_exists($avatarImg)) {
         <div class="page-logo">
             <a href="workspace/">
                 <!-- <img src="assets/layouts/layout/img/logo.png" alt="logo" class="logo-default" style="width:35%"/> -->
-                <img src="assets/layouts/layout/img/logoplusvre.png" alt="logo" class="logo-default"/>
+                <img src="assets/layouts/layout/img/logoplusvre.png" alt="logo" class="logo-default" />
             </a>
             <div class="menu-toggler sidebar-toggler">
                 <span></span>

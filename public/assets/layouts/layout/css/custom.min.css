@@ -680,7 +680,8 @@ tr.first-tr td  {
 
 #portlet-json  {
      height: calc(100vh - 355px);
-     }
+}
+
 .CodeMirror  {
      height: calc(100%);
  }

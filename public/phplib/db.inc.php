@@ -42,5 +42,6 @@ $GLOBALS['dataTypesCol']    = $GLOBALS['db']->data_types;
 $GLOBALS['helpsCol']        = $GLOBALS['db']->helps;
 $GLOBALS['sampleDataCol']   = $GLOBALS['db']->sampleData;
 $GLOBALS['logExecutionsCol']= $GLOBALS['db']->log_executions;
+$GLOBALS['processCol']      = $GLOBALS['db']->processes;
 
 ?>

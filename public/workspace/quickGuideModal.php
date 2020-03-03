@@ -13,10 +13,8 @@
             </div>
             <div class="modal-body table-responsive">
                 <h4>Welcome to the VRE. For executing the a tool on the VRE you must follow the next steps: </h4>
-                <?php
-                if ($_SESSION['User']['Type'] == 3) {
-                ?>
-                    <ul>
+      
+                    <ul id="userLoggedIn">
                         <li>
                             <p>This workspace is not persistent. To save your data please<a class="btn green" href="./login.php"><i class="fa fa-sign-in"></i>Login</a> or copy
                                 the URL shown in the <em>Restore Link</em> box. This <em>Restore Link</em> can be used to
@@ -24,9 +22,7 @@
                         </li>
                         <hr>
                     </ul>
-                <?php
-                }
-                ?>
+            
 
                 <ul>
                     <li>
@@ -54,6 +50,12 @@
 </div>
 
 <script>
+    var loggedin = <?php echo $_SESSION['User']['Type'] ?>;
+
+    if (loggedin !=3){
+        document.getElementById('userLoggedIn').style.display = "none";
+    }
+
     function closeModal() {
         document.getElementById('guide').style.display = "none";
     }

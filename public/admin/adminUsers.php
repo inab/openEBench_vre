@@ -23,7 +23,7 @@ unset($users['guest@guest']);
   <div class="page-wrapper">
 
   <?php require "../htmlib/top.inc.php"; ?>
-  <?php require "../htmlib/menu.inc.php"; ?>
+  <?php #require "../htmlib/menu.inc.php"; ?>
 
 
 <!-- BEGIN CONTENT -->
@@ -112,10 +112,10 @@ unset($users['guest@guest']);
                                                     <th> Institution </th>
                                                     <th> Country </th>
                                                     <th> Type of User </th>
-																										<th> Last login </th>
-																										<th> Status 
-																											<i class="icon-question tooltips" data-container="body" data-html="true" data-placement="top" data-original-title="<p align='left' style='margin:0'>There are three possible status according to the last user's login:<br>- INACTIVE: more than 30 days from the last login<br>- ACTIVE: less than 30 days from the last login<br>- LOGGED IN: user is currently logged in</p>"></i>
-																										</th>
+                                                    <th> Last login </th>
+                                                    <th> Status 
+                                                        <i class="icon-question tooltips" data-container="body" data-html="true" data-placement="top" data-original-title="<p align='left' style='margin:0'>There are three possible status according to the last user's login:<br>- INACTIVE: more than 30 days from the last login<br>- ACTIVE: less than 30 days from the last login<br>- LOGGED IN: user is currently logged in</p>"></i>
+                                                    </th>
                                                     <th> Disk </th>
                                                     <th> Actions </th>
                                                 </tr>

@@ -12,7 +12,7 @@ function execJob ($workDir,$shFile,$queue,$cpus=1,$mem=0) {
 
     // Start SGE process
     $process = new ProcessSGE($shFile,$workDir,$queue,$jobname,$cpus,$mem);
-
+    
     $pid = $process->getPid();
 
     if (!$process->status()){

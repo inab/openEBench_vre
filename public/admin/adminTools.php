@@ -38,8 +38,8 @@ if ($_SESSION['User']['Type'] == 0){
 // format query result
 foreach (array_values(iterator_to_array($result)) as $v){
 	$toolId = $v['_id'];
-	$tools[$toolId]['json']  = $v;
-	//$tools[$toolId]['json']["owners"]  = getToolDev_fromTool($toolId);
+    $tools[$toolId]['json']  = $v;
+    //$tools[$toolId]['json']["owners"]  = getToolDev_fromTool($toolId);
 	if ( $tools[$toolId]['json']['owner']['user'] ){
 		$tools[$toolId]['json']["owners"] =  array($tools[$toolId]['json']['owner']['user']);
 	}else{
@@ -130,32 +130,31 @@ $toolsList = $tools;
                         </h1>
                         <!-- END PAGE TITLE-->
                         <!-- END PAGE HEADER-->
-												<div class="row">
-													<div class="col-md-12">
-													<?php  
-														$error_data = false;
-														if ($_SESSION['errorData']){ 
-															$error_data = true;
-														?>
-														<?php if ($_SESSION['errorData']['Info']) { ?> 
-															<div class="alert alert-info">
-														<?php } else { ?>
-															<div class="alert alert-danger">
-														<?php } ?>
-															
-																	<?php 
-														foreach($_SESSION['errorData'] as $subTitle=>$txts){
-																		print "<strong>$subTitle</strong><br/>";
-																	foreach($txts as $txt){
-																		print "<div>$txt</div>";
-															}
-														}
-															unset($_SESSION['errorData']);
-															?>
-															</div>
-															<?php } ?>
-														</div>
-													</div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <?php  
+                                $error_data = false;
+                                if ($_SESSION['errorData']){ 
+                                    $error_data = true;
+                                    ?>
+                                    <?php if ($_SESSION['errorData']['Info']) { ?> 
+                                        <div class="alert alert-info">
+                                            <?php } else { ?>
+                                                <div class="alert alert-danger">
+                                                    <?php } ?>
+                                                    <?php 
+                                                    foreach($_SESSION['errorData'] as $subTitle=>$txts){
+                                                        print "<strong>$subTitle</strong><br/>";
+                                                        foreach($txts as $txt){
+                                                            print "<div>$txt</div>";
+                                                        }
+                                                    }
+                                                    unset($_SESSION['errorData']);
+                                                    ?>
+                                                </div>
+                                            <?php } ?>
+                                        </div>
+                            </div>
 
                         <div class="row">
                             <div class="col-md-12">
@@ -179,9 +178,10 @@ $toolsList = $tools;
 		<?php
 		foreach($toolsList as $toolId => $v){
 		?>
+        
 			<tr>
 				<td><?php echo $toolId;?></td>
-				<td><?php 
+                <td><?php 
 					if(!$v["json"]["external"]) {
                         // show Internal tool 
 						echo '<span class="label label-default"><b>Internal</b></span>';
@@ -190,8 +190,8 @@ $toolsList = $tools;
                         if($_SESSION['User']['Type'] == 0 || ($_SESSION["User"]["Type"] == 1 && in_array($toolId,$_SESSION['User']['ToolsDev']))){
 
 						    echo ' <select onChange="changeToolStatus(\''.$toolId.'\', this);">';
-						    echo '   <option value="" disabled selected> status...</option>';
-
+                            echo '   <option value="" disabled selected> status...</option>';
+                            
     						foreach($GLOBALS['tool_status'] as $k => $stts) {
 								//if($k == $v["json"]["status"]) $sel = "selected";
 								//else $sel = "";

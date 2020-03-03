@@ -52,26 +52,6 @@ $communities = getCommunities();
         <!-- END PAGE TITLE-->
         <!-- END PAGE HEADER-->
 
-        <?php if (isset($_SESSION['errorData'])) {
-          if (isset($_SESSION['errorData']['Info'])) {
-        ?>
-            <div class="alert alert-info">
-            <?php
-          } else {
-            ?>
-              <div class="alert alert-warning">
-              <?php } ?>
-              <?php foreach ($_SESSION['errorData'] as $subTitle => $txts) {
-                print "$subTitle<br/>";
-                foreach ($txts as $txt) {
-                  print "<div style=\"margin-left:20px;\">$txt</div>";
-                }
-              }
-              unset($_SESSION['errorData']);
-              ?>
-              </div>
-
-            <?php } ?>
             <div class="row">
               <div class="col-md-12">
                 <!-- BEGIN EXAMPLE TABLE PORTLET-->
@@ -82,6 +62,7 @@ $communities = getCommunities();
                       <span class="caption-subject font-dark bold uppercase">Browse Datasets</span>
                     </div>
                   </div>
+                  
                   <div class="portlet-body">
                     <div id="loading-datatable">
                       <div id="loading-spinner">LOADING</div>
