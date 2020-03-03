@@ -363,6 +363,33 @@ sort($visualizers);
 					</li>
 				<?php } ?>
 
+				<!-- results section -->
+				<?php if (allowedRoles($_SESSION['User']['Type'], $GLOBALS['ADMIN']) || allowedRoles($_SESSION['User']['Type'], $GLOBALS['TOOLDEV'])) { ?>
+					<li class="nav-item  <?php if ($currentSection == 'mg') { ?>active open<?php } ?>">
+						<a href="javascript:;" class="nav-link nav-toggle">
+							<i class="fa fa-tasks" style="color: #B4B4B4;"></i>
+							<span class="title">Results</span>
+							<?php if ($currentSection == 'mg') { ?><span class="selected"></span><?php } ?>
+							<span class="arrow <?php if ($currentSection == 'mg') { ?>open<?php } ?>"></span>
+						</a>
+						<ul class="sub-menu">
+							<li class="nav-item <?php if ($currentSubSection == 'ps') { ?>active open<?php } ?>">
+								<a href="javascript:;" class="nav-link nav-toggle ">
+									<span class="title">Views</span>
+									<span class="arrow"></span>
+								</a>
+								<ul class="sub-menu">
+									<li class="nav-item <?php if ($currentSubSubSection == 'vl') { ?>active open<?php } ?>">
+										<a href="results/views/general.php" class="nav-link">
+											<span class="title"> Show Processes </span>
+										</a>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</li>
+				<?php } ?>
+
 				<?php if (allowedRoles($_SESSION['User']['Type'], $GLOBALS['NO_GUEST'])) { ?>
 					<li>
 					<li class="nav-item <?php if ($currentSection == 'hd') { ?>active open<?php } ?>">
