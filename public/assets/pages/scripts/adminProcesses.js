@@ -1,5 +1,3 @@
-changeToolStatus = function(tool, op) {
-	
-	location.href= baseURL + "applib/changeToolStatusAdmin.php?tool=" + tool + "&status=" + op.value;
-
+changeStatusProcess = function(op) {
+	var_dump(op.value);
 }

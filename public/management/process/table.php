@@ -1,6 +1,5 @@
 <?php 
 redirectOutside();
-
 ?> 
 
 <table id="tblReportResultsDemographics" class="table table-striped table-hover table-bordered"></table>
@@ -28,17 +27,17 @@ redirectOutside();
                 { render: function (data, type, row) {
                     //status = 0; private
                     //status = 1; public
-                    //status = 2; Developing
+                    //status = 2; coming soon
                     var menu = '<select><option value="" disabled selected> status...</option><option>Private</option><option>Public</option><option>Coming soon</option></select>';
                     switch(data) {
                         case 0: 
-                            return menu + " <span class='label label-danger'><b>Private</b></span>"; 
+                            return menu + " <span value='0' class='label label-danger'><b>Private</b></span>"; 
                             break;
                         case 1: 
-                            return menu + " <span class='label label-primary'><b>Public</b></span>"; 
+                            return menu + " <span value='1' class='label label-primary'><b>Public</b></span>"; 
                             break;
                         case 2: 
-                            return menu + " <span class='label label-warning'><b>Coming soon</b></span>";
+                            return menu + " <span value='2' class='label label-warning'><b>Coming soon</b></span>";
                             break;
                         default: 
                             return menu;

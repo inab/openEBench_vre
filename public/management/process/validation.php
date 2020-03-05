@@ -1,25 +1,25 @@
 <!--<script src="https://cdn.jsdelivr.net/npm/vue"></script>-->
 
-<?php 
+<?php
 
-require __DIR__."/../../../config/bootstrap.php"; 
+require __DIR__ . "/../../../config/bootstrap.php";
 
 ?>
 
-<?php 
+<?php
 require "../../htmlib/header.inc.php";
 require "../../htmlib/js.inc.php"; ?>
 
 <body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white page-container-bg-solid page-sidebar-fixed">
     <div class="page-wrapper">
 
-    <?php require "../../htmlib/top.inc.php"; ?>
-    <?php require "../../htmlib/menu.inc.php"; ?>
+        <?php require "../../htmlib/top.inc.php"; ?>
+        <?php require "../../htmlib/menu.inc.php"; ?>
 
         <!-- BEGIN CONTENT -->
-		<div class="page-content-wrapper">
-		    <!-- BEGIN CONTENT BODY -->
-		    <div class="page-content">
+        <div class="page-content-wrapper">
+            <!-- BEGIN CONTENT BODY -->
+            <div class="page-content">
 
                 <!-- BEGIN PAGE HEADER-->
 
@@ -46,42 +46,42 @@ require "../../htmlib/js.inc.php"; ?>
                 <!-- END PAGE BAR -->
 
                 <!-- BEGIN PAGE TITLE-->
-			    <h1 class="page-title"> Processes 
-                <small>Your available processes</small>
-                <div class="btn-group" style="float:right;">
-                    <div class="actions">
-                    <!-- <a onclick="getdata()" id="processA" class="btn green"> Reload Processes </a> -->
-                    <a id="processReload" class="btn green"> Reload Processes </a>
+                <h1 class="page-title"> Processes
+                    <small>Your available processes</small>
+                    <div class="btn-group" style="float:right;">
+                        <div class="actions">
+                            <!-- <a onclick="getdata()" id="processA" class="btn green"> Reload Processes </a> -->
+                            <a id="processReload" class="btn green"> Reload Processes </a>
+                        </div>
                     </div>
-                </div>
                 </h1>
                 <!-- END PAGE TITLE -->
                 <!-- END PAGE HEADER -->
 
-				<!-- BEGIN EXAMPLE TABLE PORTLET -->
-				<div class="row">
-			        <div class="col-md-12">
-                    <?php  
+                <!-- BEGIN EXAMPLE TABLE PORTLET -->
+                <div class="row">
+                    <div class="col-md-12">
+                        <?php
                         $error_data = false;
-                        if ($_SESSION['errorData']){ 
+                        if ($_SESSION['errorData']) {
                             $error_data = true;
-                            ?>
-                            <?php if ($_SESSION['errorData']['Info']) { ?> 
+                        ?>
+                            <?php if ($_SESSION['errorData']['Info']) { ?>
                                 <div class="alert alert-info">
-                                    <?php } else { ?>
-                                        <div class="alert alert-danger">
-                                            <?php } ?>
-                                            <?php 
-                                            foreach($_SESSION['errorData'] as $subTitle=>$txts){
-                                                print "<strong>$subTitle</strong><br/>";
-                                                foreach($txts as $txt){
-                                                    print "<div>$txt</div>";
-                                                }
-                                            }
-                                            unset($_SESSION['errorData']);
-                                            ?>
-                                        </div>
+                                <?php } else { ?>
+                                    <div class="alert alert-danger">
                                     <?php } ?>
+                                    <?php
+                                    foreach ($_SESSION['errorData'] as $subTitle => $txts) {
+                                        print "<strong>$subTitle</strong><br/>";
+                                        foreach ($txts as $txt) {
+                                            print "<div>$txt</div>";
+                                        }
+                                    }
+                                    unset($_SESSION['errorData']);
+                                    ?>
+                                    </div>
+                                <?php } ?>
                                 </div>
                     </div>
                     <div class="row">
@@ -90,18 +90,18 @@ require "../../htmlib/js.inc.php"; ?>
                             <div class="portlet light portlet-fit bordered">
 
                                 <div id="processes" class="portlet-body">
-                        
+
                                     <input type="hidden" id="base-url" value="<?php echo $GLOBALS['BASEURL']; ?>" />
-                                    
+
                                     <?php require('table.php')  ?>
                                 </div>
-				            </div>
+                            </div>
                         </div>
-				        <!-- END EXAMPLE TABLE PORTLET-->
-		            </div>
-		            <!-- END CONTENT BODY -->
+                        <!-- END EXAMPLE TABLE PORTLET-->
+                    </div>
+                    <!-- END CONTENT BODY -->
                 </div>
-                   
+
                 <style type="text/css">
                     #tblReportResultsDemographics_filter {
                         float: right;
@@ -112,15 +112,15 @@ require "../../htmlib/js.inc.php"; ?>
                         $.getJSON('https://dev-openebench.bsc.es/vre/applib/processes.php?list=true', function(table) {
                             var oTblReport;
 
-                            if ( $.fn.dataTable.isDataTable( '#tblReportResultsDemographics' ) ) {
+                            if ($.fn.dataTable.isDataTable('#tblReportResultsDemographics')) {
                                 oTblReport = $('#tblReportResultsDemographics').DataTable();
                                 oTblReport.ajax.reload();
                             }
-                        
+
                         });
                     })
-                </script>      
-                <?php 
-                require "../../htmlib/footer.inc.php"; 
-                
+                </script>
+                <?php
+                require "../../htmlib/footer.inc.php";
+
                 ?>
