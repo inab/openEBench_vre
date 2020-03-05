@@ -10,7 +10,6 @@ if(!checkLoggedIn()){
 if($_REQUEST){
     if (isset($_REQUEST['list'])){
         echo getUserProcesses();
-        
         exit;
     }elseif(isset($_REQUEST['process'])){
         #TODO
