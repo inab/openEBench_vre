@@ -11,7 +11,7 @@ if($_REQUEST){
     if (isset($_REQUEST['list'])){
         echo getUserProcesses();
         exit;
-    }elseif(isset($_REQUEST['process'])){
+    }elseif(isset($_REQUEST['user'])){
         #TODO
         exit;
     }

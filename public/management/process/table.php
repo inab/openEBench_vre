@@ -1,5 +1,6 @@
 <?php 
 redirectOutside();
+
 ?> 
 
 <table id="tblReportResultsDemographics" class="table table-striped table-hover table-bordered"></table>
@@ -8,7 +9,7 @@ redirectOutside();
     $(document).ready(function() {
         $('#tblReportResultsDemographics').DataTable( {
             "ajax": {
-                url: 'https://dev-openebench.bsc.es/vre/applib/processes.php?list=true',
+                url: 'https://dev-openebench.bsc.es/vre/applib/processes.php?list',
                 dataSrc: ''
             },
             "columns" : [
@@ -25,10 +26,11 @@ redirectOutside();
                 { "title": "type", "targets": 3 },
                 { "title": "owner", "targets": 4 },
                 { render: function (data, type, row) {
+
                     //status = 0; private
                     //status = 1; public
                     //status = 2; coming soon
-                    var menu = '<select><option value="" disabled selected> status...</option><option>Private</option><option>Public</option><option>Coming soon</option></select>';
+                    var menu = '<select ><option value="" disabled selected> status...</option><option>Private</option><option>Public</option><option>Coming soon</option></select>';
                     switch(data) {
                         case 0: 
                             return menu + " <span value='0' class='label label-danger'><b>Private</b></span>"; 

@@ -46,3 +46,9 @@ function getUserProcesses() {
 
 	return $processesUser_json;
 }
+
+function getUser() {
+	$userId = $_SESSION["User"]["id"];
+
+	return $userId;
+}

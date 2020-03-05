@@ -339,9 +339,6 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 	case 'adminTools': ?>
 		<script src="assets/pages/scripts/adminTools.js?v=<?php echo rand(); ?>" type="text/javascript"></script>
 	<?php break;
-	case 'validation': ?>
-		<script src="assets/pages/scripts/adminProcesses.js?v=<?php echo rand(); ?>" type="text/javascript"></script>
-	<?php break;
 	case 'adminJobs': ?>
 		<script src="assets/pages/scripts/adminJobs.js?v=<?php echo rand(); ?>" type="text/javascript"></script>
 	<?php break;
