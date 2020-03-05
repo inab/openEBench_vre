@@ -168,6 +168,11 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 		<script src="assets/global/plugins/datatables/datatables.min.js" type="text/javascript"></script>
 		<script src="assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
 	<?php break;
+	case 'generalView': ?>
+		<script src="assets/global/scripts/datatable.js" type="text/javascript"></script>
+		<script src="assets/global/plugins/datatables/datatables.min.js" type="text/javascript"></script>
+		<script src="assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
+	<?php break;
 	case 'newTool':
 	case 'vmURL':
 	case 'createTest': ?>
@@ -415,6 +420,7 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 	case 'editUser':
 	case 'adminTools':
 	case 'validation':
+	case 'generalView':
 	case 'adminJobs':
 	case 'myNewTools':
 	case 'newTool':
