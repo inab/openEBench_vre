@@ -1,54 +1,89 @@
 <?php
-/* function getUserProcesses(){
+
+function getProcesses() {
+	//initiallize variables
+	$process_json="{}";
+	$processes = array();
+
+	//user logged
 	$userId = $_SESSION["User"]["id"];
-	$processesUser = array();
 
-	$allProcesses = $GLOBALS['processCol']->find(array("owner"=>$userId));
-	foreach ($allProcesses as $processUser) {
-		array_push($processesUser, $processUser);
-	}
-	
-	$processesUser_json = json_encode($processesUser, JSON_PRETTY_PRINT);
+	//MongoDB query
+	$allProcesses = $GLOBALS['processCol']->find(array('$or' => array(array("status"=>1), array("owner"=>$userId))));
 
-	return $processesUser_json;
-} */
-
-function getUserProcesses() {
-	$userId = $_SESSION["User"]["id"];
-	
-	$processesUser = array();
-	$publicProcesses = array();
-
-	$allProcessesUser = $GLOBALS['processCol']->find(array("owner"=>$userId));
-	$allProcessesStatus = $GLOBALS['processCol']->find(array("status"=>1));
-
-	foreach($allProcessesStatus as $processStatus) {
-		array_push($publicProcesses, $processStatus);
-	}
-	
-	foreach ($allProcessesUser as $processUser) {
-		array_push($processesUser, $processUser);
+	//add query to an array
+	foreach($allProcesses as $process) {
+		array_push($processes, $process);
 	}
 
-	if ($processesPublic && $processesUser) {
-		foreach($publicProcesses as $publicProcess) {
-			if (!in_array($processesUser, $publicProcess)) {
-				array_push($processesUser, $publicProcess);
-			}
-		}
-	} else if ($publicProcesses && !$processesUser) {
-		foreach($publicProcesses as $publicProcess) {
-			array_push($processesUser, $publicProcess);
-		}
-	}
+	//convert array into json 
+	$process_json = json_encode($processes, JSON_PRETTY_PRINT);
 
-	$processesUser_json = json_encode($processesUser, JSON_PRETTY_PRINT);
-
-	return $processesUser_json;
+	return $process_json;
 }
 
-function getUser() {
+//status = 0; private
+//status = 1; public
+//status = 2; coming soon
+function updateStatusProcess($processId, $statusId) {
+	//jsonResponse class (errors or successfully)
+	$response_json= new JsonResponse();
+	
+	//variables
 	$userId = $_SESSION["User"]["id"];
+	$userType = $_SESSION["User"]["Type"];
 
-	return $userId;
+	//collection processes
+	$processCol = $GLOBALS['processCol'];
+
+	// check if user is authorized to update object
+	$authorized = false;
+
+	//check what type of user it is
+	if ($userType == 0) {
+		$authorized = true;
+
+	} else if ($userType == 1) {
+		$processesToolDev = $processCol->find(array("owner"=>$userId));
+		if ($processesToolDev) {
+			$authorized = true;
+		} else {
+			$authorized = false;
+		}
+
+	} else {
+		$authorized = false;	
+	}
+
+	// return error if unauthorized action
+    if (!$authorized){
+		// return error msg via ProcessResponse
+		$response_json->setCode(401);
+		$response_json->setMessage("Not authorized to update the status of the OEB-Process with Identifier='$processId'. Double check its ownership.");
+		
+		return $response_json->getResponse();
+	}
+	// update process status in Mongo
+	try  {
+		$processCol->update(['_id' => $processId], [ '$set' => [ 'status' => 'NumberLong('+$statusId+')']]);
+	
+	} catch (MongoCursorException $e) {
+
+		$response_json->setCode(199);
+		$response_json->setMessage("Cannot update data in Mongo. Mongo Error(".$e->getCode()."): ".$e->getMessage());
+		return $response_json->getResponse();
+	}
+	
+	redirect('https://dev-openebench.bsc.es/vre/oeb_management/oeb_process/oeb_validation.php');
+	
+	return $response_json->getResponse();
+
+	//$processesUser_json = json_encode($processesUserLogin, JSON_PRETTY_PRINT);
+	
+	//return $processesUser_json;
 }
+
+//Veure qui ha fet el log -> Per defecte autorized = 0. Comprovar quin usuari es: Si es admin autorized = 1. Si es tool_dev autorized depen de si el process es seu o no.
+//Fer un find que el process_id sigui el que em passin i el owner sgui el $userId. Si aixo dona aixo ho puc modificar, si no no.
+//Else autorized = 0;
+//Comprovar si autorized es 0 o 1. Si es 0 retorna error, si no status:0/1. Despres, si retorna un status faig un update de mongo.

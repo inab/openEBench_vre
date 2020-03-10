@@ -353,7 +353,7 @@ sort($visualizers);
 								</a>
 								<ul class="sub-menu">
 									<li class="nav-item <?php if ($currentSubSubSection == 'vl') { ?>active open<?php } ?>">
-										<a href="management/process/validation.php" class="nav-link">
+										<a href="oeb_management/oeb_process/oeb_validation.php" class="nav-link">
 											<span class="title"> Show Processes </span>
 										</a>
 									</li>
@@ -367,7 +367,7 @@ sort($visualizers);
 				<?php if (allowedRoles($_SESSION['User']['Type'], $GLOBALS['ADMIN']) || allowedRoles($_SESSION['User']['Type'], $GLOBALS['TOOLDEV'])) { ?>
 					<li class="nav-item  <?php if ($currentSection == 'mg') { ?>active open<?php } ?>">
 						<a href="javascript:;" class="nav-link nav-toggle">
-							<i class="fa fa-tasks" style="color: #B4B4B4;"></i>
+							<i class="fa fa-list" style="color: #B4B4B4;"></i>
 							<span class="title">Results</span>
 							<?php if ($currentSection == 'mg') { ?><span class="selected"></span><?php } ?>
 							<span class="arrow <?php if ($currentSection == 'mg') { ?>open<?php } ?>"></span>
@@ -375,13 +375,13 @@ sort($visualizers);
 						<ul class="sub-menu">
 							<li class="nav-item <?php if ($currentSubSection == 'ps') { ?>active open<?php } ?>">
 								<a href="javascript:;" class="nav-link nav-toggle ">
-									<span class="title">Views</span>
+									<span class="title">Overview</span>
 									<span class="arrow"></span>
 								</a>
 								<ul class="sub-menu">
 									<li class="nav-item <?php if ($currentSubSubSection == 'vl') { ?>active open<?php } ?>">
-										<a href="results/views/general.php" class="nav-link">
-											<span class="title"> Show Processes </span>
+										<a href="results/views/generalView.php" class="nav-link">
+											<span class="title">General</span>
 										</a>
 									</li>
 								</ul>

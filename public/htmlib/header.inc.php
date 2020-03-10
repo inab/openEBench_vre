@@ -217,7 +217,8 @@
 		case 'jsonTestValidator':
 		case 'dashboard':
 		case 'datasets':
-		case 'validation':
+		case 'oeb_validation':
+		case 'generalView':
 		case 'sampleDataList':
 		case 'dataFromTxt':
 		case 'dataFromID':
