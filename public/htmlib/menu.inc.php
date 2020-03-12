@@ -346,18 +346,10 @@ sort($visualizers);
 							<span class="arrow <?php if ($currentSection == 'mg') { ?>open<?php } ?>"></span>
 						</a>
 						<ul class="sub-menu">
-							<li class="nav-item <?php if ($currentSubSection == 'ps') { ?>active open<?php } ?>">
-								<a href="javascript:;" class="nav-link nav-toggle ">
-									<span class="title">Process</span>
-									<span class="arrow"></span>
+							<li class="nav-item  <?php if ($currentSubSection == 'vl') { ?>active open<?php } ?>">
+								<a href="oeb_management/oeb_process/oeb_processes.php" class="nav-link ">
+									<span class="title">Processes</span>
 								</a>
-								<ul class="sub-menu">
-									<li class="nav-item <?php if ($currentSubSubSection == 'vl') { ?>active open<?php } ?>">
-										<a href="oeb_management/oeb_process/oeb_validation.php" class="nav-link">
-											<span class="title"> Show Processes </span>
-										</a>
-									</li>
-								</ul>
 							</li>
 						</ul>
 					</li>

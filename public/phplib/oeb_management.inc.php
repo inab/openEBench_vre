@@ -42,15 +42,13 @@ function updateStatusProcess($processId, $statusId) {
 	//check what type of user it is
 	if ($userType == 0) {
 		$authorized = true;
-
 	} else if ($userType == 1) {
-		$processesToolDev = $processCol->find(array("owner"=>$userId));
-		if ($processesToolDev) {
+		$processesToolDev = $processCol->find(array("owner"=>$userId, "_id"=>$processId));
+		if($processesToolDev) {
 			$authorized = true;
 		} else {
 			$authorized = false;
 		}
-
 	} else {
 		$authorized = false;	
 	}
@@ -74,7 +72,7 @@ function updateStatusProcess($processId, $statusId) {
 		return $response_json->getResponse();
 	}
 	
-	redirect('https://dev-openebench.bsc.es/vre/oeb_management/oeb_process/oeb_validation.php');
+	//redirect('https://dev-openebench.bsc.es/vre/oeb_management/oeb_process/oeb_processes.php');
 	
 	return $response_json->getResponse();
 
@@ -82,8 +80,3 @@ function updateStatusProcess($processId, $statusId) {
 	
 	//return $processesUser_json;
 }
-
-//Veure qui ha fet el log -> Per defecte autorized = 0. Comprovar quin usuari es: Si es admin autorized = 1. Si es tool_dev autorized depen de si el process es seu o no.
-//Fer un find que el process_id sigui el que em passin i el owner sgui el $userId. Si aixo dona aixo ho puc modificar, si no no.
-//Else autorized = 0;
-//Comprovar si autorized es 0 o 1. Si es 0 retorna error, si no status:0/1. Despres, si retorna un status faig un update de mongo.

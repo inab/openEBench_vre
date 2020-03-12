@@ -1,4 +1,3 @@
-<!--<script src="https://cdn.jsdelivr.net/npm/vue"></script>-->
 
 <?php
 
@@ -35,26 +34,14 @@ require "../../htmlib/js.inc.php"; ?>
                             <i class="fa fa-circle"></i>
                         </li>
                         <li>
-                            <span>Process</span>
-                            <i class="fa fa-circle"></i>
-                        </li>
-                        <li>
-                            <span>Show Process</span>
+                            <span>New process</span>
                         </li>
                     </ul>
                 </div>
                 <!-- END PAGE BAR -->
 
                 <!-- BEGIN PAGE TITLE-->
-                <h1 class="page-title"> Processes
-                    <small>Your available processes</small>
-                    <div class="btn-group" style="float:right;">
-                        <div class="actions">
-                            <!-- <a onclick="getdata()" id="processA" class="btn green"> Reload Processes </a> -->
-                            <a id="processReload" class="btn green"> Reload Processes </a>
-                        </div>
-                    </div>
-                </h1>
+                <h1 class="page-title"> Create new process</h1>
                 <!-- END PAGE TITLE -->
                 <!-- END PAGE HEADER -->
 
@@ -99,7 +86,7 @@ require "../../htmlib/js.inc.php"; ?>
 
                                     <input type="hidden" id="base-url" value="<?php echo $GLOBALS['BASEURL']; ?>" />
 
-                                    <table id="tblReportResultsDemographics" class="table table-striped table-hover table-bordered"></table>
+                                    
                                 </div>
                             </div>
                         </div>
@@ -108,15 +95,6 @@ require "../../htmlib/js.inc.php"; ?>
                 </div>
                 <!-- END CONTENT BODY -->
 
-                <style type="text/css">
-                    #tblReportResultsDemographics_filter {
-                        float: right;
-                    }
-                </style>
-                <script>
-                    
-                </script>
                 <?php
                 require "../../htmlib/footer.inc.php";
-
                 ?>

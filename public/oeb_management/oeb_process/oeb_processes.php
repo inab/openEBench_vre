@@ -35,11 +35,7 @@ require "../../htmlib/js.inc.php"; ?>
                             <i class="fa fa-circle"></i>
                         </li>
                         <li>
-                            <span>Process</span>
-                            <i class="fa fa-circle"></i>
-                        </li>
-                        <li>
-                            <span>Show Process</span>
+                            <span>Processes</span>
                         </li>
                     </ul>
                 </div>
@@ -58,69 +54,62 @@ require "../../htmlib/js.inc.php"; ?>
                 <!-- END PAGE TITLE -->
                 <!-- END PAGE HEADER -->
 
-                <!-- BEGIN EXAMPLE TABLE PORTLET -->
+                <!-- BEGIN ERRORS DIV -->
                 <div class="row">
                     <div class="col-md-12">
+
+			<!-- Show errors from frontend-->
+                	<div class="alert alert-danger" id="myError"style="display:none;"></div>
+
+			<!-- Show errors from PHP backend-->
                         <?php
                         $error_data = false;
                         if ($_SESSION['errorData']) {
                             $error_data = true;
-                        ?>
-                            <?php if ($_SESSION['errorData']['Info']) { ?>
+                      
+                     	    if ($_SESSION['errorData']['Info']) { ?>
                                 <div class="alert alert-info">
-                                <?php } else { ?>
-                                    <div class="alert alert-danger">
-                                    <?php } ?>
-                                    <?php
-                                    foreach ($_SESSION['errorData'] as $subTitle => $txts) {
+                             <?php } else { ?>
+                                <div class="alert alert-danger">
+                             <?php }
+                             foreach ($_SESSION['errorData'] as $subTitle => $txts) {
                                         print "<strong>$subTitle</strong><br/>";
                                         foreach ($txts as $txt) {
                                             print "<div>$txt</div>";
                                         }
-                                    }
-                                    unset($_SESSION['errorData']);
-                                    ?>
-                                    </div>
-                                <?php } ?>
+                             }
+                             unset($_SESSION['errorData']);
+                             ?>
                                 </div>
+                          <?php } ?>
+                       </div>
                     </div>
+                <!-- END ERRORS DIV -->
+
+                <!-- BEGIN EXAMPLE TABLE PORTLET -->
                     <div class="row">
                         <div class="col-md-12">
-                            <!-- BEGIN EXAMPLE TABLE PORTLET-->
                             <div class="portlet light portlet-fit bordered">
 
                                 <div id="processes" class="portlet-body">
+                                <a href="oeb_management/oeb_process/oeb_newProcess.php" class="btn btn-lg green" style="margin-bottom:30px;"> <i class="fa fa-plus"></i> Create new</a>
 
                                     <input type="hidden" id="base-url" value="<?php echo $GLOBALS['BASEURL']; ?>" />
 
-                                    <?php require('table.php')  ?>
+                                    <table id="tblReportResultsDemographics" class="table table-striped table-hover table-bordered"></table>
                                 </div>
                             </div>
                         </div>
-                        <!-- END EXAMPLE TABLE PORTLET-->
                     </div>
-                    <!-- END CONTENT BODY -->
+                  <!-- END EXAMPLE TABLE PORTLET-->
                 </div>
+                <!-- END CONTENT BODY -->
 
                 <style type="text/css">
                     #tblReportResultsDemographics_filter {
                         float: right;
                     }
                 </style>
-                <script>
-                    $("#processReload").click(function() {
-                        $.getJSON('https://dev-openebench.bsc.es/vre/applib/processes.php?list=true', function(table) {
-                            var oTblReport;
-
-                            if ($.fn.dataTable.isDataTable('#tblReportResultsDemographics')) {
-                                oTblReport = $('#tblReportResultsDemographics').DataTable();
-                                oTblReport.ajax.reload();
-                            }
-
-                        });
-                    })
-                </script>
                 <?php
                 require "../../htmlib/footer.inc.php";
-
                 ?>

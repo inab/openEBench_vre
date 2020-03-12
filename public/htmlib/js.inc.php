@@ -14,7 +14,8 @@
 	case 'index2':
 	case 'dashboard':
 	case 'uploadForm':
-	case 'oeb_validation':
+	case 'oeb_newProcess':
+	case 'oeb_processes':
 	case 'uploadForm2':
 	case 'editFile':
 	case 'editFile2':
@@ -163,7 +164,7 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 		<script src="assets/global/plugins/jquery-easypiechart/jquery.easypiechart.min.js" type="text/javascript"></script>
 		<script src="assets/global/plugins/jquery.sparkline.min.js" type="text/javascript"></script>
 	<?php break;
-	case 'oeb_validation': ?>
+	case 'oeb_processes': ?>
 		<script src="assets/global/scripts/datatable.js" type="text/javascript"></script>
 		<script src="assets/global/plugins/datatables/datatables.min.js" type="text/javascript"></script>
 		<script src="assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
@@ -334,7 +335,7 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 	case 'adminTools': ?>
 		<script src="assets/pages/scripts/adminTools.js?v=<?php echo rand(); ?>" type="text/javascript"></script>
 	<?php break;
-	case 'oeb_validation': ?>
+	case 'oeb_processes': ?>
 		<script src="assets/pages/scripts/oeb_processStatus.js?v=<?php echo rand(); ?>" type="text/javascript"></script>
 	<?php break;
 	case 'adminJobs': ?>
@@ -403,7 +404,8 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 	case 'usrProfile':
 	case 'restoreLink':
 	case 'uploadForm':
-	case 'oeb_validation':
+	case 'oeb_newProcess':
+	case 'oeb_processes':
 	case 'uploadForm2':
 	case 'editFile':
 	case 'editFile2':
