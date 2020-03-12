@@ -338,6 +338,9 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 	case 'oeb_processes': ?>
 		<script src="assets/pages/scripts/oeb_processStatus.js?v=<?php echo rand(); ?>" type="text/javascript"></script>
 	<?php break;
+	case 'oeb_newProcess': ?>
+		<script src="assets/pages/scripts/oeb_newProcess.js?v=<?php echo rand(); ?>" type="text/javascript"></script>
+	<?php break;
 	case 'adminJobs': ?>
 		<script src="assets/pages/scripts/adminJobs.js?v=<?php echo rand(); ?>" type="text/javascript"></script>
 	<?php break;
@@ -417,7 +420,7 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 	case 'editUser':
 	case 'adminTools':
 
-	case 'generalView':
+	case 'oeb_generalView':
 	case 'adminJobs':
 	case 'myNewTools':
 	case 'newTool':

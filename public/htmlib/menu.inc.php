@@ -372,7 +372,7 @@ sort($visualizers);
 								</a>
 								<ul class="sub-menu">
 									<li class="nav-item <?php if ($currentSubSubSection == 'vl') { ?>active open<?php } ?>">
-										<a href="results/views/generalView.php" class="nav-link">
+										<a href="oeb_results/oeb_views/oeb_generalView.php" class="nav-link">
 											<span class="title">General</span>
 										</a>
 									</li>

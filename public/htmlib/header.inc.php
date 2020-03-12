@@ -219,7 +219,7 @@
 		case 'datasets':
 		case 'oeb_processes':
 		case 'oeb_newProcess':
-		case 'generalView':
+		case 'oeb_generalView':
 		case 'sampleDataList':
 		case 'dataFromTxt':
 		case 'dataFromID':
