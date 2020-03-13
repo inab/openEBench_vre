@@ -1,10 +1,9 @@
-
 <?php
 
 require __DIR__ . "/../../../config/bootstrap.php";
 
 ?>
-
+<script src="../dist/jsoneditor.js"></script>
 <?php
 require "../../htmlib/header.inc.php";
 require "../../htmlib/js.inc.php"; ?>
@@ -14,7 +13,7 @@ require "../../htmlib/js.inc.php"; ?>
 
         <?php require "../../htmlib/top.inc.php"; ?>
         <?php require "../../htmlib/menu.inc.php"; ?>
-
+        
         <!-- BEGIN CONTENT -->
         <div class="page-content-wrapper">
             <!-- BEGIN CONTENT BODY -->
@@ -31,6 +30,10 @@ require "../../htmlib/js.inc.php"; ?>
                         </li>
                         <li>
                             <span>Management</span>
+                            <i class="fa fa-circle"></i>
+                        </li>
+                        <li>
+                            <span>Processes</span>
                             <i class="fa fa-circle"></i>
                         </li>
                         <li>
@@ -85,7 +88,45 @@ require "../../htmlib/js.inc.php"; ?>
                                 <div id="processes" class="portlet-body">
 
                                     <input type="hidden" id="base-url" value="<?php echo $GLOBALS['BASEURL']; ?>" />
-
+                                    
+                                    <div id='editor_holder'>
+                                    <script>
+                                            // Initialize the editor with a JSON schema
+                                            var editor = new JSONEditor($('#editor_holder')[0],{
+                                                schema: {
+                                                    type: "object",
+                                                    title: "Car",
+                                                    properties: {
+                                                        make: {
+                                                            type: "string",
+                                                            enum: [
+                                                                "Toyota",
+                                                                "BMW",
+                                                                "Honda",
+                                                                "Ford",
+                                                                "Chevy",
+                                                                "VW"
+                                                            ]
+                                                        },
+                                                        model: {
+                                                            type: "string"
+                                                        },
+                                                        year: {
+                                                            type: "integer",
+                                                            enum: [
+                                                                1995,1996,1997,1998,1999,
+                                                                2000,2001,2002,2003,2004,
+                                                                2005,2006,2007,2008,2009,
+                                                                2010,2011,2012,2013,2014
+                                                            ],
+                                                            default: 2008
+                                                        }
+                                                    }
+                                                }
+                                            });
+                                        </script>
+                                    </div>
+                                    <button id='submit'>Submit (console.log)</button>
                                     
                                 </div>
                             </div>
@@ -98,3 +139,13 @@ require "../../htmlib/js.inc.php"; ?>
                 <?php
                 require "../../htmlib/footer.inc.php";
                 ?>
+
+            <script>
+
+                
+                // Hook up the submit button to log to the console
+                document.getElementById('submit').addEventListener('click',function() {
+                    // Get the value from the editor
+                    console.log(editor.getValue());
+                });
+                </script>
