@@ -67,7 +67,7 @@ function updateStatusProcess($processId, $statusId) {
 	
 	} catch (MongoCursorException $e) {
 
-		$response_json->setCode(199);
+		$response_json->setCode(500);
 		$response_json->setMessage("Cannot update data in Mongo. Mongo Error(".$e->getCode()."): ".$e->getMessage());
 		return $response_json->getResponse();
 	}
@@ -79,4 +79,62 @@ function updateStatusProcess($processId, $statusId) {
 	//$processesUser_json = json_encode($processesUserLogin, JSON_PRETTY_PRINT);
 	
 	//return $processesUser_json;
+}
+
+function getListOntologyForForm($formOntology) {
+	//variables
+	$resource = "";
+	$graph = "";
+	$classArray = array();
+	$array_gen;
+	$process_json="{}";
+	$label;
+
+	if (isset($GLOBALS['oeb_dataModels'][$formOntology])) {
+
+		$nameUrlOntology = $GLOBALS['oeb_dataModels'][$formOntology];
+		//ontology-general
+		$graph = EasyRdf_Graph::newAndLoad("https://raw.githubusercontent.com/inab/OEB-ontologies/master/oebDatasets-complete.owl","rdfxml");
+		
+		if ($nameUrlOntology == "oeb_datasets") {
+			$resource = $graph->resource("https://w3id.org/oebDatasets/dataset");
+		} elseif ($nameUrlOntology == "oeb_formats") {
+			$resource = $graph->resource("https://w3id.org/oebDataFormats/FormatDatasets");
+		} 
+		
+		
+ 		//get all the classes that are subclass of the uri 'https://w3id.org/oebDataFormats/FormatDatasets'
+		$classes = $graph->resourcesMatching("rdfs:subClassOf",$resource);
+
+		//get the first classes (without showing the childrens)
+		foreach ($classes as $class) {
+			//get the label of first classes (without showing the childrens)
+            $label = $class->getLiteral('rdfs:label');
+            $label = (string)$label; 
+
+			//get the uri of classes that extends from the previous class find
+			$resourceClassesInherited = $graph->resource($class);
+
+			//get all the classes that are subclass of the uri found in the previous step (all the uris of classes that extends from the first classes found)
+			$classesInherited = $graph->resourcesMatching("rdfs:subClassOf",$resourceClassesInherited);
+			
+			//if there are not any format inherited in the first classes do not do it
+			if ($classesInherited != null) {
+				//get the classes inherited (the childrens)
+				foreach($classesInherited as $classInherited) {
+					//get the label of the classes inherited (the childrens)
+                    $labelClassInherited = $classInherited->getLiteral('rdfs:label');
+                    $labelClassInherited = (string)$labelClassInherited;
+					array_push($classArray, $labelClassInherited);
+				}
+			} else {
+				array_push($classArray, $label);
+			}
+		}
+		$array_gen = array("labels" => $classArray);
+		$process_json = json_encode($array_gen, JSON_PRETTY_PRINT);
+		return $process_json;
+	} else {
+		return $process_json;
+	}
 }

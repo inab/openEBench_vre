@@ -27,17 +27,17 @@ redirectToolDevOutside();
                         <!-- BEGIN PAGE BAR -->
                         <div class="page-bar">
                             <ul class="page-breadcrumb">
-                              <li>
-                                  <span>Admin</span>
-                                  <i class="fa fa-circle"></i>
-															</li>
-															<li>
-                                  <a href="admin/myNewTools.php">My new tools</a>
-                                  <i class="fa fa-circle"></i>
-                              </li>
-                              <li>
-                                  <span>Create new tool</span>
-                              </li>
+                                <li>
+                                    <span>Admin</span>
+                                    <i class="fa fa-circle"></i>
+                                </li>
+                                <li>
+                                    <a href="admin/myNewTools.php">My new tools</a>
+                                    <i class="fa fa-circle"></i>
+                                </li>
+                                <li>
+                                    <span>Create new tool</span>
+                                </li>
                             </ul>
                         </div>
                         <!-- END PAGE BAR -->

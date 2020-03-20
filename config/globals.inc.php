@@ -88,12 +88,6 @@ $GLOBALS['tool_status'] = Array(
 		3   => "Testing"
 );
 
-// Process and visualizer status
-$GLOBALS['process_status'] = Array(
-	0  => "Private",
-	1  => "Public",
-);
-
 // File 'compression' attribute (extension => compression model)
 $GLOBALS['compressions'] = Array(
                "zip"   => "ZIP",
@@ -270,5 +264,21 @@ $GLOBALS['clouds'] = Array(
 				"OS_PASSWORD"    => "VLZtKndy",
 				"OS_TENANT_NAME" => "BSC-MuG" 
 			)
-	    )
+		)
+);
+
+#OPENEBENCH
+
+// Process and visualizer status
+$GLOBALS['process_status'] = Array(
+	0  => "Private",
+	1  => "Public"
+);
+
+//ontologias
+$GLOBALS['oeb_dataModels'] = Array(
+	"https://w3id.org/oebDatasets" => "oeb_datasets",
+	"https://w3id.org/oebDataFormats" => "oeb_formats"
+	//"oeb_datasets"  => "https://w3id.org/oebDatasets",
+	//"oeb_formats"  => "https://w3id.org/oebDataFormats"
 );
