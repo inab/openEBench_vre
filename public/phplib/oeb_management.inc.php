@@ -120,19 +120,20 @@ function getListOntologyForForm($formOntology) {
 			
 			//if there are not any format inherited in the first classes do not do it
 			if ($classesInherited != null) {
+				array_push($classArray, strtoupper($label));
 				//get the classes inherited (the childrens)
 				foreach($classesInherited as $classInherited) {
 					//get the label of the classes inherited (the childrens)
                     $labelClassInherited = $classInherited->getLiteral('rdfs:label');
                     $labelClassInherited = (string)$labelClassInherited;
-					array_push($classArray, $labelClassInherited);
+					array_push($classArray, strtolower($labelClassInherited));
 				}
 			} else {
-				array_push($classArray, $label);
+				array_push($classArray, strtoupper($label));
 			}
 		}
-		$array_gen = array("labels" => $classArray);
-		$process_json = json_encode($array_gen, JSON_PRETTY_PRINT);
+		//$array_gen = array("labels" => $classArray);
+		$process_json = json_encode($classArray, JSON_PRETTY_PRINT);
 		return $process_json;
 	} else {
 		return $process_json;

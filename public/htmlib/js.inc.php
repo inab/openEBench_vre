@@ -341,6 +341,8 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 	case 'oeb_newProcess': ?>
 		<script src="assets/pages/oeb_js/oeb_jsonEditor.js?v=<?php echo rand(); ?>" type="text/javascript"></script>
 		<script src="assets/pages/oeb_js/oeb_newProcess.js?v=<?php echo rand(); ?>" type="text/javascript"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
+  		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/css/bootstrap-multiselect.css">
 	<?php break;
 	case 'adminJobs': ?>
 		<script src="assets/pages/scripts/adminJobs.js?v=<?php echo rand(); ?>" type="text/javascript"></script>

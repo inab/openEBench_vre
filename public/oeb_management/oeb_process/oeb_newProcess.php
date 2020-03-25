@@ -85,11 +85,19 @@ require "../../htmlib/js.inc.php"; ?>
                                 <div id="processes" class="portlet-body">
 
                                     <input type="hidden" id="base-url" value="<?php echo $GLOBALS['BASEURL']; ?>" />
-                                    <div id="content">hola</div>
-                                    <select id="tool" name="tool">
-                                        <option value="option1">Option1</option>
-                                        <option value="option2">Option2</option>
-                                        <option value="option3">Option3</option>
+                                    
+                                    <select id="formats" multiple="multiple"></select>
+
+                                    <select id="formats2" multiple="multiple" size="5">
+                                        <optgroup label="England">
+                                            <option value="London">London</option>
+                                            <option value="Leeds">Leeds</option>
+                                            <option value="option3">Manchaster</option>
+                                        </optgroup>
+                                        <optgroup label="USA">
+                                            <option value="option4">New York</option>
+                                            <option value="option5">Chicago</option>
+                                        </optgroup>
                                     </select>
                                     <div id='editor_holder'></div>
                                     <button id='submit'>Submit</button>
