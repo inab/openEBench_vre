@@ -6,6 +6,9 @@ require __DIR__ . "/../../../config/bootstrap.php";
 
 // project list
 $projects = getProjects_byOwner();
+$toolsList = getTools_List();
+
+sort($toolsList);
 
 
 ?>
@@ -68,6 +71,63 @@ require "../../htmlib/js.inc.php"; ?>
                 <!-- END PAGE TITLE -->
                 <!-- END PAGE HEADER -->
 
+
+<!-- BEGIN EXAMPLE TABLE PORTLET -->
+
+<div class="row">
+									<div class="col-md-12 col-sm-12">
+
+										<div class="portlet light bordered">
+
+											<div class="portlet-title">
+												<div class="caption">
+													<i class="icon-share font-dark hide"></i>
+													<span class="caption-subject font-dark bold uppercase">Select File(s)</span> <small style="font-size:75%;">Please select the file or files you want to use</small>
+												</div>
+												<div class="actions">
+													<a href="<?php echo $GLOBALS['BASEURL']; ?>workspace/" class="btn green"> Reload Workspace </a>
+												</div>
+											</div>
+
+											<div class="portlet-body">
+
+												<div class="input-group" style="margin-bottom:20px;">
+													<span class="input-group-addon" style="background:#5e738b;"><i class="fa fa-wrench font-white"></i></span>
+													<select class="form-control" style="width:100%;" onchange="loadWSTool(this)">
+														<option value="">Filter files by tool</option>
+														<?php foreach ($toolsList as $tl) { ?>
+															<option value="<?php echo $tl["_id"]; ?>" <?php if ($_REQUEST["tool"] == $tl["_id"]) echo 'selected'; ?>><?php echo $tl["name"]; ?></option>
+														<?php } ?>
+													</select>
+												</div>
+
+												<div id="loading-datatable">
+													<div id="loading-spinner">LOADING</div>
+												</div>
+
+												<form name="gesdir" action="workspace/workspace.php" method="post" enctype="multipart/form-data">
+													<input type="hidden" name="op" value="" />
+													<input type="hidden" name="userId" value="<?php echo $_SESSION['userId']; ?>" />
+													<input type="hidden" id="base-url" value="<?php echo $GLOBALS['BASEURL']; ?>" />
+													<input type="hidden" id="toolSelected" value="<?php echo $_REQUEST['tool']; ?>" />
+													<input type="hidden" id="from" value="<?php echo $_REQUEST["from"]; ?>" />
+
+													<?php
+													print printTable($files);
+													?>
+
+
+												</form>
+												<!--<button class="btn green" type="submit" id="btn-run-files" style="margin-top:20px;" >Run Selected Files</button>-->
+											</div>
+										</div>
+										<!-- END EXAMPLE TABLE PORTLET-->
+
+
+
+
+
+
                 <!-- BEGIN EXAMPLE TABLE PORTLET -->
                 <div class="row">
                     <div class="col-md-12">
@@ -108,6 +168,12 @@ require "../../htmlib/js.inc.php"; ?>
                             </div>
                         </div>
                         <!-- END EXAMPLE TABLE PORTLET-->
+                        <?php
+                        print_r($toolsList);
+                            foreach ($toolsList as $value) {
+                                echo "$value[_id]";
+                            }
+                        ?>
                     </div>
                     <!-- END CONTENT BODY -->
                 </div>
