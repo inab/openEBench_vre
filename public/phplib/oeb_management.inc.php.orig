@@ -113,14 +113,11 @@ function getListOntologyForForm($formOntology, $ancestors) {
 
 			//get all the classes that are subclass of the uri found in the previous step (all the uris of classes that extends from the first classes found)
 			$classesInherited = $graph->resourcesMatching("rdfs:subClassOf",$resourceClassesInherited);
-
-			$URILabel = (string)$resourceClassesInherited->getUri();
-			$ClassPair = array("label" => $label, "URI" => $URILabel);
 			
 			//if there are not any format inherited in the first classes do not do it
 			$subClassArray = array();
 			if ($classesInherited != null) {
-				array_push($classArray, $ClassPair);
+				array_push($classArray, $label);
 				//get the classes inherited (the childrens)
 				foreach($classesInherited as $classInherited) {
 					//get the label of the classes inherited (the childrens)
@@ -130,7 +127,9 @@ function getListOntologyForForm($formOntology, $ancestors) {
 					array_push($classArray, $subClassPair);
 				}
 			} else {
-				array_push($classArray, $ClassPair);
+				$URILabel = (string)$classInherited->getUri();
+				$subClassPair = array("label" => $label, "URI" => $URILabel);
+				array_push($classArray, $subClassPair);
 			}
 		}
 		//$array_gen = array("labels" => $classArray);

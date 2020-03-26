@@ -15,8 +15,8 @@ if($_REQUEST) {
         echo updateStatusProcess($_REQUEST['process'], $_REQUEST['status']);
         exit;
     //https://dev-openebench.bsc.es/vre/applib/oeb_processesAPI.php?urlOntology=https://w3id.org/oebDataFormats
-    } elseif(isset($_REQUEST['urlOntology'])) {
-        echo getListOntologyForForm($_REQUEST['urlOntology']);
+    } elseif(isset($_REQUEST['urlOntology'], $_REQUEST['ancestors'])) {
+        echo getListOntologyForForm($_REQUEST['urlOntology'], $_REQUEST['ancestors']);
         exit;
     }
 }else{
