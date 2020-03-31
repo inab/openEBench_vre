@@ -2103,6 +2103,11 @@ function deleteFiles($fns,$force=false){
 	    $result = false;
 	    continue;
 	}
+	if (!is_writable($file_rfn) && !$force){
+	    $_SESSION['errorData']['Error'][]="Cannot delete file with id '".basename($file_fn)."'. File not writable.";
+	    $result = false;
+	    continue;
+	}
 
 	// delete file from DMP
 	$r = deleteGSFileBNS($fn);
@@ -2115,10 +2120,10 @@ function deleteFiles($fns,$force=false){
 	// delete file from disk
 	if (file_exists($file_rfn)){
 	    unlink($file_rfn);
-	    if (error_get_last()){
+	    if (file_exists($file_rfn)){
 		$_SESSION['errorData']['Error'][]="Errors encountered while deleting file '".basename($file_fn)."'.";
-		$_SESSION['errorData']['Error'][]=error_get_last()["message"];
 		$result = false;
+	    	if (error_get_last()){$_SESSION['errorData']['Error'][]=error_get_last()["message"];}
 		continue;
 	    }
 	}
