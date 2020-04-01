@@ -1,90 +1,89 @@
-$(document).ready(function() {
-  var schema;
-  var editor;
-  var labels = [];
-  var uris = [];
+//VARIABLES
+var schema;
+var editor;
+var labels = [];
+var uris = [];
 
+//final information
+var URLontologiesArray = [];
+var ancestorsArray = [];
+var pathsArray = [];
+
+//params to get final information
+var paths = [];
+var urlsArray = [];
+var listPaths = [];
+
+
+$(document).ready(function() {
   $.getJSON("https://raw.githubusercontent.com/inab/OpEB-VRE-schemas/oeb_wfs/processValidation_schema.json", function(data) {
      
     schema = data;
   })
   .done(function() {
-    var urlsArray = [];
-    var ancestorsArray = [];
-    //that's all... no magic, no bloated framework
-    for(var [key, value, path] of traverse(schema)) {
-      // do something here with each key and value
-      if (key == "ontology") {
-        urlsArray.push(value);
+
+    getInformation(schema);
+
+    //it has to be the same number of ancestors that ontologies params because for each ontology there are one ancestor. 
+    if (URLontologiesArray.length == ancestorsArray.length) {
+      for (i = 0; i < URLontologiesArray.length; i++) {
+        var url = "https://dev-openebench.bsc.es/vre/applib/oeb_processesAPI.php?urlOntology=" + URLontologiesArray[i] + "&ancestors=" + ancestorsArray[i];
+        urlsArray.push(url);
       }
-      if (key == "ancestors") {
-        ancestorsArray.push(value);
-      }
+    } else {
+      console.log("SCHEMA INCORRECT");
     }
-    console.log(ancestorsArray);
-    console.log(urlsArray);
-    
-    
-/* 
-    let ajaxPromises = $.map(urlArray,function(url,idx) {
+
+    let ajaxPromises = $.map(urlsArray, function(url,idx) {
       return $.ajax(url);
     });
     
     $.when(...ajaxPromises).done(function() {
-      console.log(arguments.length);
-    }); */
 
-    //var variables = FIND DEL CAMPO "ONTOLOGY" EN EL SCHEMA Y QUE DEVUELVA EL PATH
-    var pathOntology = schema["properties"]["inputs_meta"]["properties"]["input"]["properties"]["file_type"]["items"];
-    var urlOntology = pathOntology["ontology"];
-    var ancestors = pathOntology["ancestors"]; 
-
-
-    var url = "https://dev-openebench.bsc.es/vre/applib/oeb_processesAPI.php?urlOntology=" + urlOntology + "&ancestors=" + ancestors;
-    $.ajax({
-      url: url,
-      type: 'POST',
-      success: function(data){
-        $.each(data, function(key, modelName) {
-          label = modelName['label'];
+      $.ajax({
+        url: url,
+        type: 'POST',
+        success: function(data){
+          $.each(data, function(key, modelName) {
+            label = modelName['label'];
+            
+            labels.push(modelName['label']);
+            uris.push(modelName['URI']);
+          });
           
-          labels.push(modelName['label']);
-          uris.push(modelName['URI']);
-        });
-        
-        pathOntology['enum'] = uris;
-        pathOntology['options']['enum_titles'] = labels;
-
-        //INICIALIZA EL FORMULARIO - NO HASTA QUE EL SELECT ESTA CARGADO
-        initializer(); 
-        // Set default options
-        JSONEditor.defaults.options.theme = 'bootstrap3';
-        
-        // Initialize the editor
-        editor = new JSONEditor(document.getElementById("editor_holder"),{
-          theme: 'bootstrap3',
-          schema: schema,
-        });
-
-        // Validate
-        var errors = editor.validate();
-        if(errors.length) {
-          // Not valid
+          for (i = 0; i < pathsArray.length; i++) {
+            pathsArray[i]['enum'] = uris;
+            pathsArray[i]['options']['enum_titles'] = labels;
+          }
+  
+          //INICIALIZA EL FORMULARIO - NO HASTA QUE EL SELECT ESTA CARGADO
+          initializer(); 
+          // Set default options
+          JSONEditor.defaults.options.theme = 'bootstrap3';
+          
+          // Initialize the editor
+          editor = new JSONEditor(document.getElementById("editor_holder"),{
+            theme: 'bootstrap3',
+            schema: schema,
+          });
+  
+          // Validate
+          var errors = editor.validate();
+          if(errors.length) {
+            // Not valid
+          }
+          
+          // Listen for changes
+          editor.on("change",  function() {
+            // Do something...
+          });
         }
-        
-        // Listen for changes
-        editor.on("change",  function() {
-          // Do something...
-        });
-      }
-    });
-    
-  })
-  .fail(function() {
-    console.log("NO funciona");
+      });
+    })
   });
 });
 
+//to get the path
 function* traverse(schema) {
   const memory = new Set();
   function * innerTraversal (schema, path=[]) {
@@ -105,5 +104,37 @@ function* traverse(schema) {
   }
     
   yield* innerTraversal(schema);
+}
+
+function getInformation(schema) {
+    //find in the schema the word "ontology" and "ancestors" and add them to their respective arrays
+    for(var [key, value, path] of traverse(schema)) {
+    
+      //if key is ontology is the param ontology to give to the final url
+      if (key == "ontology") {
+        URLontologiesArray.push(value);
+
+        //GET PATH OF ONTOLOGY (WITHOUT THE PARAM ONTOLOGY AT THE END - THE ANCESTOR OF THAT -)
+        listPaths = []
+        for (paramPath of path) {
+          if (paramPath != "ontology") {
+            listPaths.push(paramPath);
+          }
+        }
+        paths.push(listPaths);
+      }
+      //if key is ancestor is the param ancestor to give to the final url
+      if (key == "ancestors") {
+        ancestorsArray.push(value);
+      }
+    }
+
+    for (i = 0; i < paths.length; i++) {
+      var relSchema = schema;
+      for (step of paths[i]) {
+        relSchema = relSchema[step];
+      }
+      pathsArray.push(relSchema);
+    }
 }
 
