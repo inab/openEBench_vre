@@ -9,35 +9,28 @@ $(document).ready(function() {
     schema = data;
   })
   .done(function() {
-    var urlsArray = [];
-    var ancestorsArray = [];
+    
+    var url = [];
     //that's all... no magic, no bloated framework
     for(var [key, value, path] of traverse(schema)) {
       // do something here with each key and value
       if (key == "ontology") {
-        urlsArray.push(value);
-      }
-      if (key == "ancestors") {
-        ancestorsArray.push(value);
+        var prueba = "schema";
+        for (aa of path) {
+          prueba += '["'+aa+'"]';
+        }
+        url.push(prueba);
       }
     }
-    console.log(ancestorsArray);
-    console.log(urlsArray);
-    
-    
-/* 
-    let ajaxPromises = $.map(urlArray,function(url,idx) {
-      return $.ajax(url);
-    });
-    
-    $.when(...ajaxPromises).done(function() {
-      console.log(arguments.length);
-    }); */
+    console.log(url);
+
+    $.when( $.ajax( "/page1.php" ), $.ajax( "/page2.php" ) )
+    .then( myFunc, myFailure ); 
 
     //var variables = FIND DEL CAMPO "ONTOLOGY" EN EL SCHEMA Y QUE DEVUELVA EL PATH
     var pathOntology = schema["properties"]["inputs_meta"]["properties"]["input"]["properties"]["file_type"]["items"];
     var urlOntology = pathOntology["ontology"];
-    var ancestors = pathOntology["ancestors"]; 
+    var ancestors = pathOntology["ancestors"];
 
 
     var url = "https://dev-openebench.bsc.es/vre/applib/oeb_processesAPI.php?urlOntology=" + urlOntology + "&ancestors=" + ancestors;
