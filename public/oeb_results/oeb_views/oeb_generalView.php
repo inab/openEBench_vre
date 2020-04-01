@@ -4,12 +4,15 @@
 
 require __DIR__ . "/../../../config/bootstrap.php";
 
+require('oeb_view_functions.php');
 // project list
 $projects = getProjects_byOwner();
 $toolsList = getTools_List();
 
 sort($toolsList);
 
+//get all files for user
+$allFiles = getFilesToDisplay(array('_id' => $_SESSION['User']['dataDir']), null);
 
 ?>
 
@@ -85,7 +88,7 @@ require "../../htmlib/js.inc.php"; ?>
                                     <span class="caption-subject font-dark bold uppercase">Select File(s)</span> <small style="font-size:75%;">Please select the file or files you want to use</small>
                                 </div>
                                 <div class="actions">
-                                    <a href="<?php echo $GLOBALS['BASEURL']; ?>workspace/" class="btn green"> Reload Workspace </a>
+                                    <a href="<?php echo $GLOBALS['BASEURL']; ?>oeb_results/oeb_views/oeb_generalView.php" class="btn green"> Reload Workspace </a>
                                 </div>
                             </div>
 
@@ -94,7 +97,7 @@ require "../../htmlib/js.inc.php"; ?>
                                 <div class="input-group" style="margin-bottom:20px;">
                                     <span class="input-group-addon" style="background:#5e738b;"><i class="fa fa-wrench font-white"></i></span>
                                     <select class="form-control" style="width:100%;" onchange="loadWSTool(this)">
-                                        <option value="">Filter files by tool</option>
+                                        <!-- <option value="">Filter files by tool</option> -->
                                         <?php foreach ($toolsList as $tl) { ?>
                                             <option value="<?php echo $tl["_id"]; ?>" <?php if ($_REQUEST["tool"] == $tl["_id"]) echo 'selected'; ?>><?php echo $tl["name"]; ?></option>
                                         <?php } ?>
@@ -105,10 +108,10 @@ require "../../htmlib/js.inc.php"; ?>
 
                                 </form>
                                 <?php
-                                //LAIA
-                                if (isset($_REQUEST["tool"]) && $_REQUEST["tool"] != "") $dtlist = getAvailableDTbyTool($_REQUEST["tool"]);
-                                $allFiles = getFilesToDisplay(array('_id' => $_SESSION['User']['dataDir']), null);
-                                var_dump($allFiles);
+                                $filesForSelectedTool = getAllFilesForSelectedTool($allFiles, $toolsList, $_REQUEST["tool"]);
+                                foreach ($filesForSelectedTool as $key => $value) {
+                                    print_r($value['tool']);
+                                };
                                 ?>
                                 <!--<button class="btn green" type="submit" id="btn-run-files" style="margin-top:20px;" >Run Selected Files</button>-->
                             </div>
@@ -170,8 +173,15 @@ require "../../htmlib/js.inc.php"; ?>
                         require "../../htmlib/footer.inc.php";
                         ?>
                         <script>
-                            loadProjectWS = function(id) {
-                                var redirect_url = "oeb_results/oeb_views/oeb_generalView.php"
+                            var redirect_url = "oeb_results/oeb_views/oeb_generalView.php"
+
+                            function loadProjectWS(id) {
                                 location.href = baseURL + 'applib/oeb_manageProjects.php?op=reload&pr_id=' + id.value + '&redirect_url=' + redirect_url;
                             };
+
+                            function loadWSTool(op) {
+                                console.log(op.value)
+                                location.href = baseURL + redirect_url + "?tool=" + op.value;
+
+                            }
                         </script>
