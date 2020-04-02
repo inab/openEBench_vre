@@ -108,11 +108,37 @@ require "../../htmlib/js.inc.php"; ?>
 
                                 </form>
                                 <?php
-                                $filesForSelectedTool = getAllFilesForSelectedTool($allFiles, $toolsList, $_REQUEST["tool"]);
-                                foreach ($filesForSelectedTool as $key => $value) {
-                                    print_r($value['tool']);
-                                };
+                                $proj_name_active   = basename(getAttr_fromGSFileId($_SESSION['User']['dataDir'], "path"));
+                                $file_filter = array(
+                                    "tool"       => getSelectedTool($toolsList, $_REQUEST["tool"]),
+                                    "data_type" => "tool_statistics",
+                                    "project"   => $proj_name_active
+                                );
+                                $filteredFiles = getGSFiles_filteredBy($file_filter);
+
+                                //var_dump($filteredFiles);
+
                                 ?>
+                                <div class="row">
+                                    <div class="col-xs-6">
+                                        <p>You can drag and drop these items in any order:</p>
+                                        <ul id="listOfTools" class="list-group">
+                                            <?php foreach ($filteredFiles as $key => $value) {
+                                                echo '<li class="list-group-item runs">' . $value['path'] . '</li>';
+                                            }
+                                            ?>
+                                        </ul>
+                                    </div>
+
+
+                                    <div class="col-xs-6">
+                                        <p>You can drag and drop these items in any order:</p>
+                                        <ul id="listOfToolsSelected" class="list-group">
+
+                                        </ul>
+                                    </div>
+
+                                </div>
                                 <!--<button class="btn green" type="submit" id="btn-run-files" style="margin-top:20px;" >Run Selected Files</button>-->
                             </div>
                         </div>
@@ -149,29 +175,16 @@ require "../../htmlib/js.inc.php"; ?>
                                         <?php } ?>
                                         </div>
                             </div>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <!-- BEGIN EXAMPLE TABLE PORTLET-->
-                                    <div class="portlet light portlet-fit bordered">
 
-                                        <div id="processes" class="portlet-body">
-
-                                            <input type="hidden" id="base-url" value="<?php echo $GLOBALS['BASEURL']; ?>" />
-
-                                            <?php require('oeb_grid.php')  ?>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- END EXAMPLE TABLE PORTLET-->
-
-                            </div>
                             <!-- END CONTENT BODY -->
                         </div>
 
 
                         <?php
                         require "../../htmlib/footer.inc.php";
+
                         ?>
+                        <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
                         <script>
                             var redirect_url = "oeb_results/oeb_views/oeb_generalView.php"
 
@@ -184,4 +197,14 @@ require "../../htmlib/js.inc.php"; ?>
                                 location.href = baseURL + redirect_url + "?tool=" + op.value;
 
                             }
+
+                            new Sortable(listOfTools, {
+                                group: 'runs', // set both lists to same group
+                                animation: 150
+                            });
+
+                            new Sortable(listOfToolsSelected, {
+                                group: 'runs',
+                                animation: 150
+                            });
                         </script>

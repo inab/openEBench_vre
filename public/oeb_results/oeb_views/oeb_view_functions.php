@@ -13,6 +13,7 @@ function getSelectedTool($toolsList, $requestParamTool)
     return $toolSelected;
 };
 
+//not used anymore
 function getAllFilesForSelectedTool($allFiles, $toolsList, $requestParamTool)
 {
     //get selected tool
