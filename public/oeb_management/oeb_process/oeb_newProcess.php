@@ -34,7 +34,7 @@ require "../../htmlib/js.inc.php"; ?>
                             <i class="fa fa-circle"></i>
                         </li>
                         <li>
-                            <span>Creta new process</span>
+                            <span>Create new process</span>
                         </li>
                     </ul>
                 </div>

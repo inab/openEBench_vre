@@ -35,50 +35,48 @@ $(document).ready(function() {
     }
 
     let ajaxPromises = $.map(urlsArray, function(url,idx) {
-      return $.ajax(url);
+      return $.ajax({url:url, type:'POST'});
     });
     
     $.when(...ajaxPromises).done(function() {
 
-      $.ajax({
-        url: url,
-        type: 'POST',
-        success: function(data){
-          $.each(data, function(key, modelName) {
-            label = modelName['label'];
-            
-            labels.push(modelName['label']);
-            uris.push(modelName['URI']);
-          });
-          
-          for (i = 0; i < pathsArray.length; i++) {
-            pathsArray[i]['enum'] = uris;
-            pathsArray[i]['options']['enum_titles'] = labels;
-          }
-  
-          //INICIALIZA EL FORMULARIO - NO HASTA QUE EL SELECT ESTA CARGADO
-          initializer(); 
-          // Set default options
-          JSONEditor.defaults.options.theme = 'bootstrap3';
-          
-          // Initialize the editor
-          editor = new JSONEditor(document.getElementById("editor_holder"),{
-            theme: 'bootstrap3',
-            schema: schema,
-          });
-  
-          // Validate
-          var errors = editor.validate();
-          if(errors.length) {
-            // Not valid
-          }
-          
-          // Listen for changes
-          editor.on("change",  function() {
-            // Do something...
-          });
-        }
+      for (x = 0; x < arguments.length; x++) {
+        labels = [];
+        uris = [];
+        $.each(arguments[x][0], function(key, modelName) {
+          label = modelName['label'];
+
+          labels.push(modelName['label']);
+          uris.push(modelName['URI']);
+
+          pathsArray[x]['enum'] = uris;
+          pathsArray[x]['options']['enum_titles'] = labels;
+        });
+      };
+
+      //INICIALIZA EL FORMULARIO - NO HASTA QUE EL SELECT ESTA CARGADO
+      initializer(); 
+      // Set default options
+      JSONEditor.defaults.options.theme = 'bootstrap3';
+      
+      // Initialize the editor
+      editor = new JSONEditor(document.getElementById("editor_holder"),{
+        theme: 'bootstrap3',
+        schema: schema,
       });
+
+      // Validate
+      var errors = editor.validate();
+      if(errors.length) {
+        // Not valid
+      }
+      
+      // Listen for changes
+      editor.on("change",  function() {
+        // Do something...
+      });
+    }).fail(function (jqXHR, textStatus) {
+      console.log(textStatus);
     })
   });
 });
