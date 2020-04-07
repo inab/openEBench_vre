@@ -83,6 +83,10 @@ require "../../htmlib/js.inc.php"; ?>
                             <div class="portlet light portlet-fit bordered">
 
                                 <div id="processes" class="portlet-body">
+                                    <div id="loading-datatable">
+                                        <div id="loading-spinner">LOADING</div>
+                                        <div id="loading-text">It could take a few minutes</div>
+                                    </div>
 
                                     <input type="hidden" id="base-url" value="<?php echo $GLOBALS['BASEURL']; ?>" />
 

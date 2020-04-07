@@ -2770,9 +2770,9 @@ JSONEditor.defaults.editors.object = JSONEditor.AbstractEditor.extend({
         // Edit JSON Button
         this.editjson_button = this.getButton('JSON','edit','Edit JSON');
         this.editjson_button.addEventListener('click',function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        self.toggleEditJSON();
+            e.preventDefault();
+            e.stopPropagation();
+            self.toggleEditJSON();
         });
         this.editjson_controls.appendChild(this.editjson_button);
         this.editjson_controls.appendChild(this.editjson_holder);
@@ -2784,17 +2784,6 @@ JSONEditor.defaults.editors.object = JSONEditor.AbstractEditor.extend({
         else if(this.jsoneditor.options.disable_edit_json) {
         this.editjson_button.style.display = 'none';
         }
-
-        // Object Properties Button
-        this.addproperty_button = this.getButton('Properties','edit','Object Properties');
-        this.addproperty_button.addEventListener('click',function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        self.toggleAddProperty();
-        });
-        this.addproperty_controls.appendChild(this.addproperty_button);
-        this.addproperty_controls.appendChild(this.addproperty_holder);
-        this.refreshAddProperties();
     }
 
     // Fix table cell ordering
@@ -2845,6 +2834,7 @@ JSONEditor.defaults.editors.object = JSONEditor.AbstractEditor.extend({
     try {
         var json = JSON.parse(this.editjson_textarea.value);
         this.setValue(json);
+        console.log(json);
         this.hideEditJSON();
     }
     catch(e) {

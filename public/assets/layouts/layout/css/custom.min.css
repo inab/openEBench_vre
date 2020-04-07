@@ -484,6 +484,19 @@ background: #fafafa url(../img/loading-spinner-blue.gif) no-repeat 5px;
 box-shadow:  1px 1px 8px 0px rgba(204, 204, 204, 1);
  }
 
+ #loading-text  {
+     width: auto;
+     height: auto;
+     background: white;
+     position: absolute;
+     
+     left: 45%;
+     top: 73%;
+     margin: -15px 0 0 -75px;
+     padding:  5px 0 5px 35px;
+     color: #7b7b7b;
+ }
+
 #table-repository  {
      display: none;
  }

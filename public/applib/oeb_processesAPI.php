@@ -18,6 +18,10 @@ if($_REQUEST) {
     } elseif(isset($_REQUEST['urlOntology'], $_REQUEST['ancestors'])) {
         echo getListOntologyForForm($_REQUEST['urlOntology'], $_REQUEST['ancestors']);
         exit;
+    //https://dev-openebench.bsc.es/vre/applib/oeb_processesAPI.php?owner
+    } elseif(isset($_REQUEST['owner'])) {
+        echo getOwner();
+        exit;
     }
 }else{
     echo '{}';

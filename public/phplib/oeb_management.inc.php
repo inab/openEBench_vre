@@ -140,3 +140,15 @@ function getListOntologyForForm($formOntology, $ancestors) {
 		return $process_json;
 	}
 }
+
+function getOwner() {
+	$process_json = "{}";
+
+	//user logged
+	$userId = $_SESSION["User"]["id"];
+	
+	$processOwner = array("owner" => $userId);
+	$process_json = json_encode($processOwner, JSON_PRETTY_PRINT);
+
+	return $process_json;
+}
