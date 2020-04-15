@@ -20,7 +20,7 @@ $(document).ready(function() {
     //it has to be the same number of ancestors that ontologies params because for each ontology there are one ancestor. 
     if (URLontologiesArray.length == ancestorsArray.length) {
       for (i = 0; i < URLontologiesArray.length; i++) {
-        var url = "https://dev-openebench.bsc.es/vre/applib/oeb_processesAPI.php?urlOntology=" + URLontologiesArray[i] + "&ancestors=" + ancestorsArray[i];
+        var url = "applib/oeb_processesAPI.php?action=getForm&urlOntology=" + URLontologiesArray[i] + "&ancestors=" + ancestorsArray[i];
         urlsArray.push(url);
       }
     } else {
@@ -46,13 +46,15 @@ $(document).ready(function() {
       };
 
       //INSERT THE OWNER
-      var urlOwner = "https://dev-openebench.bsc.es/vre/applib/oeb_processesAPI.php?owner";
+      var urlDefaultValues = "applib/oeb_processesAPI.php?action=getDefaultValues&owner&_id&_schema";
       $.ajax({
         type: 'POST',
-        url: urlOwner,
+        url: urlDefaultValues,
         data: url
       }).done(function(data) {
-        schema['properties']['owner']['default'] =  data['owner'];
+        var ownerVar =  data['owner'];
+        var _idVar =  data['_id'];
+        var _schemaVar = data['_schema'];
 
         //INICIALIZA EL FORMULARIO - NO HASTA QUE EL SELECT ESTA CARGADO
         initializer(); 
@@ -64,6 +66,9 @@ $(document).ready(function() {
           theme: 'bootstrap3',
           schema: schema,
         });
+
+        //define the variables owner, _id
+        editor.setValue({owner: ownerVar, _id: _idVar, _schema: _schemaVar});
 
         // Validate
         var errors = editor.validate();
@@ -83,6 +88,9 @@ $(document).ready(function() {
       console.log("ERROR");
     })
   });
+  $("#submit").click(function() {
+    console.log("SUBMIT");
+  })
 });
 
 //to get the path
@@ -152,3 +160,17 @@ function getInformation(schema) {
   return [pathsArray, ancestorsArray, URLontologiesArray];
 }
 
+function insertJSON(processJSONForm) {
+  var processStringForm = JSON.stringify(processJSONForm);
+  var urlJSON = "applib/oeb_processesAPI.php";
+  
+  $.ajax({
+    type: 'POST',
+    url: urlJSON,
+    data: {'action': 'setProcess', 'processForm': processStringForm}
+  }).done(function(data) {
+    if(data['code'] == 200) {
+      console.log("WELL DONE!");
+    }
+  });
+}

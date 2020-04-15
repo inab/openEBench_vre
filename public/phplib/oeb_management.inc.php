@@ -72,13 +72,7 @@ function updateStatusProcess($processId, $statusId) {
 		return $response_json->getResponse();
 	}
 	
-	//redirect('https://dev-openebench.bsc.es/vre/oeb_management/oeb_process/oeb_processes.php');
-	
 	return $response_json->getResponse();
-
-	//$processesUser_json = json_encode($processesUserLogin, JSON_PRETTY_PRINT);
-	
-	//return $processesUser_json;
 }
 
 function getListOntologyForForm($formOntology, $ancestors) {
@@ -141,14 +135,38 @@ function getListOntologyForForm($formOntology, $ancestors) {
 	}
 }
 
-function getOwner() {
+function getDefaultValues() {
 	$process_json = "{}";
 
 	//user logged
 	$userId = $_SESSION["User"]["id"];
+
+	$_id = createLabel($GLOBALS['AppPrefix']."_process",'processCol');
+	$_schema = "https://openebench.bsc.es/vre/process-schema";
 	
-	$processOwner = array("owner" => $userId);
-	$process_json = json_encode($processOwner, JSON_PRETTY_PRINT);
+	$processWithVars = array("owner" => $userId, "_id" =>$_id, "_schema" => $_schema);
+
+	$process_json = json_encode($processWithVars, JSON_PRETTY_PRINT);
 
 	return $process_json;
+}
+
+function setProcess($processStringForm) {
+	$response_json= new JsonResponse();
+
+	$processJSONForm = json_decode($processStringForm);
+
+	//user logged
+	$userId = $_SESSION["User"]["id"];
+
+	//MongoDB query
+	try {
+		$GLOBALS['processCol']->insert($processJSONForm);
+	} catch (Exception $e) {
+		$response_json->setCode(500);
+		$response_json->setMessage("Cannot update data in Mongo. Mongo Error(".$e->getCode()."): ".$e->getMessage());
+		return $response_json->getResponse();
+	}
+
+	return $response_json->getResponse();
 }

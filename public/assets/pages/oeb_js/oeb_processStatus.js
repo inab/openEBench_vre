@@ -1,6 +1,6 @@
 function changeStatus(statusValue, processId) {
 	
-	var url = "https://dev-openebench.bsc.es/vre/applib/oeb_processesAPI.php?process=" + processId + "&status=" + statusValue;/*  */
+	var url = "applib/oeb_processesAPI.php?action=updateStatu&process=" + processId + "&status=" + statusValue;/*  */
 
 	if (statusValue === "" || processId === "") {
 		$("#myError").text("Some param is null");
@@ -27,7 +27,7 @@ $(document).ready(function() {
 	$("#myError").hide();
 	$('#tblReportResultsDemographics').DataTable( {
 		"ajax": {
-			url: 'https://dev-openebench.bsc.es/vre/applib/oeb_processesAPI.php?list',
+			url: 'applib/oeb_processesAPI.php?action=list',
 			dataSrc: ''
 		},
 		autoWidth: false,
@@ -73,7 +73,7 @@ $(document).ready(function() {
 
 function reload() {
 	$("#myError").hide();
-	$.getJSON('https://dev-openebench.bsc.es/vre/applib/oeb_processesAPI.php?list=true', function() {
+	$.getJSON('applib/oeb_processesAPI.php?action=list', function() {
 		var oTblReport;
 
 		if ($.fn.dataTable.isDataTable('#tblReportResultsDemographics')) {

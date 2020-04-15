@@ -1,3 +1,5 @@
+var jsonObj;
+
 function initializer() {
 
 /*jshint loopfunc: true */
@@ -2329,6 +2331,10 @@ JSONEditor.defaults.editors.integer = JSONEditor.defaults.editors.number.extend(
 });
 
 JSONEditor.defaults.editors.object = JSONEditor.AbstractEditor.extend({
+    getHola: function() {
+        var hola = JSON.stringify(this.getValue(),null,2);
+        console.log(hola);
+    },
     getDefault: function() {
     return $extend({},this.schema["default"] || {});
     },
@@ -2359,7 +2365,6 @@ JSONEditor.defaults.editors.object = JSONEditor.AbstractEditor.extend({
     enable: function() {
     if(this.editjson_button) this.editjson_button.disabled = false;
     if(this.addproperty_button) this.addproperty_button.disabled = false;
-
     this._super();
     if(this.editors) {
         for(var i in this.editors) {
@@ -2768,7 +2773,7 @@ JSONEditor.defaults.editors.object = JSONEditor.AbstractEditor.extend({
         }
 
         // Edit JSON Button
-        this.editjson_button = this.getButton('JSON','edit','Edit JSON');
+        this.editjson_button = this.getButton('JSON','edit','Edit JSONN');
         this.editjson_button.addEventListener('click',function(e) {
             e.preventDefault();
             e.stopPropagation();
@@ -2826,21 +2831,26 @@ JSONEditor.defaults.editors.object = JSONEditor.AbstractEditor.extend({
 
     this.editjson_holder.style.display = 'none';
     this.enable();
+    this.getHola();
     this.editing_json = false;
     },
     saveJSON: function() {
-    if(!this.editjson_holder) return;
-
-    try {
-        var json = JSON.parse(this.editjson_textarea.value);
-        this.setValue(json);
-        console.log(json);
-        this.hideEditJSON();
-    }
-    catch(e) {
-        window.alert('invalid JSON');
-        throw e;
-    }
+        if(!this.editjson_holder) return;
+        
+        var json;
+        
+        try {
+            var json = JSON.parse(this.editjson_textarea.value);
+            jsonObj = json;
+            this.setValue(json);
+            this.hideEditJSON();
+            jsonObj = json;
+            insertJSON(json);
+        }
+        catch(e) {
+            window.alert('invalid JSON');
+            throw e;
+        }
     },
     toggleEditJSON: function() {
     if(this.editing_json) this.hideEditJSON();
@@ -8023,3 +8033,9 @@ JSONEditor.defaults.resolvers.unshift(function(schema) {
 
     window.JSONEditor = JSONEditor;
 }
+
+$(document).ready(function() {
+    $("#submit").click(function() {
+        console.log(jsonObj)
+    });
+});
