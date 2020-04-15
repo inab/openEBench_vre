@@ -129,7 +129,7 @@ function getInformation(schema) {
 
   //find in the schema the word "ontology" and "ancestors" and add them to their respective arrays
   for(var [key, value, path] of traverse(schema)) {
-  
+
     //if key is ontology is the param ontology to give to the final url
     if (key == "ontology") {
       URLontologiesArray.push(value);
@@ -161,16 +161,16 @@ function getInformation(schema) {
 }
 
 function insertJSON(processJSONForm) {
-  var processStringForm = JSON.stringify(processJSONForm);
+  //var processStringForm = JSON.stringify(processJSONForm);
   var urlJSON = "applib/oeb_processesAPI.php";
   
   $.ajax({
     type: 'POST',
     url: urlJSON,
-    data: {'action': 'setProcess', 'processForm': processStringForm}
+    data: {'action': 'setProcess', 'processForm': processJSONForm}
   }).done(function(data) {
     if(data['code'] == 200) {
-      console.log("WELL DONE!");
+      console.log("PROCESS INSERTED SUCCESSFULLY!");
     }
   });
 }
