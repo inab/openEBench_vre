@@ -18,10 +18,12 @@ $allFiles = getFilesToDisplay(array('_id' => $_SESSION['User']['dataDir']), null
 
 <?php
 require "../../htmlib/header.inc.php";
-require "../../htmlib/js.inc.php"; ?>
+require "../../htmlib/js.inc.php";
+?>
 
 <body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white page-container-bg-solid page-sidebar-fixed">
     <div class="page-wrapper">
+        <input type="hidden" id="base-url" value="<?php echo $GLOBALS['BASEURL']; ?>" />
 
         <?php require "../../htmlib/top.inc.php"; ?>
         <?php require "../../htmlib/menu.inc.php"; ?>
@@ -96,7 +98,7 @@ require "../../htmlib/js.inc.php"; ?>
 
                                 <div class="input-group" style="margin-bottom:20px;">
                                     <span class="input-group-addon" style="background:#5e738b;"><i class="fa fa-wrench font-white"></i></span>
-                                    <select class="form-control" style="width:100%;" onchange="loadWSTool(this)">
+                                    <select id="toolSelector" class="form-control" style="width:100%;" onchange="loadWSTool(this)">
                                         <!-- <option value="">Filter files by tool</option> -->
                                         <?php foreach ($toolsList as $tl) { ?>
                                             <option value="<?php echo $tl["_id"]; ?>" <?php if ($_REQUEST["tool"] == $tl["_id"]) echo 'selected'; ?>><?php echo $tl["name"]; ?></option>
@@ -120,91 +122,123 @@ require "../../htmlib/js.inc.php"; ?>
 
                                 ?>
                                 <div class="row">
-                                    <div class="col-xs-6">
-                                        <p>You can drag and drop these items in any order:</p>
-                                        <ul id="listOfTools" class="list-group">
-                                            <?php foreach ($filteredFiles as $key => $value) {
-                                                echo '<li class="list-group-item runs">' . $value['path'] . '</li>';
-                                            }
-                                            ?>
+                                    <div class="col-xs-6 selectorLists">
+                                        <ul class=" list-group">
+                                            <span id="listOfTools">
+
+
+                                                <?php foreach ($filteredFiles as $key => $value) {
+                                                    echo '<li data="' . $value['parentDir'] . '" class="list-group-item runs">' . basename(getAttr_fromGSFileId($value['parentDir'], "path")) . '</li>';
+                                                }
+                                                ?>
+
+                                            </span>
                                         </ul>
                                     </div>
 
-
-                                    <div class="col-xs-6">
-                                        <p>You can drag and drop these items in any order:</p>
+                                    <div class="col-xs-6 selectorLists">
                                         <ul id="listOfToolsSelected" class="list-group">
 
                                         </ul>
+
                                     </div>
 
                                 </div>
-                                <!--<button class="btn green" type="submit" id="btn-run-files" style="margin-top:20px;" >Run Selected Files</button>-->
+                                <button class=" btn green" onclick="myFunction()" id="btn-run-files" style="margin-top:20px;">Run Selected Files</button>
                             </div>
                         </div>
-                        <!-- END EXAMPLE TABLE PORTLET-->
+                    </div>
+                </div>
+                <!-- END EXAMPLE TABLE PORTLET-->
 
 
 
 
 
 
-                        <!-- BEGIN EXAMPLE TABLE PORTLET -->
-                        <div class="row">
-                            <div class="col-md-12">
-                                <?php
-                                $error_data = false;
-                                if ($_SESSION['errorData']) {
-                                    $error_data = true;
-                                ?>
-                                    <?php if ($_SESSION['errorData']['Info']) { ?>
-                                        <div class="alert alert-info">
-                                        <?php } else { ?>
-                                            <div class="alert alert-danger">
-                                            <?php } ?>
-                                            <?php
-                                            foreach ($_SESSION['errorData'] as $subTitle => $txts) {
-                                                print "<strong>$subTitle</strong><br/>";
-                                                foreach ($txts as $txt) {
-                                                    print "<div>$txt</div>";
-                                                }
-                                            }
-                                            unset($_SESSION['errorData']);
-                                            ?>
-                                            </div>
-                                        <?php } ?>
-                                        </div>
-                            </div>
-
-                            <!-- END CONTENT BODY -->
-                        </div>
 
 
-                        <?php
-                        require "../../htmlib/footer.inc.php";
 
-                        ?>
-                        <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-                        <script>
-                            var redirect_url = "oeb_results/oeb_views/oeb_generalView.php"
+                <?php
+                require "../../htmlib/footer.inc.php";
 
-                            function loadProjectWS(id) {
-                                location.href = baseURL + 'applib/oeb_manageProjects.php?op=reload&pr_id=' + id.value + '&redirect_url=' + redirect_url;
-                            };
+                ?>
+                <style>
+                    .selected {
+                        background-color: #eef1f5;
+                    }
 
-                            function loadWSTool(op) {
-                                console.log(op.value)
-                                location.href = baseURL + redirect_url + "?tool=" + op.value;
+                    .selectorLists {
+                        min-height: 20vh;
+                        min-width: 22vh;
+                        border: 1px solid #5e738b
+                    }
+                </style>
+                <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+                <script>
+                    var redirect_url = "oeb_results/oeb_views/oeb_generalView.php"
 
+                    function loadProjectWS(id) {
+                        location.href = baseURL + 'applib/oeb_manageProjects.php?op=reload&pr_id=' + id.value + '&redirect_url=' + redirect_url;
+                    };
+
+                    function loadWSTool(op) {
+                        console.log(op.value)
+                        location.href = baseURL + redirect_url + "?tool=" + op.value;
+
+                    }
+
+                    new Sortable(listOfTools, {
+                        group: 'runs', // set both lists to same group
+                        multiDrag: true, // Enable multi-drag
+                        selectedClass: 'selected', // The class applied to the selected items
+                        fallbackTolerance: 3, // So that we can select items on mobile
+                        animation: 50
+                    });
+
+                    new Sortable(listOfToolsSelected, {
+                        group: 'runs',
+                        multiDrag: true, // Enable multi-drag
+                        selectedClass: 'selected', // The class applied to the selected items
+                        fallbackTolerance: 3, // So that we can select items on mobile
+                        filter: '.head',
+                        //animation: 50
+                    });
+
+                    function myFunction() {
+                        var tool = $("#toolSelector option:selected").val();
+
+
+                        var arrayofexecutions = [];
+                        $('ul#listOfToolsSelected li').each(function(i) {
+                            arrayofexecutions.push($(this).attr('data')); // This is your rel value)
+                        });
+                        console.log(arrayofexecutions, tool);
+                        viewResults(arrayofexecutions, tool);
+                    }
+                    viewResults = function(execution, tool) {
+                        App.blockUI({
+                            boxed: true,
+                            message: 'Creating tool output, this operation may take a while, please don\'t close the tab...'
+                        });
+                        console.log("execution=" + execution + "&tool=" + tool);
+                        $.ajax({
+                            type: "POST",
+                            url: baseURL + "/applib/loadOutput.php",
+                            data: "execution=" + execution + "&tool=" + tool,
+                            success: function(data) {
+
+                                if (data == '1') {
+                                    setTimeout(function() {
+                                        location.href = 'tools/' + tool + '/output.php?execution=' + execution;
+                                    }, 500);
+                                } else if (data == '0') {
+                                    setTimeout(function() {
+                                        location.href = 'workspace/';
+                                    }, 500);
+                                }
                             }
+                        });
 
-                            new Sortable(listOfTools, {
-                                group: 'runs', // set both lists to same group
-                                animation: 150
-                            });
-
-                            new Sortable(listOfToolsSelected, {
-                                group: 'runs',
-                                animation: 150
-                            });
-                        </script>
+                    };
+                </script>
