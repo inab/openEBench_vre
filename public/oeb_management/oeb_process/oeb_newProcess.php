@@ -83,15 +83,14 @@ require "../../htmlib/js.inc.php"; ?>
                             <div class="portlet light portlet-fit bordered">
 
                                 <div id="processes" class="portlet-body">
+                                    <input type="hidden" id="base-url" value="<?php echo $GLOBALS['BASEURL']; ?>" />
+                                    <input type="hidden" id="hola" value="quetal" />
                                     <div id="loading-datatable">
                                         <div id="loading-spinner">LOADING</div>
                                         <div id="loading-text">It could take a few minutes</div>
                                     </div>
 
-                                    <input type="hidden" id="base-url" value="<?php echo $GLOBALS['BASEURL']; ?>" />
-
                                     <div id='editor_holder'></div>
-                                    <button id='submit'>Submit</button>
                                 </div>
                             </div>
                         </div>
@@ -99,7 +98,27 @@ require "../../htmlib/js.inc.php"; ?>
                   <!-- END EXAMPLE TABLE PORTLET-->
                 </div>
                 <!-- END CONTENT BODY -->
+                <style type="text/css">
+                    /* The elements that are at the same level that the objects but are not objects (to equal) */
+                    .control-label-different {
+                        font-family: "Open Sans",sans-serif;
+                        color: #666;
+                        font-weight: 300;
+                    }
+                    /* All the titles of the objects */
+                    span {
+                        font-size: 20px;
+                    }
+                    /* The title */
+                    .different {
+                        font-size: 24px;
+                        font-weight: bold;
+                    }
 
+                    hr, p {
+                        margin: 0px 0;
+                    }
+                </style>
                 <?php
                 require "../../htmlib/footer.inc.php";
                 ?>

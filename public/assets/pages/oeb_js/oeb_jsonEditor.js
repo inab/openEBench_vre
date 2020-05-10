@@ -1,4 +1,6 @@
-var titleSchema = "OEB Benchmarking Workflow: Validation process";
+//THE TITLE OF THE SCHEMA HAS TO BE THE SAME THAT THE VARIABLE titleSchema
+var titleSchema = "OEB Benchmarking Validation Workflow";
+var titlesToo = ["Title", "Description", "Long description", "OEB Validation status"];
 
 function initializer() {
 
@@ -1758,7 +1760,7 @@ JSONEditor.AbstractEditor = Class.extend({
     return null;
     },
     getTitle: function() {
-    return this.schema.title || this.key;
+        return this.schema.title || this.key;
     },
     enable: function() {
     this.disabled = false;
@@ -2334,6 +2336,7 @@ JSONEditor.defaults.editors.object = JSONEditor.AbstractEditor.extend({
     saveJSONMongo: function() {
         var json = JSON.stringify(this.getValue(),null,2);
         console.log(json);
+        //insertJSON in oeb_newProcess.js
         insertJSON(json);
     },
     getDefault: function() {
@@ -2639,8 +2642,10 @@ JSONEditor.defaults.editors.object = JSONEditor.AbstractEditor.extend({
     else {
         this.header = document.createElement('span');
         this.header.textContent = this.getTitle();
+
         this.title = this.theme.getHeader(this.header);
         this.container.appendChild(this.title);
+
         this.container.style.position = 'relative';
 
         // Edit JSON modal
@@ -2724,11 +2729,11 @@ JSONEditor.defaults.editors.object = JSONEditor.AbstractEditor.extend({
         this.editjson_controls = this.theme.getHeaderButtonHolder();
         this.addproperty_controls = this.theme.getHeaderButtonHolder();
         this.title.appendChild(this.title_controls);
-        this.title.appendChild(this.editjson_controls);
+        //this.title.appendChild(this.editjson_controls);
         this.title.appendChild(this.addproperty_controls);
 
         if (this.header.textContent == titleSchema) {
-            
+            this.header.className += 'different';
             this.editjson_button = this.getButton('JSON','edit','Submit');
         
             this.editjson_button.addEventListener('click',function(e) {
@@ -2738,9 +2743,9 @@ JSONEditor.defaults.editors.object = JSONEditor.AbstractEditor.extend({
             });
 
             this.editjson_controls.appendChild(this.editjson_button);
-        }
-        
-        this.editjson_controls.appendChild(this.editjson_holder);
+            this.container.appendChild(this.editjson_controls);
+        } 
+
     }
 
     // Fix table cell ordering
@@ -3201,20 +3206,20 @@ JSONEditor.defaults.editors.array = JSONEditor.AbstractEditor.extend({
         this.title_controls = this.theme.getHeaderButtonHolder();
         this.title.appendChild(this.title_controls);
         if(this.schema.description) {
-        this.description = this.theme.getDescription(this.schema.description);
-        this.container.appendChild(this.description);
+            this.description = this.theme.getDescription(this.schema.description);
+            this.container.appendChild(this.description);
         }
         this.error_holder = document.createElement('div');
         this.container.appendChild(this.error_holder);
 
         if(this.schema.format === 'tabs') {
-        this.controls = this.theme.getHeaderButtonHolder();
-        this.title.appendChild(this.controls);
-        this.tabs_holder = this.theme.getTabHolder();
-        this.container.appendChild(this.tabs_holder);
-        this.row_holder = this.theme.getTabContentHolder(this.tabs_holder);
+            this.controls = this.theme.getHeaderButtonHolder();
+            this.title.appendChild(this.controls);
+            this.tabs_holder = this.theme.getTabHolder();
+            this.container.appendChild(this.tabs_holder);
+            this.row_holder = this.theme.getTabContentHolder(this.tabs_holder);
 
-        this.active_tab = null;
+            this.active_tab = null;
         }
         else {
         this.panel = this.theme.getIndentedPanel();
@@ -6356,6 +6361,7 @@ JSONEditor.defaults.themes.bootstrap2 = JSONEditor.AbstractTheme.extend({
     else {
         if(label) {
         label.className += ' control-label';
+        
         ret.appendChild(label);
         }
         controls.appendChild(input);
@@ -6368,7 +6374,7 @@ JSONEditor.defaults.themes.bootstrap2 = JSONEditor.AbstractTheme.extend({
     },
     getHeaderButtonHolder: function() {
     var el = this.getButtonHolder();
-    el.style.marginLeft = '10px';
+    el.style.marginLeft = '15px';
     return el;
     },
     getButtonHolder: function() {
@@ -6511,9 +6517,17 @@ JSONEditor.defaults.themes.bootstrap3 = JSONEditor.AbstractTheme.extend({
     } 
     else {
         group.className += ' form-group';
-        if(label) {
-        label.className += ' control-label';
-        group.appendChild(label);
+        if (label) {
+            label.className += 'control-label';
+            label.style.fontSize = '14px';
+            for (var i = 0; i < titlesToo.length; i++) {
+                if (label.textContent == titlesToo[i]) {
+
+                    label.style.fontSize = '20px';
+                    label.className += '-different';
+                }
+            } 
+            group.appendChild(label);
         }
         group.appendChild(input);
     }
@@ -6643,7 +6657,7 @@ JSONEditor.defaults.themes.foundation = JSONEditor.AbstractTheme.extend({
     var el = this._super(options);
     el.style.minWidth = 'none';
     el.style.padding = '5px';
-    el.style.marginTop = '3px';
+    el.style.marginTop = '20px';
     return el;
     },
     getSwitcher: function(options) {
@@ -7864,10 +7878,4 @@ JSONEditor.defaults.resolvers.unshift(function(schema) {
 })();
 
     window.JSONEditor = JSONEditor;
-}
-
-$(document).ready(function() {
-    $("#submit").click(function() {
-        console.log(jsonObj)
-    });
-});
+};

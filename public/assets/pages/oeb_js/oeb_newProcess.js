@@ -7,13 +7,13 @@ var urlsArray = [];
 var owners = [];
 
 $(document).ready(function() {
-  $("#submit").hide();
-  $.getJSON("https://raw.githubusercontent.com/inab/OpEB-VRE-schemas/oeb_wfs/processValidation_schema.json", function(data) {
-  //$.getJSON("https://raw.githubusercontent.com/inab/OpEB-VRE-schemas/oeb_wfs/prueba.json", function(data) {
+  //$.getJSON("https://raw.githubusercontent.com/inab/OpEB-VRE-schemas/oeb_wfs/processValidation_schema.json", function(data) {
+  $.getJSON("https://raw.githubusercontent.com/inab/OpEB-VRE-schemas/workflow_schema/oeb_workflow_schema_prueba.json", function(data) {
      
     schema = data;
   })
   .done(function() {
+    var baseURL = $("#base-url").val();
 
     let [pathsArray, ancestorsArray, URLontologiesArray] = getInformation(schema);
 
@@ -36,7 +36,6 @@ $(document).ready(function() {
         labels = [];
         uris = [];
         $.each(arguments[x][0], function(key, modelName) {
-
           labels.push(modelName['label']);
           uris.push(modelName['URI']);
 
@@ -45,17 +44,13 @@ $(document).ready(function() {
         });
       };
 
-      //INSERT THE OWNER
+      //INSERT THE OWNER, _ID AND SCHEMA
       var urlDefaultValues = "applib/oeb_processesAPI.php?action=getDefaultValues&owner&_id&_schema";
       $.ajax({
         type: 'POST',
         url: urlDefaultValues,
         data: url
       }).done(function(data) {
-        var ownerVar =  data['owner'];
-        var _idVar =  data['_id'];
-        var _schemaVar = data['_schema'];
-
         //INICIALIZA EL FORMULARIO - NO HASTA QUE EL SELECT ESTA CARGADO
         initializer(); 
         // Set default options
@@ -67,30 +62,23 @@ $(document).ready(function() {
           schema: schema,
         });
 
-        //define the variables owner, _id
-        editor.setValue({owner: ownerVar, _id: _idVar, _schema: _schemaVar});
 
-        // Validate
-        var errors = editor.validate();
-        if(errors.length) {
-          // Not valid
+        var defaultVariables = ["_id", "_schema", "owner"];
+
+        for (x = 0; x < defaultVariables.length; x++) {
+          //DATA only has _ID, _SCHEMA AND OWNER. If we want another variable we have to implement in the API and get it
+          editor["schema"]["properties"][defaultVariables[x]]["const"] = data[defaultVariables[x]];
+
+          editor.getEditor("root." + defaultVariables[x]).setValue(data[defaultVariables[x]]);
         }
         
-        // Listen for changes
-        editor.on("change",  function() {
-          // Do something...
-        });
-        
+        console.log(editor["schema"]);
         $("#loading-datatable").hide();
-        $("#submit").show();
       });
     }).fail(function (jqXHR, textStatus) {
       console.log("ERROR");
     })
   });
-  $("#submit").click(function() {
-    console.log("SUBMIT");
-  })
 });
 
 //to get the path
@@ -125,7 +113,6 @@ function getInformation(schema) {
   //params to get final information
   var paths = [];
   var listPaths = [];
-
 
   //find in the schema the word "ontology" and "ancestors" and add them to their respective arrays
   for(var [key, value, path] of traverse(schema)) {
@@ -163,14 +150,23 @@ function getInformation(schema) {
 function insertJSON(processJSONForm) {
   //var processStringForm = JSON.stringify(processJSONForm);
   var urlJSON = "applib/oeb_processesAPI.php";
-  
+
   $.ajax({
     type: 'POST',
     url: urlJSON,
     data: {'action': 'setProcess', 'processForm': processJSONForm}
   }).done(function(data) {
     if(data['code'] == 200) {
+      window.location.href = baseURL + "oeb_management/oeb_process/oeb_processes.php";
       console.log("PROCESS INSERTED SUCCESSFULLY!");
+      $("#myError").removeClass("alert alert-danger");
+      $("#myError").addClass("alert alert-info");
+      $("#myError").text("Successfully process uploaded");
+      $("#myError").show();
+      
+    } else {
+      $("#myError").text(url["message"]);
+      $("#myError").show();
     }
   });
 }

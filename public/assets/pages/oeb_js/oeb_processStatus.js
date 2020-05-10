@@ -1,6 +1,6 @@
 function changeStatus(statusValue, processId) {
 	
-	var url = "applib/oeb_processesAPI.php?action=updateStatu&process=" + processId + "&status=" + statusValue;/*  */
+	var url = "applib/oeb_processesAPI.php?action=updateStatus&process=" + processId + "&status=" + statusValue;/*  */
 
 	if (statusValue === "" || processId === "") {
 		$("#myError").text("Some param is null");
@@ -35,7 +35,7 @@ $(document).ready(function() {
 			{ "data" : "_id" },
 			{ "data" : "status" },
 			{ "data" : "inputs_meta.public_ref_dir.data_type" },
-			{ "data" : "inputs_meta.public_ref_dir.file_type" },
+			{ "data" : "inputs_meta.input.file_type" },
 			{ "data" : "owner"}
 		],
 		"columnDefs": [

@@ -63,6 +63,7 @@ function updateStatusProcess($processId, $statusId) {
 	}
 	// update process status in Mongo
 	try  {
+
 		$processCol->update(['_id' => $processId], [ '$set' => [ 'status' => 'NumberLong('+$statusId+')']]);
 	
 	} catch (MongoCursorException $e) {
@@ -71,7 +72,7 @@ function updateStatusProcess($processId, $statusId) {
 		$response_json->setMessage("Cannot update data in Mongo. Mongo Error(".$e->getCode()."): ".$e->getMessage());
 		return $response_json->getResponse();
 	}
-	
+
 	return $response_json->getResponse();
 }
 
@@ -86,9 +87,10 @@ function getListOntologyForForm($formOntology, $ancestors) {
 	$label;
 
 	if (isset($GLOBALS['oeb_dataModels'][$formOntology])) {
-
+		//is only to validate that the ontology exists in DB. 
 		$nameUrlOntology = $GLOBALS['oeb_dataModels'][$formOntology];
 		//ontology-general
+		//we use the link of .owl and not the pURLs because this function does not accepted it
 		$graph = EasyRdf_Graph::newAndLoad("https://raw.githubusercontent.com/inab/OEB-ontologies/master/oebDatasets-complete.owl","rdfxml");
 		
 		$resource = $graph->resource($ancestors);
