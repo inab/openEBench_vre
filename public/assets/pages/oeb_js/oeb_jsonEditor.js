@@ -249,6 +249,7 @@ JSONEditor.prototype = {
         if(self.options.custom_validators) {
         validator_options.custom_validators = self.options.custom_validators;
         }
+
         self.validator = new JSONEditor.Validator(self,null,validator_options);
         
         // Create the root editor
@@ -274,6 +275,7 @@ JSONEditor.prototype = {
         // Fire ready event asynchronously
         window.requestAnimationFrame(function() {
         if(!self.ready) return;
+
         self.validation_results = self.validator.validate(self.root.getValue());
         self.root.showValidationErrors(self.validation_results);
         self.trigger('ready');
@@ -297,6 +299,7 @@ JSONEditor.prototype = {
     
     // Custom value
     if(arguments.length === 1) {
+
         return this.validator.validate(value);
     }
     // Current value (use cached result)
@@ -2333,11 +2336,15 @@ JSONEditor.defaults.editors.integer = JSONEditor.defaults.editors.number.extend(
 });
 
 JSONEditor.defaults.editors.object = JSONEditor.AbstractEditor.extend({
-    saveJSONMongo: function() {
-        var json = JSON.stringify(this.getValue(),null,2);
-        console.log(json);
-        //insertJSON in oeb_newProcess.js
-        insertJSON(json);
+    validateErrors: function() {
+
+        var errors = validateErr();
+        console.log("Error: " + errors);
+        if (!errors) {
+            var json = JSON.stringify(this.getValue(),null,2);
+            console.log(json);
+            insertJSON(json);
+        } 
     },
     getDefault: function() {
     return $extend({},this.schema["default"] || {});
@@ -2731,19 +2738,28 @@ JSONEditor.defaults.editors.object = JSONEditor.AbstractEditor.extend({
         this.title.appendChild(this.title_controls);
         //this.title.appendChild(this.editjson_controls);
         this.title.appendChild(this.addproperty_controls);
-
         if (this.header.textContent == titleSchema) {
             this.header.className += 'different';
             this.editjson_button = this.getButton('JSON','edit','Submit');
+
+            //mycode
+            //create a p and br element below to the button submit
+            this.pElement = document.createElement('p');
+            this.brElement = document.createElement('br');
+            this.pElement.className += 'pClass';
         
             this.editjson_button.addEventListener('click',function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                self.saveJSONMongo();
+                self.validateErrors();
             });
 
+            
             this.editjson_controls.appendChild(this.editjson_button);
             this.container.appendChild(this.editjson_controls);
+            //add the elements to the container below button submit
+            this.container.appendChild(this.brElement);
+            this.container.appendChild(this.pElement);
         } 
 
     }
@@ -4460,6 +4476,7 @@ JSONEditor.defaults.editors.multiple = JSONEditor.AbstractEditor.extend({
     setValue: function(val,initial) {
     // Determine type by getting the first one that validates
     var self = this;
+
     $each(this.validators, function(i,validator) {
         if(!validator.validate(val).length) {
         self.type = i;
@@ -7844,6 +7861,7 @@ JSONEditor.defaults.resolvers.unshift(function(schema) {
         }
         // Validate current value
         else {
+
             return editor.validate();
         }
         }

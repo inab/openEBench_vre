@@ -165,7 +165,7 @@ function setProcess($processStringForm) {
 	try {
 		$GLOBALS['processCol']->insert($processJSONForm);
 	} catch (Exception $e) {
-		$response_json->setCode(500);
+		$response_json->setCode(501);
 		$response_json->setMessage("Cannot update data in Mongo. Mongo Error(".$e->getCode()."): ".$e->getMessage());
 		return $response_json->getResponse();
 	}

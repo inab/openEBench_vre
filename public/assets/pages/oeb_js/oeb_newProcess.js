@@ -72,7 +72,8 @@ $(document).ready(function() {
           editor.getEditor("root." + defaultVariables[x]).setValue(data[defaultVariables[x]]);
         }
         
-        console.log(editor["schema"]);
+        console.log(editor);
+
         $("#loading-datatable").hide();
       });
     }).fail(function (jqXHR, textStatus) {
@@ -158,7 +159,9 @@ function insertJSON(processJSONForm) {
   }).done(function(data) {
     if(data['code'] == 200) {
       window.location.href = baseURL + "oeb_management/oeb_process/oeb_processes.php";
-      console.log("PROCESS INSERTED SUCCESSFULLY!");
+      console.log("WORKFLOW INSERTED SUCCESSFULLY!");
+
+      //no lo hace correctamente 
       $("#myError").removeClass("alert alert-danger");
       $("#myError").addClass("alert alert-info");
       $("#myError").text("Successfully process uploaded");
@@ -169,4 +172,25 @@ function insertJSON(processJSONForm) {
       $("#myError").show();
     }
   });
+}
+
+function validateErr() {
+
+  var errors = editor.validate();
+  console.log(errors);
+
+  if(errors.length != 0) {
+    editor.options.show_errors = "always";
+
+    $(".pClass").text("There are errors in some fields of the form.");
+    $(".pClass").addClass(" alert alert-danger");
+    $(".pClass").attr("id", "idP");
+    $("#idP").css({"margin-top": "20px"});
+
+    // Fire a change event to force revalidation
+    editor.onChange();
+    return true;
+  } else {
+    return false;
+  }
 }
