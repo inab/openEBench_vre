@@ -26,13 +26,21 @@ if($_REQUEST) {
         }
     //https://dev-openebench.bsc.es/vre/applib/oeb_processesAPI.php?action=getDefaultValues&owner&_id&_schema
     } elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == "getDefaultValues") {
-        if(isset($_REQUEST['owner'], $_REQUEST['_id'], $_REQUEST['_schema'])) {
+        if(isset($_REQUEST['owner'], $_REQUEST['_schema'])) {
             echo getDefaultValues();
             exit;
         }
     //https://dev-openebench.bsc.es/vre/applib/oeb_processesAPI.php?processForm=...
     } elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == "setProcess" ) {
         echo setProcess($_REQUEST['processForm']);
+        exit;
+    } elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == "validateGit") {
+        if (isset($_REQUEST['gitURL'], $_REQUEST['gitTag'])) {
+            echo validateGit($_REQUEST['gitURL'], $_REQUEST['gitTag']);
+            exit;
+        }
+    } elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == "getUser") {
+        echo getUser();
         exit;
     } else {
         echo "IN";

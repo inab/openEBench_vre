@@ -83,9 +83,10 @@ $GLOBALS['tool_metadata_file']   = ".input_metadata.json"; // Default name for r
 // Tool and visualizer status
 $GLOBALS['tool_status'] = Array(
 		0  => "Coming soon",
-		1  => "Active",
-		2   => "Disabled",
-		3   => "Testing"
+		1  => "Public",
+		2   => "Private",
+		3   => "Testing",
+		4  => "Community available"
 );
 
 // File 'compression' attribute (extension => compression model)
@@ -269,10 +270,12 @@ $GLOBALS['clouds'] = Array(
 
 #OPENEBENCH
 
-// Process and visualizer status
-$GLOBALS['process_status'] = Array(
-	0  => "Private",
-	1  => "Public"
+$GLOBALS['status_requested'] = Array(
+	0 => "In preparation",
+	1 => "SUbmitted",
+	2 => "To be reviewed",
+	3 => "Registered",
+	4 => "Rejected"
 );
 
 //ontologias
