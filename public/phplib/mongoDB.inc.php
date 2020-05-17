@@ -1231,10 +1231,10 @@ function uploadGSFile($col,$fn,$fsFile) {
 
 // create unique file id
 
-function createLabel(){
+/*function createLabel(){
         $label= uniqid($_SESSION['User']['id']."_",TRUE);
         if (! empty($GLOBALS['filesCol']->findOne(array('_id' => $label))) ){
                 $label= uniqid($_SESSION['User']['id']."_",TRUE);
         }
         return $label;
-}
+}*/

@@ -89,8 +89,12 @@ require "../../htmlib/js.inc.php"; ?>
                                         <div id="loading-spinner">LOADING</div>
                                         <div id="loading-text">It could take a few minutes</div>
                                     </div>
-
+                                    
                                     <div id='editor_holder'></div>
+                                    <br>
+                                    <button id="submit" style="display:none;" class="btn btn-primary">Submit</button>
+                                    <br>
+                                    <p class="errorClass" id="idP" style="display:none;"></p>
                                 </div>
                             </div>
                         </div>
@@ -99,25 +103,48 @@ require "../../htmlib/js.inc.php"; ?>
                 </div>
                 <!-- END CONTENT BODY -->
                 <style type="text/css">
-                    /* The elements that are at the same level that the objects but are not objects (to equal) */
-                    .control-label-different {
-                        font-family: "Open Sans",sans-serif;
-                        color: #666;
-                        font-weight: 300;
+                    li a[href="#Infrastructure-details"] {
+                        display: none;
                     }
-                    /* All the titles of the objects */
-                    span {
-                        font-size: 20px;
+
+                    li a[href="#Output-results"] {
+                        display: none;
                     }
-                    /* The title */
-                    .different {
-                        font-size: 24px;
+
+                    .invalid-feedback {
+                        color: red;
+                    }
+
+                    button {
+                        margin: 3px;
+                    }
+
+                    label {
                         font-weight: bold;
                     }
 
-                    hr, p {
-                        margin: 0px 0;
+                    #idP {
+                        margin-top: 20px;
                     }
+
+                    .form-group, .btn-group,
+                    div[data-schemapath="root.nextflow_files.workflow_file"], div[data-schemapath="root.nextflow_files.config_file"], 
+                    div[data-schemapath="root.inputs_meta.input"], div[data-schemapath="root.inputs_meta.public_ref_dir"],
+                    div[data-schemapath="root.inputs_meta.participant_id"], div[data-schemapath="root.inputs_meta.community_id"],
+                    div[data-schemapath="root.inputs_meta.challenges_ids"], div[data-schemapath="root.inputs_meta.challenges_ids.challenges"],
+                    div[data-schemapath^="root.inputs_meta.challenges_ids.challenges."] {
+                        margin-left: 20px;
+                    }
+
+                    div[data-schemapath^="root.inputs_meta.challenges_ids.challenges"] div .btn-group {
+                        margin-left: 20px;
+                    }
+
+                    .form-group .required {
+                        font-size: 14px;
+                        color: #333;
+                    }
+
                 </style>
                 <?php
                 require "../../htmlib/footer.inc.php";

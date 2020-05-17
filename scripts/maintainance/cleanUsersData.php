@@ -255,7 +255,7 @@ foreach ( array_values(iterator_to_array($fu)) as $v ){
             // delete file if required
             if (($tobedeleted === true && $soft_mode=== false) || $tobedeleted_evenSoftMode === true ){
 
-                if (!is_writable($GLOBALS['dataDir']."/".$f['path'])){
+		if (is_file($GLOBALS['dataDir']."/".$f['path']) && !is_writable($GLOBALS['dataDir']."/".$f['path'])){
                     print "FATAL: Cannot delete file. '".$GLOBALS['dataDir']."/".$f['path']."' is not writable: permission denied\n";
                     exit(0);
                 }
@@ -315,7 +315,7 @@ foreach ( array_values(iterator_to_array($fu)) as $v ){
 }
 if ($errors){
     print "\nSummarizing the errors occurred during file cleaning (".count($errors)."):\n - ";
-    join("\n - ",$errors)."\n";
+    print join("\n - ",$errors)."\n";
 }
 
 // clean temporary files

@@ -23,8 +23,6 @@ function getCommunities()
 
   list($r, $info) = post($data_string, $GLOBALS["OEB_sciapi"], $headers);
 
-  logger("RESPONSE => " . json_encode($r) . "'");
-
 
   if ($r == "0") {
     if ($_SESSION['errorData']['Error']) {
@@ -78,8 +76,6 @@ function getDatasets()
   );
 
   list($r, $info) = post($data_string, $GLOBALS["OEB_sciapi"], $headers);
-
-  logger("RESPONSE => " . json_encode($r) . "'");
 
 
   if ($r == "0") {

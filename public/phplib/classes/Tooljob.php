@@ -1146,7 +1146,13 @@ class Tooljob {
 		$compressions   = $GLOBALS['compressions'];
         $mugfile['_id'] = $file['_id'];
 
-		//path -> file_path (relative to user_data_directory)
+       //ensure "type:file" is there
+       if (!isset($file['type'])){
+               $mugfile['type'] = "file";
+       }else{
+               $mugfile['type'] = $file['type'];
+       }
+        //path -> file_path (relative to user_data_directory)
         if (isset($file['path'])){
 			if (preg_match('/^\//', $file['path']) || preg_match('/^'.$_SESSION['User']['id'].'/', $file['path']) ){
                 $path = explode("/",$file['path']);

@@ -117,34 +117,26 @@ require "../../htmlib/js.inc.php";
                                     "project"   => $proj_name_active
                                 );
                                 $filteredFiles = getGSFiles_filteredBy($file_filter);
-
-                                //var_dump($filteredFiles);
-
                                 ?>
-                                <div class="row">
-                                    <div class="col-xs-6 selectorLists">
+                                <div>
+                                    <div class="col-xs-12
+                                     selectorLists">
                                         <ul class=" list-group">
                                             <span id="listOfTools">
-
-
                                                 <?php foreach ($filteredFiles as $key => $value) {
-                                                    echo '<li data="' . $value['parentDir'] . '" class="list-group-item runs">' . basename(getAttr_fromGSFileId($value['parentDir'], "path")) . '</li>';
+                                                    echo '<li class="list-group-item runs"><input class="checkboxes" type="checkbox" value="' . $value['parentDir'] . '"name="sport">  ' . basename(getAttr_fromGSFileId($value['parentDir'], "path")) . '</li>';
                                                 }
                                                 ?>
-
                                             </span>
                                         </ul>
                                     </div>
 
-                                    <div class="col-xs-6 selectorLists">
-                                        <ul id="listOfToolsSelected" class="list-group">
 
-                                        </ul>
 
-                                    </div>
 
                                 </div>
-                                <button class=" btn green" onclick="myFunction()" id="btn-run-files" style="margin-top:20px;">Run Selected Files</button>
+                                <button class=" btn green" onclick="getallselected2()" id="btn-run-files" style="margin-top:20px;">Run Selected Files</button>
+                                <!-- <button class=" btn green" onclick="getallselected()" id="btn-run-files" style="margin-top:20px;">Run Selected Files</button> -->
                             </div>
                         </div>
                     </div>
@@ -171,7 +163,7 @@ require "../../htmlib/js.inc.php";
                     .selectorLists {
                         min-height: 20vh;
                         min-width: 22vh;
-                        border: 1px solid #5e738b
+
                     }
                 </style>
                 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
@@ -189,23 +181,39 @@ require "../../htmlib/js.inc.php";
                     }
 
                     new Sortable(listOfTools, {
-                        group: 'runs', // set both lists to same group
-                        multiDrag: true, // Enable multi-drag
-                        selectedClass: 'selected', // The class applied to the selected items
-                        fallbackTolerance: 3, // So that we can select items on mobile
-                        animation: 50
+                        animation: 150,
+                        ghostClass: 'blue-background-class'
                     });
+                    // new Sortable(listOfTools, {
+                    //     group: 'runs', // set both lists to same group
+                    //     multiDrag: true, // Enable multi-drag
+                    //     selectedClass: 'selected', // The class applied to the selected items
+                    //     fallbackTolerance: 3, // So that we can select items on mobile
+                    //     animation: 50
+                    // });
 
-                    new Sortable(listOfToolsSelected, {
-                        group: 'runs',
-                        multiDrag: true, // Enable multi-drag
-                        selectedClass: 'selected', // The class applied to the selected items
-                        fallbackTolerance: 3, // So that we can select items on mobile
-                        filter: '.head',
-                        //animation: 50
-                    });
+                    // new Sortable(listOfToolsSelected, {
+                    //     group: 'runs',
+                    //     multiDrag: true, // Enable multi-drag
+                    //     selectedClass: 'selected', // The class applied to the selected items
+                    //     fallbackTolerance: 3, // So that we can select items on mobile
+                    //     filter: '.head',
+                    //     //animation: 50
+                    // });
 
-                    function myFunction() {
+                    function getallselected2() {
+                        var tool = $("#toolSelector option:selected").val();
+
+
+                        var arrayofexecutions = [];
+                        $.each($("input[name='sport']:checked"), function() {
+                            arrayofexecutions.push($(this).val());
+                        });
+                        //console.log(arrayofexecutions, tool);
+                        viewResults(arrayofexecutions, tool);
+                    }
+
+                    function getallselected() {
                         var tool = $("#toolSelector option:selected").val();
 
 
@@ -213,7 +221,7 @@ require "../../htmlib/js.inc.php";
                         $('ul#listOfToolsSelected li').each(function(i) {
                             arrayofexecutions.push($(this).attr('data')); // This is your rel value)
                         });
-                        console.log(arrayofexecutions, tool);
+                        //console.log(arrayofexecutions, tool);
                         viewResults(arrayofexecutions, tool);
                     }
                     viewResults = function(execution, tool) {

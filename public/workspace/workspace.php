@@ -66,13 +66,20 @@ if (isset($_REQUEST['op'])){
 				$filePath2 = getAttr_fromGSFileId($v,'path'); 
 				$relpath = implode("/", array_slice(split('/',$filePath2), 0, -1));
 				$filnam = end(split('/',$filePath2));
-				$rfn2      = $GLOBALS['dataDir']."/$relpath";
-				$fls .= "-C $rfn2 $filnam ";
+				if ($relpath){
+					$rfn2      = $GLOBALS['dataDir']."/$relpath";
+					$fls .= "-C $rfn2 $filnam ";
+				}
 				
 			}
 		}
+		if (!$fls){
+			$_SESSION['errorData']['Error'][] = "No valid files found. Cannot download them.</br> <a href=\"javascript:location.reload();\">[ OK ]</a>";
+                        break;
 
+		}
 		$cmd = "/bin/tar czf $tmpZip $fls 2>&1";
+		logger("INFO: workspace/downloadAll: executing $cmd");
 
 		exec($cmd,$output);
 		if ( !is_file($tmpZip) ){
@@ -88,13 +95,18 @@ if (isset($_REQUEST['op'])){
 
 	case 'downloadtgz' :
 		if (filetype($rfn) != 'dir') {
-			$_SESSION['errorData']['Error'][] = "Cannot tar ".$_REQUEST['fn']." File is not a directory";
+			$_SESSION['errorData']['Error'][] = "Cannot archive ".$_REQUEST['fn'].". File is not a directory";
 			break;
 		}
+		if ($rfn == $GLOBALS['dataDir']."/"){
+			$_SESSION['errorData']['Error'][] = "Given directory is data a root directory. Cannot archive it";
+			break;
+		}	
 		$newName= $_REQUEST['fn'].".tar.gz";
 		$tmpZip = $GLOBALS['dataDir']."/".$userPath."/".$GLOBALS['tmpUser_dir']."/".basename($newName); 
 
 		$cmd = "/bin/tar -czf $tmpZip -C $rfn .  2>&1";
+		logger("INFO: workspace/downloadtgz: executing $cmd");
 		exec($cmd,$output);
 		if ( !is_file($tmpZip) ){
 			$_SESSION['errorData']['Error'][] = "Uncompressed file not created.";
@@ -307,10 +319,10 @@ if (isset($_REQUEST['op'])){
         switch ($extClean) {
             case 'dsrc':
                 $cmd ="";
-			case 'tar':
-				#touch option force tar to update uncompressed files atime - required by the expiration time
-				$cmd = "tar --touch -xf \"" . $rfn . "\" 2>&1";
-				break;
+ 	    case 'tar':
+		#touch option force tar to update uncompressed files atime - required by the expiration time
+		$cmd = "tar --touch -xf \"" . $rfn . "\" 2>&1";
+		break;
             case 'zip':
                 list($files_compressed,$zip_output) = indexFiles_zip($rfn);
                 //check zip content 
@@ -388,8 +400,7 @@ if (isset($_REQUEST['op'])){
 
 		if ($cmd){
 			exec($cmd, $output);
-
-            //$_SESSION['errorData']['Error'][] = "CMD = $cmd";
+			logger("INFO: workspace/untar: executing $cmd");
 
 			if (is_file($rfn_Tmp)){
 				$insertData = array(

@@ -24,6 +24,34 @@ function randomSalt( $length ) {
     return $str;
 }
  */
+function createLabel($prefix="",$collectionName="", $depth=0){
+	// check inputs
+	if (!$prefix)
+		$prefix = $_SESSION['User']['id'];
+	if (!$collectionName)
+		$collectionName = "filesCol";
+	$prefix = preg_replace('/[^A-Za-z0-9\-\_]/', '', $prefix);
+	if (!isset($GLOBALS[$collectionName])){
+		$_SESSION['errorData']['error'][]="Cannot create unique identifier for collection '$collectionName'. Collection not found.";
+		return 0;
+	}
+
+	// create label
+        $label= uniqid($prefix."_",TRUE);
+
+	// check label is unique
+	$limit = 10;
+        if (!empty($GLOBALS[$collectionName]->findOne(array('_id' => $label))) ){
+	    if ($depth > $limit){
+		$_SESSION['errorData']['error'][]="Cannot create unique identifier for collection '$collectionName'. Max. depth reached.";
+		return 0;
+	    }
+	    // if not unique, create new label
+	    $depth++;
+            $label= createLabel($prefix, $collectionName, $depth);
+        }
+        return $label;
+}
 
 function mkpath($path){
     if (@mkdir($path) or file_exists($path)) {

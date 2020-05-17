@@ -42,12 +42,12 @@ require "../../htmlib/js.inc.php"; ?>
                 <!-- END PAGE BAR -->
 
                 <!-- BEGIN PAGE TITLE-->
-                <h1 class="page-title"> Processes
-                    <small>Your available processes</small>
+                <h1 class="page-title"> Benchmarking Workflows
+                    <small>Your available workflows</small>
                     <div class="btn-group" style="float:right;">
                         <div class="actions">
                             <!-- <a onclick="getdata()" id="processA" class="btn green"> Reload Processes </a> -->
-                            <a id="processReload" class="btn green"> Reload Processes </a>
+                            <a id="processReload" class="btn green"> Reload Workflows </a>
                         </div>
                     </div>
                 </h1>
@@ -59,7 +59,7 @@ require "../../htmlib/js.inc.php"; ?>
                     <div class="col-md-12">
 
 			<!-- Show errors from frontend-->
-                	<div class="alert alert-danger" id="myError"style="display:none;"></div>
+                	<div id="myError"style="display:none;"></div>
 
 			<!-- Show errors from PHP backend-->
                         <?php

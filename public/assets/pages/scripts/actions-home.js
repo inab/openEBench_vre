@@ -387,12 +387,11 @@ runVisualizer = function(tool, user) {
 }
 	
 viewResults = function(execution, tool) {
-		
 	App.blockUI({
 				boxed: true,
 		message: 'Creating tool output, this operation may take a while, please don\'t close the tab...'
 			});
-
+	console.log("execution=" + execution + "&tool=" + tool);
 	$.ajax({
 		type: "POST",
 		url: baseURL + "/applib/loadOutput.php",

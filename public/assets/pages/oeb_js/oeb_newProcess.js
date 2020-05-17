@@ -5,6 +5,12 @@ var labels = [];
 var uris = [];
 var urlsArray = [];
 var owners = [];
+var value;
+var editorValue;
+var gitURLs = [];
+var gitTags = [];
+var URLsApiGit = [];
+var urlJSON = "applib/oeb_processesAPI.php";
 
 $(document).ready(function() {
   //$.getJSON("https://raw.githubusercontent.com/inab/OpEB-VRE-schemas/oeb_wfs/processValidation_schema.json", function(data) {
@@ -44,43 +50,83 @@ $(document).ready(function() {
         });
       };
 
-      //INSERT THE OWNER, _ID AND SCHEMA
-      var urlDefaultValues = "applib/oeb_processesAPI.php?action=getDefaultValues&owner&_id&_schema";
+      //INSERT THE OWNER AND SCHEMA
+      var urlDefaultValues = "applib/oeb_processesAPI.php?action=getDefaultValues&owner&_schema";
       $.ajax({
         type: 'POST',
         url: urlDefaultValues,
         data: url
       }).done(function(data) {
         //INICIALIZA EL FORMULARIO - NO HASTA QUE EL SELECT ESTA CARGADO
-        initializer(); 
-        // Set default options
-        JSONEditor.defaults.options.theme = 'bootstrap3';
-        
+        //initializer(); 
+
         // Initialize the editor
         editor = new JSONEditor(document.getElementById("editor_holder"),{
-          theme: 'bootstrap3',
+          theme: 'bootstrap4',
           schema: schema,
+          disable_collapse: true,
+          disable_edit_json: true,
+          disable_properties: true
         });
+        
 
-
-        var defaultVariables = ["_id", "_schema", "owner"];
+        var defaultVariables = ["_schema", "owner"];
 
         for (x = 0; x < defaultVariables.length; x++) {
-          //DATA only has _ID, _SCHEMA AND OWNER. If we want another variable we have to implement in the API and get it
+          //DATA only has _SCHEMA AND OWNER. If we want another variable we have to implement in the API and get it
           editor["schema"]["properties"][defaultVariables[x]]["const"] = data[defaultVariables[x]];
 
           editor.getEditor("root." + defaultVariables[x]).setValue(data[defaultVariables[x]]);
         }
-        
+
         console.log(editor);
 
+        //change name of the navbar 
+        $('a[href="#Generic-keywords"]').text("STEP 2: Generic keywords");
+        $('a[href="#Custom-keywords"]').text("STEP 3: Custom keywords");
+        $('a[href="#Nextflow-files"]').text("STEP 4: Nextflow files");
+        $('a[href="#Input-files-&-arguments"]').text("STEP 5: Input files & arguments");
+        
+        //$('div[data-schemapath="root.inputs_meta.public_ref_dir.value"] input').attr("accept", ".tar");
         $("#loading-datatable").hide();
+        $("#submit").show();
+
+        //ON CLICK SUBMIT 
+        clickSubmit();
+
+        editorValue = editor.getValue();
       });
     }).fail(function (jqXHR, textStatus) {
       console.log("ERROR");
     })
   });
 });
+
+function clickSubmit() {
+  
+  $('#submit').on("click",function() {
+    //var encodeFile = encodeURIComponent(file);
+    
+    var json = JSON.stringify(editor.getValue(),null,2);
+
+    //if there are errors = true, no errors = false
+    var errors = validateErr();
+
+    //if there are not errors
+    if (!errors) {
+      //give the value to editorValue
+      editorValue = editor.getValue();
+
+      gitURLs.push(editorValue["nextflow_files"]["workflow_file"]["workflow_gitURL"], editorValue["nextflow_files"]["config_file"]["config_gitURL"]);
+      gitTags.push(editorValue["nextflow_files"]["workflow_file"]["workflow_gitTag"], editorValue["nextflow_files"]["config_file"]["config_gitTag"]);
+
+      //insert into db
+      insertJSON(json);
+    }
+
+    $(".errorClass").show();
+  });
+}
 
 //to get the path
 function* traverse(schema) {
@@ -149,8 +195,6 @@ function getInformation(schema) {
 }
 
 function insertJSON(processJSONForm) {
-  //var processStringForm = JSON.stringify(processJSONForm);
-  var urlJSON = "applib/oeb_processesAPI.php";
 
   $.ajax({
     type: 'POST',
@@ -158,39 +202,43 @@ function insertJSON(processJSONForm) {
     data: {'action': 'setProcess', 'processForm': processJSONForm}
   }).done(function(data) {
     if(data['code'] == 200) {
-      window.location.href = baseURL + "oeb_management/oeb_process/oeb_processes.php";
-      console.log("WORKFLOW INSERTED SUCCESSFULLY!");
-
-      //no lo hace correctamente 
-      $("#myError").removeClass("alert alert-danger");
-      $("#myError").addClass("alert alert-info");
-      $("#myError").text("Successfully process uploaded");
-      $("#myError").show();
+      //window.location.href = baseURL + "oeb_management/oeb_process/oeb_processes.php";
       
+      console.log("WORKFLOW INSERTED IN MONGODB.");
+
     } else {
-      $("#myError").text(url["message"]);
-      $("#myError").show();
+      $(".errorClass").text(data['message']);
+      $(".errorClass").removeClass(" alert alert-info");
+      $(".errorClass").addClass(" alert alert-danger");
     }
+  }).fail(function(data) {
+    var json = JSON.parse(data['responseText']);
+
+    $(".errorClass").text(json["message"]);
+    $(".errorClass").removeClass(" alert alert-info");
+    $(".errorClass").addClass(" alert alert-danger");
   });
 }
 
 function validateErr() {
-
   var errors = editor.validate();
-  console.log(errors);
 
   if(errors.length != 0) {
+    console.log("ERRORS: ");
+    console.log(errors);
     editor.options.show_errors = "always";
 
-    $(".pClass").text("There are errors in some fields of the form.");
-    $(".pClass").addClass(" alert alert-danger");
-    $(".pClass").attr("id", "idP");
-    $("#idP").css({"margin-top": "20px"});
+    $(".errorClass").text("There are errors in some fields of the form.");
+    $(".errorClass").removeClass(" alert alert-info");
+    $(".errorClass").addClass(" alert alert-danger");
 
     // Fire a change event to force revalidation
     editor.onChange();
     return true;
   } else {
+    $(".errorClass").removeClass(" alert alert-danger");
+    $(".errorClass").addClass(" alert alert-info");
+    $(".errorClass").text("Workflow inserted successfully.");
     return false;
   }
-}
+} 
