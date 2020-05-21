@@ -1,5 +1,6 @@
 <?php
 
+//Get all the workflows to show into the datatable -> depending on the user show ones or others.
 function getProcesses() {
 	//initiallize variables
 	$process_json="{}";
@@ -17,10 +18,13 @@ function getProcesses() {
 	}
 
 	foreach($users as $user) {
+		//if the user is the administrator
 		if($user["Type"] == 0) {
 			$allProcesses = $GLOBALS['processCol']->find();
-		} else {
-			$allProcesses = $GLOBALS['processCol']->find(array('$or' => array(array("data.owner" => $userId), array("request_status" => 1))));
+			//if the user is not the administrator (=community manager)
+		} elseif($user["Type"] == 1) {
+			//the workflows has to be registered to see 
+			$allProcesses = $GLOBALS['processCol']->find(array('$or' => array(array("data.owner" => $userId), array("request_status" => "registered", "publication_status" => 1))));
 		}
 	}
 
@@ -38,6 +42,7 @@ function getProcesses() {
 //status = 0; private
 //status = 1; public
 //status = 2; coming soon
+//for update the publication_status of workflows
 function updateStatusProcess($processId, $statusId) {
 	//jsonResponse class (errors or successfully)
 	$response_json = new JsonResponse();
@@ -63,6 +68,7 @@ function updateStatusProcess($processId, $statusId) {
 		//if admin
 		if($user["Type"] == 0) {
 			$authorized = true;
+		//if community manager
 		} else if ($user["Type"] == 1) {
 			$processesToolDev = $processCol->find(array("data.owner" => $userId, "_id" => $processId));
 
@@ -90,8 +96,8 @@ function updateStatusProcess($processId, $statusId) {
 	}
 	// update process status in Mongo
 	try  {
-		$processCol->update(['_id' => $processId], [ '$set' => [ 'request_status' => 'NumberLong('+$statusId+')']]);
-		$processFound = $processCol->find(array("request_status"=>'NumberLong('+$statusId+')', "_id"=>$processId));
+		$processCol->update(['_id' => $processId], [ '$set' => [ 'publication_status' => 'NumberLong('+$statusId+')']]);
+		$processFound = $processCol->find(array("publication_status"=>'NumberLong('+$statusId+')', "_id"=>$processId));
 
 		if($processFound != "") {
 			$response_json->setCode(200);
@@ -111,6 +117,7 @@ function updateStatusProcess($processId, $statusId) {
 	return $response_json->getResponse();
 }
 
+//function to obtain the plain list of the ontologies. An enum for the JSON Schema
 function getListOntologyForForm($formOntology, $ancestors) {
 	//variables
 	$resource = "";
@@ -120,6 +127,13 @@ function getListOntologyForForm($formOntology, $ancestors) {
 	$array_gen;
 	$process_json="{}";
 	$label;
+	//ERR, LOG, SVG, pptx, IMG, 
+	$firstERR = 0;
+	$firstLOG = 0;
+	$firstSVG = 0;
+	$firstpptx = 0;
+	$firstIMG = 0;
+	$firstJSON = 0;
 
 	if (isset($GLOBALS['oeb_dataModels'][$formOntology])) {
 		//is only to validate that the ontology exists in DB. 
@@ -146,8 +160,22 @@ function getListOntologyForForm($formOntology, $ancestors) {
 			$classesInherited = $graph->resourcesMatching("rdfs:subClassOf",$resourceClassesInherited);
 
 			$URILabel = (string)$resourceClassesInherited->getUri();
-			$ClassPair = array("label" => $label, "URI" => $URILabel);
-			
+
+			if (($label == "LOG" && $firstLOG == 0) || ($label == "IMG" && $firstIMG == 0) || ($label == "JSON" && $firstJSON == 0) || ($label != "LOG" && $label != "IMG" && $label != "JSON")) {
+				if ($label == "LOG") {
+					$firstLOG++;
+					$ClassPair = array("label" => $label, "URI" => $URILabel);
+				} elseif ($label == "IMG") {
+					$firstIMG++;
+					$ClassPair = array("label" => $label, "URI" => $URILabel);
+				} elseif($label == "JSON") {
+					$firstJSON++;
+					$ClassPair = array("label" => $label, "URI" => $URILabel);		
+				} elseif ($label != "LOG" && $label != "IMG" && $label != "JSON") {
+					$ClassPair = array("label" => $label, "URI" => $URILabel);
+				}
+			}
+
 			//if there are not any format inherited in the first classes do not do it
 			$subClassArray = array();
 			if ($classesInherited != null) {
@@ -157,8 +185,25 @@ function getListOntologyForForm($formOntology, $ancestors) {
 					//get the label of the classes inherited (the childrens)
 					$labelClassInherited = (string)$classInherited->getLiteral('rdfs:label');
 					$URIClassInherited = (string)$classInherited->getUri();
-					$subClassPair = array("label" => $labelClassInherited, "URI" => $URIClassInherited);
-					array_push($classArray, $subClassPair);
+					if (($labelClassInherited == "ERR" && $firstERR == 0) || ($labelClassInherited == "SVG" && $firstSVG == 0) || ($labelClassInherited == "pptx" && $firstpptx == 0) || ($labelClassInherited != "ERR" && $labelClassInherited != "SVG" && $labelClassInherited != "pptx" && $labelClassInherited != "LOG")){
+						if ($labelClassInherited == "ERR") {
+							$firstERR++;
+							$subClassPair = array("label" => $labelClassInherited, "URI" => $URIClassInherited);
+							array_push($classArray, $subClassPair);
+						} if ($labelClassInherited == "SVG") {
+							$firstSVG++;
+							$subClassPair = array("label" => $labelClassInherited, "URI" => $URIClassInherited);
+							array_push($classArray, $subClassPair);
+						} if ($labelClassInherited == "pptx") {
+							$firstpptx++;
+							$subClassPair = array("label" => $labelClassInherited, "URI" => $URIClassInherited);
+							array_push($classArray, $subClassPair);					
+						} elseif ($labelClassInherited != "ERR" && $labelClassInherited != "SVG" && $labelClassInherited != "pptx") {
+							$subClassPair = array("label" => $labelClassInherited, "URI" => $URIClassInherited);
+							array_push($classArray, $subClassPair);		
+						}
+					}
+
 				}
 			} else {
 				array_push($classArray, $ClassPair);
@@ -172,6 +217,7 @@ function getListOntologyForForm($formOntology, $ancestors) {
 	}
 }
 
+//put the default values into the JSON Schema to inserted it in MongoDB
 function getDefaultValues() {
 	$process_json = "{}";
 
@@ -180,35 +226,64 @@ function getDefaultValues() {
 
 	$_schema = "https://openebench.bsc.es/vre/process-schema";
 	
-	$processWithVars = array("owner" => $userId, "_schema" => $_schema);
+	$userInfo = getUser($userId);
+	$userInfoJSON = json_decode($userInfo, true);
 
+	$processWithVars = array("owner" => array("institution"=>$userInfoJSON[0]["Inst"], "author"=>$userInfoJSON[0]["Name"], "contact"=>$userInfoJSON[0]["_id"], "user"=>$userInfoJSON[0]["id"]), "_schema" => $_schema);
+	
 	$process_json = json_encode($processWithVars, JSON_PRETTY_PRINT);
 
 	return $process_json;
 }
 
-function getUser() {
-	//initiallize variables
-	$process_json="{}";
-	$users = array();
+//Get the actual user (the user logged in)
+function getUser($id) {
 
-	//user logged
-	$userId = $_SESSION["User"]["id"];
+	if ($id == "current") {
+		//initiallize variables
+		$process_json="{}";
+		$users = array();
 
-	//type of user
-	$typeUser = $GLOBALS['usersCol']->find(array("id"=>$userId), array("Type"=>1));
+		//user logged
+		$userId = $_SESSION["User"]["id"];
 
-	foreach($typeUser as $user) {
-		array_push($users, $user);
+		//type of user
+		$typeUser = $GLOBALS['usersCol']->find(array("id"=>$userId), array("Type"=>1));
+
+		foreach($typeUser as $user) {
+			array_push($users, $user);
+		}
+
+		$process_json = json_encode($users, JSON_PRETTY_PRINT);
+
+		return $process_json;
+	} else {
+		//initiallize variables
+		$process_json="{}";
+		$users = array();
+
+		//user logged
+		$userId = $_SESSION["User"]["id"];
+
+		//type of user
+		$typeUser = $GLOBALS['usersCol']->find(array("id"=>$id), array("Inst"=>1, "Name"=>1, "Email"=>1, "id"=>1));
+
+		foreach($typeUser as $user) {
+			array_push($users, $user);
+		}
+
+		$process_json = json_encode($users, JSON_PRETTY_PRINT);
+
+		return $process_json;
 	}
-
-	$process_json = json_encode($users, JSON_PRETTY_PRINT);
-
-	return $process_json;
 }
 
+//Get the workflow information from the form, validate all the data and inserted in MongoDB 
 function setProcess($processStringForm) {
 	$response_json= new JsonResponse();
+
+	$response_json->setCode("405");
+	$response_json->setMessage("ERROR");
 
 	$processForm = json_decode($processStringForm, true);
 
@@ -219,49 +294,44 @@ function setProcess($processStringForm) {
 	$gitURL_workflow = $processForm["nextflow_files"]["workflow_file"]["workflow_gitURL"];
 	$gitTag_workflow = $processForm["nextflow_files"]["workflow_file"]["workflow_gitTag"];
 
-	$gitURL_config = $processForm["nextflow_files"]["config_file"]["config_gitURL"];
-	$gitTag_config = $processForm["nextflow_files"]["config_file"]["config_gitTag"];
-
-	$tmp_workflow = checkGit($gitURL_workflow, $gitTag_workflow);
-	print_r($tmp_workflow);
-	//$tmp_config = checkGit($gitURL_config, $gitTag_config);
+	//get errors (or not) workflow git
+	$tmp_workflow = checkGit("Workflow", $gitURL_workflow, $gitTag_workflow, "main.nf");
 	
-	//$resultWorkflow = json_decode($tmp_workflow, true);
-	//$resultConfig = json_decode($tmp_config, true);
+	//$gitRepoPath = cloneGit($gitURL_workflow, $gitTag_workflow);
 
-	//CHECK NEXTFLOW FILES
+ 	//if ($processForm["workflow_manager"] == "Nextflow") {
+		//validateNextflowFiles($gitRepoPath);
+	//} 
+	
+	$resultWorkflow = json_decode($tmp_workflow, true);
+	
 	//errors workflow
-	/* if ($resultWorkflow["code"] != 200){
+	if ($resultWorkflow["code"] != 200){
 		$response_json->setCode($resultWorkflow["code"]);
 		$response_json->setMessage($resultWorkflow["message"]);
 
 		return $response_json->getResponse();
 	} 
 
-	//errors config
-	if ($resultConfig["code"] != 200){
-		$response_json->setCode($resultConfig["code"]);
-		$response_json->setMessage($resultConfig["message"]);
-
-		return $response_json->getResponse();
-	}  */
-
-	exit;
-	$tmpR = getPublicData_fromBase64($file);	
-	$resultFile = json_decode($tmpR, true);
+	//materialize public data
+	$resultJSON = getPublicData_fromBase64($file);	
+	$result = json_decode($resultJSON, true);
 
 	//CHECK PUBLIC DATA
-	if ($resultFile["code"] != 200) {
-		$response_json->setCode($resultFile["code"]);
-		$response_json->setMessage($resultFile["message"]);
+	if ($result["code"] != 200) {
+		$response_json->setCode($result["code"]);
+		$response_json->setMessage($result["message"]);
 
 		return $response_json->getResponse();
 	} 
 
+	//the path of the public_ref_dir
+	$public_ref_dir_path = $result["message"];
+	
 	//user logged
 	$userId = $_SESSION["User"]["id"];
 
-	$processForm["inputs_meta"]["public_ref_dir"]["value"] = $resultFile["message"];
+	$processForm["inputs_meta"]["public_ref_dir"]["value"] = $public_ref_dir_path;
 
 	//MongoDB query
 	$data = array();
@@ -288,84 +358,481 @@ function setProcess($processStringForm) {
 	return $response_json->getResponse();
 }
 
+//validate the file TAR
 function getPublicData_fromBase64($file_base64) {
-
-	// check file mime
+	$MAX_SIZE = 500000;
 	$response_json= new JsonResponse();
+	 
+	//create temporal file to check the file and if it is a tar or tar.gz
+	$tempDir = $GLOBALS['dataDir'].$_SESSION['User']['id']."/".$_SESSION['User']['activeProject']."/".$GLOBALS['tmpUser_dir'];
 
- 	$tempFile = $GLOBALS['dataDir'].$_SESSION['User']['id']."/".$_SESSION['User']['activeProject']."/".$GLOBALS['tmpUser_dir']."public_dataset";
+	$tempFile = $tempDir . "public_dataset";
 	
-	$r = file_put_contents( $tempFile ,file_get_contents($file_base64));
+	//if it is not exist the folde tmp create it because file_put_contents only create the file if not exist
+	if (!is_dir($tempDir)) {
+		mkdir($tempDir);
+	}
+	
+	//move the content to that file: public_dataset
+	//return the size
+	$r = file_put_contents($tempFile ,file_get_contents($file_base64));
 
+	//check return something
 	if (!$r){
-		$response_json->setCode(4);
-		$response_json->setMessage("The file cannot be uploaded.");
+		$response_json->setCode(412);
+		$response_json->setMessage("Public Reference Dataset -> TAR file. The file cannot be uploaded.");
 		
 		unlink($tempFile);
 		return $response_json->getResponse();
 	}
-	if (! is_file($tempFile)){
-		$response_json->setCode(4);
-		$response_json->setMessage("The file cannot be uploaded.");
+	//check size
+	if ($r > $MAX_SIZE) {
+		$response_json->setCode(406);
+		$response_json->setMessage("Public Reference Dataset -> TAR file. The file is too large.");
 		
 		unlink($tempFile);
 		return $response_json->getResponse();
 	}
-	
+	//check if it is a file
+	if (!is_file($tempFile)){
+		$response_json->setCode(412);
+		$response_json->setMessage("Public Reference Dataset -> TAR file. You do not have upload a file.");
+		
+		unlink($tempFile);
+		return $response_json->getResponse();
+	}
+
 	// guess compression
-	
 	$file_info  = shell_exec("file $tempFile | cut -d: -f2");
 
-	// create target dir
-
-	$target_folder = hash_file('sha256',$tempFile);
-
-	$targetDir = $GLOBALS['pubDir'].$target_folder;
-
-	mkdir($targetDir);
-		
 	// uncompress data
-	
 	$uncompress_cmd="";
 	if (preg_match('/gzip/i',$file_info) == 1 || preg_match('/x-tar/i',$file_info) == 1){
-		$uncompress_cmd = "tar xzvf $tempFile -C $targetDir";
+		$uncompress_cmd = "tar xzvf $tempFile -C $tempDir";
+	//check if it is not a tar of a tar.gz
 	} else {
 		$response_json->setCode(412);
-		$response_json->setMessage("The file is not a TAR or a TAR.GZ.");
+		$response_json->setMessage("Public Reference Dataset -> TAR file. The file is not a TAR or a TAR.GZ.");
 
 		unlink($tempFile);
 		return $response_json->getResponse();
 	}
-	
+		
+	//execute the command line
 	$r = shell_exec($uncompress_cmd); 
 
-	// Check file size
+	//check the content of the tar or tar.gz. If it is empty do not return anything
+	if (!$r){
+		$response_json->setCode(422);
+		$response_json->setMessage("Public Reference Dataset -> TAR file. The TAR or TAR.GZ is empty.");
 
+		unlink($tempFile);
+		return $response_json->getResponse();
+	}
 
+	// create target dir = where the information is saved
+	$target_folder = hash_file('sha256',$tempFile);
+	$targetDir = $GLOBALS['pubDir'].$target_folder;
+	mkdir($targetDir);
+
+	$r = shell_exec("tar xzvf $tempFile -C $targetDir");
+
+	if (!$r){
+		$response_json->setCode(204);
+		$response_json->setMessage("Public Reference Dataset -> TAR file. The file cannot be uploaded.");
+		
+		unlink($tempFile);
+		rmdir($targetDir);
+		return $response_json->getResponse();
+	}
+
+	//returns the target folder because is the folder name (without all the route)
 	$response_json->setCode(200);
-	$response_json->setMessage($targetDir);
-	
+	$response_json->setMessage($target_folder);
+
 	// clean temporary data
 	unlink($tempFile);
+
 	return $response_json->getResponse();
 }
 
-function checkGit($gitURL, $gitTag) {
-	// check file mime
+//validate the Git URL 
+function checkGit($name, $gitURL, $gitTag, $fileName) {
+
 	$response_json= new JsonResponse();
+
+	//create temporal file to check the git url
+	$tempDir = $GLOBALS['dataDir'].$_SESSION['User']['id']."/".$_SESSION['User']['activeProject']."/".$GLOBALS['tmpUser_dir']."gitDir/";
+
+	//clone the git if exist (taking into account the tag)
+	$cmnd = "git clone -b $gitTag $gitURL $tempDir";
+
+	$r = shell_exec($cmnd);
+
+	//check if the git URL and Tag exist
+	if (!is_dir($tempDir)) {
+		$response_json->setCode(422);
+		$response_json->setMessage("Nextflow files -> $name file. The git URL cannot be uploaded.");
+
+		return $response_json->getResponse();	
+	}
+
+	//check if the git link is empty
+	$files = count(glob($tempDir . '*', GLOB_MARK));
+	if ($files == 0) {
+		$response_json->setCode(204);
+		$response_json->setMessage("Nextflow files -> $name file. The git link is empty.");
+
+		$r = shell_exec("rm -rf $tempDir");
+		return $response_json->getResponse();	
+	}
+
+	//get the git directory file paths (clone it in the tempDir)
+	$files = glob($tempDir . '*', GLOB_MARK);
+
+	$mainExist = 0;
+	$nextflowExist = 0;
+
+	foreach ($files as $file) {
+		//check if exist the main.nf file
+		if (strtoupper($file) == strtoupper($tempDir.$fileName)) {
+			$mainExist++;
+		} 
+		//check if exist the nextflow.config file
+		if(strtoupper($file) == strtoupper($tempDir . "nextflow.config")) {
+			$nextflowExist++;
+		}
+	}
+
+	//check only there are a main.nf
+	if($mainExist != 1) {
+		$response_json->setCode(422);
+		$response_json->setMessage("Nextflow files -> $name file. The '$fileName' file is not found.");
+
+		$r = shell_exec("rm -rf $tempDir");
+		return $response_json->getResponse();	
+	} 
+
+	//check only there are a nextflow.config
+	if($nextflowExist != 1) {
+		$response_json->setCode(422);
+		$response_json->setMessage("Nextflow files -> $name file. The 'nextflow.config' file is not found.");
+
+		$r = shell_exec("rm -rf $tempDir");
+		return $response_json->getResponse();	
+	} 
+
+	if (strtoupper($fileName) == "MAIN.NF") {
+
+		$input = false;
+		$public_ref_dir = false;
+		$participant_id = false;
+		$challenges_ids = false;
+		$community_id = false;
+
+		//check that there are all the necessary params in the main.nf file
+		foreach ($files as $file) {
+			if (strtoupper($file) == strtoupper($tempDir.$fileName)) {
+				$fp = fopen($file, "r");
+				while (!feof($fp)){
+					$linea = fgets($fp);
+					if (preg_match('/params.input/i',$linea) == 1) {
+						$input = true;
+					} else if (preg_match('/params.public_ref_dir/i',$linea) == 1) {
+						$public_ref_dir = true;
+					} elseif (preg_match('/params.participant_id/i',$linea) == 1) {
+						$participant_id = true;
+					} elseif(preg_match('/params.challenges_ids/i',$linea) == 1) {
+						$challenges_ids = true;
+					} elseif(preg_match('/params.community_id/i',$linea) == 1) {
+						$community_id = true;
+					}
+				}
+				fclose($fp);
+			}
+		}
+
+		//if not are all the necessary params return an error
+		if(!$input || !$public_ref_dir || !$participant_id || !$challenges_ids || !$community_id) {
+			$response_json->setCode(422);
+			$response_json->setMessage("Nextflow files -> $name file. Missing parameters. Make sure that the following paratemers are set: input, public_ref_dir, participant_id, challenges_id and community_id.");
+
+			$r = shell_exec("rm -rf $tempDir");
+			return $response_json->getResponse();	
+		} 
+		
+		$response_json->setCode(200);
+		$response_json->setMessage("OK");
+		
+		//remove temperoal directory
+		$r = shell_exec("rm -rf $tempDir");
+
+		return $response_json->getResponse();
+	}
+
+	$response_json->setCode(200);
+	$response_json->setMessage("OK");
+
+	//remove temperoal directory
+	$r = shell_exec("rm -rf $tempDir");
+
+	return $response_json->getResponse();
+}
+
+//return a process from the id
+function getProcess($id) {
+	//initiallize variables
+	$process_json="{}";
+	$processFinal = array();
+
+	$theProcess = $GLOBALS['processCol']->find(array('_id' => $id));
+
+	//add query to an array
+	foreach($theProcess as $process) {
+		array_push($processFinal, $process);
+	}
+
+	//convert array into json 
+	$process_json = json_encode($processFinal, JSON_PRETTY_PRINT);
+
+	//createTool($process_json);
+
+	return $process_json;
+}
+
+function createTool_fromWFs($id) {
+
+	$process_json="{}";
+
+	$process_data = getProcess($id);
+
+	$tool_data = createToolSpecification_fromWF($process_data);
+
+/* 	$r = validateToolSpefication($tool_data);
+
+	if ($r["code"] == 200 ) { 
+		createTool_fromToolSpecification($tool_data);
+	} */
+
+	return $tool_data;
+}
+
+function createToolSpecification_fromWF($process) {
+	$tool_json = '{}';
 	
-	$gitDir = $GLOBALS['pubDir']."gitURL";
-	mkdir($gitDir);
-	$git_cmd = "git clone -b $gitTag '$gitURL' $gitDir";
-	print_r($git_cmd);
-	exit;
-	$r = shell_exec("git clone -b $gitTag $gitURL");
-	print_r($r);
-	exit;
-	//$git_cmd = "git clone -b $gitTag $gitURL /gpfs/VRE-dev/userdata/OpEBUSER5e301c714e657/__PROJ5e301c714e6685.80976818/.tmp/";
+	$jsonTool = array();
 
-	//$r = shell_exec($git_cmd); 
-	//print_r($r);
+	$tool_json = json_decode($process, true);
 
-	return "hola";
+	$firstOntology = getListOntologyForForm("https://w3id.org/oebDataFormats", "https://w3id.org/oebDataFormats/FormatDatasets");
+	$secondOntology = getListOntologyForForm("https://w3id.org/oebDatasets", "https://w3id.org/oebDatasets/dataset");
+
+	$ontology_file_type = json_decode($firstOntology, true);
+	$ontology_data_type = json_decode($secondOntology, true);
+
+	$tool_json = $tool_json[0];
+
+	$jsonTool = array();
+
+	$jsonTool["_id"] =  $tool_json["_id"];
+	$jsonTool["name"] =  $tool_json["data"]["name"];
+	$jsonTool["title"] =  $tool_json["data"]["title"];
+	$jsonTool["short_description"] = $tool_json["data"]["description"];
+	$jsonTool["long_description"] = $tool_json["data"]["description_long"];
+		$jsonTool["owner"]["institution"] = $tool_json["data"]["owner"]["institution"];
+		$jsonTool["owner"]["author"] =  $tool_json["data"]["owner"]["author"];
+		$jsonTool["owner"]["contact"] = $tool_json["data"]["owner"]["contact"];
+		$jsonTool["owner"]["user"] = $tool_json["data"]["owner"]["user"];
+	//external boolean
+	if($tool_json["data"]["external"] == 1) {
+		$jsonTool["external"] = "true";
+	} elseif ($tool_json["data"]["external"] == 0) {
+		$jsonTool["external"] = "false";
+	};
+	$jsonTool["keywords"] = $tool_json["data"]["keywords"];
+	$jsonTool["keywords_tool"] = $tool_json["data"]["keywords_tool"];
+	$jsonTool["status"] = 'NumberLong(' . $tool_json["publication_status"] . ')';
+	//infrastructure array
+		$jsonTool["infrastructure"]["memory"] = 'NumberLong(' . $tool_json["data"]["infrastructure"]["memory"] . ')';
+		$jsonTool["infrastructure"]["cpus"] = 'NumberLong(' . $tool_json["data"]["infrastructure"]["cpus"] . ')';
+		$jsonTool["infrastructure"]["executable"] = $GLOBALS["oeb_tool_wrapper"];
+		$jsonTool["infrastructure"]["wallTime"] = 'NumberLong(' . $tool_json["data"]["infrastructure"]["wallTime"] . ')';
+		for($i = 0; $i < sizeof($tool_json["data"]["infrastructure"]["clouds"]); $i++) {
+			if ($tool_json["data"]["infrastructure"]["clouds"][$i] == "life-bsc") {
+				$jsonTool["infrastructure"]["clouds"]["life-bsc"]["launcher"] = "SGE";
+				$jsonTool["infrastructure"]["clouds"]["life-bsc"]["queue"] = "default.q";
+			}
+		}
+	$jsonTool["has_custom_viewer"] = "true";
+		
+	//Initialize variables
+	$number_input_files = 0;
+	$number_input_files_public_dir = 0;
+	$number_arguments = 0;
+
+	//get the number of all the keys
+	$keys = array_keys($tool_json["data"]["inputs_meta"]);
+	$keysChallenge = array_keys($tool_json["data"]["inputs_meta"]["challenges_ids"]["challenges"]);
+	//do the functions knowing how many of each type there are
+	for($i = 0; $i < sizeof($keys); $i++) {
+		$type = $tool_json["data"]["inputs_meta"][$keys[$i]]["type"];
+		
+		//structure of file user
+		if ($type == "file_user") {
+
+/* 
+			$jsonTool["input_files"][$keys[$i]]["name"] = $tool_json["data"]["inputs_meta"][$keys[$i]]["name"];
+			$jsonTool["input_files"][$keys[$i]]["description"] = $tool_json["data"]["inputs_meta"][$keys[$i]]["label"];
+			$jsonTool["input_files"][$keys[$i]]["help"] = $tool_json["data"]["inputs_meta"][$keys[$i]]["help"]; */
+
+			//creating file_type array
+			$file_types = array();
+			for($x = 0; $x < sizeof($ontology_file_type); $x++) {
+				for($j = 0; $j < sizeof($tool_json["data"]["inputs_meta"][$keys[$i]]["file_type"]); $j++) {
+					if ($tool_json["data"]["inputs_meta"][$keys[$i]]["file_type"][$j] == $ontology_file_type[$x]["URI"]) {
+						array_push($file_types, $ontology_file_type[$x]["label"]);
+					}
+				}
+			}
+			/* $jsonTool["input_files"][$keys[$i]]["file_type"] = $file_types; */
+			//creating data_type array
+			$data_types = array();
+			for($x = 0; $x < sizeof($ontology_data_type); $x++) {
+				for($j = 0; $j < sizeof($tool_json["data"]["inputs_meta"][$keys[$i]]["data_type"]); $j++) {
+					if ($tool_json["data"]["inputs_meta"][$keys[$i]]["data_type"][$j] == $ontology_data_type[$x]["URI"]) {
+						array_push($data_types, $ontology_data_type[$x]["label"]);
+					}
+				}
+			}
+/* 			$jsonTool["input_files"][$keys[$i]]["data_type"] = $data_types;
+			$jsonTool["input_files"][$keys[$i]]["required"] = "true";
+			$jsonTool["input_files"][$keys[$i]]["allow_multiple"] = "false"; */
+
+			$jsonTool["input_files"] = [array(
+				"name" => $tool_json["data"]["inputs_meta"][$keys[$i]]["name"],
+				"description" => $tool_json["data"]["inputs_meta"][$keys[$i]]["label"],
+				"help" => $tool_json["data"]["inputs_meta"][$keys[$i]]["help"],
+				"file_type" => $file_types,
+				"data_type" => $data_types,
+				"required" => "true",
+				"allow_multiple" => "false"
+				)];
+		} 
+		
+		if ($type == "file_community" || $type == "dir_community") {
+
+			$jsonTool["input_files_public_dir"][$keys[$i]]["name"] = $tool_json["data"]["inputs_meta"][$keys[$i]]["name"];
+			$jsonTool["input_files_public_dir"][$keys[$i]]["description"] = $tool_json["data"]["inputs_meta"][$keys[$i]]["label"];
+			$jsonTool["input_files_public_dir"][$keys[$i]]["help"] = $tool_json["data"]["inputs_meta"][$keys[$i]]["help"];
+			$jsonTool["input_files_public_dir"][$keys[$i]]["type"] = "hidden";
+			$jsonTool["input_files_public_dir"][$keys[$i]]["value"] = $tool_json["data"]["inputs_meta"][$keys[$i]]["value"] . "/";
+			//creating file_type array
+			$file_types = array();
+			for($x = 0; $x < sizeof($ontology_file_type); $x++) {
+				for($j = 0; $j < sizeof($tool_json["data"]["inputs_meta"][$keys[$i]]["file_type"]); $j++) {
+					if ($tool_json["data"]["inputs_meta"][$keys[$i]]["file_type"][$j] == $ontology_file_type[$x]["URI"]) {
+						array_push($file_types, $ontology_file_type[$x]["label"]);
+					}
+				}
+			}
+			$jsonTool["input_files_public_dir"][$keys[$i]]["file_type"] = $file_types;
+			//creating data_type array
+			$data_types = array();
+			for($x = 0; $x < sizeof($ontology_data_type); $x++) {
+				for($j = 0; $j < sizeof($tool_json["data"]["inputs_meta"][$keys[$i]]["data_type"]); $j++) {
+					if ($tool_json["data"]["inputs_meta"][$keys[$i]]["data_type"][$j] == $ontology_data_type[$x]["URI"]) {
+						array_push($data_types, $ontology_data_type[$x]["label"]);
+					}
+				}
+			}
+			$jsonTool["input_files_public_dir"][$keys[$i]]["data_type"] = $data_types;
+			$jsonTool["input_files_public_dir"][$keys[$i]]["required"] = "true";
+			$jsonTool["input_files_public_dir"][$keys[$i]]["allow_multiple"] = "false";
+		}
+
+		//input_files_combination
+		$jsonTool["input_files_combinations"]["description"] = "Run benchmarking workflow";
+		$jsonTool["input_files_combinations"]["input_files"] = ["input"];
+	
+		//input_files_combination_internal
+		$jsonTool["input_files_combinations_internal"] = [array("participant" => 1)];
+
+		//arguments - nextflow_repo_uri
+		$jsonTool["arguments"]["nextflow_repo_uri"]["name"] = "nextflow_repo_uri";
+		$jsonTool["arguments"]["nextflow_repo_uri"]["description"] = "Nextflow Repository URI";
+		$jsonTool["arguments"]["nextflow_repo_uri"]["help"] = "Nextflow Repository (i.e https:\/\/github.com\/prj\/reponame)";
+		$jsonTool["arguments"]["nextflow_repo_uri"]["type"] = "hidden";
+		$jsonTool["arguments"]["nextflow_repo_uri"]["value"] = $tool_json["data"]["nextflow_files"]["workflow_file"]["workflow_gitURL"];
+		$jsonTool["arguments"]["nextflow_repo_uri"]["required"] = "true";
+
+		//arguments - nextflow_repo_tag
+		$jsonTool["arguments"]["nextflow_repo_tag"]["name"] = "nextflow_repo_tag";
+		$jsonTool["arguments"]["nextflow_repo_tag"]["description"] = "Nextflow Repository tag";
+		$jsonTool["arguments"]["nextflow_repo_tag"]["help"] = "Nextflow Repository Tag version";
+		$jsonTool["arguments"]["nextflow_repo_tag"]["type"] = "hidden";
+		$jsonTool["arguments"]["nextflow_repo_tag"]["value"] = $tool_json["data"]["nextflow_files"]["workflow_file"]["workflow_gitTag"];
+		$jsonTool["arguments"]["nextflow_repo_tag"]["required"] = "true";
+
+		//structure of the different arguments (string, integer, number, boolean, enum, enum_mult and hidden)
+		if($type == "string" || $type == "integer" || $type == "number" || $type == "boolean" || $type == "enum" || $type == "enum_mult" || $type == "hidden") {
+			$jsonTool["arguments"][$keys[$i]]["name"] = $tool_json["data"]["inputs_meta"][$keys[$i]]["name"];
+			$jsonTool["arguments"][$keys[$i]]["description"] = $tool_json["data"]["inputs_meta"][$keys[$i]]["label"];
+			$jsonTool["arguments"][$keys[$i]]["help"] = $tool_json["data"]["inputs_meta"][$keys[$i]]["help"];
+			$jsonTool["arguments"][$keys[$i]]["type"] = $tool_json["data"]["inputs_meta"][$keys[$i]]["type"];
+			
+			if ($tool_json["data"]["inputs_meta"][$keys[$i]]["name"] == "challenges_ids") {
+				$jsonTool["arguments"][$keys[$i]]["required"] = "true";
+				$jsonTool["arguments"][$keys[$i]]["default"] = [];
+				for ($x = 0; $x < sizeof($keysChallenge); $x++) {
+					$jsonTool["arguments"][$keys[$i]]["enum_items"]["name"][] = $tool_json["data"]["inputs_meta"]["challenges_ids"]["challenges"][$keysChallenge[$x]]["value"];
+					$jsonTool["arguments"][$keys[$i]]["enum_items"]["description"][] = $tool_json["data"]["inputs_meta"]["challenges_ids"]["challenges"][$keysChallenge[$x]]["description"];
+				}
+			} elseif ($tool_json["data"]["inputs_meta"][$keys[$i]]["name"] == "participant_id") {
+				$jsonTool["arguments"][$keys[$i]]["required"] = "true";
+				$jsonTool["arguments"][$keys[$i]]["default"] = [];
+			}
+		}
+
+	}
+
+	$keysOutput = array_keys($tool_json["data"]["outputs_meta"]);
+
+	for($i = 0; $i < sizeof($keysOutput); $i++) {
+		$jsonTool["output_files"][$keysOutput[$i]]["name"] = $tool_json["data"]["outputs_meta"][$keysOutput[$i]]["name"];
+		$jsonTool["output_files"][$keysOutput[$i]]["required"] = "true";
+		$jsonTool["output_files"][$keysOutput[$i]]["allow_multiple"] = "false";
+			//creating file_type array
+			$file_types = array();
+			for($x = 0; $x < sizeof($ontology_file_type); $x++) {
+				for($j = 0; $j < sizeof($tool_json["data"]["outputs_meta"][$keysOutput[$i]]["file_type"]); $j++) {
+					if ($tool_json["data"]["outputs_meta"][$keysOutput[$i]]["file_type"][$j] == $ontology_file_type[$x]["URI"]) {
+						array_push($file_types, $ontology_file_type[$x]["label"]);
+					}
+				}
+			}
+			$jsonTool["output_files"][$keysOutput[$i]]["file"]["file_type"] = $file_types;
+
+			$jsonTool["output_files"][$keysOutput[$i]]["file"]["file_path"] = "";
+
+			//creating data_type array
+			$data_types = array();
+			for($x = 0; $x < sizeof($ontology_data_type); $x++) {
+				for($j = 0; $j < sizeof($tool_json["data"]["outputs_meta"][$keysOutput[$i]]["data_type"]); $j++) {
+					if ($tool_json["data"]["outputs_meta"][$keysOutput[$i]]["data_type"][$j] == $ontology_data_type[$x]["URI"]) {
+						array_push($data_types, $ontology_data_type[$x]["label"]);
+					}
+				}
+			}
+			$jsonTool["output_files"][$keysOutput[$i]]["file"]["data_type"] = $data_types;
+			
+			$jsonTool["output_files"][$keysOutput[$i]]["file"]["compressed"] = "null";
+			$jsonTool["output_files"][$keysOutput[$i]]["file"]["meta_data"]["description"] = "Metrics derivated from the given input data";
+			$jsonTool["output_files"][$keysOutput[$i]]["file"]["meta_data"]["tool"] =  $tool_json["_id"];
+			$jsonTool["output_files"][$keysOutput[$i]]["file"]["meta_data"]["visible"] =  "true";
+	}
+
+	$stringTool = '{}';
+	//print_r($jsonTool);
+	$stringTool = json_encode($jsonTool, JSON_PRETTY_PRINT);
+	print_r($stringTool);
 }

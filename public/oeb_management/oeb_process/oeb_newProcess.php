@@ -30,18 +30,18 @@ require "../../htmlib/js.inc.php"; ?>
                             <i class="fa fa-circle"></i>
                         </li>
                         <li>
-                            <a href="oeb_management/oeb_process/oeb_processes.php">Processes</a>
+                            <a href="oeb_management/oeb_process/oeb_processes.php">Workflows</a>
                             <i class="fa fa-circle"></i>
                         </li>
                         <li>
-                            <span>Create new process</span>
+                            <span>Create new workflow</span>
                         </li>
                     </ul>
                 </div>
                 <!-- END PAGE BAR -->
 
                 <!-- BEGIN PAGE TITLE-->
-                <h1 class="page-title"> Create new process</h1>
+                <h1 class="page-title"> Create new workflow</h1>
                 <!-- END PAGE TITLE -->
                 <!-- END PAGE HEADER -->
 
@@ -85,9 +85,13 @@ require "../../htmlib/js.inc.php"; ?>
                                 <div id="processes" class="portlet-body">
                                     <input type="hidden" id="base-url" value="<?php echo $GLOBALS['BASEURL']; ?>" />
                                     <input type="hidden" id="hola" value="quetal" />
-                                    <div id="loading-datatable">
+                                    <div id="loading-datatable" class="loadingForm">
                                         <div id="loading-spinner">LOADING</div>
                                         <div id="loading-text">It could take a few minutes</div>
+                                    </div>
+                                    <div id="loading-datatable" style="display:none;" class="loadingSubmit">
+                                        <div id="loading-spinner">LOADING</div>
+                                        <div id="loading-text">All the links and files are being validated</div>
                                     </div>
                                     
                                     <div id='editor_holder'></div>
@@ -103,14 +107,10 @@ require "../../htmlib/js.inc.php"; ?>
                 </div>
                 <!-- END CONTENT BODY -->
                 <style type="text/css">
-                    li a[href="#Infrastructure-details"] {
+                    li a[href="#Infrastructure-details"], li a[href="#Output-results"], li a[href="#Owner"] {
                         display: none;
                     }
-
-                    li a[href="#Output-results"] {
-                        display: none;
-                    }
-
+                    
                     .invalid-feedback {
                         color: red;
                     }

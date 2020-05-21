@@ -7,9 +7,6 @@ var urlsArray = [];
 var owners = [];
 var value;
 var editorValue;
-var gitURLs = [];
-var gitTags = [];
-var URLsApiGit = [];
 var urlJSON = "applib/oeb_processesAPI.php";
 
 $(document).ready(function() {
@@ -41,6 +38,7 @@ $(document).ready(function() {
       for (x = 0; x < arguments.length; x++) {
         labels = [];
         uris = [];
+        totals = [];
         $.each(arguments[x][0], function(key, modelName) {
           labels.push(modelName['label']);
           uris.push(modelName['URI']);
@@ -68,15 +66,22 @@ $(document).ready(function() {
           disable_edit_json: true,
           disable_properties: true
         });
-        
 
         var defaultVariables = ["_schema", "owner"];
 
+        //DATA only has _SCHEMA AND OWNER. If we want another variable we have to implement in the API and get it
         for (x = 0; x < defaultVariables.length; x++) {
-          //DATA only has _SCHEMA AND OWNER. If we want another variable we have to implement in the API and get it
-          editor["schema"]["properties"][defaultVariables[x]]["const"] = data[defaultVariables[x]];
-
-          editor.getEditor("root." + defaultVariables[x]).setValue(data[defaultVariables[x]]);
+          if (defaultVariables[x] == "owner") {
+            var value = {
+              "institution": data["owner"]["institution"],
+              "author": data["owner"]["author"],
+              "contact": data["owner"]["contact"],
+              "user": data["owner"]["user"]
+            };
+            editor.getEditor("root.owner").setValue(value);
+          } else {
+            editor.getEditor("root." + defaultVariables[x]).setValue(data[defaultVariables[x]]);
+          }
         }
 
         console.log(editor);
@@ -106,8 +111,6 @@ function clickSubmit() {
   
   $('#submit').on("click",function() {
     //var encodeFile = encodeURIComponent(file);
-    
-    var json = JSON.stringify(editor.getValue(),null,2);
 
     //if there are errors = true, no errors = false
     var errors = validateErr();
@@ -115,13 +118,12 @@ function clickSubmit() {
     //if there are not errors
     if (!errors) {
       //give the value to editorValue
-      editorValue = editor.getValue();
-
-      gitURLs.push(editorValue["nextflow_files"]["workflow_file"]["workflow_gitURL"], editorValue["nextflow_files"]["config_file"]["config_gitURL"]);
-      gitTags.push(editorValue["nextflow_files"]["workflow_file"]["workflow_gitTag"], editorValue["nextflow_files"]["config_file"]["config_gitTag"]);
+      var json = JSON.stringify(editor.getValue(),null,2);
 
       //insert into db
       insertJSON(json);
+    } else {
+      $(".form-control-file").css({"color": "red"});
     }
 
     $(".errorClass").show();
@@ -201,9 +203,13 @@ function insertJSON(processJSONForm) {
     url: urlJSON,
     data: {'action': 'setProcess', 'processForm': processJSONForm}
   }).done(function(data) {
+    console.log(data);
     if(data['code'] == 200) {
-      //window.location.href = baseURL + "oeb_management/oeb_process/oeb_processes.php";
+      window.location.href = baseURL + "oeb_management/oeb_process/oeb_processes.php";
       
+      $(".errorClass").removeClass(" alert alert-danger");
+      $(".errorClass").addClass(" alert alert-info");
+      $(".errorClass").text("Workflow inserted successfully.");
       console.log("WORKFLOW INSERTED IN MONGODB.");
 
     } else {
@@ -212,9 +218,8 @@ function insertJSON(processJSONForm) {
       $(".errorClass").addClass(" alert alert-danger");
     }
   }).fail(function(data) {
-    var json = JSON.parse(data['responseText']);
-
-    $(".errorClass").text(json["message"]);
+    var error = JSON.parse(data['responseText']);
+    $(".errorClass").text(error['message']);
     $(".errorClass").removeClass(" alert alert-info");
     $(".errorClass").addClass(" alert alert-danger");
   });
@@ -236,9 +241,6 @@ function validateErr() {
     editor.onChange();
     return true;
   } else {
-    $(".errorClass").removeClass(" alert alert-danger");
-    $(".errorClass").addClass(" alert alert-info");
-    $(".errorClass").text("Workflow inserted successfully.");
     return false;
   }
 } 

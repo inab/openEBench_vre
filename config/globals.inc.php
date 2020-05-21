@@ -269,7 +269,7 @@ $GLOBALS['clouds'] = Array(
 );
 
 #OPENEBENCH
-
+$GLOBALS['oeb_tool_wrapper'] = "/home/vre/projects/wrapper_test/VRE_NF_RUNNER";
 $GLOBALS['status_requested'] = Array(
 	0 => "In preparation",
 	1 => "SUbmitted",

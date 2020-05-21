@@ -34,13 +34,11 @@ if($_REQUEST) {
     } elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == "setProcess" ) {
         echo setProcess($_REQUEST['processForm']);
         exit;
-    } elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == "validateGit") {
-        if (isset($_REQUEST['gitURL'], $_REQUEST['gitTag'])) {
-            echo validateGit($_REQUEST['gitURL'], $_REQUEST['gitTag']);
-            exit;
-        }
+    } elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == "createTool_fromWFs" ) {
+        echo createTool_fromWFs($_REQUEST['id']);
+        exit;
     } elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == "getUser") {
-        echo getUser();
+        echo getUser($_REQUEST['id']);
         exit;
     } else {
         echo "IN";
