@@ -270,6 +270,7 @@ $GLOBALS['clouds'] = Array(
 
 #OPENEBENCH
 $GLOBALS['oeb_tool_wrapper'] = "/home/vre/projects/wrapper_test/VRE_NF_RUNNER";
+$GLOBALS['oeb_tool_json_schema']    = $GLOBALS['root']."/install/data/tool_schemas/tool_specification/oeb_tool_schema.json"; // specific data model for OEB-VRE tool registration
 $GLOBALS['status_requested'] = Array(
 	0 => "In preparation",
 	1 => "SUbmitted",
