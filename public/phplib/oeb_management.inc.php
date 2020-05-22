@@ -295,43 +295,32 @@ function setProcess($processStringForm) {
 	$gitTag_workflow = $processForm["nextflow_files"]["workflow_file"]["workflow_gitTag"];
 
 	//get errors (or not) workflow git
-	$tmp_workflow = _cloneGit("Workflow", $gitURL_workflow, $gitTag_workflow, "main.nf");
+	$resultWorkflow = _validationStep4($gitURL_workflow, $gitTag_workflow);
 	
-	//$gitRepoPath = cloneGit($gitURL_workflow, $gitTag_workflow);
-
- 	//if ($processForm["workflow_manager"] == "Nextflow") {
-		//validateNextflowFiles($gitRepoPath);
-	//} 
-	
-	$resultWorkflow = json_decode($tmp_workflow, true);
-	
-	//errors workflow
-	if ($resultWorkflow["code"] != 200){
-		$response_json->setCode($resultWorkflow["code"]);
-		$response_json->setMessage($resultWorkflow["message"]);
+	//errors nextflow files
+	if ($resultWorkflow != "OK"){
+		$response_json->setCode(422);
+		$response_json->setMessage($resultWorkflow);
 
 		return $response_json->getResponse();
 	} 
 
 	//materialize public data
-	$resultJSON = _getPublicData_fromBase64($file);	
-	$result = json_decode($resultJSON, true);
+	$result = _getPublicData_fromBase64($file, $processForm);	
 
 	//CHECK PUBLIC DATA
-	if ($result["code"] != 200) {
-		$response_json->setCode($result["code"]);
-		$response_json->setMessage($result["message"]);
+	if ($result[0] != "OK") {
+		$response_json->setCode(422);
+		$response_json->setMessage($result[0]);
 
 		return $response_json->getResponse();
 	} 
 
-	//the path of the public_ref_dir
-	$public_ref_dir_path = $result["message"];
+	//assign the path of the public_ref_dir
+	$processForm["inputs_meta"]["public_ref_dir"]["value"] = $result[1];
 	
 	//user logged
 	$userId = $_SESSION["User"]["id"];
-
-	$processForm["inputs_meta"]["public_ref_dir"]["value"] = $public_ref_dir_path;
 
 	//MongoDB query
 	$data = array();
@@ -359,7 +348,7 @@ function setProcess($processStringForm) {
 }
 
 //validate the file TAR
-function _getPublicData_fromBase64($file_base64) {
+function _getPublicData_fromBase64($file_base64, $processForm) {
 	$MAX_SIZE = 500000;
 	$response_json= new JsonResponse();
 	 
@@ -367,6 +356,7 @@ function _getPublicData_fromBase64($file_base64) {
 	$tempDir = $GLOBALS['dataDir'].$_SESSION['User']['id']."/".$_SESSION['User']['activeProject']."/".$GLOBALS['tmpUser_dir'];
 
 	$tempFile = $tempDir . "public_dataset";
+
 	
 	//if it is not exist the folde tmp create it because file_put_contents only create the file if not exist
 	if (!is_dir($tempDir)) {
@@ -379,27 +369,20 @@ function _getPublicData_fromBase64($file_base64) {
 
 	//check return something
 	if (!$r){
-		$response_json->setCode(412);
-		$response_json->setMessage("Public Reference Dataset -> TAR file. The file cannot be uploaded.");
-		
 		unlink($tempFile);
-		return $response_json->getResponse();
+		return ["Public Reference Dataset -> TAR file. The file cannot be uploaded.", $processForm["inputs_meta"]["public_ref_dir"]["value"]];
 	}
+
 	//check size
 	if ($r > $MAX_SIZE) {
-		$response_json->setCode(406);
-		$response_json->setMessage("Public Reference Dataset -> TAR file. The file is too large.");
-		
 		unlink($tempFile);
-		return $response_json->getResponse();
+		return ["Public Reference Dataset -> TAR file. The file is too large.", $processForm["inputs_meta"]["public_ref_dir"]["value"]];
 	}
+
 	//check if it is a file
 	if (!is_file($tempFile)){
-		$response_json->setCode(412);
-		$response_json->setMessage("Public Reference Dataset -> TAR file. You do not have upload a file.");
-		
 		unlink($tempFile);
-		return $response_json->getResponse();
+		return ["Public Reference Dataset -> TAR file. You do not have upload a file.", $processForm["inputs_meta"]["public_ref_dir"]["value"]];
 	}
 
 	// guess compression
@@ -410,12 +393,10 @@ function _getPublicData_fromBase64($file_base64) {
 	if (preg_match('/gzip/i',$file_info) == 1 || preg_match('/x-tar/i',$file_info) == 1){
 		$uncompress_cmd = "tar xzvf $tempFile -C $tempDir";
 	//check if it is not a tar of a tar.gz
-	} else {
-		$response_json->setCode(412);
-		$response_json->setMessage("Public Reference Dataset -> TAR file. The file is not a TAR or a TAR.GZ.");
 
+	} else {
 		unlink($tempFile);
-		return $response_json->getResponse();
+		return ["Public Reference Dataset -> TAR file. The file is not a TAR or a TAR.GZ.", $processForm["inputs_meta"]["public_ref_dir"]["value"]];
 	}
 		
 	//execute the command line
@@ -423,11 +404,8 @@ function _getPublicData_fromBase64($file_base64) {
 
 	//check the content of the tar or tar.gz. If it is empty do not return anything
 	if (!$r){
-		$response_json->setCode(422);
-		$response_json->setMessage("Public Reference Dataset -> TAR file. The TAR or TAR.GZ is empty.");
-
 		unlink($tempFile);
-		return $response_json->getResponse();
+		return ["Public Reference Dataset -> TAR file. The TAR or TAR.GZ is empty.", $processForm["inputs_meta"]["public_ref_dir"]["value"]];
 	}
 
 	// create target dir = where the information is saved
@@ -438,27 +416,67 @@ function _getPublicData_fromBase64($file_base64) {
 	$r = shell_exec("tar xzvf $tempFile -C $targetDir");
 
 	if (!$r){
-		$response_json->setCode(204);
-		$response_json->setMessage("Public Reference Dataset -> TAR file. The file cannot be uploaded.");
-		
 		unlink($tempFile);
 		rmdir($targetDir);
-		return $response_json->getResponse();
+		return ["Public Reference Dataset -> TAR file. The file cannot be uploaded.", $processForm["inputs_meta"]["public_ref_dir"]["value"]];
 	}
-
-	//returns the target folder because is the folder name (without all the route)
-	$response_json->setCode(200);
-	$response_json->setMessage($target_folder);
 
 	// clean temporary data
 	unlink($tempFile);
 
-	return $response_json->getResponse();
+	//return the target folder because is the folder name (without all the route)
+	return ["OK", $target_folder];
 }
 
 //validate the Git URL 
-function _cloneGit($name, $gitURL, $gitTag, $fileName) {
+function _validationStep4($gitURL, $gitTag) {
+	$resultValidation = "";
 
+	$tempDir = _cloneGit($gitURL, $gitTag);
+
+	//validate the git url
+	$gitValidation = _validateGit($tempDir);
+
+	switch($gitValidation) {
+		case 0: 
+			$resultValidation = "Nextflow files -> Workflow file. The git URL cannot be uploaded.";
+			break;
+		case 1:
+			$resultValidation = "Nextflow files -> Workflow file. The git link is empty.";
+			break;
+		case 2:
+			$resultValidation = "Some error ocurred";
+			break;
+	}
+
+	if ($gitValidation == 2) {
+		//validate the content of the git (nextflow files)
+		$nextflowFileValidation = _validateNextflowFiles($tempDir);
+		
+		switch($nextflowFileValidation) {
+			case 0: 
+				$resultValidation = "Nextflow files -> Workflow file. The 'main.nf' file is not found.";
+				break;
+			case 1: 
+				$resultValidation = "Nextflow files -> Workflow file. The 'nextflow.config' file is not found.";
+				break;
+			case 2: 
+				$resultValidation = "Nextflow files -> Workflow file. Missing parameters. Make sure that the following paratemers are set: input, public_ref_dir, participant_id, challenges_id and community_id.";
+				break;
+			case 3: 
+				$resultValidation = "OK";
+				break;
+		}
+	}
+	
+	//remove temperal directory
+	$r = shell_exec("rm -rf $tempDir");
+	
+	return $resultValidation;	
+}
+
+//only clone the git url given
+function _cloneGit($gitURL, $gitTag) {
 	$response_json= new JsonResponse();
 
 	//create temporal file to check the git url
@@ -469,24 +487,27 @@ function _cloneGit($name, $gitURL, $gitTag, $fileName) {
 
 	$r = shell_exec($cmnd);
 
+	return $tempDir;
+}
+
+//valudate the git url
+function _validateGit($tempDir) {
 	//check if the git URL and Tag exist
 	if (!is_dir($tempDir)) {
-		$response_json->setCode(422);
-		$response_json->setMessage("Nextflow files -> $name file. The git URL cannot be uploaded.");
-
-		return $response_json->getResponse();	
+		return 0;
 	}
 
 	//check if the git link is empty
 	$files = count(glob($tempDir . '*', GLOB_MARK));
 	if ($files == 0) {
-		$response_json->setCode(204);
-		$response_json->setMessage("Nextflow files -> $name file. The git link is empty.");
-
-		$r = shell_exec("rm -rf $tempDir");
-		return $response_json->getResponse();	
+		return 1;
 	}
 
+	return 2;
+}
+
+//validate the nextflow files inside the git url
+function _validateNextflowFiles($tempDir) {
 	//get the git directory file paths (clone it in the tempDir)
 	$files = glob($tempDir . '*', GLOB_MARK);
 
@@ -495,7 +516,7 @@ function _cloneGit($name, $gitURL, $gitTag, $fileName) {
 
 	foreach ($files as $file) {
 		//check if exist the main.nf file
-		if (strtoupper($file) == strtoupper($tempDir.$fileName)) {
+		if (strtoupper($file) == strtoupper($tempDir. "main.nf")) {
 			$mainExist++;
 		} 
 		//check if exist the nextflow.config file
@@ -506,77 +527,48 @@ function _cloneGit($name, $gitURL, $gitTag, $fileName) {
 
 	//check only there are a main.nf
 	if($mainExist != 1) {
-		$response_json->setCode(422);
-		$response_json->setMessage("Nextflow files -> $name file. The '$fileName' file is not found.");
-
-		$r = shell_exec("rm -rf $tempDir");
-		return $response_json->getResponse();	
+		return 0;	
 	} 
 
 	//check only there are a nextflow.config
 	if($nextflowExist != 1) {
-		$response_json->setCode(422);
-		$response_json->setMessage("Nextflow files -> $name file. The 'nextflow.config' file is not found.");
-
-		$r = shell_exec("rm -rf $tempDir");
-		return $response_json->getResponse();	
+		return 1;	
 	} 
 
-	if (strtoupper($fileName) == "MAIN.NF") {
+	$input = false;
+	$public_ref_dir = false;
+	$participant_id = false;
+	$challenges_ids = false;
+	$community_id = false;
 
-		$input = false;
-		$public_ref_dir = false;
-		$participant_id = false;
-		$challenges_ids = false;
-		$community_id = false;
-
-		//check that there are all the necessary params in the main.nf file
-		foreach ($files as $file) {
-			if (strtoupper($file) == strtoupper($tempDir.$fileName)) {
-				$fp = fopen($file, "r");
-				while (!feof($fp)){
-					$linea = fgets($fp);
-					if (preg_match('/params.input/i',$linea) == 1) {
-						$input = true;
-					} else if (preg_match('/params.public_ref_dir/i',$linea) == 1) {
-						$public_ref_dir = true;
-					} elseif (preg_match('/params.participant_id/i',$linea) == 1) {
-						$participant_id = true;
-					} elseif(preg_match('/params.challenges_ids/i',$linea) == 1) {
-						$challenges_ids = true;
-					} elseif(preg_match('/params.community_id/i',$linea) == 1) {
-						$community_id = true;
-					}
+	//check that there are all the necessary params in the main.nf file
+	foreach ($files as $file) {
+		if (strtoupper($file) == strtoupper($tempDir . "main.nf")) {
+			$fp = fopen($file, "r");
+			while (!feof($fp)){
+				$linea = fgets($fp);
+				if (preg_match('/params.input/i',$linea) == 1) {
+					$input = true;
+				} else if (preg_match('/params.public_ref_dir/i',$linea) == 1) {
+					$public_ref_dir = true;
+				} elseif (preg_match('/params.participant_id/i',$linea) == 1) {
+					$participant_id = true;
+				} elseif(preg_match('/params.challenges_ids/i',$linea) == 1) {
+					$challenges_ids = true;
+				} elseif(preg_match('/params.community_id/i',$linea) == 1) {
+					$community_id = true;
 				}
-				fclose($fp);
 			}
+			fclose($fp);
 		}
-
-		//if not are all the necessary params return an error
-		if(!$input || !$public_ref_dir || !$participant_id || !$challenges_ids || !$community_id) {
-			$response_json->setCode(422);
-			$response_json->setMessage("Nextflow files -> $name file. Missing parameters. Make sure that the following paratemers are set: input, public_ref_dir, participant_id, challenges_id and community_id.");
-
-			$r = shell_exec("rm -rf $tempDir");
-			return $response_json->getResponse();	
-		} 
-		
-		$response_json->setCode(200);
-		$response_json->setMessage("OK");
-		
-		//remove temperoal directory
-		$r = shell_exec("rm -rf $tempDir");
-
-		return $response_json->getResponse();
 	}
 
-	$response_json->setCode(200);
-	$response_json->setMessage("OK");
-
-	//remove temperoal directory
-	$r = shell_exec("rm -rf $tempDir");
-
-	return $response_json->getResponse();
+	//if not are all the necessary params return an error
+	if(!$input || !$public_ref_dir || !$participant_id || !$challenges_ids || !$community_id) {
+		return 2;
+	} 
+	
+	return 3;
 }
 
 //return a process from the id
@@ -600,7 +592,12 @@ function _getProcess($id) {
 	return $process_json;
 }
 
+//general function of create the VRE tool
 function createTool_fromWFs($id) {
+
+	$response_json = new JsonResponse();
+
+	$errors = array();
 
 	$process_json="{}";
 
@@ -608,16 +605,41 @@ function createTool_fromWFs($id) {
 
 	$tool_data = _createToolSpecification_fromWF($process_data);
 
-/* 	$r = _wvalidateToolSpefication($tool_data);
+ 	$errors = _validateToolSpefication($tool_data);
 
-	if ($r) { 
-		_createTool_fromToolSpecification($tool_data);
-		_register_workflow($id);
-	} */
 
-	return $tool_data;
+
+	if ($errors) { 	 
+
+		$process_json = json_encode($errors, JSON_PRETTY_PRINT);
+
+		$response_json->setCode(422);
+		$response_json->setMessage($process_json);
+
+		return $response_json->getResponse();
+	} 
+
+	//	_createTool_fromToolSpecification($tool_data);
+	//	_insertToolMongo($tool_data);
+	$registration = _register_workflow($id);
+
+	if (!$registration) {
+		$response_json->setCode(500);
+		$response_json->setMessage("Cannot update data in Mongo. Mongo Error");
+		return $response_json->getResponse();
+	}
+
+	
+	
+	$process_json = json_encode($tool_data, JSON_PRETTY_PRINT);
+	
+	$response_json->setCode(200);
+	$response_json->setMessage("OK");
+
+	return $response_json->getResponse();
 }
 
+//if the administrator click the reject button
 function reject_workflow($id) {
 	
 	$processCol = $GLOBALS['processCol'];
@@ -645,8 +667,11 @@ function reject_workflow($id) {
 	return $response_json->getResponse();
 }
 
+//if the administrator click the create tool vre button
 function _register_workflow($id) {
 	
+	$processCol = $GLOBALS['processCol'];
+
 	$response_json = new JsonResponse();
 
 	try  {
@@ -654,21 +679,16 @@ function _register_workflow($id) {
 		$processFound = $processCol->find(array("request_status"=>'registered', "_id"=>$id));
 
 		if($processFound != "") {
-			$response_json->setCode(200);
-			$response_json->setMessage("OK");
+			return true;
 		} else {
-			$response_json->setCode(500);
-			$response_json->setMessage("Cannot update data in Mongo. Mongo Error(".$e->getCode()."): ".$e->getMessage());
+			return false;
 		}
-		return $response_json->getResponse();
 	} catch (MongoCursorException $e) {
-
-		$response_json->setCode(500);
-		$response_json->setMessage("Cannot update data in Mongo. Mongo Error(".$e->getCode()."): ".$e->getMessage());
-		return $response_json->getResponse();
+		return false;
 	}
 }
 
+//when the administrator click the create tool vre button generates the json tool to insert it in MongoDB 
 function _createToolSpecification_fromWF($process) {
 	//what the function will return
 	$stringTool = '{}';
@@ -707,25 +727,25 @@ function _createToolSpecification_fromWF($process) {
 		$jsonTool["owner"]["user"] = $process_json["data"]["owner"]["user"];
 	//external boolean
 	if($process_json["data"]["external"] == 1) {
-		$jsonTool["external"] = "true";
+		$jsonTool["external"] = true;
 	} elseif ($process_json["data"]["external"] == 0) {
-		$jsonTool["external"] = "false";
+		$jsonTool["external"] = false;
 	};
 	$jsonTool["keywords"] = $process_json["data"]["keywords"];
 	$jsonTool["keywords_tool"] = $process_json["data"]["keywords_tool"];
-	$jsonTool["status"] = 'NumberLong(' . $process_json["publication_status"] . ')';
+	$jsonTool["status"] = $process_json["publication_status"];
 	//infrastructure array
-		$jsonTool["infrastructure"]["memory"] = 'NumberLong(' . $process_json["data"]["infrastructure"]["memory"] . ')';
-		$jsonTool["infrastructure"]["cpus"] = 'NumberLong(' . $process_json["data"]["infrastructure"]["cpus"] . ')';
+		$jsonTool["infrastructure"]["memory"] = $process_json["data"]["infrastructure"]["memory"];
+		$jsonTool["infrastructure"]["cpus"] = $process_json["data"]["infrastructure"]["cpus"];
 		$jsonTool["infrastructure"]["executable"] = $GLOBALS["oeb_tool_wrapper"];
-		$jsonTool["infrastructure"]["wallTime"] = 'NumberLong(' . $process_json["data"]["infrastructure"]["wallTime"] . ')';
+		$jsonTool["infrastructure"]["wallTime"] = $process_json["data"]["infrastructure"]["wallTime"];
 		for($i = 0; $i < sizeof($process_json["data"]["infrastructure"]["clouds"]); $i++) {
 			if ($process_json["data"]["infrastructure"]["clouds"][$i] == "life-bsc") {
 				$jsonTool["infrastructure"]["clouds"]["life-bsc"]["launcher"] = "SGE";
 				$jsonTool["infrastructure"]["clouds"]["life-bsc"]["queue"] = "default.q";
 			}
 		}
-	$jsonTool["has_custom_viewer"] = "true";
+	$jsonTool["has_custom_viewer"] = true;
 		
 	//Initialize variables
 	$number_input_files = 0;
@@ -762,7 +782,7 @@ function _createToolSpecification_fromWF($process) {
 		"help" => "Nextflow Repository (i.e https:\/\/github.com\/prj\/reponame)",
 		"type" => "hidden",
 		"value" => $process_json["data"]["nextflow_files"]["workflow_file"]["workflow_gitURL"],
-		"required" => "true"
+		"required" => true
 	);
 
 	//arguments - nextflow_repo_tag
@@ -772,7 +792,7 @@ function _createToolSpecification_fromWF($process) {
 		"help" => "Nextflow Repository Tag version",
 		"type" => "hidden",
 		"value" => $process_json["data"]["nextflow_files"]["workflow_file"]["workflow_gitTag"],
-		"required" => "true"
+		"required" => true
 	);
 
 	$jsonTool["arguments"] = [$nextflow_repo_tag, $nextflow_repo_uri];
@@ -810,8 +830,8 @@ function _createToolSpecification_fromWF($process) {
 				"help" => $process_json["data"]["inputs_meta"][$keys[$i]]["help"],
 				"file_type" => $file_types,
 				"data_type" => $data_types,
-				"required" => "true",
-				"allow_multiple" => "false"
+				"required" => true,
+				"allow_multiple" => false
 			));
 		} 
 		
@@ -846,8 +866,8 @@ function _createToolSpecification_fromWF($process) {
 				"value" => $process_json["data"]["inputs_meta"][$keys[$i]]["value"] . "/",
 				"file_type" => $file_types,
 				"data_type" => $data_types,
-				"required" => "true",
-				"allow_multiple" => "false"
+				"required" => true,
+				"allow_multiple" => false
 			));
 		}
 
@@ -864,7 +884,7 @@ function _createToolSpecification_fromWF($process) {
 					"help" => $process_json["data"]["inputs_meta"][$keys[$i]]["help"],
 					"type" => $process_json["data"]["inputs_meta"][$keys[$i]]["type"],
 					"default" => [],
-					"required" => "true",
+					"required" => true,
 					"enum_items" => array(
 						"description" => $descriptions,
 						"name" => $names
@@ -877,8 +897,7 @@ function _createToolSpecification_fromWF($process) {
 					"description" => $process_json["data"]["inputs_meta"][$keys[$i]]["label"],
 					"help" => $process_json["data"]["inputs_meta"][$keys[$i]]["help"],
 					"type" => $process_json["data"]["inputs_meta"][$keys[$i]]["type"],
-					"default" => [],
-					"required" => "true"
+					"required" => true
 				));
 			} 
 		}
@@ -913,8 +932,8 @@ function _createToolSpecification_fromWF($process) {
 		if ($process_json["data"]["outputs_meta"][$keysOutput[$i]]["name"] == "validation_results" || $process_json["data"]["outputs_meta"][$keysOutput[$i]]["name"] == "assessment_results") {
 			array_push($jsonTool["output_files"], array(
 				"name" => $process_json["data"]["outputs_meta"][$keysOutput[$i]]["name"],
-				"required" => "true",
-				"allow_multiple" => "false",
+				"required" => true,
+				"allow_multiple" => false,
 				"file" => array(
 					"file_type" => $file_type,
 					"file_path" => "assessment_datasets.json",
@@ -923,7 +942,7 @@ function _createToolSpecification_fromWF($process) {
 					"meta_data" => array(
 						"description" => "Metrics derivated from the given input data",
 						"tool" => $process_json["_id"],
-						"visible" => "true"
+						"visible" => true
 					)
 				)
 			));
@@ -932,8 +951,8 @@ function _createToolSpecification_fromWF($process) {
 		if ($process_json["data"]["outputs_meta"][$keysOutput[$i]]["name"] == "tar_nf_stats") {
 			array_push($jsonTool["output_files"], array(
 				"name" => $process_json["data"]["outputs_meta"][$keysOutput[$i]]["name"],
-				"required" => "true",
-				"allow_multiple" => "false",
+				"required" => true,
+				"allow_multiple" => false,
 				"file" => array(
 					"file_type" => $file_type,
 					"data_type" => $data_type,
@@ -941,7 +960,7 @@ function _createToolSpecification_fromWF($process) {
 					"meta_data" => array(
 						"description" => "Other execution associated data",
 						"tool" => $process_json["_id"],
-						"visible" => "true"
+						"visible" => true
 					)
 				)
 			));
@@ -950,4 +969,27 @@ function _createToolSpecification_fromWF($process) {
 
 	$stringTool = json_encode($jsonTool, JSON_PRETTY_PRINT);
 	return $stringTool;
+}
+
+function _validateToolSpefication($tool_data) {
+	
+	$errors = array();
+	$data = json_decode($tool_data);
+
+	// Validate
+	$validator = new JsonSchema\Validator();
+	//$validator->check($data, (object) array('$ref' => 'file://' . realpath('tool_schema_dev.json')));
+	$validator->check($data, (object) array('$ref' => 'file://'.$GLOBALS['oeb_tool_json_schema']));
+	//$validator->check($data, (object) array('$ref' => 'https://raw.githubusercontent.com/Multiscale-Genomics/VRE_tool_jsons/master/tool_specification/tool_schema_dev.json'));
+
+	if ($validator->isValid()) {
+		return $errors;
+	} else {
+		foreach ($validator->getErrors() as $error) {
+			array_push($errors, array(
+				$error['property'] => $error['message']
+			));
+		}
+		return $errors;
+	}
 }

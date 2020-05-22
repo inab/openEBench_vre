@@ -89,10 +89,10 @@ require "../../htmlib/js.inc.php"; ?>
                 <!-- BEGIN EXAMPLE TABLE PORTLET -->
                     <div class="row">
                         <div class="col-md-12">
+                            <div id="errorsTool" class="alert alert-danger" style="display:none;"></div>
                             <div class="portlet light portlet-fit bordered">
-
                                 <div id="processes" class="portlet-body">
-                                <a href="oeb_management/oeb_process/oeb_newProcess.php" class="btn btn-lg green" style="margin-bottom:30px;"> <i class="fa fa-plus"></i> Create new</a>
+                                    <a href="oeb_management/oeb_process/oeb_newProcess.php" class="btn btn-lg green" style="margin-bottom:30px;"> <i class="fa fa-plus"></i> Create new</a>
 
                                     <input type="hidden" id="base-url" value="<?php echo $GLOBALS['BASEURL']; ?>" />
 

@@ -84,8 +84,6 @@ $(document).ready(function() {
           }
         }
 
-        console.log(editor);
-
         //change name of the navbar 
         $('a[href="#Generic-keywords"]').text("STEP 2: Generic keywords");
         $('a[href="#Custom-keywords"]').text("STEP 3: Custom keywords");
@@ -201,7 +199,6 @@ function insertJSON(processJSONForm) {
     url: urlJSON,
     data: {'action': 'setProcess', 'processForm': processJSONForm}
   }).done(function(data) {
-    console.log(data);
     if(data['code'] == 200) {
       window.location.href = baseURL + "oeb_management/oeb_process/oeb_processes.php";
       
@@ -216,6 +213,7 @@ function insertJSON(processJSONForm) {
       $(".errorClass").addClass(" alert alert-danger");
     }
   }).fail(function(data) {
+    console.log(data);
     var error = JSON.parse(data['responseText']);
     $(".errorClass").text(error['message']);
     $(".errorClass").removeClass(" alert alert-info");
@@ -244,8 +242,6 @@ function validateErr() {
     } else {
       $(".form-control-file").css({"color": "#333"});
     }
-
-    console.log(fileError);
 
     $(".errorClass").text("There are errors in some fields of the form.");
     $(".errorClass").removeClass(" alert alert-info");

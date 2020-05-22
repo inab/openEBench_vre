@@ -49,8 +49,32 @@ function registerTool(id) {
 			data: {'action': 'createTool_fromWFs', 'id': id}
 		}).done(function(data) {
 			reload();
-			console.log(data);
-		});
+			if (data["code"] == 200) {
+				$("#errorsTool").removeClass("alert alert-danger");
+				$("#errorsTool").addClass("alert alert-info");
+				$("#errorsTool").text("VRE tool created successfully!");
+				$("#errorsTool").show();
+			} else {
+				$("#errorsTool").removeClass("alert alert-danger");
+				$("#errorsTool").addClass("alert alert-info");
+				$("#errorsTool").text("Sorry... There has been an error.");
+				$("#errorsTool").show();
+			}
+
+		}).fail(function(data) {
+			var errors = JSON.parse(data["responseText"]);
+			var message = JSON.parse(errors["message"]);
+			
+			$.each(message, function(key, value){
+				$.each(value, function(key, value){
+					$("<p>" + key + " => " + value + "</p>").appendTo("#errorsTool");
+				});
+			});
+
+			$("#errorsTool").show();
+			
+			reload();
+		})
 	};
 };
 
@@ -68,7 +92,6 @@ function rejectTool(id) {
 			data: {'action': 'reject_workflow', 'id': id}
 		}).done(function(data) {
 			reload();
-			console.log(data);
 		});
 	};
 }
