@@ -109,6 +109,13 @@ require "../../htmlib/js.inc.php"; ?>
                     #tblReportResultsDemographics_filter {
                         float: right;
                     }
+
+                    .btn-block {
+                        width: 48%;
+                        font-size: 12px;
+                        display: inline-block;
+                        line-height: 1.5;
+                    }
                 </style>
                 <?php
                 require "../../htmlib/footer.inc.php";

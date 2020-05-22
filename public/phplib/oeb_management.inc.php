@@ -295,7 +295,7 @@ function setProcess($processStringForm) {
 	$gitTag_workflow = $processForm["nextflow_files"]["workflow_file"]["workflow_gitTag"];
 
 	//get errors (or not) workflow git
-	$tmp_workflow = checkGit("Workflow", $gitURL_workflow, $gitTag_workflow, "main.nf");
+	$tmp_workflow = _cloneGit("Workflow", $gitURL_workflow, $gitTag_workflow, "main.nf");
 	
 	//$gitRepoPath = cloneGit($gitURL_workflow, $gitTag_workflow);
 
@@ -314,7 +314,7 @@ function setProcess($processStringForm) {
 	} 
 
 	//materialize public data
-	$resultJSON = getPublicData_fromBase64($file);	
+	$resultJSON = _getPublicData_fromBase64($file);	
 	$result = json_decode($resultJSON, true);
 
 	//CHECK PUBLIC DATA
@@ -359,7 +359,7 @@ function setProcess($processStringForm) {
 }
 
 //validate the file TAR
-function getPublicData_fromBase64($file_base64) {
+function _getPublicData_fromBase64($file_base64) {
 	$MAX_SIZE = 500000;
 	$response_json= new JsonResponse();
 	 
@@ -457,7 +457,7 @@ function getPublicData_fromBase64($file_base64) {
 }
 
 //validate the Git URL 
-function checkGit($name, $gitURL, $gitTag, $fileName) {
+function _cloneGit($name, $gitURL, $gitTag, $fileName) {
 
 	$response_json= new JsonResponse();
 
@@ -580,7 +580,7 @@ function checkGit($name, $gitURL, $gitTag, $fileName) {
 }
 
 //return a process from the id
-function getProcess($id) {
+function _getProcess($id) {
 	//initiallize variables
 	$process_json="{}";
 	$processFinal = array();
@@ -604,61 +604,123 @@ function createTool_fromWFs($id) {
 
 	$process_json="{}";
 
-	$process_data = getProcess($id);
+	$process_data = _getProcess($id);
 
-	$tool_data = createToolSpecification_fromWF($process_data);
+	$tool_data = _createToolSpecification_fromWF($process_data);
 
-/* 	$r = validateToolSpefication($tool_data);
+/* 	$r = _wvalidateToolSpefication($tool_data);
 
-	if ($r["code"] == 200 ) { 
-		createTool_fromToolSpecification($tool_data);
+	if ($r) { 
+		_createTool_fromToolSpecification($tool_data);
+		_register_workflow($id);
 	} */
 
 	return $tool_data;
 }
 
-function createToolSpecification_fromWF($process) {
-	$tool_json = '{}';
+function reject_workflow($id) {
 	
+	$processCol = $GLOBALS['processCol'];
+
+	$response_json = new JsonResponse();
+
+	try  {
+		$processCol->update(['_id' => $id], [ '$set' => [ 'request_status' => 'rejected']]);
+		$processFound = $processCol->find(array("request_status"=>'rejected', "_id"=>$id));
+
+		if($processFound != "") {
+			$response_json->setCode(200);
+			$response_json->setMessage("OK");
+		} else {
+			$response_json->setCode(500);
+			$response_json->setMessage("Cannot update data in Mongo. Mongo Error(".$e->getCode()."): ".$e->getMessage());
+		}
+		return $response_json->getResponse();
+	} catch (MongoCursorException $e) {
+
+		$response_json->setCode(500);
+		$response_json->setMessage("Cannot update data in Mongo. Mongo Error(".$e->getCode()."): ".$e->getMessage());
+		return $response_json->getResponse();
+	}
+	return $response_json->getResponse();
+}
+
+function _register_workflow($id) {
+	
+	$response_json = new JsonResponse();
+
+	try  {
+		$processCol->update(['_id' => $id], [ '$set' => [ 'request_status' => 'registered']]);
+		$processFound = $processCol->find(array("request_status"=>'registered', "_id"=>$id));
+
+		if($processFound != "") {
+			$response_json->setCode(200);
+			$response_json->setMessage("OK");
+		} else {
+			$response_json->setCode(500);
+			$response_json->setMessage("Cannot update data in Mongo. Mongo Error(".$e->getCode()."): ".$e->getMessage());
+		}
+		return $response_json->getResponse();
+	} catch (MongoCursorException $e) {
+
+		$response_json->setCode(500);
+		$response_json->setMessage("Cannot update data in Mongo. Mongo Error(".$e->getCode()."): ".$e->getMessage());
+		return $response_json->getResponse();
+	}
+}
+
+function _createToolSpecification_fromWF($process) {
+	//what the function will return
+	$stringTool = '{}';
+
+	//the tool in format json
+	$jsonTool = array();
+	
+	//descriptions of the challenges
+	$descriptions = array();
+	//names of the challenges
+	$names = array();
+
+	//
+	$process_json = json_decode($process, true);
+	$process_json = $process_json[0];
+
+	//the ontology of data type and file type
+	$fileOntology = getListOntologyForForm("https://w3id.org/oebDataFormats", "https://w3id.org/oebDataFormats/FormatDatasets");
+	$dataOntology = getListOntologyForForm("https://w3id.org/oebDatasets", "https://w3id.org/oebDatasets/dataset");
+
+	$ontology_file_type = json_decode($fileOntology, true);
+	$ontology_data_type = json_decode($dataOntology, true);
+
+	
+
 	$jsonTool = array();
 
-	$tool_json = json_decode($process, true);
-
-	$firstOntology = getListOntologyForForm("https://w3id.org/oebDataFormats", "https://w3id.org/oebDataFormats/FormatDatasets");
-	$secondOntology = getListOntologyForForm("https://w3id.org/oebDatasets", "https://w3id.org/oebDatasets/dataset");
-
-	$ontology_file_type = json_decode($firstOntology, true);
-	$ontology_data_type = json_decode($secondOntology, true);
-
-	$tool_json = $tool_json[0];
-
-	$jsonTool = array();
-
-	$jsonTool["_id"] =  $tool_json["_id"];
-	$jsonTool["name"] =  $tool_json["data"]["name"];
-	$jsonTool["title"] =  $tool_json["data"]["title"];
-	$jsonTool["short_description"] = $tool_json["data"]["description"];
-	$jsonTool["long_description"] = $tool_json["data"]["description_long"];
-		$jsonTool["owner"]["institution"] = $tool_json["data"]["owner"]["institution"];
-		$jsonTool["owner"]["author"] =  $tool_json["data"]["owner"]["author"];
-		$jsonTool["owner"]["contact"] = $tool_json["data"]["owner"]["contact"];
-		$jsonTool["owner"]["user"] = $tool_json["data"]["owner"]["user"];
+	$jsonTool["_id"] =  $process_json["_id"];
+	$jsonTool["name"] =  $process_json["data"]["name"];
+	$jsonTool["title"] =  $process_json["data"]["title"];
+	$jsonTool["short_description"] = $process_json["data"]["description"];
+	$jsonTool["long_description"] = $process_json["data"]["description_long"];
+		$jsonTool["owner"]["institution"] = $process_json["data"]["owner"]["institution"];
+		$jsonTool["owner"]["author"] =  $process_json["data"]["owner"]["author"];
+		$jsonTool["owner"]["contact"] = $process_json["data"]["owner"]["contact"];
+		$jsonTool["owner"]["user"] = $process_json["data"]["owner"]["user"];
 	//external boolean
-	if($tool_json["data"]["external"] == 1) {
+	if($process_json["data"]["external"] == 1) {
 		$jsonTool["external"] = "true";
-	} elseif ($tool_json["data"]["external"] == 0) {
+	} elseif ($process_json["data"]["external"] == 0) {
 		$jsonTool["external"] = "false";
 	};
-	$jsonTool["keywords"] = $tool_json["data"]["keywords"];
-	$jsonTool["keywords_tool"] = $tool_json["data"]["keywords_tool"];
-	$jsonTool["status"] = 'NumberLong(' . $tool_json["publication_status"] . ')';
+	$jsonTool["keywords"] = $process_json["data"]["keywords"];
+	$jsonTool["keywords_tool"] = $process_json["data"]["keywords_tool"];
+	$jsonTool["status"] = 'NumberLong(' . $process_json["publication_status"] . ')';
 	//infrastructure array
-		$jsonTool["infrastructure"]["memory"] = 'NumberLong(' . $tool_json["data"]["infrastructure"]["memory"] . ')';
-		$jsonTool["infrastructure"]["cpus"] = 'NumberLong(' . $tool_json["data"]["infrastructure"]["cpus"] . ')';
+		$jsonTool["infrastructure"]["memory"] = 'NumberLong(' . $process_json["data"]["infrastructure"]["memory"] . ')';
+		$jsonTool["infrastructure"]["cpus"] = 'NumberLong(' . $process_json["data"]["infrastructure"]["cpus"] . ')';
 		$jsonTool["infrastructure"]["executable"] = $GLOBALS["oeb_tool_wrapper"];
-		$jsonTool["infrastructure"]["wallTime"] = 'NumberLong(' . $tool_json["data"]["infrastructure"]["wallTime"] . ')';
-		for($i = 0; $i < sizeof($tool_json["data"]["infrastructure"]["clouds"]); $i++) {
-			if ($tool_json["data"]["infrastructure"]["clouds"][$i] == "life-bsc") {
+		$jsonTool["infrastructure"]["wallTime"] = 'NumberLong(' . $process_json["data"]["infrastructure"]["wallTime"] . ')';
+		for($i = 0; $i < sizeof($process_json["data"]["infrastructure"]["clouds"]); $i++) {
+			if ($process_json["data"]["infrastructure"]["clouds"][$i] == "life-bsc") {
 				$jsonTool["infrastructure"]["clouds"]["life-bsc"]["launcher"] = "SGE";
 				$jsonTool["infrastructure"]["clouds"]["life-bsc"]["queue"] = "default.q";
 			}
@@ -669,170 +731,223 @@ function createToolSpecification_fromWF($process) {
 	$number_input_files = 0;
 	$number_input_files_public_dir = 0;
 	$number_arguments = 0;
+	$nextflow_repo_uri = array();
+	$nextflow_repo_tag = array();
 
 	//get the number of all the keys
-	$keys = array_keys($tool_json["data"]["inputs_meta"]);
-	$keysChallenge = array_keys($tool_json["data"]["inputs_meta"]["challenges_ids"]["challenges"]);
+	$keys = array_keys($process_json["data"]["inputs_meta"]);
+	$keysChallenge = array_keys($process_json["data"]["inputs_meta"]["challenges_ids"]["challenges"]);
+	
+	//define variables that contain the different arrays inside
+	$jsonTool["input_files"] = [];
+	$jsonTool["input_files_public_dir"] = [];
+	$jsonTool["arguments"] = [];
+
+	//input_files_combination
+	$jsonTool["input_files_combinations"] = [array(
+		"description" => "Run benchmarking workflow",
+		"input_files" =>["input"]
+	)];
+
+	//input_files_combination_internal
+	$jsonTool["input_files_combinations_internal"] = [[array(
+		"participant" => 1
+	)]];
+
+	//arguments always in the same way
+	//arguments - nextflow_repo_uri
+	$nextflow_repo_uri = array(
+		"name" => "nextflow_repo_uri",
+		"description" => "Nextflow Repository URI",
+		"help" => "Nextflow Repository (i.e https:\/\/github.com\/prj\/reponame)",
+		"type" => "hidden",
+		"value" => $process_json["data"]["nextflow_files"]["workflow_file"]["workflow_gitURL"],
+		"required" => "true"
+	);
+
+	//arguments - nextflow_repo_tag
+	$nextflow_repo_tag = array(
+		"name" => "nextflow_repo_tag",
+		"description" => "Nextflow Repository tag",
+		"help" => "Nextflow Repository Tag version",
+		"type" => "hidden",
+		"value" => $process_json["data"]["nextflow_files"]["workflow_file"]["workflow_gitTag"],
+		"required" => "true"
+	);
+
+	$jsonTool["arguments"] = [$nextflow_repo_tag, $nextflow_repo_uri];
+
 	//do the functions knowing how many of each type there are
 	for($i = 0; $i < sizeof($keys); $i++) {
-		$type = $tool_json["data"]["inputs_meta"][$keys[$i]]["type"];
+		$type = $process_json["data"]["inputs_meta"][$keys[$i]]["type"];
 		
 		//structure of file user
 		if ($type == "file_user") {
 
-/* 
-			$jsonTool["input_files"][$keys[$i]]["name"] = $tool_json["data"]["inputs_meta"][$keys[$i]]["name"];
-			$jsonTool["input_files"][$keys[$i]]["description"] = $tool_json["data"]["inputs_meta"][$keys[$i]]["label"];
-			$jsonTool["input_files"][$keys[$i]]["help"] = $tool_json["data"]["inputs_meta"][$keys[$i]]["help"]; */
-
 			//creating file_type array
 			$file_types = array();
 			for($x = 0; $x < sizeof($ontology_file_type); $x++) {
-				for($j = 0; $j < sizeof($tool_json["data"]["inputs_meta"][$keys[$i]]["file_type"]); $j++) {
-					if ($tool_json["data"]["inputs_meta"][$keys[$i]]["file_type"][$j] == $ontology_file_type[$x]["URI"]) {
+				for($j = 0; $j < sizeof($process_json["data"]["inputs_meta"][$keys[$i]]["file_type"]); $j++) {
+					if ($process_json["data"]["inputs_meta"][$keys[$i]]["file_type"][$j] == $ontology_file_type[$x]["URI"]) {
 						array_push($file_types, $ontology_file_type[$x]["label"]);
 					}
 				}
 			}
-			/* $jsonTool["input_files"][$keys[$i]]["file_type"] = $file_types; */
 			//creating data_type array
 			$data_types = array();
 			for($x = 0; $x < sizeof($ontology_data_type); $x++) {
-				for($j = 0; $j < sizeof($tool_json["data"]["inputs_meta"][$keys[$i]]["data_type"]); $j++) {
-					if ($tool_json["data"]["inputs_meta"][$keys[$i]]["data_type"][$j] == $ontology_data_type[$x]["URI"]) {
+				for($j = 0; $j < sizeof($process_json["data"]["inputs_meta"][$keys[$i]]["data_type"]); $j++) {
+					if ($process_json["data"]["inputs_meta"][$keys[$i]]["data_type"][$j] == $ontology_data_type[$x]["URI"]) {
 						array_push($data_types, $ontology_data_type[$x]["label"]);
 					}
 				}
 			}
-/* 			$jsonTool["input_files"][$keys[$i]]["data_type"] = $data_types;
-			$jsonTool["input_files"][$keys[$i]]["required"] = "true";
-			$jsonTool["input_files"][$keys[$i]]["allow_multiple"] = "false"; */
 
-			$jsonTool["input_files"] = [array(
-				"name" => $tool_json["data"]["inputs_meta"][$keys[$i]]["name"],
-				"description" => $tool_json["data"]["inputs_meta"][$keys[$i]]["label"],
-				"help" => $tool_json["data"]["inputs_meta"][$keys[$i]]["help"],
+			//input_files
+			array_push($jsonTool["input_files"], array(
+				"name" => $process_json["data"]["inputs_meta"][$keys[$i]]["name"],
+				"description" => $process_json["data"]["inputs_meta"][$keys[$i]]["label"],
+				"help" => $process_json["data"]["inputs_meta"][$keys[$i]]["help"],
 				"file_type" => $file_types,
 				"data_type" => $data_types,
 				"required" => "true",
 				"allow_multiple" => "false"
-				)];
+			));
 		} 
 		
 		if ($type == "file_community" || $type == "dir_community") {
 
-			$jsonTool["input_files_public_dir"][$keys[$i]]["name"] = $tool_json["data"]["inputs_meta"][$keys[$i]]["name"];
-			$jsonTool["input_files_public_dir"][$keys[$i]]["description"] = $tool_json["data"]["inputs_meta"][$keys[$i]]["label"];
-			$jsonTool["input_files_public_dir"][$keys[$i]]["help"] = $tool_json["data"]["inputs_meta"][$keys[$i]]["help"];
-			$jsonTool["input_files_public_dir"][$keys[$i]]["type"] = "hidden";
-			$jsonTool["input_files_public_dir"][$keys[$i]]["value"] = $tool_json["data"]["inputs_meta"][$keys[$i]]["value"] . "/";
 			//creating file_type array
 			$file_types = array();
 			for($x = 0; $x < sizeof($ontology_file_type); $x++) {
-				for($j = 0; $j < sizeof($tool_json["data"]["inputs_meta"][$keys[$i]]["file_type"]); $j++) {
-					if ($tool_json["data"]["inputs_meta"][$keys[$i]]["file_type"][$j] == $ontology_file_type[$x]["URI"]) {
+				for($j = 0; $j < sizeof($process_json["data"]["inputs_meta"][$keys[$i]]["file_type"]); $j++) {
+					if ($process_json["data"]["inputs_meta"][$keys[$i]]["file_type"][$j] == $ontology_file_type[$x]["URI"]) {
 						array_push($file_types, $ontology_file_type[$x]["label"]);
 					}
 				}
 			}
-			$jsonTool["input_files_public_dir"][$keys[$i]]["file_type"] = $file_types;
+
 			//creating data_type array
 			$data_types = array();
 			for($x = 0; $x < sizeof($ontology_data_type); $x++) {
-				for($j = 0; $j < sizeof($tool_json["data"]["inputs_meta"][$keys[$i]]["data_type"]); $j++) {
-					if ($tool_json["data"]["inputs_meta"][$keys[$i]]["data_type"][$j] == $ontology_data_type[$x]["URI"]) {
+				for($j = 0; $j < sizeof($process_json["data"]["inputs_meta"][$keys[$i]]["data_type"]); $j++) {
+					if ($process_json["data"]["inputs_meta"][$keys[$i]]["data_type"][$j] == $ontology_data_type[$x]["URI"]) {
 						array_push($data_types, $ontology_data_type[$x]["label"]);
 					}
 				}
 			}
-			$jsonTool["input_files_public_dir"][$keys[$i]]["data_type"] = $data_types;
-			$jsonTool["input_files_public_dir"][$keys[$i]]["required"] = "true";
-			$jsonTool["input_files_public_dir"][$keys[$i]]["allow_multiple"] = "false";
+
+			//input_files_public_dir
+			array_push($jsonTool["input_files_public_dir"], array(
+				"name" => $process_json["data"]["inputs_meta"][$keys[$i]]["name"],
+				"description" => $process_json["data"]["inputs_meta"][$keys[$i]]["label"],
+				"help" => $process_json["data"]["inputs_meta"][$keys[$i]]["help"],
+				"type" => "hidden",
+				"value" => $process_json["data"]["inputs_meta"][$keys[$i]]["value"] . "/",
+				"file_type" => $file_types,
+				"data_type" => $data_types,
+				"required" => "true",
+				"allow_multiple" => "false"
+			));
 		}
-
-		//input_files_combination
-		$jsonTool["input_files_combinations"]["description"] = "Run benchmarking workflow";
-		$jsonTool["input_files_combinations"]["input_files"] = ["input"];
-	
-		//input_files_combination_internal
-		$jsonTool["input_files_combinations_internal"] = [array("participant" => 1)];
-
-		//arguments - nextflow_repo_uri
-		$jsonTool["arguments"]["nextflow_repo_uri"]["name"] = "nextflow_repo_uri";
-		$jsonTool["arguments"]["nextflow_repo_uri"]["description"] = "Nextflow Repository URI";
-		$jsonTool["arguments"]["nextflow_repo_uri"]["help"] = "Nextflow Repository (i.e https:\/\/github.com\/prj\/reponame)";
-		$jsonTool["arguments"]["nextflow_repo_uri"]["type"] = "hidden";
-		$jsonTool["arguments"]["nextflow_repo_uri"]["value"] = $tool_json["data"]["nextflow_files"]["workflow_file"]["workflow_gitURL"];
-		$jsonTool["arguments"]["nextflow_repo_uri"]["required"] = "true";
-
-		//arguments - nextflow_repo_tag
-		$jsonTool["arguments"]["nextflow_repo_tag"]["name"] = "nextflow_repo_tag";
-		$jsonTool["arguments"]["nextflow_repo_tag"]["description"] = "Nextflow Repository tag";
-		$jsonTool["arguments"]["nextflow_repo_tag"]["help"] = "Nextflow Repository Tag version";
-		$jsonTool["arguments"]["nextflow_repo_tag"]["type"] = "hidden";
-		$jsonTool["arguments"]["nextflow_repo_tag"]["value"] = $tool_json["data"]["nextflow_files"]["workflow_file"]["workflow_gitTag"];
-		$jsonTool["arguments"]["nextflow_repo_tag"]["required"] = "true";
 
 		//structure of the different arguments (string, integer, number, boolean, enum, enum_mult and hidden)
 		if($type == "string" || $type == "integer" || $type == "number" || $type == "boolean" || $type == "enum" || $type == "enum_mult" || $type == "hidden") {
-			$jsonTool["arguments"][$keys[$i]]["name"] = $tool_json["data"]["inputs_meta"][$keys[$i]]["name"];
-			$jsonTool["arguments"][$keys[$i]]["description"] = $tool_json["data"]["inputs_meta"][$keys[$i]]["label"];
-			$jsonTool["arguments"][$keys[$i]]["help"] = $tool_json["data"]["inputs_meta"][$keys[$i]]["help"];
-			$jsonTool["arguments"][$keys[$i]]["type"] = $tool_json["data"]["inputs_meta"][$keys[$i]]["type"];
-			
-			if ($tool_json["data"]["inputs_meta"][$keys[$i]]["name"] == "challenges_ids") {
-				$jsonTool["arguments"][$keys[$i]]["required"] = "true";
-				$jsonTool["arguments"][$keys[$i]]["default"] = [];
+  			if ($process_json["data"]["inputs_meta"][$keys[$i]]["name"] == "challenges_ids") {
 				for ($x = 0; $x < sizeof($keysChallenge); $x++) {
-					$jsonTool["arguments"][$keys[$i]]["enum_items"]["name"][] = $tool_json["data"]["inputs_meta"]["challenges_ids"]["challenges"][$keysChallenge[$x]]["value"];
-					$jsonTool["arguments"][$keys[$i]]["enum_items"]["description"][] = $tool_json["data"]["inputs_meta"]["challenges_ids"]["challenges"][$keysChallenge[$x]]["description"];
+					array_push($descriptions, $process_json["data"]["inputs_meta"]["challenges_ids"]["challenges"][$keysChallenge[$x]]["description"]);
+					array_push($names, $process_json["data"]["inputs_meta"]["challenges_ids"]["challenges"][$keysChallenge[$x]]["value"]);
 				}
-			} elseif ($tool_json["data"]["inputs_meta"][$keys[$i]]["name"] == "participant_id") {
-				$jsonTool["arguments"][$keys[$i]]["required"] = "true";
-				$jsonTool["arguments"][$keys[$i]]["default"] = [];
+				array_push($jsonTool["arguments"], array(
+					"name" => $process_json["data"]["inputs_meta"][$keys[$i]]["name"],
+					"description" => $process_json["data"]["inputs_meta"][$keys[$i]]["label"],
+					"help" => $process_json["data"]["inputs_meta"][$keys[$i]]["help"],
+					"type" => $process_json["data"]["inputs_meta"][$keys[$i]]["type"],
+					"default" => [],
+					"required" => "true",
+					"enum_items" => array(
+						"description" => $descriptions,
+						"name" => $names
+					)
+				));
+			} 
+			if ($process_json["data"]["inputs_meta"][$keys[$i]]["name"] != "challenges_ids") {
+				array_push($jsonTool["arguments"], array(
+					"name" => $process_json["data"]["inputs_meta"][$keys[$i]]["name"],
+					"description" => $process_json["data"]["inputs_meta"][$keys[$i]]["label"],
+					"help" => $process_json["data"]["inputs_meta"][$keys[$i]]["help"],
+					"type" => $process_json["data"]["inputs_meta"][$keys[$i]]["type"],
+					"default" => [],
+					"required" => "true"
+				));
+			} 
+		}
+	}
+
+
+ 	$keysOutput = array_keys($process_json["data"]["outputs_meta"]);
+	
+	$jsonTool["output_files"] = [];
+
+	for($i = 0; $i < sizeof($keysOutput); $i++) {
+		//creating file_type array
+		$file_type = "";
+		for($x = 0; $x < sizeof($ontology_file_type); $x++) {
+			for($j = 0; $j < sizeof($process_json["data"]["outputs_meta"][$keysOutput[$i]]["file_type"]); $j++) {
+				if ($process_json["data"]["outputs_meta"][$keysOutput[$i]]["file_type"][$j] == $ontology_file_type[$x]["URI"]) {
+					$file_type = $ontology_file_type[$x]["label"];
+				}
 			}
 		}
 
-	}
-
-	$keysOutput = array_keys($tool_json["data"]["outputs_meta"]);
-
-	for($i = 0; $i < sizeof($keysOutput); $i++) {
-		$jsonTool["output_files"][$keysOutput[$i]]["name"] = $tool_json["data"]["outputs_meta"][$keysOutput[$i]]["name"];
-		$jsonTool["output_files"][$keysOutput[$i]]["required"] = "true";
-		$jsonTool["output_files"][$keysOutput[$i]]["allow_multiple"] = "false";
-			//creating file_type array
-			$file_types = array();
-			for($x = 0; $x < sizeof($ontology_file_type); $x++) {
-				for($j = 0; $j < sizeof($tool_json["data"]["outputs_meta"][$keysOutput[$i]]["file_type"]); $j++) {
-					if ($tool_json["data"]["outputs_meta"][$keysOutput[$i]]["file_type"][$j] == $ontology_file_type[$x]["URI"]) {
-						array_push($file_types, $ontology_file_type[$x]["label"]);
-					}
+		//creating data_type array
+		$data_type = "";
+		for($x = 0; $x < sizeof($ontology_data_type); $x++) {
+			for($j = 0; $j < sizeof($process_json["data"]["outputs_meta"][$keysOutput[$i]]["data_type"]); $j++) {
+				if ($process_json["data"]["outputs_meta"][$keysOutput[$i]]["data_type"][$j] == $ontology_data_type[$x]["URI"]) {
+					$data_type = $ontology_data_type[$x]["label"];
 				}
 			}
-			$jsonTool["output_files"][$keysOutput[$i]]["file"]["file_type"] = $file_types;
+		}
 
-			$jsonTool["output_files"][$keysOutput[$i]]["file"]["file_path"] = "";
+		if ($process_json["data"]["outputs_meta"][$keysOutput[$i]]["name"] == "validation_results" || $process_json["data"]["outputs_meta"][$keysOutput[$i]]["name"] == "assessment_results") {
+			array_push($jsonTool["output_files"], array(
+				"name" => $process_json["data"]["outputs_meta"][$keysOutput[$i]]["name"],
+				"required" => "true",
+				"allow_multiple" => "false",
+				"file" => array(
+					"file_type" => $file_type,
+					"file_path" => "assessment_datasets.json",
+					"data_type" => $data_type,
+					"compressed" => null,
+					"meta_data" => array(
+						"description" => "Metrics derivated from the given input data",
+						"tool" => $process_json["_id"],
+						"visible" => "true"
+					)
+				)
+			));
+		}
 
-			//creating data_type array
-			$data_types = array();
-			for($x = 0; $x < sizeof($ontology_data_type); $x++) {
-				for($j = 0; $j < sizeof($tool_json["data"]["outputs_meta"][$keysOutput[$i]]["data_type"]); $j++) {
-					if ($tool_json["data"]["outputs_meta"][$keysOutput[$i]]["data_type"][$j] == $ontology_data_type[$x]["URI"]) {
-						array_push($data_types, $ontology_data_type[$x]["label"]);
-					}
-				}
-			}
-			$jsonTool["output_files"][$keysOutput[$i]]["file"]["data_type"] = $data_types;
-			
-			$jsonTool["output_files"][$keysOutput[$i]]["file"]["compressed"] = "null";
-			$jsonTool["output_files"][$keysOutput[$i]]["file"]["meta_data"]["description"] = "Metrics derivated from the given input data";
-			$jsonTool["output_files"][$keysOutput[$i]]["file"]["meta_data"]["tool"] =  $tool_json["_id"];
-			$jsonTool["output_files"][$keysOutput[$i]]["file"]["meta_data"]["visible"] =  "true";
+		if ($process_json["data"]["outputs_meta"][$keysOutput[$i]]["name"] == "tar_nf_stats") {
+			array_push($jsonTool["output_files"], array(
+				"name" => $process_json["data"]["outputs_meta"][$keysOutput[$i]]["name"],
+				"required" => "true",
+				"allow_multiple" => "false",
+				"file" => array(
+					"file_type" => $file_type,
+					"data_type" => $data_type,
+					"compressed" => "gzip",
+					"meta_data" => array(
+						"description" => "Other execution associated data",
+						"tool" => $process_json["_id"],
+						"visible" => "true"
+					)
+				)
+			));
+		}
 	}
 
-	$stringTool = '{}';
-	//print_r($jsonTool);
 	$stringTool = json_encode($jsonTool, JSON_PRETTY_PRINT);
-	print_r($stringTool);
+	return $stringTool;
 }

@@ -35,21 +35,43 @@ function changeStatus(statusValue, processId) {
 	}
 }
 
-function submitTool(id) {
+function registerTool(id) {
 	var urlJSON = "applib/oeb_processesAPI.php";
-	var eleman = document.getElementById(id);
+	var submit = document.getElementById("s" + id);
+	var reject = document.getElementById("r" + id);
 	
 	if(confirm("Do you want to create a tool?")) {
-		eleman.setAttribute("disabled", true);
+		submit.setAttribute("disabled", true);
+		reject.setAttribute("disabled", true);
 		$.ajax({
 			type: 'POST',
 			url: urlJSON,
 			data: {'action': 'createTool_fromWFs', 'id': id}
 		}).done(function(data) {
+			reload();
 			console.log(data);
 		});
 	};
 };
+
+function rejectTool(id) {
+	var urlJSON = "applib/oeb_processesAPI.php";
+	var submit = document.getElementById("s" + id);
+	var reject = document.getElementById("r" + id);
+
+	if(confirm("Do you want to reject the workflow?")) {
+		submit.setAttribute("disabled", true);
+		reject.setAttribute("disabled", true);
+		$.ajax({
+			type: 'POST',
+			url: urlJSON,
+			data: {'action': 'reject_workflow', 'id': id}
+		}).done(function(data) {
+			reload();
+			console.log(data);
+		});
+	};
+}
 
 $(document).ready(function() {
 	$("#myError").hide();
@@ -117,16 +139,17 @@ $(document).ready(function() {
 					//Registered => the administrator has admit the data and the VRE tool is automatically generated
 					//Rejected => the administrator does not admit the data and the VRE tool is not created
 					if (currentUser["Type"] == 0) {
-						var buttonSubmit = '<a onclick="submitTool(id)" class="btn btn-block btn-sm green" id="'+row._id+'"><i class="fa fa-check" aria-hidden="true"></i> Create VRE tool</a>';
+						var buttonSubmit = '<a onclick="registerTool(name)" class="btn btn-block btn-sm green" name="'+row._id+'" id="s'+row._id+'"><i class="fa fa-check" aria-hidden="true"></i> Create VRE tool</a>';
+						var buttonReject = '<a onclick="rejectTool(name)" class="btn btn-block btn-danger" name="'+row._id+'" id="r'+row._id+'"><i class="fa fa-ban" aria-hidden="true"></i> Reject workflow</a>';
 						switch(data) {
 							case "submitted":
-								return '<div class="note note-success" style="background-color:rgba(109, 91, 142,0.7);border-color:rgb(109, 91,142)"><p class="font-white"><b>SUBMITTED</b>:<br> Waiting for VRE team response.</p></div>' + buttonSubmit;
+								return '<div class="note note-success" style="background-color:rgba(109, 91, 142,0.7);border-color:rgb(109, 91,142)"><p class="font-white"><b>SUBMITTED</b>:<br> Waiting for VRE team response.</p></div>' + buttonSubmit + buttonReject;
 								break;
 							case "registered": 
-								return '<div><div class="note bg-green-jungle"><p class="font-white"><b>ACCEPTED</b>:<br/>Tool successfully registed!</p></div>' + buttonSubmit;
+								return '<div><div class="note bg-green-jungle"><p class="font-white"><b>ACCEPTED</b>:<br/>Tool successfully registed!</p></div>';
 								break;
 							case "rejected":
-								return '<div><div class="note note-danger"><p class="font-red"><b>REJECTED</b>:<br/>Code not accepted</p></div>' + buttonSubmit;
+								return '<div><div class="note note-danger"><p class="font-red"><b>REJECTED</b>:<br/>Code not accepted</p></div>';
 								break;
 							default: 
 								return "";

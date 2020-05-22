@@ -37,6 +37,9 @@ if($_REQUEST) {
     } elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == "createTool_fromWFs" ) {
         echo createTool_fromWFs($_REQUEST['id']);
         exit;
+    } elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == "reject_workflow" ) {
+        echo reject_workflow($_REQUEST['id']);
+        exit;
     } elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == "getUser") {
         echo getUser($_REQUEST['id']);
         exit;

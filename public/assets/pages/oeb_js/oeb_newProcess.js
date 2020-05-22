@@ -122,9 +122,7 @@ function clickSubmit() {
 
       //insert into db
       insertJSON(json);
-    } else {
-      $(".form-control-file").css({"color": "red"});
-    }
+    } 
 
     $(".errorClass").show();
   });
@@ -231,7 +229,23 @@ function validateErr() {
   if(errors.length != 0) {
     console.log("ERRORS: ");
     console.log(errors);
+    fileError = 0;
     editor.options.show_errors = "always";
+
+    for(let j = 0; j < errors.length; j++) {
+      if (errors[j]["path"] == "root.inputs_meta.public_ref_dir.value") {
+        fileError = 1;
+      }
+    }
+
+    //the error file do not works propertly (count as an error but do not look red color) so I do manually
+    if(fileError) {
+      $(".form-control-file").css({"color": "red"});
+    } else {
+      $(".form-control-file").css({"color": "#333"});
+    }
+
+    console.log(fileError);
 
     $(".errorClass").text("There are errors in some fields of the form.");
     $(".errorClass").removeClass(" alert alert-info");
