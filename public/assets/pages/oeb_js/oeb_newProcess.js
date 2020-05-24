@@ -14,8 +14,7 @@ $(document).ready(function() {
   $.getJSON("https://raw.githubusercontent.com/inab/OpEB-VRE-schemas/workflow_schema/oeb_workflow_schema_prueba.json", function(data) {
      
     schema = data;
-  })
-  .done(function() {
+  }).done(function() {
     var baseURL = $("#base-url").val();
 
     let [pathsArray, ancestorsArray, URLontologiesArray] = getInformation(schema);
@@ -49,7 +48,7 @@ $(document).ready(function() {
       };
 
       //INSERT THE OWNER AND SCHEMA
-      var urlDefaultValues = "applib/oeb_processesAPI.php?action=getDefaultValues&owner&_schema";
+      var urlDefaultValues = "applib/oeb_processesAPI.php?action=getDefaultValues&owner";
       $.ajax({
         type: 'POST',
         url: urlDefaultValues,
@@ -67,22 +66,15 @@ $(document).ready(function() {
           disable_properties: true
         });
 
-        var defaultVariables = ["_schema", "owner"];
-
-        //DATA only has _SCHEMA AND OWNER. If we want another variable we have to implement in the API and get it
-        for (x = 0; x < defaultVariables.length; x++) {
-          if (defaultVariables[x] == "owner") {
-            var value = {
-              "institution": data["owner"]["institution"],
-              "author": data["owner"]["author"],
-              "contact": data["owner"]["contact"],
-              "user": data["owner"]["user"]
-            };
-            editor.getEditor("root.owner").setValue(value);
-          } else {
-            editor.getEditor("root." + defaultVariables[x]).setValue(data[defaultVariables[x]]);
-          }
-        }
+        //DATA only has OWNER. If we want another variable we have to implement in the API and get it
+        var value = {
+          "institution": data["Inst"],
+          "author": data["Name"],
+          "contact": data["_id"],
+          "user": data["id"]
+        };
+        
+        editor.getEditor("root.owner").setValue(value);
 
         //change name of the navbar 
         $('a[href="#Generic-keywords"]').text("STEP 2: Generic keywords");

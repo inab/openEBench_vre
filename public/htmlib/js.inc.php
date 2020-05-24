@@ -164,6 +164,7 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 		<script src="assets/global/plugins/jquery-easypiechart/jquery.easypiechart.min.js" type="text/javascript"></script>
 		<script src="assets/global/plugins/jquery.sparkline.min.js" type="text/javascript"></script>
 	<?php break;
+	case 'oeb_workflows':
 	case 'oeb_processes': ?>
 		<script src="assets/global/scripts/datatable.js" type="text/javascript"></script>
 		<script src="assets/global/plugins/datatables/datatables.min.js" type="text/javascript"></script>
@@ -336,12 +337,17 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 		<script src="assets/pages/scripts/adminTools.js?v=<?php echo rand(); ?>" type="text/javascript"></script>
 	<?php break;
 	case 'oeb_processes': ?>
-		<script src="assets/pages/oeb_js/oeb_processStatus.js?v=<?php echo rand(); ?>" type="text/javascript"></script>
+		<script src="assets/pages/oeb_js/oeb_processes.js?v=<?php echo rand(); ?>" type="text/javascript"></script>
+	<?php break;
+	case 'oeb_workflows': ?>
+		<script src="assets/pages/oeb_js/oeb_workflows.js?v=<?php echo rand(); ?>" type="text/javascript"></script>
 	<?php break;
 	case 'oeb_newProcess': ?>
-		<!--<script src="assets/pages/oeb_js/oeb_jsonEditor.js?v=<?php //echo rand(); ?>" type="text/javascript"></script> -->
 		<script src="https://cdn.jsdelivr.net/npm/@json-editor/json-editor@latest/dist/jsoneditor.min.js"></script>
 		<script src="assets/pages/oeb_js/oeb_newProcess.js?v=<?php echo rand(); ?>" type="text/javascript"></script>
+	<?php break;
+	case 'oeb_newWorkflow': ?>
+		<script src="assets/pages/oeb_js/oeb_newWorkflow.js?v=<?php echo rand(); ?>" type="text/javascript"></script>
 	<?php break;
 	case 'adminJobs': ?>
 		<script src="assets/pages/scripts/adminJobs.js?v=<?php echo rand(); ?>" type="text/javascript"></script>
@@ -410,7 +416,9 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 	case 'restoreLink':
 	case 'uploadForm':
 	case 'oeb_newProcess':
+	case 'oeb_newWorkflow':
 	case 'oeb_processes':
+	case 'oeb_workflows':
 	case 'uploadForm2':
 	case 'editFile':
 	case 'editFile2':

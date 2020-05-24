@@ -6,9 +6,15 @@ if(!checkLoggedIn()){
     return '{}';
 }
 if($_REQUEST) {
-    //https://dev-openebench.bsc.es/vre/applib/oeb_processesAPI.php?action=list
-    if (isset($_REQUEST['action']) && $_REQUEST['action'] == "list"){
+    //https://dev-openebench.bsc.es/vre/applib/oeb_processesAPI.php?action=getProcesses
+    if (isset($_REQUEST['action']) && $_REQUEST['action'] == "getProcesses"){
         echo getProcesses();
+        exit;
+    } elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == "getProcessSelect") {
+        echo getProcessSelect();
+        exit;
+    } elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == "getWorkflows") {
+        echo getWorkflows();
         exit;
     //https://dev-openebench.bsc.es/vre/applib/oeb_processesAPI.php?action=updateStatus&process=validation4&status=Private
     } elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == "updateStatus") {
@@ -26,7 +32,7 @@ if($_REQUEST) {
         }
     //https://dev-openebench.bsc.es/vre/applib/oeb_processesAPI.php?action=getDefaultValues&owner&_id&_schema
     } elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == "getDefaultValues") {
-        if(isset($_REQUEST['owner'], $_REQUEST['_schema'])) {
+        if(isset($_REQUEST['owner'])) {
             echo getDefaultValues();
             exit;
         }
@@ -43,6 +49,10 @@ if($_REQUEST) {
     } elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == "getUser") {
         echo getUser($_REQUEST['id']);
         exit;
+    } elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == "deleteProcess") {
+        echo deleteProcess($_REQUEST['id']);
+    } elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == "setWorkflow") {
+        echo setWorkflow($_REQUEST['nameWF'], $_REQUEST['validation'], $_REQUEST['metrics'], $_REQUEST['consolidation']);
     } else {
         echo "IN";
         var_dump($_REQUEST);

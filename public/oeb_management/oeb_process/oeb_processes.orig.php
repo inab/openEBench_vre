@@ -1,20 +1,21 @@
+<!--<script src="https://cdn.jsdelivr.net/npm/vue"></script>-->
+
 <?php
 
 require __DIR__ . "/../../../config/bootstrap.php";
 
 ?>
+
 <?php
 require "../../htmlib/header.inc.php";
 require "../../htmlib/js.inc.php"; ?>
-
-
 
 <body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white page-container-bg-solid page-sidebar-fixed">
     <div class="page-wrapper">
 
         <?php require "../../htmlib/top.inc.php"; ?>
         <?php require "../../htmlib/menu.inc.php"; ?>
-        
+
         <!-- BEGIN CONTENT -->
         <div class="page-content-wrapper">
             <!-- BEGIN CONTENT BODY -->
@@ -26,22 +27,30 @@ require "../../htmlib/js.inc.php"; ?>
                 <div class="page-bar">
                     <ul class="page-breadcrumb">
                         <li>
+                            <a href="home/">Home</a>
+                            <i class="fa fa-circle"></i>
+                        </li>
+                        <li>
                             <span>Management</span>
                             <i class="fa fa-circle"></i>
                         </li>
                         <li>
-                            <a href="oeb_management/oeb_process/oeb_processes.php">Processes</a>
-                            <i class="fa fa-circle"></i>
-                        </li>
-                        <li>
-                            <span>Create new process</span>
+                            <span>Processes</span>
                         </li>
                     </ul>
                 </div>
                 <!-- END PAGE BAR -->
 
                 <!-- BEGIN PAGE TITLE-->
-                <h1 class="page-title"> Create new process</h1>
+                <h1 class="page-title"> Benchmarking proceses
+                    <small>Your available processes</small>
+                    <div class="btn-group" style="float:right;">
+                        <div class="actions">
+                            <!-- <a onclick="getdata()" id="processA" class="btn green"> Reload Processes </a> -->
+                            <a id="processReload" class="btn green"> Reload Processes </a>
+                        </div>
+                    </div>
+                </h1>
                 <!-- END PAGE TITLE -->
                 <!-- END PAGE HEADER -->
 
@@ -50,7 +59,7 @@ require "../../htmlib/js.inc.php"; ?>
                     <div class="col-md-12">
 
 			<!-- Show errors from frontend-->
-                	<div class="alert alert-danger" id="myError"style="display:none;"></div>
+                	<div id="myError"style="display:none;"></div>
 
 			<!-- Show errors from PHP backend-->
                         <?php
@@ -80,25 +89,14 @@ require "../../htmlib/js.inc.php"; ?>
                 <!-- BEGIN EXAMPLE TABLE PORTLET -->
                     <div class="row">
                         <div class="col-md-12">
+                            <div id="errorsTool" class="alert alert-danger" style="display:none;"></div>
                             <div class="portlet light portlet-fit bordered">
-
                                 <div id="processes" class="portlet-body">
+                                    <a href="oeb_management/oeb_process/oeb_newProcess.php" class="btn btn-lg green" style="margin-bottom:30px;"> <i class="fa fa-plus"></i> Create new</a>
+
                                     <input type="hidden" id="base-url" value="<?php echo $GLOBALS['BASEURL']; ?>" />
-                                    <input type="hidden" id="hola" value="quetal" />
-                                    <div id="loading-datatable" class="loadingForm">
-                                        <div id="loading-spinner">LOADING</div>
-                                        <div id="loading-text">It could take a few minutes</div>
-                                    </div>
-                                    <div id="loading-datatable" style="display:none;" class="loadingSubmit">
-                                        <div id="loading-spinner">LOADING</div>
-                                        <div id="loading-text">All the links and files are being validated</div>
-                                    </div>
-                                    
-                                    <div id='editor_holder'></div>
-                                    <br>
-                                    <button id="submit" style="display:none;" class="btn btn-primary">Submit</button>
-                                    <br>
-                                    <p class="errorClass" id="idP" style="display:none;"></p>
+
+                                    <table id="tblReportResultsDemographics" class="table table-striped table-hover table-bordered"></table>
                                 </div>
                             </div>
                         </div>
@@ -106,47 +104,19 @@ require "../../htmlib/js.inc.php"; ?>
                   <!-- END EXAMPLE TABLE PORTLET-->
                 </div>
                 <!-- END CONTENT BODY -->
+
                 <style type="text/css">
-                    li a[href="#Infrastructure-details"], li a[href="#Output-results"], li a[href="#Owner"] {
-                        display: none;
-                    }
-                    
-                    .invalid-feedback {
-                        color: red;
+                    #tblReportResultsDemographics_filter {
+                        float: right;
                     }
 
-                    button {
-                        margin: 3px;
+                    .btn-block {
+                        width: 48%;
+                        font-size: 12px;
+                        display: inline-block;
+                        line-height: 1.5;
                     }
-
-                    label {
-                        font-weight: bold;
-                    }
-
-                    #idP {
-                        margin-top: 20px;
-                    }
-
-                    .form-group, .btn-group,
-                    div[data-schemapath="root.nextflow_files.workflow_file"], div[data-schemapath="root.nextflow_files.config_file"], 
-                    div[data-schemapath="root.inputs_meta.input"], div[data-schemapath="root.inputs_meta.public_ref_dir"],
-                    div[data-schemapath="root.inputs_meta.participant_id"], div[data-schemapath="root.inputs_meta.community_id"],
-                    div[data-schemapath="root.inputs_meta.challenges_ids"], div[data-schemapath="root.inputs_meta.challenges_ids.challenges"],
-                    div[data-schemapath^="root.inputs_meta.challenges_ids.challenges."] {
-                        margin-left: 20px;
-                    }
-
-                    div[data-schemapath^="root.inputs_meta.challenges_ids.challenges"] div .btn-group {
-                        margin-left: 20px;
-                    }
-
-                    .form-group .required {
-                        font-size: 14px;
-                        color: #333;
-                    }
-
                 </style>
                 <?php
                 require "../../htmlib/footer.inc.php";
                 ?>
-

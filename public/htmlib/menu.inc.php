@@ -348,6 +348,11 @@ sort($visualizers);
 						<ul class="sub-menu">
 							<li class="nav-item  <?php if ($currentSubSection == 'vl') { ?>active open<?php } ?>">
 								<a href="oeb_management/oeb_process/oeb_processes.php" class="nav-link ">
+									<span class="title">Processes</span>
+								</a>
+							</li>
+							<li class="nav-item  <?php if ($currentSubSection == 'vl') { ?>active open<?php } ?>">
+								<a href="oeb_management/oeb_process/oeb_workflows.php" class="nav-link ">
 									<span class="title">Workflows</span>
 								</a>
 							</li>

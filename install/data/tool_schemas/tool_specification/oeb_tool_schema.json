@@ -1,0 +1,705 @@
+{
+  "id": "https://openebench.bsc.es/vre/tool-schema",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "OEB tool definition schema",
+  "description": "Specification of OEB tools as required for VRE",
+  "properties": {
+    "_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string",
+      "default": "null"
+    },
+    "short_description": {
+      "type": "string",
+      "default": "null",
+      "maximum": 150
+    },
+    "long_description": {
+      "type": "string",
+      "default": "null",
+      "maximum": 500
+    },
+    "url": {
+      "type": "string",
+      "pattern": "^(http://www.|https://www.|http://|https://)?"
+    },
+    "publication": {
+      "type": "string"
+    },
+    "owner": {
+      "type": "object",
+      "properties": {
+        "institution": {
+          "type": "string"
+        },
+        "author": {
+          "type": "string"
+        },
+        "contact": {
+          "type": "string",
+          "format": "email"
+        },
+        "url": {
+          "type": "string",
+          "pattern": "^(http://www.|https://www.|http://|https://)?"
+        },
+        "user": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "author",
+        "institution",
+        "contact"
+      ],
+      "additionalProperties": false
+    },
+    "status": {
+      "type": "integer",
+      "enum": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    "keywords": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "phylogenetics",
+          "cancer_genomics",
+          "pharmacogenomics",
+          "3D_modeling",
+          "other"
+        ]
+      },
+      "default": "other"
+    },
+    "keywords_tool": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "external": {
+      "type": "boolean",
+      "default": true
+    },
+    "infrastructure": {
+      "type": "object",
+      "properties": {
+        "executable": {
+          "type": "string"
+        },
+        "cpus": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 12,
+          "default": 1
+        },
+        "memory": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 24,
+          "default": 0
+        },
+        "wallTime": {
+          "type": "integer",
+          "minimum": 5,
+          "maximum": 1440,
+          "default": 1440
+        },
+        "clouds": {
+          "type": "object",
+          "properties": {
+            "life-bsc": {
+              "$ref": "#/definitions/cloud"
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    "has_custom_viewer": {
+      "type": "boolean",
+      "default": true
+    },   
+    "input_files": {
+      "type": "array",
+      "items": {
+        "$ref":"#/definitions/properties2"
+      }
+    },
+    "input_files_public_dir": {
+      "type": "array",
+      "items": {
+        "allOf": [
+          {"type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "help": {
+              "type": "string",
+              "default": null
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "enum",
+                "enum_mult",
+                "hidden"
+              ]
+            },
+            "default": {
+              "type": ["integer", "string", "boolean", "number", "array"],
+              "default": "null"
+            },
+            "value": {
+              "type": ["integer", "string", "boolean", "number", "array"],
+              "default": "null"
+            },
+            "enum_items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "array"
+                },
+                "description": {
+                  "type": "array"
+                }
+              },
+              "required": [
+                "name"
+              ],
+              "additionalProperties": false
+            },
+            "file_type": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "FASTA",
+                  "TAR",
+                  "TXT",
+                  "JSON",
+                  "ERR",
+                  "PDB",
+                  "XML",
+                  "NF",
+                  "NEXUS",
+                  "NEWICK",
+                  "IMG",
+                  null
+                ]
+              }
+            },
+            "data_type": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "tool_statistics",
+                  "data_log",
+                  "metrics_reference",
+                  "nextflow_workflow_config",
+                  "nextflow_workflow_main",
+                  "assessment",
+                  "aggregation",
+                  "participant",
+                  "public_reference",
+                  "workflow_stats",
+                  "validated_participant",
+                  "input",
+                  "report_image",
+                  "configuration_file",
+                  null
+                ]
+              }
+            },
+            "required": {
+              "type": "boolean",
+              "default": true
+            },
+            "allow_multiple": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          "required": [
+            "name",
+            "description",
+            "file_type",
+            "data_type",
+            "required",
+            "allow_multiple"
+          ],
+          "additionalProperties": false},
+          {"$ref":"#/definitions/restrictions"}
+        ]
+      }
+    },
+    "input_files_combinations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "input_files": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "description",
+          "input_files"
+        ]
+      }
+    },
+    "input_files_combinations_internal": {
+      "type": "array",
+      "items": {
+        "type": "array",
+        "items": {
+          "type": "object"
+        }
+      }
+    },
+    "control_file": {
+      "type":"string"
+    },
+    "arguments": {
+      "type": "array",
+      "items": {
+        "allOf": [
+          {"type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "pattern": "^([a-zA-Z0-9_]*)$"
+            },
+            "description": {
+              "type": "string"
+            },
+            "help": {
+              "type": "string",
+              "default": null
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "integer",
+                "number",
+                "string",
+                "enum",
+                "enum_mult",
+                "boolean",
+                "hidden"
+              ]
+            },
+            "default": {
+              "type": ["integer", "string", "boolean", "number", "array"],
+              "default": "null"
+            },
+            "value": {
+              "type": ["integer", "string", "boolean", "number", "array"],
+              "default": "null"
+            },
+            "enum_items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "array"
+                },
+                "description": {
+                  "type": "array"
+                }
+              },
+              "required": [
+                "name"
+              ]
+            },
+            "maximum": {
+              "type": "integer"
+            },
+            "minimum": {
+              "type": "integer"
+            },
+            "required": {
+              "type": "boolean",
+              "default": true
+            },
+            "allow_multiple": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "name",
+            "description",
+            "type"
+          ]},
+          {"$ref":"#/definitions/restrictions"}
+        ]
+      }
+    },
+    "output_files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "required": {
+            "type": "boolean",
+            "default": true
+          },
+          "allow_multiple": {
+            "type": "boolean",
+            "default": false
+          },
+          "file": {
+            "type": "object",
+            "properties": {
+              "file_type": {
+                "type": "string",
+                "enum": [
+                  "FASTA",
+                  "TAR",
+                  "TXT",
+                  "JSON",
+                  "ERR",
+                  "PDB",
+                  "XML",
+                  "NF",
+                  "NEXUS",
+                  "NEWICK",
+                  "IMG",
+                  null
+                ]
+              },
+              "data_type": {
+                "type": "string",
+                "enum": [
+                  "tool_statistics",
+                  "data_log",
+                  "metrics_reference",
+                  "nextflow_workflow_config",
+                  "nextflow_workflow_main",
+                  "assessment",
+                  "aggregation",
+                  "participant",
+                  "public_reference",
+                  "input",
+                  "report_image",
+                  "workflow_stats",
+                  "validated_participant",
+                  "configuration_file",
+                  null
+                ]
+              },
+              "file_path": {
+                "type": "string"
+              },
+              "compressed": {
+                "type": ["null", "string"],
+                "enum": [
+                  null,
+                  "gzip",
+                  "zip"
+                ]
+              },
+              "taxon_id": {
+                "type": "integer"
+              },
+              "source_id": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "meta_data": {
+                "type": "object",
+                "properties": {
+                  "description": {
+                    "type": "string"
+                  },
+                  "tool": {
+                    "type": "string"
+                  },
+                  "visible": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                },
+                "required": [
+                  "description",
+                  "visible"
+                ]
+              }
+            },
+            "required": [
+              "meta_data"
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "required",
+          "allow_multiple",
+          "file"
+        ]
+      }
+    }
+  },
+  "required": [
+    "_id",
+    "title",
+    "name",
+    "short_description",
+    "long_description",
+    "owner",
+    "external",
+    "has_custom_viewer",
+    "keywords",
+    "keywords_tool",
+    "infrastructure",
+    "input_files",
+    "input_files_public_dir",
+    "arguments",
+    "output_files"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "cloud": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/SGE"
+        },
+        {
+          "$ref": "#/definitions/PMES"
+        }
+      ]
+    },
+    "SGE": {
+      "type": "object",
+      "properties": {
+        "launcher": {
+          "type": "string",
+          "pattern": "^SGE$"
+        },
+        "default_cloud": {
+          "type": "boolean",
+          "default": false
+        },
+        "queue": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "launcher",
+        "queue"
+      ],
+      "additionalProperties": false
+    },
+    "PMES": {
+      "type": "object",
+      "properties": {
+        "launcher": {
+          "type": "string",
+          "pattern": "^PMES$"
+        },
+        "workflowType": {
+          "type": "string",
+          "enum": [
+            "Single",
+            "COMPSs"
+          ],
+          "default": "Single"
+        },
+        "default_cloud": {
+          "type": "boolean",
+          "default": false
+        },
+        "minimumVMs": {
+          "type": "integer",
+          "default": 1
+        },
+        "initialVMs": {
+          "type": "integer",
+          "default": 1
+        },
+        "imageName": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "launcher",
+        "workflowType",
+        "minimumVMs",
+        "initialVMs",
+        "imageName"
+      ],
+      "additionalProperties": false
+    },
+    "restrictions":
+    {
+      "allOf": [
+        {
+          "if": { "properties": {"type": {"enum": ["integer"]}}},
+          "then": {"properties": {"default": {"type": ["integer"]}}}
+        },
+        {
+          "if": {"properties": {"type": {"enum": ["string"]}}},
+          "then": {"properties": {"default": {"type": ["string"]}}}
+        },
+        {
+          "if": {"properties": {"type": {"enum": ["boolean"]}}},
+          "then": {"properties": {"default": {"type": ["boolean"]}}}
+        },
+        {
+          "if": {"properties": {"type": {"enum": ["number"]}}},
+          "then": {"properties": {"default": {"type": ["number"]}}}
+        },
+        {
+          "if": {"properties": {"type": {"enum": ["enum_mult"]}}},
+          "then": {"properties": {"default": {"type": ["array"]}}}
+        },
+        {
+          "if": {"properties": {"type": {"enum": ["hidden"]}}},
+          "then": {"required":["value"]},
+          "else": {"not": {"required": ["value"]}}
+        },
+        {
+          "if": {"properties": {"type": {"enum": ["enum", "enum_mult"]}}},
+          "then": {"required":["enum_items"]},
+          "else": {"not": {"required": ["enum_items"]}}
+        }
+      ]
+    },
+    "properties2": {
+      "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "help": {
+            "type": "string",
+            "default": null
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "enum",
+              "enum_mult",
+              "hidden"
+            ]
+          },
+          "default": {
+            "type": ["integer", "string", "boolean", "number", "array"],
+            "default": "null"
+          },
+          "value": {
+            "type": ["integer", "string", "boolean", "number", "array"],
+            "default": "null"
+          },
+          "enum_items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "array"
+              },
+              "description": {
+                "type": "array"
+              }
+            },
+            "required": [
+              "name"
+            ],
+            "additionalProperties": false
+          },
+          "file_type": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "FASTA",
+                "TAR",
+                "TXT",
+                "JSON",
+                "ERR",
+                "PDB",
+                "XML",
+                "NF",
+                "NEXUS",
+                "NEWICK",
+                "IMG",
+                null
+              ]
+            }
+          },
+          "data_type": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "tool_statistics",
+                "data_log",
+                "metrics_reference",
+                "nextflow_workflow_config",
+                "nextflow_workflow_main",
+                "assessment",
+                "aggregation",
+                "participant",
+                "public_reference",
+                "input",
+                "workflow_stats",
+                "validated_participant",
+                "report_image",
+                "configuration_file",
+                null
+              ]
+            }
+          },
+          "required": {
+            "type": "boolean",
+            "default": true
+          },
+          "allow_multiple": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "name",
+          "description",
+          "file_type",
+          "data_type",
+          "required",
+          "allow_multiple"
+        ],
+        "additionalProperties": false
+    }
+  }
+}

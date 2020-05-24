@@ -43,5 +43,6 @@ $GLOBALS['helpsCol']        = $GLOBALS['db']->helps;
 $GLOBALS['sampleDataCol']   = $GLOBALS['db']->sampleData;
 $GLOBALS['logExecutionsCol']= $GLOBALS['db']->log_executions;
 $GLOBALS['processCol']      = $GLOBALS['db']->processes;
+$GLOBALS['toolSubmissionCol']      = $GLOBALS['db']->tool_submission;
 
 ?>

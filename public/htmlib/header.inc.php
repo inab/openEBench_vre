@@ -218,7 +218,9 @@
 		case 'dashboard':
 		case 'datasets':
 		case 'oeb_processes':
+		case 'oeb_workflows':
 		case 'oeb_newProcess':
+		case 'oeb_newWorkflow';
 		case 'oeb_generalView':
 		case 'sampleDataList':
 		case 'dataFromTxt':

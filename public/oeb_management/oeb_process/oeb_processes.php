@@ -42,14 +42,8 @@ require "../../htmlib/js.inc.php"; ?>
                 <!-- END PAGE BAR -->
 
                 <!-- BEGIN PAGE TITLE-->
-                <h1 class="page-title"> Benchmarking Workflows
-                    <small>Your available workflows</small>
-                    <div class="btn-group" style="float:right;">
-                        <div class="actions">
-                            <!-- <a onclick="getdata()" id="processA" class="btn green"> Reload Processes </a> -->
-                            <a id="processReload" class="btn green"> Reload Workflows </a>
-                        </div>
-                    </div>
+                <h1 class="page-title"> Benchmarking proceses
+                    <small>Your available processes</small>
                 </h1>
                 <!-- END PAGE TITLE -->
                 <!-- END PAGE HEADER -->
@@ -87,34 +81,70 @@ require "../../htmlib/js.inc.php"; ?>
                 <!-- END ERRORS DIV -->
 
                 <!-- BEGIN EXAMPLE TABLE PORTLET -->
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div id="errorsTool" class="alert alert-danger" style="display:none;"></div>
-                            <div class="portlet light portlet-fit bordered">
+                <div class="portlet-body">
+                    <div class="tabbable-custom nav-justified">
+                        <ul class="nav nav-tabs nav-justified">
+                            <li class="active uppercase">
+                                <a href="#validation" data-toggle="tab" style="text-align:center"> Validation </a>
+                            </li>
+                            <li class="uppercase">
+                                <a href="#metrics" data-toggle="tab" style="text-align:center"> Metrics </a>
+                            </li>
+                            <li class="uppercase">
+                                <a href="#consolidation" data-toggle="tab" style="text-align:center"> Consolidation </a>
+                            </li>
+                        </ul>
+                        
+                        <div class="tab-content">
+                            <div class="tab-pane active" id="validation">
                                 <div id="processes" class="portlet-body">
+                                    <div class="btn-group" style="float:right;">
+                                        <div class="actions">
+                                            <a id="processReload" class="btn green"> Reload Validation Processes </a>
+                                        </div>
+                                    </div>
                                     <a href="oeb_management/oeb_process/oeb_newProcess.php" class="btn btn-lg green" style="margin-bottom:30px;"> <i class="fa fa-plus"></i> Create new</a>
 
                                     <input type="hidden" id="base-url" value="<?php echo $GLOBALS['BASEURL']; ?>" />
 
-                                    <table id="tblReportResultsDemographics" class="table table-striped table-hover table-bordered"></table>
+                                    <table id="validationTable" class="table table-striped table-hover table-bordered"></table>
+                                </div>
+                            </div>
+                            <div class="tab-pane" id="metrics">
+                                <div id="metrics" class="portlet-body">
+                                    <div class="btn-group" style="float:right;">
+                                        <div class="actions">
+                                            <a id="metricReload" class="btn green"> Reload Metric Processes </a>
+                                        </div>
+                                    </div>
+                                    <a class="btn btn-lg green" style="margin-bottom:30px;"> <i class="fa fa-plus"></i> Create new</a>
+
+                                    <input type="hidden" id="base-url" value="<?php echo $GLOBALS['BASEURL']; ?>" />
+
+                                    <table id="metricTable" class="table table-striped table-hover table-bordered"></table>
+                                </div>
+                            </div>
+                            <div class="tab-pane" id="consolidation">
+                                <div id="consolidations" class="portlet-body">
+                                    <div class="btn-group" style="float:right;">
+                                        <div class="actions">
+                                            <a id="consolidationReload" class="btn green"> Reload Consolidation Processes </a>
+                                        </div>
+                                    </div>
+                                    <a class="btn btn-lg green" style="margin-bottom:30px;"> <i class="fa fa-plus"></i> Create new</a>
+
+                                    <input type="hidden" id="base-url" value="<?php echo $GLOBALS['BASEURL']; ?>" />
+
+                                    <table id="consolidationTable" class="table table-striped table-hover table-bordered"></table>
                                 </div>
                             </div>
                         </div>
                     </div>
-                  <!-- END EXAMPLE TABLE PORTLET-->
                 </div>
-                <!-- END CONTENT BODY -->
 
                 <style type="text/css">
-                    #tblReportResultsDemographics_filter {
+                    #validationTable_filter, #metricTable_filter, #consolidationTable_filter {
                         float: right;
-                    }
-
-                    .btn-block {
-                        width: 48%;
-                        font-size: 12px;
-                        display: inline-block;
-                        line-height: 1.5;
                     }
                 </style>
                 <?php
