@@ -16,11 +16,17 @@ function registerTool(id) {
 	var urlJSON = "applib/oeb_processesAPI.php";
 	
 	if(confirm("Do you want to create a tool?")) {
+        $("#general").hide();
+        $("#loading-datatable").show();
+        
 		$.ajax({
 			type: 'POST',
 			url: urlJSON,
 			data: {'action': 'createTool_fromWFs', 'id': id}
 		}).done(function(data) {
+            $("#general").show();
+            $("#loading-datatable").hide();
+
 			reload();
 			if (data["code"] == 200) {
 				$("#errorsTool").removeClass("alert alert-danger");
@@ -28,32 +34,52 @@ function registerTool(id) {
 				$("#errorsTool").text("VRE tool created successfully!");
 				$("#errorsTool").show();
 			} else {
-				$("#errorsTool").removeClass("alert alert-danger");
-				$("#errorsTool").addClass("alert alert-info");
+				$("#errorsTool").removeClass("alert alert-info");
+				$("#errorsTool").addClass("alert alert-danger");
 				$("#errorsTool").text("Sorry... There has been an error.");
 				$("#errorsTool").show();
 			}
 
 		}).fail(function(data) {
-			var errors = JSON.parse(data["responseText"]);
-			var message = JSON.parse(errors["message"]);
-			
-			$.each(message, function(key, value){
-				$.each(value, function(key, value){
-					$("<p>" + key + " => " + value + "</p>").appendTo("#errorsTool");
-				});
-			});
+            $("#loading-datatable").hide();
+            $("#general").show();
+            if(data["responseJSON"]["message"] != "NO_EXIST") {
+                $("#errorsTool").text("ERRORS in the validation of the tool: ");
+                for(let x = 0; x < data["responseJSON"]["message"].length; x++) {
+                    document.getElementById("errorsTool").innerHTML += "<br>" + data["responseJSON"]["message"][x];
+                }
+                
+                reload();
+            } else {
+                $("#errorsTool").text("The validation process used in WF does not exist in the DDBB.");
+            }
+            $("#errorsTool").removeClass("alert alert-info");
+            $("#errorsTool").addClass("alert alert-danger");
+            $("#errorsTool").show();
 
-			$("#errorsTool").show();
-			
-			reload();
-		})
-	};
+        });
+    };
 };
+
+function callShowWorkflowJson(id) {
+    var urlJSON = "applib/oeb_processesAPI.php";
+    $('#modalAnalysis').modal('show');
+	$('#modalAnalysis .modal-body').html('Loading data...');
+
+	$.ajax({
+		type: "POST",
+		url: urlJSON,
+		data: {'action': 'showWorkflowJSON', 'id': id}
+	}).success(function(data) {
+        //return error because is not a JSON.
+    }).fail(function(data) {
+        $('#modalAnalysis .modal-body').html(data["responseText"]);
+    });
+}
 
 $(document).ready(function() {
 
-	$("#myError").hide();
+	$("#errorsTool").hide();
 
     var urlJSON = "applib/oeb_processesAPI.php";
 	//the id has to be current in the petition. If not, returns information about the owner with the id given
@@ -67,11 +93,13 @@ $(document).ready(function() {
         var columns = [{ "data" : "_id"},
         { "data" : "date" },
         { "data" : "owner.author" },
+        { "data" : "owner.community", 'defaultContent': '' },
+        { "data" : null, 'defaultContent': '' },
         { "data" : "request_status" }];
 
         //FOR THE ADMINS
         if(currentUser["Type"] == 0){
-            columns.push({"data": null,  'defaultContent': '', "title": "Actions", "targets": 4, render: function(data, type, row) {
+            columns.push({"data": null,  'defaultContent': '', "title": "Actions", "targets": 6, render: function(data, type, row) {
                 if (data["request_status"] == "submitted") {
                     if (currentUser["Type"] == 0) {
                         return '<div class="btn-group"><button class="btn btn-xs green dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false"> Actions <i class="fa fa-angle-down"></i></button>' +
@@ -89,7 +117,7 @@ $(document).ready(function() {
                 } else {
                     return '';
                 }
-            }, "targets": 4});
+            }, "targets": 6});
          }
 
         //GENERAL DATATABLE
@@ -105,7 +133,9 @@ $(document).ready(function() {
                 { "title": "Title", "targets": 0 },
                 { "title": "Date", "targets": 1 },
                 { "title": "Owner", "targets": 2 },
-                { "title": "Status", "targets": 3 },
+                { "title": "Community Owner", "targets": 3 },
+                { "title": "View JSON", "targets": 4},
+                { "title": "Status", "targets": 5 },
                 { render: function(data, type, row) {
                     //FOR ADMINS
                     //Submitted => the tool has been submitted by the community manager and the administrator has to accepted it
@@ -125,7 +155,10 @@ $(document).ready(function() {
                             return "";
                     } 
 
-                }, "targets": 3}
+                }, "targets": 5},
+                { render: function(data, type, row) {
+                    return '<a onclick="callShowWorkflowJson(name)"; name="'+row._id+'" id="c'+row._id+'"">View JSON</a>'
+                }, "targets": 4}
             ]
         });
     });
@@ -136,7 +169,6 @@ $(document).ready(function() {
 });
 
 function reload() {
-	$("#myError").hide();
 	$.getJSON('applib/oeb_processesAPI.php?action=getWorkflows', function() {
 		var oTblReport;
 

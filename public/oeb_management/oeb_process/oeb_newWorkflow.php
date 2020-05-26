@@ -41,12 +41,11 @@ require "../../htmlib/js.inc.php"; ?>
 
                 <!-- BEGIN PAGE TITLE-->
                 <h1 class="page-title"> Benchmarking Workflows
-                    <small>Your available workflows</small>
+                    <small>Create your new workflow</small>
                 </h1>
                 <!-- END PAGE TITLE -->
                 <!-- END PAGE HEADER -->
 
-                <!-- BEGIN ERRORS DIV -->
                 <div class="row">
 			        <div class="col-md-12">
 						<div class="mt-element-step">
@@ -115,6 +114,8 @@ require "../../htmlib/js.inc.php"; ?>
 								<div class="" data-always-visible="1" data-rail-visible="0">
                                     <div class="form-group">
                                         <label for="nameWorkflow">Name</label>
+                                        <i class="icon-question tooltips" data-container="body" data-html="true" data-placement="right"
+                                        data-original-title="<p align='left' style='margin:0'> Set here the name of your new workflow. </p>"></i>
                                         <input type="text" class="form-control" id="nameWorkflow">
                                         <br>
                                         <div id="divErrors" style="display:none;" class="alert alert-danger"></div>

@@ -10,15 +10,22 @@ function getProcesses() {
 	$userId = $_SESSION["User"]["id"];
 
 	//type of user
-	$user = $GLOBALS['usersCol']->findOne(array("id"=>$userId), array("Type"=>1));
+	$user = getUser("current");
+	$userJSON = json_decode($user, true);
 
+	$community = $userJSON["oeb_community"];
 	//if the user is the administrator
-	if($user["Type"] == 0) {
+	if($userJSON["Type"] == 0) {
 		$allProcesses = $GLOBALS['processCol']->find();
 		//if the user is not the administrator (=community manager)
-	} elseif($user["Type"] == 1) {
+	} elseif($userJSON["Type"] == 1) {
 		//the workflows has to be registered to see 
-		$allProcesses = $GLOBALS['processCol']->find(array('$or' => array(array("data.owner.user" => $userId), array("publication_status" => 1))));
+		if ($community && $community != '') {
+			$allProcesses = $GLOBALS['processCol']->find(array('$or' => array(array("data.owner.user" => $userId), array("publication_status" => 1), array("data.owner.oeb_community" => $community, "publication_status"=>4))));
+		} else {
+			$allProcesses = $GLOBALS['processCol']->find(array('$or' => array(array("data.owner.user" => $userId), array("publication_status" => 1))));
+		}
+
 	}
 
 	//add query to an array
@@ -39,9 +46,15 @@ function getProcessSelect() {
 
 	//user logged
 	$userId = $_SESSION["User"]["id"];
+	$user = getUser($userId);
+	$userJSON = json_decode($user, true);
+	$community = $userJSON["oeb_community"];
 
-	//for all the users
-	$allProcesses = $GLOBALS['processCol']->find(array('$or' => array(array("data.owner.user" => $userId), array("publication_status" => 1))));
+	if ($community && $community != '') {
+		$allProcesses = $GLOBALS['processCol']->find(array('$or' => array(array("data.owner.user" => $userId), array("publication_status" => 1), array("data.owner.oeb_community" => $community, "publication_status"=>4))));
+	} else {
+		$allProcesses = $GLOBALS['processCol']->find(array('$or' => array(array("data.owner.user" => $userId), array("publication_status" => 1))));
+	}
 
 	//add query to an array
 	foreach($allProcesses as $process) {
@@ -93,16 +106,12 @@ function getWorkflows() {
 function updateStatusProcess($processId, $statusId) {
 	//jsonResponse class (errors or successfully)
 	$response_json = new JsonResponse();
-	$users = array();
+
 	$processes = array();
 
 	//variables
 	$userId = $_SESSION["User"]["id"];
-	$typeUser = $GLOBALS['usersCol']->find(array("id"=>$userId), array("Type"=>1));
-
-	foreach($typeUser as $user) {
-		array_push($users, $user);
-	}
+	$typeUser = $GLOBALS['usersCol']->findOne(array("id"=>$userId), array("Type"=>1));
 
 	//collection processes
 	$processCol = $GLOBALS['processCol'];
@@ -111,26 +120,20 @@ function updateStatusProcess($processId, $statusId) {
 	$authorized = false;
 
 	//check what type of user it is
-	foreach($users as $user) {
-		//if admin
-		if($user["Type"] == 0) {
-			$authorized = true;
-		//if community manager
-		} else if ($user["Type"] == 1) {
-			$processesToolDev = $processCol->find(array("data.owner" => $userId, "_id" => $processId));
-
-			foreach($processesToolDev as $process) {
-				array_push($processes, $process);
-			}
-		
-			if(empty($processes)) {
-				$authorized = false;
-			} else {
-				$authorized = true;
-			}
-		} else {
+	//if admin
+	if($typeUser["Type"] == 0) {
+		$authorized = true;
+	//if community manager
+	} else if ($typeUser["Type"] == 1) {
+		$processToolDev = $processCol->findOne(array("data.owner.user" => $userId, "_id" => $processId));
+	
+		if(!$processToolDev) {
 			$authorized = false;
+		} else {
+			$authorized = true;
 		}
+	} else {
+		$authorized = false;
 	}
 
 	// return error if unauthorized action
@@ -289,7 +292,7 @@ function getUser($id) {
 		$userId = $_SESSION["User"]["id"];
 
 		//type of user
-		$user = $GLOBALS['usersCol']->findOne(array("id"=>$userId), array("Type"=>1));
+		$user = $GLOBALS['usersCol']->findOne(array("id"=>$userId), array("Type"=>1, "oeb_community"=>1, "id"=>1));
 
 		$process_json = json_encode($user, JSON_PRETTY_PRINT);
 
@@ -299,7 +302,7 @@ function getUser($id) {
 		$process_json="{}";
 
 		//type of user
-		$user = $GLOBALS['usersCol']->findOne(array("id"=>$id), array("Inst"=>1, "Name"=>1, "Email"=>1, "id"=>1));
+		$user = $GLOBALS['usersCol']->findOne(array("id"=>$id), array("Inst"=>1, "Name"=>1, "Email"=>1, "id"=>1, "oeb_community"=>1));
 
 		$process_json = json_encode($user, JSON_PRETTY_PRINT);
 
@@ -613,8 +616,10 @@ function _getWorkflow($id) {
 
 //return a process from the id
 function _getProcess($id) {
+
 	//initiallize variables
 	$process_json="{}";
+	$process = "";
 
 	$process = $GLOBALS['processCol']->findOne(array('_id' => $id));
 
@@ -636,35 +641,67 @@ function createTool_fromWFs($id) {
 	$workflow_data = _getWorkflow($id);
 
 	$tool_data = _createToolSpecification_fromWF($workflow_data);
+	
+	if(!$tool_data) {
+		$response_json->setCode(422);
+		$response_json->setMessage("NO_EXIST");
+		return $response_json->getResponse();
+	}
+
+	$tempDirTool = $GLOBALS['dataDir'].$_SESSION['User']['id']."/".$_SESSION['User']['activeProject']."/".$GLOBALS['tmpUser_dir'];
+	$tempFileTool = $tempDirTool . "tool.json";
+	
+	//if it is not exist the folde tmp create it because file_put_contents only create the file if not exist
+	if (!is_dir($tempDirTool)) {
+		mkdir($tempDirTool);
+	}
+	
+	//move the content to that file: public_dataset
+	//return the size
+	$r = file_put_contents($tempFileTool, $tool_data);
+
+	if (!$r) {
+		$response_json->setCode(500);
+		$response_json->setMessage("The tool cannot be upload");
+		return $response_json->getResponse();
+	}
 
  	//$errors = _validateToolSpefication($tool_data);
+	$cmd = "bash ./oeb_toolScript.sh " . $tempFileTool;
 
-	//$command1 = $GLOBALS['root'];
-	//chdir("~/oeb_tool_validation/fairtracks_validator/python/");
-	$r = getcwd();
-	chdir('../../../oeb_tool_validation/fairtracks_validator/python');
-	$v = getcwd();
-	//$command = escapeshellcmd('/usr/custom/test.py');
-	$source = shell_exec("source .py3env/bin/activate");
-	$output = shell_exec("python3.6 fairGTrackJsonValidate.py OpEB-VRE-schemas/json_schema_FAIRfication_OEB.json prueba.json");
-	var_dump($source);
-	//$output = shell_exec($command);
+	$output = shell_exec($cmd);
 
-	print_r("hh");
-	exit;
+	foreach(preg_split("/((\r?\n)|(\r\n?))/", $output) as $line){
+		if (strpos($line, "Path")) {
+			$error = trim(explode( 'Message:', $line )[1]);
+			array_push($errors, $error);
+		}
+	} 
+	
+	$skipped = strpos($output, "skipped");
 
-/* 	if ($errors) { 	 
-
-		$process_json = json_encode($errors, JSON_PRETTY_PRINT);
-
+	// Nótese el uso de ===. Puesto que == simple no funcionará como se espera
+	// porque la posición de 'a' está en el 1° (primer) caracter.
+	if ($skipped) {
 		$response_json->setCode(422);
-		$response_json->setMessage($process_json);
-
+		$response_json->setMessage("Sorry... There is an error with JSON Schema and the tool cannot be validated.");
+		unlink($tempFileTool);
 		return $response_json->getResponse();
-	}  */
+	} 
 
+	if($errors) {
+		$response_json->setCode(422);
+		$response_json->setMessage($errors);
+		unlink($tempFileTool);
+		return $response_json->getResponse();
+	}
+	
+	unlink($tempFileTool);
+
+	//THIS PART IS NOT MINE - SAVE THE TOOL AND RUN IT IN THE VM
 	//	_createTool_fromToolSpecification($tool_data);
 	//	_insertToolMongo($tool_data);
+
 	$registration = _register_workflow($id);
 
 	if (!$registration) {
@@ -746,10 +783,15 @@ function _createToolSpecification_fromWF($workflow) {
 	$names = array();
 
 	$workflow_json = json_decode($workflow, true);
+
 	$validation_id = $workflow_json["validation_id"];
+
 
 	$validationProcess = _getProcess($validation_id);
 
+	if ($validationProcess == "null") {
+		return false;
+	}
 	$process_json = json_decode($validationProcess, true);
 
 	//the ontology of data type and file type
@@ -1044,10 +1086,26 @@ function _validateToolSpefication($tool_data) {
 
 function deleteProcess($id) {
 	
+	$response_json = new JsonResponse();
+
+	$userId = $_SESSION["User"]["id"];
+
 	$workflows = array();
 	$processCol = $GLOBALS['processCol'];
 
-	$response_json = new JsonResponse();
+	$currentUser = getUser("current");
+	$typeUserLogged = json_decode($currentUser, true);
+
+	//find the owner of the process
+	$process = $processCol->findOne(array('_id' => $id));
+
+	if ($userId != $process["data"]["owner"]["user"] && $typeUserLogged["Type"] != 0) {
+		$response_json->setCode(422);
+		$response_json->setMessage("You are not allowed to remove this process.");
+		return $response_json->getResponse();
+	}
+
+	
 	
 	$workflowsInUse = $GLOBALS['toolSubmissionCol']->find(array('validation_id' => $id));
 	
@@ -1095,7 +1153,6 @@ function setWorkflow($nameWF, $validation, $metrics, $consolidation) {
 		return $response_json->getResponse();
 	}
 
-	$toolArray = array();
 	$validation_id = $GLOBALS['processCol']->findOne(array("data.title" => $validation), array("_id" => 1));
 
 	//MongoDB query
@@ -1106,6 +1163,7 @@ function setWorkflow($nameWF, $validation, $metrics, $consolidation) {
 	$data['owner']['institution'] = $infoUser["Inst"];
 	$data['owner']['author'] = $infoUser["Name"];
 	$data['owner']['contact'] = $infoUser["_id"];
+	$data['owner']['community'] = $infoUser["oeb_community"];
 	$data['validation_id'] = $validation_id["_id"];
 	$data['metrics_id'] = "";
 	$data['consolidation_id'] = "";
@@ -1121,14 +1179,64 @@ function setWorkflow($nameWF, $validation, $metrics, $consolidation) {
 		return $response_json->getResponse();
 	}
 
-	$tools = $GLOBALS['toolSubmissionCol']->find();
+	if(_reportMailNewTool($nameWF)) {
+		$response_json->setCode(200);
+		$response_json->setMessage("OK");
 	
-	foreach($tools as $tool) {
-		array_push($toolArray, $tool);
+		return $response_json->getResponse();
+	} else {
+		$response_json->setCode(422);
+		$response_json->setMessage("Error sending an email to the administrator");
+	
+		return $response_json->getResponse();
+	}
+	
+
+}
+
+function _reportMailNewTool($idWF) {
+ 	$ticketnumber = 'VRE-'.rand(1000, 9999);
+	$subject = 'New tool';
+	
+	$message = '
+		Ticket ID: '.$ticketnumber.'<br>
+		User name: '.$_SESSION["User"]["Name"].' '.$_SESSION["User"]["Surname"].'<br>
+		User email: '.$_SESSION["User"]["Email"].'<br>
+		Request type: '.$subject.'<br>
+		Request subject: Creation of new tool <strong>'.$idWF.'</strong><br>
+		Comments: '.$_REQUEST['comments'];
+	
+	$messageUser = '
+		Copy of the message sent to our technical team:<br><br>
+		Ticket ID: '.$ticketnumber.'<br>
+		User name: '.$_SESSION["User"]["Name"].' '.$_SESSION["User"]["Surname"].'<br>
+		User email: '.$_SESSION["User"]["Email"].'<br>
+		Request type: '.$subject.'<br>
+		Request subject: Creation of new tool <strong>'.$idWF.'</strong><br>
+		Comments: '.$_REQUEST['comments'].'<br><br>
+		VRE Technical Team';
+	
+	if(sendEmail($GLOBALS['ADMINMAIL'], "[".$ticketnumber."]: ".$subject, $message, $_SESSION["User"]["Email"])) {
+	
+		sendEmail($_SESSION["User"]["Email"], "[".$ticketnumber."]: ".$subject, $messageUser, $_SESSION["User"]["Email"]);
+	
+	} else {
+		return false;
+	} 
+
+	return true;
+}
+
+function showWorkflowJSON($idWorkflow) {
+
+	$workflow  = $GLOBALS['toolSubmissionCol']->findOne(array('_id' => $idWorkflow));
+
+	if (empty($workflow)){
+		echo "<p>The workflow '$idWorkflow' is not defined or is not registered in the database. Sorry, cannot show the details for the selected execution</p>";
+		die(0);
 	}
 
-	$response_json->setCode(200);
-	$response_json->setMessage("OK");
-
-	return $response_json->getResponse();
+	$json = json_encode($workflow, JSON_PRETTY_PRINT);
+	
+	return "<h2>Workflow configuration file</h2><pre style='max-height: calc(100vh - 300px);white-space: pre-wrap;'>$json</pre>";
 }

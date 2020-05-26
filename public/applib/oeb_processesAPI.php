@@ -53,6 +53,8 @@ if($_REQUEST) {
         echo deleteProcess($_REQUEST['id']);
     } elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == "setWorkflow") {
         echo setWorkflow($_REQUEST['nameWF'], $_REQUEST['validation'], $_REQUEST['metrics'], $_REQUEST['consolidation']);
+    } elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == "showWorkflowJSON") {
+        echo showWorkflowJSON($_REQUEST['id']);
     } else {
         echo "IN";
         var_dump($_REQUEST);

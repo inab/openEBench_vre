@@ -20,6 +20,7 @@ class User {
     public $AuthProvider;
     public $id;
     public $activeProject;
+    public $oeb_community;
 
     function __construct($f) {
 
@@ -28,7 +29,7 @@ class User {
             return 0;
 
         // set attributes from arguments
-        foreach (array('Surname','Name','Inst','Country','Email','Type','dataDir','diskQuota','DataSample','AuthProvider','activeProject') as $k)
+        foreach (array('Surname','Name','Inst','Country','Email','Type','dataDir','diskQuota','DataSample','AuthProvider','activeProject','oeb_community') as $k)
             $this->$k= sanitizeString($f[$k]);
 
         // set credential attributes (crypPassword or Token or ANON)

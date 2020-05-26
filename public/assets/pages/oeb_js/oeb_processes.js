@@ -1,6 +1,41 @@
 var schema;
 var urlJSON = "applib/oeb_processesAPI.php";
 
+function changeStatus(statusValue, processId) {
+	var url = "applib/oeb_processesAPI.php?action=updateStatus&process=" + processId + "&status=" + statusValue;/*  */
+	
+	if (statusValue == "" || processId == "" || statusValue == null || processId == null) {
+		$("#myError").removeClass("alert alert-info");
+		$("#myError").addClass("alert alert-danger");
+		$("#myError").text("Some param is null.");
+		$("#myError").show();
+	} else {
+		$.ajax({
+			type: 'POST',
+			url: url,
+			data: url
+		}).done(function(data) {
+			if(data["code"]=="200"){
+				reload();
+				$("#myError").removeClass("alert alert-danger");
+				$("#myError").addClass("alert alert-info");
+				$("#myError").text("Status changed successfully.");
+				$("#myError").show();
+			} else {
+				$("#myError").removeClass("alert alert-info");
+				$("#myError").addClass("alert alert-danger");
+				$("#myError").text(data["message"]);
+				$("#myError").show();
+			}
+		}). fail(function() {
+			$("#myError").removeClass("alert alert-info");
+			$("#myError").addClass("alert alert-danger");
+			$("#myError").text("The status cannot be updated.");
+			$("#myError").show();
+		});
+	}
+}
+
 function deleteProcess(id) {
 	if (confirm("Do you want to remove the process?")) {
 		$.ajax({
@@ -27,10 +62,6 @@ function deleteProcess(id) {
 			$("#myError").show();
 		});
 	}
-}
-
-function editProcess(id) {
-	console.log("edit " + id);
 }
 
 $(document).ready(function() {
@@ -63,7 +94,7 @@ $(document).ready(function() {
 				//status = 2; coming soon
 				//status = 3; testing
 				//status = 4; community available
-				var menu = '<select id="selectChange" name="'+row._id+'" disabled><option value="" disabled selected> status...</option><option value="0">Private</option><option value="1">Public</option><option value="2">Coming soon</option><option value="3">Testing</option><option value="4">Community available</option></select>';
+				var menu = '<select id="selectChange" onChange="changeStatus(value, name)" name="'+row._id+'"><option value="" disabled selected> status...</option><option value="0">Private</option><option value="1">Public</option><option value="2">Coming soon</option><option value="3">Testing</option><option value="4">Community available</option></select>';
 				switch(data) {
 					case 0: 
 						return menu + " <span value='0' class='label label-danger'><b>Private</b></span>"; 
@@ -88,9 +119,6 @@ $(document).ready(function() {
 				return '<div class="btn-group"><button class="btn btn-xs green dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false"> Actions <i class="fa fa-angle-down"></i></button>' +
 				'<ul class="dropdown-menu pull-right" role="menu">' +
 					'<li>' +
-						'<a id="'+row._id+'" onclick="editProcess(id);"><i class="fa fa-pencil"></i> Edit process</a>' +
-					'</li>' +
-					'<li>' +
 						'<a id="'+row._id+'" onclick="deleteProcess(id);"><i class="fa fa-trash"></i> Delete process</a>' +
 					'</li>' +
 				'</ul></div>'
@@ -103,6 +131,7 @@ $(document).ready(function() {
 	});
 
 	fakeThings();
+
 });
 
 function reload() {

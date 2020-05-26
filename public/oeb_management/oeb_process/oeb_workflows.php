@@ -47,9 +47,9 @@ require "../../htmlib/js.inc.php"; ?>
                 <!-- END PAGE HEADER -->
 
                 <!-- BEGIN ERRORS DIV -->
+                <div id="errorsTool" style="display:none;"></div>
                 <div class="row">
 			        <div class="col-md-12">
-                        <div id="myError"style="display:none;"></div>
                         <?php
                         $error_data = false;
                         if ($_SESSION['errorData']) {
@@ -70,14 +70,18 @@ require "../../htmlib/js.inc.php"; ?>
                              ?>
                                 </div>
                           <?php } ?>
-                            <div class="portlet light portlet-fit bordered">
+                          <div id="loading-datatable" class="loadingForm" style="display:none;">
+                                <div id="loading-spinner">LOADING</div>
+                                <div id="loading-text">It could take a few minutes</div>
+                            </div>
+                            <div class="portlet light portlet-fit bordered" id="general">
                                 <div id="workflows" class="portlet-body">
                                     <div class="btn-group" style="float:right;">
                                         <div class="actions">
                                             <a id="workflowsReload" class="btn green"> Reload Workflows </a>
                                         </div>
                                     </div>
-                                    <a href="oeb_management/oeb_process/oeb_newWorkflow.php" class="btn btn-lg green" style="margin-bottom:30px;"> <i class="fa fa-plus"></i> Create new</a>
+                                    <a href="oeb_management/oeb_process/oeb_newWorkflow.php" class="btn btn-lg green" id="newWorkflow" style="margin-bottom:30px;"> <i class="fa fa-plus"></i> Create new</a>
 
                                     <input type="hidden" id="base-url" value="<?php echo $GLOBALS['BASEURL']; ?>" />
 
@@ -94,7 +98,21 @@ require "../../htmlib/js.inc.php"; ?>
                 <!-- END EXAMPLE TABLE PORTLET-->
                 </div>
                 <!-- END CONTENT BODY -->
-
+                <!-- VIEW JSON PART -->
+                <div class="modal fade bs-modal" id="modalAnalysis" tabindex="-1" role="basic" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                                <h4 class="modal-title">Execution Summary</h4>
+                            </div>
+							<div class="modal-body table-responsive"></div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn dark btn-outline" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <style type="text/css">
                     #workflowsTable_filter {
                         float: right;

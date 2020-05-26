@@ -84,14 +84,10 @@ require "../../htmlib/js.inc.php"; ?>
 
                                 <div id="processes" class="portlet-body">
                                     <input type="hidden" id="base-url" value="<?php echo $GLOBALS['BASEURL']; ?>" />
-                                    <input type="hidden" id="hola" value="quetal" />
+                                    <!-- LOADING SPINNER -->
                                     <div id="loading-datatable" class="loadingForm">
                                         <div id="loading-spinner">LOADING</div>
                                         <div id="loading-text">It could take a few minutes</div>
-                                    </div>
-                                    <div id="loading-datatable" style="display:none;" class="loadingSubmit">
-                                        <div id="loading-spinner">LOADING</div>
-                                        <div id="loading-text">All the links and files are being validated</div>
                                     </div>
                                     
                                     <div id='editor_holder'></div>
@@ -127,6 +123,7 @@ require "../../htmlib/js.inc.php"; ?>
                         margin-top: 20px;
                     }
 
+                    /* Encapsulate some fields */
                     .form-group, .btn-group,
                     div[data-schemapath="root.nextflow_files.workflow_file"], div[data-schemapath="root.nextflow_files.config_file"], 
                     div[data-schemapath="root.inputs_meta.input"], div[data-schemapath="root.inputs_meta.public_ref_dir"],

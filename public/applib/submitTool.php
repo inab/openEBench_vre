@@ -34,7 +34,7 @@ $messageUser = '
     Request type: '.$subject.'<br>
     Request subject: Creation of new tool <strong>'.$_REQUEST['toolid'].'</strong><br>
     Comments: '.$_REQUEST['comments'].'<br><br>
-    MuG VRE Technical Team';
+    VRE Technical Team';
 
 if(sendEmail($GLOBALS['ADMINMAIL'], "[".$ticketnumber."]: ".$subject, $message, $_SESSION["User"]["Email"])) {
 

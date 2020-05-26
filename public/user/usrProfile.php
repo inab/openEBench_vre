@@ -183,6 +183,21 @@ foreach (array_values(iterator_to_array($GLOBALS['countriesCol']->find(array(), 
                                                                 ?>
                                                             </select>
                                                         </div>
+                                                        <div class="form-group">
+                                                            <label class="control-label">OEB Community</label>
+                                                            <select name="oeb_community" class="form-control">
+                                                                <option value=""></option>
+                                                                <?php
+                                                                $r = $communities = getCommunities();
+                                                                $selCommunity = '';
+                                                                foreach ($communities as $key => $value) :
+                                                                    if ($_SESSION['User']['oeb_community'] == $key) $selCommunity = ' selected';
+                                                                    else $selCommunity = '';
+                                                                    echo '<option value="' . $key . '"' . $selCommunity . '>' . $value["acronym"] . '</option>';
+                                                                endforeach;
+                                                                ?>
+                                                            </select>
+                                                        </div>
                                                         <!-- <?php //if (!allowedRoles($_SESSION['User']['Type'], $GLOBALS['TOOLDEV']) && (checkTermsOfUse())) { ?>
                                                             <div class="form-group margin-top-30">
                                                                 <label class="control-label">You are a standard user. Do you want to bring your own tool?

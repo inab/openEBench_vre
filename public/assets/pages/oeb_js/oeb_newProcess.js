@@ -10,9 +10,8 @@ var editorValue;
 var urlJSON = "applib/oeb_processesAPI.php";
 
 $(document).ready(function() {
-  //$.getJSON("https://raw.githubusercontent.com/inab/OpEB-VRE-schemas/oeb_wfs/processValidation_schema.json", function(data) {
-  $.getJSON("https://raw.githubusercontent.com/inab/OpEB-VRE-schemas/workflow_schema/oeb_workflow_schema_prueba.json", function(data) {
-     
+  $.getJSON("https://raw.githubusercontent.com/inab/OpEB-VRE-schemas/master/oeb_workflow_schema.json", function(data) {
+    
     schema = data;
   }).done(function() {
     var baseURL = $("#base-url").val();
@@ -65,14 +64,24 @@ $(document).ready(function() {
           disable_edit_json: true,
           disable_properties: true
         });
-
-        //DATA only has OWNER. If we want another variable we have to implement in the API and get it
-        var value = {
-          "institution": data["Inst"],
-          "author": data["Name"],
-          "contact": data["_id"],
-          "user": data["id"]
-        };
+        if (data["oeb_community"]) {
+          //DATA only has OWNER. If we want another variable we have to implement in the API and get it
+          var value = {
+            "institution": data["Inst"],
+            "author": data["Name"],
+            "contact": data["_id"],
+            "user": data["id"],
+            "oeb_community": data["oeb_community"]
+          };
+        } else {
+          var value = {
+            "institution": data["Inst"],
+            "author": data["Name"],
+            "contact": data["_id"],
+            "user": data["id"],
+            "oeb_community": ''
+          };
+        }
         
         editor.getEditor("root.owner").setValue(value);
 
@@ -91,6 +100,7 @@ $(document).ready(function() {
 
         editorValue = editor.getValue();
       });
+      
     }).fail(function (jqXHR, textStatus) {
       console.log("ERROR");
     })

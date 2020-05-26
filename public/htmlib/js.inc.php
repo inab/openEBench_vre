@@ -343,8 +343,8 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 		<script src="assets/pages/oeb_js/oeb_workflows.js?v=<?php echo rand(); ?>" type="text/javascript"></script>
 	<?php break;
 	case 'oeb_newProcess': ?>
-		<script src="https://cdn.jsdelivr.net/npm/@json-editor/json-editor@latest/dist/jsoneditor.min.js"></script>
 		<script src="assets/pages/oeb_js/oeb_newProcess.js?v=<?php echo rand(); ?>" type="text/javascript"></script>
+		<script src="https://cdn.jsdelivr.net/npm/@json-editor/json-editor@latest/dist/jsoneditor.min.js"></script>
 	<?php break;
 	case 'oeb_newWorkflow': ?>
 		<script src="assets/pages/oeb_js/oeb_newWorkflow.js?v=<?php echo rand(); ?>" type="text/javascript"></script>
