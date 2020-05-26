@@ -10,12 +10,14 @@ var editorValue;
 var urlJSON = "applib/oeb_processesAPI.php";
 
 $(document).ready(function() {
+  //get the JSON Schema
   $.getJSON("https://raw.githubusercontent.com/inab/OpEB-VRE-schemas/master/oeb_workflow_schema.json", function(data) {
     
     schema = data;
   }).done(function() {
     var baseURL = $("#base-url").val();
 
+    //get all the necessary information about the ontologies
     let [pathsArray, ancestorsArray, URLontologiesArray] = getInformation(schema);
 
     //it has to be the same number of ancestors that ontologies params because for each ontology there are one ancestor. 
@@ -28,10 +30,12 @@ $(document).ready(function() {
       console.log("SCHEMA INCORRECT");
     }
 
+    //do ajax petition for each ontology url of the schema 
     let ajaxPromises = $.map(urlsArray, function(url,idx) {
       return $.ajax({url:url, type:'POST'});
     });
 
+    //when petitions finished
     $.when(...ajaxPromises).done(function() {
       for (x = 0; x < arguments.length; x++) {
         labels = [];
@@ -41,29 +45,31 @@ $(document).ready(function() {
           labels.push(modelName['label']);
           uris.push(modelName['URI']);
 
+          //asign the uris of ontologies in the enum
           pathsArray[x]['enum'] = uris;
+          //assign the label of ontologies into the enum titles to see in the interfaces the labels but work with uris
           pathsArray[x]['options']['enum_titles'] = labels;
         });
       };
 
-      //INSERT THE OWNER AND SCHEMA
+      //INSERT THE OWNER
       var urlDefaultValues = "applib/oeb_processesAPI.php?action=getDefaultValues&owner";
       $.ajax({
         type: 'POST',
         url: urlDefaultValues,
         data: url
       }).done(function(data) {
-        //INICIALIZA EL FORMULARIO - NO HASTA QUE EL SELECT ESTA CARGADO
-        //initializer(); 
 
         // Initialize the editor
         editor = new JSONEditor(document.getElementById("editor_holder"),{
           theme: 'bootstrap4',
           schema: schema,
+          //do not have collapse, edit and properties options in the editor (are specific things of the web-based tool - JSONEditor)
           disable_collapse: true,
           disable_edit_json: true,
           disable_properties: true
         });
+        //if there are oeb_community param in the process
         if (data["oeb_community"]) {
           //DATA only has OWNER. If we want another variable we have to implement in the API and get it
           var value = {
@@ -73,6 +79,7 @@ $(document).ready(function() {
             "user": data["id"],
             "oeb_community": data["oeb_community"]
           };
+        //if are not oeb community param
         } else {
           var value = {
             "institution": data["Inst"],
@@ -83,15 +90,16 @@ $(document).ready(function() {
           };
         }
         
+        //set the values internally in the form
         editor.getEditor("root.owner").setValue(value);
 
-        //change name of the navbar 
+        //change name of the navbar of steps to see it like I want (the JSONEditor, actually, do not have the option to change that)
         $('a[href="#Generic-keywords"]').text("STEP 2: Generic keywords");
         $('a[href="#Custom-keywords"]').text("STEP 3: Custom keywords");
         $('a[href="#Nextflow-files"]').text("STEP 4: Nextflow files");
         $('a[href="#Input-files-&-arguments"]').text("STEP 5: Input files & arguments");
         
-        //$('div[data-schemapath="root.inputs_meta.public_ref_dir.value"] input').attr("accept", ".tar");
+        //hide the spinner when are all working propertly
         $("#loading-datatable").hide();
         $("#submit").show();
 
@@ -107,20 +115,20 @@ $(document).ready(function() {
   });
 });
 
+//when click the button submit
 function clickSubmit() {
   
   $('#submit').on("click",function() {
-    //var encodeFile = encodeURIComponent(file);
 
     //if there are errors = true, no errors = false
     var errors = validateErr();
 
     //if there are not errors
     if (!errors) {
-      //give the value to editorValue
+      //take the value of the editor (the things that are write in inputs and internally)
       var json = JSON.stringify(editor.getValue(),null,2);
 
-      //insert into db
+      //inserted into db
       insertJSON(json);
     } 
 
@@ -223,6 +231,7 @@ function insertJSON(processJSONForm) {
   });
 }
 
+//function to validate the errors
 function validateErr() {
   var errors = editor.validate();
 
@@ -230,6 +239,7 @@ function validateErr() {
     console.log("ERRORS: ");
     console.log(errors);
     fileError = 0;
+    //if there are errors show the errors on click submit
     editor.options.show_errors = "always";
 
     for(let j = 0; j < errors.length; j++) {

@@ -1,6 +1,6 @@
 <?php
 
-//Get all the workflows to show into the datatable -> depending on the user show ones or others.
+//Get all the workflows to show into the datatable -> depending on the user show ones or others. (LIST PROCESSES)
 function getProcesses() {
 	//initiallize variables
 	$process_json="{}";
@@ -8,20 +8,24 @@ function getProcesses() {
 
 	//user logged
 	$userId = $_SESSION["User"]["id"];
-
-	//type of user
+	//information about the user logged
 	$user = getUser("current");
+	//converted into JSON
 	$userJSON = json_decode($user, true);
 
+	//get the community of the user
 	$community = $userJSON["oeb_community"];
-	//if the user is the administrator
+
+	//if the user is the administrator show all the processes
 	if($userJSON["Type"] == 0) {
 		$allProcesses = $GLOBALS['processCol']->find();
-		//if the user is not the administrator (=community manager)
+
+	//if the user is not the administrator (=community manager)
 	} elseif($userJSON["Type"] == 1) {
-		//the workflows has to be registered to see 
+		//see the community. If user has community
 		if ($community && $community != '') {
 			$allProcesses = $GLOBALS['processCol']->find(array('$or' => array(array("data.owner.user" => $userId), array("publication_status" => 1), array("data.owner.oeb_community" => $community, "publication_status"=>4))));
+		//see the community. If user has not any community
 		} else {
 			$allProcesses = $GLOBALS['processCol']->find(array('$or' => array(array("data.owner.user" => $userId), array("publication_status" => 1))));
 		}
@@ -39,6 +43,7 @@ function getProcesses() {
 	return $process_json;
 }
 
+//Get all the process that have to be in the selector of NEW WORKFLOW (NEW WORKFLOW)
 function getProcessSelect() {
 	//initiallize variables
 	$process_json="{}";
@@ -67,6 +72,7 @@ function getProcessSelect() {
 	return $process_json;
 }
 
+//get all the workflows that the user has to see (LIST WORKFLOWS)
 function getWorkflows() {
 	//initiallize variables
 	$workflow_json="{}";
@@ -102,7 +108,7 @@ function getWorkflows() {
 //status = 0; private
 //status = 1; public
 //status = 2; coming soon
-//for update the publication_status of workflows
+//for update the publication_status of workflows (LIST PROCESSES)
 function updateStatusProcess($processId, $statusId) {
 	//jsonResponse class (errors or successfully)
 	$response_json = new JsonResponse();
@@ -167,7 +173,7 @@ function updateStatusProcess($processId, $statusId) {
 	return $response_json->getResponse();
 }
 
-//function to obtain the plain list of the ontologies. An enum for the JSON Schema
+//function to obtain the plain list of the ontologies. An enum for the JSON Schema (NEW PROCESS)
 function getListOntologyForForm($formOntology, $ancestors) {
 	//variables
 	$resource = "";
@@ -267,7 +273,7 @@ function getListOntologyForForm($formOntology, $ancestors) {
 	}
 }
 
-//put the default values into the JSON Schema to inserted it in MongoDB
+//put the default values into the JSON Schema to inserted it in MongoDB (NEW PROCESS)
 function getDefaultValues() {
 	$user_json = "{}";
 
@@ -281,7 +287,7 @@ function getDefaultValues() {
 	return $userInfo;
 }
 
-//Get the actual user (the user logged in)
+//Get the actual user (the user logged in) (LIST WORKFLOWS AND IN OEB_MANAGEMENT INTERNALLY)
 function getUser($id) {
 
 	if ($id == "current") {
@@ -310,7 +316,7 @@ function getUser($id) {
 	}
 }
 
-//Get the workflow information from the form, validate all the data and inserted in MongoDB 
+//Get the workflow information from the form, validate all the data and inserted in MongoDB (NEW PROCESS)
 function setProcess($processStringForm) {
 	$response_json= new JsonResponse();
 
@@ -322,11 +328,11 @@ function setProcess($processStringForm) {
 	// store public dataset
 	$file = $processForm["inputs_meta"]["public_ref_dir"]["value"];
 
-	//check git repositories and parse the workflow file
+	//get the url of git
 	$gitURL_workflow = $processForm["nextflow_files"]["workflow_file"]["workflow_gitURL"];
 	$gitTag_workflow = $processForm["nextflow_files"]["workflow_file"]["workflow_gitTag"];
 
-	//get errors (or not) workflow git
+	//get errors (or not) workflow git - the four step
 	$resultWorkflow = _validationStep4($gitURL_workflow, $gitTag_workflow);
 	
 	//errors nextflow files
@@ -356,12 +362,14 @@ function setProcess($processStringForm) {
 
 	//MongoDB query
 	$data = array();
+	//is a function that is not done by me that create a fake ID
 	$data['_id'] = createLabel($GLOBALS['AppPrefix']."_process",'processCol');
 	$data['data'] = $processForm;
+	//submitted status = 3
 	$data['publication_status'] = 3;
 	
 	try {
-		//$GLOBALS['processCol']->insert($processJSONForm);
+		//insert the data in mongo
 		$GLOBALS['processCol']->insert($data);
 
 	} catch (Exception $e) {
@@ -443,8 +451,10 @@ function _getPublicData_fromBase64($file_base64, $processForm) {
 	$targetDir = $GLOBALS['pubDir'].$target_folder;
 	mkdir($targetDir);
 
+	//uncompress the file
 	$r = shell_exec("tar xzvf $tempFile -C $targetDir");
 
+	//if cannot uncompress the file
 	if (!$r){
 		unlink($tempFile);
 		rmdir($targetDir);
@@ -462,6 +472,7 @@ function _getPublicData_fromBase64($file_base64, $processForm) {
 function _validationStep4($gitURL, $gitTag) {
 	$resultValidation = "";
 
+	//clone the git 
 	$tempDir = _cloneGit($gitURL, $gitTag);
 
 	//validate the git url
@@ -515,12 +526,13 @@ function _cloneGit($gitURL, $gitTag) {
 	//clone the git if exist (taking into account the tag)
 	$cmnd = "git clone -b $gitTag $gitURL $tempDir";
 
+	//execute the command
 	$r = shell_exec($cmnd);
 
 	return $tempDir;
 }
 
-//valudate the git url
+//validate the git url
 function _validateGit($tempDir) {
 	//check if the git URL and Tag exist
 	if (!is_dir($tempDir)) {
@@ -629,7 +641,7 @@ function _getProcess($id) {
 	return $process_json;
 }
 
-//general function of create the VRE tool
+//general function of create the VRE tool (LIST WORKFLOWS - ADMIN ROLE)
 function createTool_fromWFs($id) {
 
 	$response_json = new JsonResponse();
@@ -638,20 +650,24 @@ function createTool_fromWFs($id) {
 
 	$workflow_json="{}";
 
+	//get the information about the selected workflow
 	$workflow_data = _getWorkflow($id);
 
+	//create the tool with the workflow information
 	$tool_data = _createToolSpecification_fromWF($workflow_data);
 	
+	//if are not any tool
 	if(!$tool_data) {
 		$response_json->setCode(422);
 		$response_json->setMessage("NO_EXIST");
 		return $response_json->getResponse();
 	}
 
+	//create the temporal directory and file
 	$tempDirTool = $GLOBALS['dataDir'].$_SESSION['User']['id']."/".$_SESSION['User']['activeProject']."/".$GLOBALS['tmpUser_dir'];
 	$tempFileTool = $tempDirTool . "tool.json";
 	
-	//if it is not exist the folde tmp create it because file_put_contents only create the file if not exist
+	//if not exist the folder tmp create it because file_put_contents only create the file if not exist
 	if (!is_dir($tempDirTool)) {
 		mkdir($tempDirTool);
 	}
@@ -666,11 +682,13 @@ function createTool_fromWFs($id) {
 		return $response_json->getResponse();
 	}
 
- 	//$errors = _validateToolSpefication($tool_data);
+	//calls to the script to run the validator
 	$cmd = "bash ./oeb_toolScript.sh " . $tempFileTool;
 
+	//execute the comand script
 	$output = shell_exec($cmd);
 
+	//if the line start with path and has the word Message: push into the errors array
 	foreach(preg_split("/((\r?\n)|(\r\n?))/", $output) as $line){
 		if (strpos($line, "Path")) {
 			$error = trim(explode( 'Message:', $line )[1]);
@@ -678,10 +696,10 @@ function createTool_fromWFs($id) {
 		}
 	} 
 	
+	//if there are the word skipped in the validator it means that the schema do not works propertly
 	$skipped = strpos($output, "skipped");
 
-	// Nótese el uso de ===. Puesto que == simple no funcionará como se espera
-	// porque la posición de 'a' está en el 1° (primer) caracter.
+	//skipped error
 	if ($skipped) {
 		$response_json->setCode(422);
 		$response_json->setMessage("Sorry... There is an error with JSON Schema and the tool cannot be validated.");
@@ -689,6 +707,7 @@ function createTool_fromWFs($id) {
 		return $response_json->getResponse();
 	} 
 
+	//errors of sintaxis
 	if($errors) {
 		$response_json->setCode(422);
 		$response_json->setMessage($errors);
@@ -702,8 +721,10 @@ function createTool_fromWFs($id) {
 	//	_createTool_fromToolSpecification($tool_data);
 	//	_insertToolMongo($tool_data);
 
+	//if all works good register the tool and change the status of workflow to registered
 	$registration = _register_workflow($id);
 
+	//if the status do not change
 	if (!$registration) {
 		$response_json->setCode(500);
 		$response_json->setMessage("Cannot update data in Mongo. Mongo Error");
@@ -712,6 +733,7 @@ function createTool_fromWFs($id) {
 
 	$process_json = json_encode($tool_data, JSON_PRETTY_PRINT);
 	
+	//ALL GOOD
 	$response_json->setCode(200);
 	$response_json->setMessage("OK");
 
@@ -756,10 +778,12 @@ function _register_workflow($id) {
 	$response_json = new JsonResponse();
 
 	try  {
+		//change the request status to registered instead of submitted
 		$workflowCol->update(['_id' => $id], [ '$set' => [ 'request_status' => 'registered']]);
-		$processFound = $workflowCol->findOne(array("request_status"=>'registered', "_id"=>$id));
+		//check if the update has work propertly
+		$workflowFound = $workflowCol->findOne(array("request_status"=>'registered', "_id"=>$id));
 
-		if(!$processFound) {
+		if(!$workflowFound) {
 			return false;
 		} 
 	} catch (MongoCursorException $e) {
@@ -794,7 +818,7 @@ function _createToolSpecification_fromWF($workflow) {
 	}
 	$process_json = json_decode($validationProcess, true);
 
-	//the ontology of data type and file type
+	//the ontology of data type and file type - get only once because is slow the process of getting ontologies
 	$fileOntology = getListOntologyForForm("https://w3id.org/oebDataFormats", "https://w3id.org/oebDataFormats/FormatDatasets");
 	$dataOntology = getListOntologyForForm("https://w3id.org/oebDatasets", "https://w3id.org/oebDatasets/dataset");
 
@@ -805,6 +829,7 @@ function _createToolSpecification_fromWF($workflow) {
 
 	$jsonTool = array();
 
+	//ALL THE TOOL
 	$jsonTool["_id"] =  $workflow_json["_id"];
 	$jsonTool["_schema"] =  $workflow_json["_schema"];
 	$jsonTool["name"] =  $process_json["data"]["name"];
@@ -1061,29 +1086,7 @@ function _createToolSpecification_fromWF($workflow) {
 	return $stringTool;
 }
 
-function _validateToolSpefication($tool_data) {
-	
-	$errors = array();
-	$data = json_decode($tool_data);
-
-	// Validate
-	$validator = new JsonSchema\Validator();
-	//$validator->check($data, (object) array('$ref' => 'file://' . realpath('tool_schema_dev.json')));
-	$validator->check($data, (object) array('$ref' => 'file://'.$GLOBALS['oeb_tool_json_schema']));
-	//$validator->check($data, (object) array('$ref' => 'https://raw.githubusercontent.com/Multiscale-Genomics/VRE_tool_jsons/master/tool_specification/tool_schema_dev.json'));
-
-	if ($validator->isValid()) {
-		return $errors;
-	} else {
-		foreach ($validator->getErrors() as $error) {
-			array_push($errors, array(
-				$error['property'] => $error['message']
-			));
-		}
-		return $errors;
-	}
-}
-
+//Function to detele the process (LIST PROCESSES)
 function deleteProcess($id) {
 	
 	$response_json = new JsonResponse();
@@ -1093,20 +1096,21 @@ function deleteProcess($id) {
 	$workflows = array();
 	$processCol = $GLOBALS['processCol'];
 
+	//get the current user
 	$currentUser = getUser("current");
 	$typeUserLogged = json_decode($currentUser, true);
 
 	//find the owner of the process
 	$process = $processCol->findOne(array('_id' => $id));
 
+	//if the current user is not the same that the user owner of the process AND if the user is not admin
 	if ($userId != $process["data"]["owner"]["user"] && $typeUserLogged["Type"] != 0) {
 		$response_json->setCode(422);
 		$response_json->setMessage("You are not allowed to remove this process.");
 		return $response_json->getResponse();
 	}
-
 	
-	
+	//Get if there are any workflow using this validation process
 	$workflowsInUse = $GLOBALS['toolSubmissionCol']->find(array('validation_id' => $id));
 	
 	//add query to an array
@@ -1114,12 +1118,14 @@ function deleteProcess($id) {
 		array_push($workflows, $workflow);
 	}
 
+	//if are workflows using that process
 	if (!empty($workflows)) {
 		$response_json->setCode(422);
 		$response_json->setMessage("The process is being used in a workflow.");
 		return $response_json->getResponse();
 	}
 
+	//if all is correct remove the process
 	try  {
 		$processCol->remove(array('_id' => $id));
 
@@ -1134,6 +1140,7 @@ function deleteProcess($id) {
 	}
 }
 
+//construct the workflow and inserted into MongoDB
 function setWorkflow($nameWF, $validation, $metrics, $consolidation) {
 
 	$response_json= new JsonResponse();
@@ -1144,8 +1151,10 @@ function setWorkflow($nameWF, $validation, $metrics, $consolidation) {
 	$tmpInfoUser = getUser($userId);
 	$infoUser = json_decode($tmpInfoUser, true);
 
+	//check if the name exist in DB because the name is the id of the workflow
 	$idWF = $GLOBALS['toolSubmissionCol']->findOne(array("_id" => $nameWF));
 	
+	//return error
 	if($idWF) {
 		$response_json->setCode(422);
 		$response_json->setMessage("The 'workflow name' already exists.");
@@ -1153,11 +1162,13 @@ function setWorkflow($nameWF, $validation, $metrics, $consolidation) {
 		return $response_json->getResponse();
 	}
 
+	//get the id of the validation selected in the select
 	$validation_id = $GLOBALS['processCol']->findOne(array("data.title" => $validation), array("_id" => 1));
 
 	//MongoDB query
 	$data = array();
 	$data['_id'] = $nameWF;
+	//the schema has to be always the same because if not are this the validator do not works propertly
 	$data['_schema'] = "https://openebench.bsc.es/vre/tool-schema";
 	$data['owner']['user'] = $infoUser["id"];
 	$data['owner']['institution'] = $infoUser["Inst"];
@@ -1167,10 +1178,14 @@ function setWorkflow($nameWF, $validation, $metrics, $consolidation) {
 	$data['validation_id'] = $validation_id["_id"];
 	$data['metrics_id'] = "";
 	$data['consolidation_id'] = "";
+	//current date
 	$data['date'] = date('l jS \of F Y h:i:s A');
+	//by default the status is submitted
 	$data['request_status'] = "submitted";
 	
+	//mongo query
 	try {
+		//insert the workflow
 		$GLOBALS['toolSubmissionCol']->insert($data);
 	} catch(Exception $e) {
 		$response_json->setCode(501);
@@ -1179,21 +1194,22 @@ function setWorkflow($nameWF, $validation, $metrics, $consolidation) {
 		return $response_json->getResponse();
 	}
 
+	//send the email and check it
 	if(_reportMailNewTool($nameWF)) {
 		$response_json->setCode(200);
 		$response_json->setMessage("OK");
 	
 		return $response_json->getResponse();
+	//if the email is not sended
 	} else {
 		$response_json->setCode(422);
 		$response_json->setMessage("Error sending an email to the administrator");
 	
 		return $response_json->getResponse();
-	}
-	
-
+	}	
 }
 
+//send an email to the admins mail telling them that there are a new workflow submitted to converted into a tool
 function _reportMailNewTool($idWF) {
  	$ticketnumber = 'VRE-'.rand(1000, 9999);
 	$subject = 'New tool';
@@ -1227,6 +1243,7 @@ function _reportMailNewTool($idWF) {
 	return true;
 }
 
+//function to show the VIEW JSON of the workflow (LIST WORKFLOWS)
 function showWorkflowJSON($idWorkflow) {
 
 	$workflow  = $GLOBALS['toolSubmissionCol']->findOne(array('_id' => $idWorkflow));

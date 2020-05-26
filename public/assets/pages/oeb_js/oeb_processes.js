@@ -1,32 +1,38 @@
 var schema;
 var urlJSON = "applib/oeb_processesAPI.php";
 
+//function to change the status of the process. 
 function changeStatus(statusValue, processId) {
 	var url = "applib/oeb_processesAPI.php?action=updateStatus&process=" + processId + "&status=" + statusValue;/*  */
 	
+	//if some of the parameters are null check it
 	if (statusValue == "" || processId == "" || statusValue == null || processId == null) {
 		$("#myError").removeClass("alert alert-info");
 		$("#myError").addClass("alert alert-danger");
 		$("#myError").text("Some param is null.");
 		$("#myError").show();
+	//ajax petition
 	} else {
 		$.ajax({
 			type: 'POST',
 			url: url,
 			data: url
 		}).done(function(data) {
+			//no errors
 			if(data["code"]=="200"){
 				reload();
 				$("#myError").removeClass("alert alert-danger");
 				$("#myError").addClass("alert alert-info");
 				$("#myError").text("Status changed successfully.");
 				$("#myError").show();
+			//errors
 			} else {
 				$("#myError").removeClass("alert alert-info");
 				$("#myError").addClass("alert alert-danger");
 				$("#myError").text(data["message"]);
 				$("#myError").show();
 			}
+		//more errors
 		}). fail(function() {
 			$("#myError").removeClass("alert alert-info");
 			$("#myError").addClass("alert alert-danger");
@@ -36,6 +42,7 @@ function changeStatus(statusValue, processId) {
 	}
 }
 
+//the function of delete a process use ajax. The id is the id of the process
 function deleteProcess(id) {
 	if (confirm("Do you want to remove the process?")) {
 		$.ajax({
@@ -43,18 +50,21 @@ function deleteProcess(id) {
 			url: urlJSON,
 			data: {'action': 'deleteProcess', 'id': id}
 		}).done(function(data) {
+			//no errors
 			if(data["code"]=="200"){
 				reload();
 				$("#myError").removeClass("alert alert-danger");
 				$("#myError").addClass("alert alert-info");
 				$("#myError").text("Process removed successfully.");
 				$("#myError").show();
+			//errors
 			} else {
 				$("#myError").removeClass("alert alert-info");
 				$("#myError").addClass("alert alert-danger");
 				$("#myError").text(data["message"]);
 				$("#myError").show();
 			}
+		//more errors
 		}).fail(function(data) {
 			$("#myError").removeClass("alert alert-info");
 			$("#myError").addClass("alert alert-danger");
@@ -115,6 +125,7 @@ $(document).ready(function() {
 						return menu;
 				}
 			}, "targets": 1},
+			//COLUMB ACTION => DELETE PROCESS 
 			{render: function(data, type, row) {
 				return '<div class="btn-group"><button class="btn btn-xs green dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false"> Actions <i class="fa fa-angle-down"></i></button>' +
 				'<ul class="dropdown-menu pull-right" role="menu">' +
@@ -126,14 +137,17 @@ $(document).ready(function() {
 		]
 	});
 	
+	//button reload
 	$("#processReload").click(function() {
 		reload();
 	});
 
+	//fake things about metrics and consolidation
 	fakeThings();
 
 });
 
+//function that reload the validation table without relaod all the webpage
 function reload() {
 	$("#myError").hide();
 	$.getJSON('applib/oeb_processesAPI.php?action=getProcesses', function() {
@@ -147,6 +161,7 @@ function reload() {
 	});
 }
 
+//metrics and consolidation tables are empty and I need construct the datatable. This function is for this parts.
 function fakeThings() {
 	$('#metricTable').DataTable( {
 		autoWidth: false,

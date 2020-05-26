@@ -1,3 +1,4 @@
+//function for the admin to reject a tool
 function rejectTool(id) {
     var urlJSON = "applib/oeb_processesAPI.php";
 
@@ -7,18 +8,22 @@ function rejectTool(id) {
             url: urlJSON,
             data: {'action': 'reject_workflow', 'id': id}
         }).done(function(data) {
+            //reload the table
             reload();
         });
     };
 }
 
+//function for the admin to register a tool
 function registerTool(id) {
 	var urlJSON = "applib/oeb_processesAPI.php";
 	
 	if(confirm("Do you want to create a tool?")) {
         $("#general").hide();
+        //loading spinner
         $("#loading-datatable").show();
         
+        //create the tool
 		$.ajax({
 			type: 'POST',
 			url: urlJSON,
@@ -27,12 +32,15 @@ function registerTool(id) {
             $("#general").show();
             $("#loading-datatable").hide();
 
-			reload();
+            //reload the table
+            reload();
+            //no errors
 			if (data["code"] == 200) {
 				$("#errorsTool").removeClass("alert alert-danger");
 				$("#errorsTool").addClass("alert alert-info");
 				$("#errorsTool").text("VRE tool created successfully!");
-				$("#errorsTool").show();
+                $("#errorsTool").show();
+            //errors
 			} else {
 				$("#errorsTool").removeClass("alert alert-info");
 				$("#errorsTool").addClass("alert alert-danger");
@@ -43,6 +51,7 @@ function registerTool(id) {
 		}).fail(function(data) {
             $("#loading-datatable").hide();
             $("#general").show();
+            //function to show the errors of the validator
             if(data["responseJSON"]["message"] != "NO_EXIST") {
                 $("#errorsTool").text("ERRORS in the validation of the tool: ");
                 for(let x = 0; x < data["responseJSON"]["message"].length; x++) {
@@ -50,6 +59,7 @@ function registerTool(id) {
                 }
                 
                 reload();
+            //if there are an error that no corresponds to the validator is that.
             } else {
                 $("#errorsTool").text("The validation process used in WF does not exist in the DDBB.");
             }
@@ -61,6 +71,7 @@ function registerTool(id) {
     };
 };
 
+//for the View JSON option
 function callShowWorkflowJson(id) {
     var urlJSON = "applib/oeb_processesAPI.php";
     $('#modalAnalysis').modal('show');
@@ -71,7 +82,7 @@ function callShowWorkflowJson(id) {
 		url: urlJSON,
 		data: {'action': 'showWorkflowJSON', 'id': id}
 	}).success(function(data) {
-        //return error because is not a JSON.
+        //return error because is not a JSON but means that work propertly.
     }).fail(function(data) {
         $('#modalAnalysis .modal-body').html(data["responseText"]);
     });
@@ -168,6 +179,7 @@ $(document).ready(function() {
     });
 });
 
+//for reload the table of workflows
 function reload() {
 	$.getJSON('applib/oeb_processesAPI.php?action=getWorkflows', function() {
 		var oTblReport;

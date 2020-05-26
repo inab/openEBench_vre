@@ -99,30 +99,33 @@ function insertProcessesSelect() {
 
 //function set workflow into MongoDB
 function setWorkflow() {
-    var result;
     //get the process id selected and the name for the workflow
     var validation = $("#validationSelect").val();
     var metrics = $("#metricsSelect").val();
     var consolidation = $("#consolidationSelect").val();
     var nameWF = $("#nameWorkflow").val();
 
+    //ajax petition with all the necessary information about the workflow
     $.ajax({
         type: 'POST',
         url: urlJSON,
         data: {'action': 'setWorkflow', 'nameWF': nameWF, 'validation': validation, 'metrics': metrics, 'consolidation': consolidation}
     }).done(function(data) {
+        //no errors
         if (data["code"] == 200) {
             $("#divErrors").removeClass(" alert alert-danger");
             $("#divErrors").addClass(" alert alert-info");
             $("#divErrors").text("Workflow inserted successfully");
             $("#divErrors").show();
             location.href="oeb_management/oeb_process/oeb_workflows.php";
+        //errors
         } else {
             $("#divErrors").removeClass(" alert alert-info");
             $("#divErrors").addClass(" alert alert-danger");
             $("#divErrors").text(data["message"]);
             $("#divErrors").show(); 
         }
+    //more errors
     }).fail(function(data) {
         $("#divErrors").removeClass(" alert alert-info");
         $("#divErrors").addClass(" alert alert-danger");
