@@ -417,6 +417,7 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 	case 'uploadForm':
 	case 'oeb_newProcess':
 	case 'oeb_newWorkflow':
+	case 'oeb_manuals':
 	case 'oeb_processes':
 	case 'oeb_workflows':
 	case 'uploadForm2':

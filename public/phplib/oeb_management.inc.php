@@ -194,80 +194,88 @@ function getListOntologyForForm($formOntology, $ancestors) {
 	if (isset($GLOBALS['oeb_dataModels'][$formOntology])) {
 		//is only to validate that the ontology exists in DB. 
 		$nameUrlOntology = $GLOBALS['oeb_dataModels'][$formOntology];
-		//ontology-general
-		//we use the link of .owl and not the pURLs because this function does not accepted it
-		$graph = EasyRdf_Graph::newAndLoad("https://raw.githubusercontent.com/inab/OEB-ontologies/master/oebDatasets-complete.owl","rdfxml");
 		
-		$resource = $graph->resource($ancestors);
-		
- 		//get all the classes that are subclass of the uri 'https://w3id.org/oebDataFormats/FormatDatasets'
-		$classes = $graph->resourcesMatching("rdfs:subClassOf",$resource);
+		if ($ancestors != "false") {
+			//ontology-general
+			//we use the link of .owl and not the pURLs because this function does not accepted it
+			$graph = EasyRdf_Graph::newAndLoad("https://raw.githubusercontent.com/inab/OEB-ontologies/master/oebDatasets-complete.owl","rdfxml");
+			
+			$resource = $graph->resource($ancestors);
+			
+			//get all the classes that are subclass of the uri 'https://w3id.org/oebDataFormats/FormatDatasets'
+			$classes = $graph->resourcesMatching("rdfs:subClassOf",$resource);
 
-		//get the first classes (without showing the childrens)
-		foreach ($classes as $class) {
-			//get the label of first classes (without showing the childrens)
-            $label = $class->getLiteral('rdfs:label');
-            $label = (string)$label; 
+			//get the first classes (without showing the childrens)
+			foreach ($classes as $class) {
+				//get the label of first classes (without showing the childrens)
+				$label = $class->getLiteral('rdfs:label');
+				$label = (string)$label; 
 
-			//get the uri of classes that extends from the previous class find
-			$resourceClassesInherited = $graph->resource($class);
+				//get the uri of classes that extends from the previous class find
+				$resourceClassesInherited = $graph->resource($class);
 
-			//get all the classes that are subclass of the uri found in the previous step (all the uris of classes that extends from the first classes found)
-			$classesInherited = $graph->resourcesMatching("rdfs:subClassOf",$resourceClassesInherited);
+				//get all the classes that are subclass of the uri found in the previous step (all the uris of classes that extends from the first classes found)
+				$classesInherited = $graph->resourcesMatching("rdfs:subClassOf",$resourceClassesInherited);
 
-			$URILabel = (string)$resourceClassesInherited->getUri();
+				$URILabel = (string)$resourceClassesInherited->getUri();
 
-			if (($label == "LOG" && $firstLOG == 0) || ($label == "IMG" && $firstIMG == 0) || ($label == "JSON" && $firstJSON == 0) || ($label != "LOG" && $label != "IMG" && $label != "JSON")) {
-				if ($label == "LOG") {
-					$firstLOG++;
-					$ClassPair = array("label" => $label, "URI" => $URILabel);
-				} elseif ($label == "IMG") {
-					$firstIMG++;
-					$ClassPair = array("label" => $label, "URI" => $URILabel);
-				} elseif($label == "JSON") {
-					$firstJSON++;
-					$ClassPair = array("label" => $label, "URI" => $URILabel);		
-				} elseif ($label != "LOG" && $label != "IMG" && $label != "JSON") {
-					$ClassPair = array("label" => $label, "URI" => $URILabel);
-				}
-			}
-
-			//if there are not any format inherited in the first classes do not do it
-			$subClassArray = array();
-			if ($classesInherited != null) {
-				array_push($classArray, $ClassPair);
-				//get the classes inherited (the childrens)
-				foreach($classesInherited as $classInherited) {
-					//get the label of the classes inherited (the childrens)
-					$labelClassInherited = (string)$classInherited->getLiteral('rdfs:label');
-					$URIClassInherited = (string)$classInherited->getUri();
-					if (($labelClassInherited == "ERR" && $firstERR == 0) || ($labelClassInherited == "SVG" && $firstSVG == 0) || ($labelClassInherited == "pptx" && $firstpptx == 0) || ($labelClassInherited != "ERR" && $labelClassInherited != "SVG" && $labelClassInherited != "pptx" && $labelClassInherited != "LOG")){
-						if ($labelClassInherited == "ERR") {
-							$firstERR++;
-							$subClassPair = array("label" => $labelClassInherited, "URI" => $URIClassInherited);
-							array_push($classArray, $subClassPair);
-						} if ($labelClassInherited == "SVG") {
-							$firstSVG++;
-							$subClassPair = array("label" => $labelClassInherited, "URI" => $URIClassInherited);
-							array_push($classArray, $subClassPair);
-						} if ($labelClassInherited == "pptx") {
-							$firstpptx++;
-							$subClassPair = array("label" => $labelClassInherited, "URI" => $URIClassInherited);
-							array_push($classArray, $subClassPair);					
-						} elseif ($labelClassInherited != "ERR" && $labelClassInherited != "SVG" && $labelClassInherited != "pptx") {
-							$subClassPair = array("label" => $labelClassInherited, "URI" => $URIClassInherited);
-							array_push($classArray, $subClassPair);		
-						}
+				if (($label == "LOG" && $firstLOG == 0) || ($label == "IMG" && $firstIMG == 0) || ($label == "JSON" && $firstJSON == 0) || ($label != "LOG" && $label != "IMG" && $label != "JSON")) {
+					if ($label == "LOG") {
+						$firstLOG++;
+						$ClassPair = array("label" => $label, "URI" => $URILabel);
+					} elseif ($label == "IMG") {
+						$firstIMG++;
+						$ClassPair = array("label" => $label, "URI" => $URILabel);
+					} elseif($label == "JSON") {
+						$firstJSON++;
+						$ClassPair = array("label" => $label, "URI" => $URILabel);		
+					} elseif ($label != "LOG" && $label != "IMG" && $label != "JSON") {
+						$ClassPair = array("label" => $label, "URI" => $URILabel);
 					}
-
 				}
-			} else {
-				array_push($classArray, $ClassPair);
+
+				//if there are not any format inherited in the first classes do not do it
+				$subClassArray = array();
+				if ($classesInherited != null) {
+					array_push($classArray, $ClassPair);
+					//get the classes inherited (the childrens)
+					foreach($classesInherited as $classInherited) {
+						//get the label of the classes inherited (the childrens)
+						$labelClassInherited = (string)$classInherited->getLiteral('rdfs:label');
+						$URIClassInherited = (string)$classInherited->getUri();
+						if (($labelClassInherited == "ERR" && $firstERR == 0) || ($labelClassInherited == "SVG" && $firstSVG == 0) || ($labelClassInherited == "pptx" && $firstpptx == 0) || ($labelClassInherited != "ERR" && $labelClassInherited != "SVG" && $labelClassInherited != "pptx" && $labelClassInherited != "LOG")){
+							if ($labelClassInherited == "ERR") {
+								$firstERR++;
+								$subClassPair = array("label" => $labelClassInherited, "URI" => $URIClassInherited);
+								array_push($classArray, $subClassPair);
+							} if ($labelClassInherited == "SVG") {
+								$firstSVG++;
+								$subClassPair = array("label" => $labelClassInherited, "URI" => $URIClassInherited);
+								array_push($classArray, $subClassPair);
+							} if ($labelClassInherited == "pptx") {
+								$firstpptx++;
+								$subClassPair = array("label" => $labelClassInherited, "URI" => $URIClassInherited);
+								array_push($classArray, $subClassPair);					
+							} elseif ($labelClassInherited != "ERR" && $labelClassInherited != "SVG" && $labelClassInherited != "pptx") {
+								$subClassPair = array("label" => $labelClassInherited, "URI" => $URIClassInherited);
+								array_push($classArray, $subClassPair);		
+							}
+						}
+
+					}
+				} else {
+					array_push($classArray, $ClassPair);
+				}
 			}
+			//$array_gen = array("labels" => $classArray);
+			$process_json = json_encode($classArray, JSON_PRETTY_PRINT);
+			return $process_json;
+		} else {
+			$arrayRepeat = array("label" => $nameUrlOntology, "URI" => $formOntology);
+			array_push($classArray, $arrayRepeat);
+			$process_json = json_encode($classArray, JSON_PRETTY_PRINT);
+			return $process_json;
 		}
-		//$array_gen = array("labels" => $classArray);
-		$process_json = json_encode($classArray, JSON_PRETTY_PRINT);
-		return $process_json;
 	} else {
 		return $process_json;
 	}
@@ -281,7 +289,6 @@ function getDefaultValues() {
 	$userId = $_SESSION["User"]["id"];
 	
 	$userInfo = getUser($userId);
-
 	//$user_json = json_encode($userInfo, JSON_PRETTY_PRINT);
 
 	return $userInfo;

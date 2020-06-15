@@ -5,6 +5,9 @@ var labels = [];
 var uris = [];
 var urlsArray = [];
 var owners = [];
+var ontologiesUsed = [];
+var arrayOntologies = [];
+var informationUsed = [];
 var value;
 var editorValue;
 var urlJSON = "applib/oeb_processesAPI.php";
@@ -24,10 +27,11 @@ $(document).ready(function() {
     if (URLontologiesArray.length == ancestorsArray.length) {
       for (i = 0; i < URLontologiesArray.length; i++) {
         var url = "applib/oeb_processesAPI.php?action=getForm&urlOntology=" + URLontologiesArray[i] + "&ancestors=" + ancestorsArray[i];
+        if (urlsArray.includes(url)) {
+          url = "applib/oeb_processesAPI.php?action=getForm&urlOntology=" + URLontologiesArray[i] + "&ancestors=false";
+        } 
         urlsArray.push(url);
       }
-    } else {
-      console.log("SCHEMA INCORRECT");
     }
 
     //do ajax petition for each ontology url of the schema 
@@ -38,19 +42,54 @@ $(document).ready(function() {
     //when petitions finished
     $.when(...ajaxPromises).done(function() {
       for (x = 0; x < arguments.length; x++) {
-        labels = [];
-        uris = [];
-        totals = [];
-        $.each(arguments[x][0], function(key, modelName) {
-          labels.push(modelName['label']);
-          uris.push(modelName['URI']);
 
-          //asign the uris of ontologies in the enum
-          pathsArray[x]['enum'] = uris;
-          //assign the label of ontologies into the enum titles to see in the interfaces the labels but work with uris
-          pathsArray[x]['options']['enum_titles'] = labels;
-        });
-      };
+        if (arguments[x][0][0]["label"] != "oeb_formats" && arguments[x][0][0]["label"] != "oeb_datasets") {
+          labels = [];
+          uris = [];
+          ontologiesUsed = [];
+
+          $.each(arguments[x][0], function(key, modelName) {
+            labels.push(modelName['label']);
+            uris.push(modelName['URI']);
+
+            //asign the uris of ontologies in the enum
+            pathsArray[x]['enum'] = uris;
+            //assign the label of ontologies into the enum titles to see in the interfaces the labels but work with uris
+            pathsArray[x]['options']['enum_titles'] = labels;
+          });
+
+          ontologiesUsed["URL"] = pathsArray[x]["ontology"];
+          ontologiesUsed["label"] = labels;
+          ontologiesUsed["URI"] = uris;
+
+          arrayOntologies.push(ontologiesUsed);
+
+        } else if (arguments[x][0][0]["label"] == "oeb_formats") {
+          informationUsed = [];
+          for (y = 0; y < arrayOntologies.length; y++) {
+            if (arrayOntologies[y]["URL"] == "https://w3id.org/oebDataFormats") {
+              informationUsed = arrayOntologies[y];
+
+              //asign the uris of ontologies in the enum
+              pathsArray[x]['enum'] = informationUsed["URI"];
+              //assign the label of ontologies into the enum titles to see in the interfaces the labels but work with uris
+              pathsArray[x]['options']['enum_titles'] = informationUsed["label"];
+            }
+          }
+        } else if (arguments[x][0][0]["label"] == "oeb_datasets") {
+          informationUsed = [];
+          for (y = 0; y < arrayOntologies.length; y++) {
+            if (arrayOntologies[y]["URL"] == "https://w3id.org/oebDatasets") {
+              informationUsed = arrayOntologies[y];
+
+              //asign the uris of ontologies in the enum
+              pathsArray[x]['enum'] = informationUsed["URI"];
+              //assign the label of ontologies into the enum titles to see in the interfaces the labels but work with uris
+              pathsArray[x]['options']['enum_titles'] = informationUsed["label"];
+            }
+          }
+        }
+      }
 
       //INSERT THE OWNER
       var urlDefaultValues = "applib/oeb_processesAPI.php?action=getDefaultValues&owner";
@@ -103,10 +142,10 @@ $(document).ready(function() {
         $("#loading-datatable").hide();
         $("#submit").show();
 
+        console.log(editor);
+
         //ON CLICK SUBMIT 
         clickSubmit();
-
-        editorValue = editor.getValue();
       });
       
     }).fail(function (jqXHR, textStatus) {
@@ -119,7 +158,7 @@ $(document).ready(function() {
 function clickSubmit() {
   
   $('#submit').on("click",function() {
-
+    console.log(editor.getValue());
     //if there are errors = true, no errors = false
     var errors = validateErr();
 

@@ -346,14 +346,19 @@ sort($visualizers);
 							<span class="arrow <?php if ($currentSection == 'mg') { ?>open<?php } ?>"></span>
 						</a>
 						<ul class="sub-menu">
-							<li class="nav-item  <?php if ($currentSubSection == 'vl') { ?>active open<?php } ?>">
+							<li class="nav-item  <?php if ($currentSubSection == 'ps') { ?>active open<?php } ?>">
 								<a href="oeb_management/oeb_process/oeb_processes.php" class="nav-link ">
 									<span class="title">Processes</span>
 								</a>
 							</li>
-							<li class="nav-item  <?php if ($currentSubSection == 'vl') { ?>active open<?php } ?>">
+							<li class="nav-item  <?php if ($currentSubSection == 'ps') { ?>active open<?php } ?>">
 								<a href="oeb_management/oeb_process/oeb_workflows.php" class="nav-link ">
 									<span class="title">Workflows</span>
+								</a>
+							</li>
+							<li class="nav-item  <?php if ($currentSubSection == 'ps') { ?>active open<?php } ?>">
+								<a href="oeb_management/oeb_process/oeb_manuals.php" class="nav-link ">
+									<span class="title">Manuals</span>
 								</a>
 							</li>
 						</ul>

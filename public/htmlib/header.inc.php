@@ -217,6 +217,7 @@
 		case 'jsonTestValidator':
 		case 'dashboard':
 		case 'datasets':
+		case 'oeb_manuals':
 		case 'oeb_processes':
 		case 'oeb_workflows':
 		case 'oeb_newProcess':

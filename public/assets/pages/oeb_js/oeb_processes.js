@@ -74,6 +74,10 @@ function deleteProcess(id) {
 	}
 }
 
+function modifyProcess(id) {
+	console.log("EDIT " + id);
+}
+
 $(document).ready(function() {
 	$("#myError").hide();
 	
@@ -131,6 +135,9 @@ $(document).ready(function() {
 				'<ul class="dropdown-menu pull-right" role="menu">' +
 					'<li>' +
 						'<a id="'+row._id+'" onclick="deleteProcess(id);"><i class="fa fa-trash"></i> Delete process</a>' +
+					'</li>' +
+					'<li>' +
+					'<a id="'+row._id+'" onclick="modifyProcess(id);"><i class="fa fa-edit"></i> Modify process</a>' +
 					'</li>' +
 				'</ul></div>'
 			}, "targets": 3}
