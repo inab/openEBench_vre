@@ -183,13 +183,7 @@ function getListOntologyForForm($formOntology, $ancestors) {
 	$array_gen;
 	$process_json="{}";
 	$label;
-	//ERR, LOG, SVG, pptx, IMG, 
-	$firstERR = 0;
-	$firstLOG = 0;
-	$firstSVG = 0;
-	$firstpptx = 0;
-	$firstIMG = 0;
-	$firstJSON = 0;
+	//ERR, LOG, SVG, pptx, IMG, JSON
 
 	if (isset($GLOBALS['oeb_dataModels'][$formOntology])) {
 		//is only to validate that the ontology exists in DB. 
@@ -219,52 +213,23 @@ function getListOntologyForForm($formOntology, $ancestors) {
 
 				$URILabel = (string)$resourceClassesInherited->getUri();
 
-				if (($label == "LOG" && $firstLOG == 0) || ($label == "IMG" && $firstIMG == 0) || ($label == "JSON" && $firstJSON == 0) || ($label != "LOG" && $label != "IMG" && $label != "JSON")) {
-					if ($label == "LOG") {
-						$firstLOG++;
-						$ClassPair = array("label" => $label, "URI" => $URILabel);
-					} elseif ($label == "IMG") {
-						$firstIMG++;
-						$ClassPair = array("label" => $label, "URI" => $URILabel);
-					} elseif($label == "JSON") {
-						$firstJSON++;
-						$ClassPair = array("label" => $label, "URI" => $URILabel);		
-					} elseif ($label != "LOG" && $label != "IMG" && $label != "JSON") {
-						$ClassPair = array("label" => $label, "URI" => $URILabel);
-					}
-				}
+				$ClassPair = array("label" => $label, "URI" => $URILabel);
+				array_push($classArray, $ClassPair);
 
 				//if there are not any format inherited in the first classes do not do it
 				$subClassArray = array();
 				if ($classesInherited != null) {
-					array_push($classArray, $ClassPair);
 					//get the classes inherited (the childrens)
 					foreach($classesInherited as $classInherited) {
 						//get the label of the classes inherited (the childrens)
 						$labelClassInherited = (string)$classInherited->getLiteral('rdfs:label');
 						$URIClassInherited = (string)$classInherited->getUri();
-						if (($labelClassInherited == "ERR" && $firstERR == 0) || ($labelClassInherited == "SVG" && $firstSVG == 0) || ($labelClassInherited == "pptx" && $firstpptx == 0) || ($labelClassInherited != "ERR" && $labelClassInherited != "SVG" && $labelClassInherited != "pptx" && $labelClassInherited != "LOG")){
-							if ($labelClassInherited == "ERR") {
-								$firstERR++;
-								$subClassPair = array("label" => $labelClassInherited, "URI" => $URIClassInherited);
-								array_push($classArray, $subClassPair);
-							} if ($labelClassInherited == "SVG") {
-								$firstSVG++;
-								$subClassPair = array("label" => $labelClassInherited, "URI" => $URIClassInherited);
-								array_push($classArray, $subClassPair);
-							} if ($labelClassInherited == "pptx") {
-								$firstpptx++;
-								$subClassPair = array("label" => $labelClassInherited, "URI" => $URIClassInherited);
-								array_push($classArray, $subClassPair);					
-							} elseif ($labelClassInherited != "ERR" && $labelClassInherited != "SVG" && $labelClassInherited != "pptx") {
-								$subClassPair = array("label" => $labelClassInherited, "URI" => $URIClassInherited);
-								array_push($classArray, $subClassPair);		
-							}
+						
+						$subClassPair = array("label" => $labelClassInherited, "URI" => $URIClassInherited);
+						if (!in_array($subClassPair, $classArray)) {
+							array_push($classArray, $subClassPair);
 						}
-
 					}
-				} else {
-					array_push($classArray, $ClassPair);
 				}
 			}
 			//$array_gen = array("labels" => $classArray);
