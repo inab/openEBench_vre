@@ -279,10 +279,10 @@ $GLOBALS['status_requested'] = Array(
 	4 => "Rejected"
 );
 
-//ontologias
+$GLOBALS['oeb_validation_schema'] = "https://raw.githubusercontent.com/inab/OpEB-VRE-schemas/master/oeb_workflow_schema.json";
+//ontologies
 $GLOBALS['oeb_dataModels'] = Array(
-	"https://w3id.org/oebDatasets" => "oeb_datasets",
-	"https://w3id.org/oebDataFormats" => "oeb_formats"
-	//"oeb_datasets"  => "https://w3id.org/oebDatasets",
-	//"oeb_formats"  => "https://w3id.org/oebDataFormats"
+	"oeb_datasets_complete" => "https://w3id.org/oebDatasets/complete" //equivalent to oeb_datasets but without imports (in a plain text)
+/* 	"oeb_datasets" => "https://w3id.org/oebDatasets",
+	"oeb_formats" => "https://w3id.org/oebDataFormats" */
 );

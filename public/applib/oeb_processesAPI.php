@@ -27,7 +27,7 @@ if($_REQUEST) {
     //https://dev-openebench.bsc.es/vre/applib/oeb_processesAPI.php?action=getForm&urlOntology=https://w3id.org/oebDataFormats&ancestors=https://w3id.org/oebDataFormats/FormatDatasets
     } elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == "getForm") {
         if (isset($_REQUEST['urlOntology'], $_REQUEST['ancestors'])) {
-            echo getListOntologyForForm($_REQUEST['urlOntology'], $_REQUEST['ancestors']);
+            echo loadOntologyToPlainList($_REQUEST['urlOntology'], $_REQUEST['ancestors']);
             exit;
         }
     //https://dev-openebench.bsc.es/vre/applib/oeb_processesAPI.php?action=getDefaultValues&owner&_id&_schema

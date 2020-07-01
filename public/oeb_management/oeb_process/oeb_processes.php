@@ -103,7 +103,7 @@ require "../../htmlib/js.inc.php"; ?>
                                             <a id="processReload" class="btn green"> Reload Validation Processes </a>
                                         </div>
                                     </div>
-                                    <a href="oeb_management/oeb_process/oeb_newProcess.php" class="btn btn-lg green" style="margin-bottom:30px;"> <i class="fa fa-plus"></i> Create new</a>
+                                    <a id="newProcess" class="btn btn-lg green" style="margin-bottom:30px;"> <i class="fa fa-plus"></i> Create new</a>
 
                                     <input type="hidden" id="base-url" value="<?php echo $GLOBALS['BASEURL']; ?>" />
 

@@ -174,7 +174,7 @@ function updateStatusProcess($processId, $statusId) {
 }
 
 //function to obtain the plain list of the ontologies. An enum for the JSON Schema (NEW PROCESS)
-function getListOntologyForForm($formOntology, $ancestors) {
+function loadOntologyToPlainList($ontologyOwl, $ancestors) {
 	//variables
 	$resource = "";
 	$graph = "";
@@ -184,15 +184,16 @@ function getListOntologyForForm($formOntology, $ancestors) {
 	$process_json="{}";
 	$label;
 	//ERR, LOG, SVG, pptx, IMG, JSON
+	
+	//$GLOBALS['oeb_dataModels']["oeb_datasets_complete"]
 
-	if (isset($GLOBALS['oeb_dataModels'][$formOntology])) {
-		//is only to validate that the ontology exists in DB. 
-		$nameUrlOntology = $GLOBALS['oeb_dataModels'][$formOntology];
+	if (in_array($ontologyOwl ,array_values($GLOBALS['oeb_dataModels']))) {
 		
 		if ($ancestors != "false") {
 			//ontology-general
 			//we use the link of .owl and not the pURLs because this function does not accepted it
-			$graph = EasyRdf_Graph::newAndLoad("https://raw.githubusercontent.com/inab/OEB-ontologies/master/oebDatasets-complete.owl","rdfxml");
+
+			$graph = EasyRdf_Graph::newAndLoad($ontologyOwl,"rdfxml");
 			
 			$resource = $graph->resource($ancestors);
 			
@@ -236,7 +237,7 @@ function getListOntologyForForm($formOntology, $ancestors) {
 			$process_json = json_encode($classArray, JSON_PRETTY_PRINT);
 			return $process_json;
 		} else {
-			$arrayRepeat = array("label" => $nameUrlOntology, "URI" => $formOntology);
+			$arrayRepeat = array("label" => $nameUrlOntology, "URI" => $ontologyOwl);
 			array_push($classArray, $arrayRepeat);
 			$process_json = json_encode($classArray, JSON_PRETTY_PRINT);
 			return $process_json;
@@ -686,6 +687,8 @@ function createTool_fromWFs($id) {
 		unlink($tempFileTool);
 		return $response_json->getResponse();
 	}
+	var_dump($tempFileTool);
+	exit;
 	
 	unlink($tempFileTool);
 
@@ -791,8 +794,8 @@ function _createToolSpecification_fromWF($workflow) {
 	$process_json = json_decode($validationProcess, true);
 
 	//the ontology of data type and file type - get only once because is slow the process of getting ontologies
-	$fileOntology = getListOntologyForForm("https://w3id.org/oebDataFormats", "https://w3id.org/oebDataFormats/FormatDatasets");
-	$dataOntology = getListOntologyForForm("https://w3id.org/oebDatasets", "https://w3id.org/oebDatasets/dataset");
+	$fileOntology = loadOntologyToPlainList("https://w3id.org/oebDataFormats", "https://w3id.org/oebDataFormats/FormatDatasets");
+	$dataOntology = loadOntologyToPlainList("https://w3id.org/oebDatasets", "https://w3id.org/oebDatasets/dataset");
 
 	$ontology_file_type = json_decode($fileOntology, true);
 	$ontology_data_type = json_decode($dataOntology, true);
@@ -1055,6 +1058,7 @@ function _createToolSpecification_fromWF($workflow) {
 	}
 
 	$stringTool = json_encode($jsonTool, JSON_PRETTY_PRINT);
+
 	return $stringTool;
 }
 

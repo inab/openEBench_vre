@@ -116,5 +116,15 @@ echo '
 
 var baseURL = '.$GLOBALS['BASEURL'].';';
 
+/*******************************************/
+/*          LOADING OEB VARIABLES          */
+/*******************************************/
+echo "\n\n";
+foreach($GLOBALS as $k => $v) {
+	if(preg_match('/oeb_/', $k)) {
+		echo 'var ' . $k . '= ' . json_encode($v) . ';';
+		echo "\n";
+	}
+}
 
 ?>
