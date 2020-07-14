@@ -1,4 +1,3 @@
-<!--<script src="https://cdn.jsdelivr.net/npm/vue"></script>-->
 
 <?php
 

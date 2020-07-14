@@ -183,20 +183,18 @@ function loadOntologyToPlainList($ontologyOwl, $ancestors) {
 	$array_gen;
 	$process_json="{}";
 	$label;
-	//ERR, LOG, SVG, pptx, IMG, JSON
-	
+
 	//$GLOBALS['oeb_dataModels']["oeb_datasets_complete"]
 
 	if (in_array($ontologyOwl ,array_values($GLOBALS['oeb_dataModels']))) {
-		
 		if ($ancestors != "false") {
 			//ontology-general
 			//we use the link of .owl and not the pURLs because this function does not accepted it
 
-			$graph = EasyRdf_Graph::newAndLoad($ontologyOwl,"rdfxml");
+			$graph = EasyRdf_Graph::newAndLoad($GLOBALS['oeb_general_ontology_reasoner'],"rdfxml");
 			
 			$resource = $graph->resource($ancestors);
-			
+
 			//get all the classes that are subclass of the uri 'https://w3id.org/oebDataFormats/FormatDatasets'
 			$classes = $graph->resourcesMatching("rdfs:subClassOf",$resource);
 
@@ -233,6 +231,7 @@ function loadOntologyToPlainList($ontologyOwl, $ancestors) {
 					}
 				}
 			}
+
 			//$array_gen = array("labels" => $classArray);
 			$process_json = json_encode($classArray, JSON_PRETTY_PRINT);
 			return $process_json;
@@ -243,6 +242,7 @@ function loadOntologyToPlainList($ontologyOwl, $ancestors) {
 			return $process_json;
 		}
 	} else {
+		print_r("AQUI NO");
 		return $process_json;
 	}
 }
@@ -290,7 +290,7 @@ function getUser($id) {
 }
 
 //Get the workflow information from the form, validate all the data and inserted in MongoDB (NEW PROCESS)
-function setProcess($processStringForm) {
+function setProcess($processStringForm, $buttonAction) {
 	$response_json= new JsonResponse();
 
 	$response_json->setCode("405");
@@ -298,16 +298,27 @@ function setProcess($processStringForm) {
 
 	$processForm = json_decode($processStringForm, true);
 
-	// store public dataset
-	$file = $processForm["inputs_meta"]["public_ref_dir"]["value"];
+	if ($buttonAction == "submit") {
+		// store public dataset
+		$file = $processForm["inputs_meta"]["public_ref_dir"]["value"];
 
-	//get the url of git
-	$gitURL_workflow = $processForm["nextflow_files"]["workflow_file"]["workflow_gitURL"];
-	$gitTag_workflow = $processForm["nextflow_files"]["workflow_file"]["workflow_gitTag"];
+		//get the url of git
+		$gitURL_workflow = $processForm["nextflow_files"]["workflow_file"]["workflow_gitURL"];
+		$gitTag_workflow = $processForm["nextflow_files"]["workflow_file"]["workflow_gitTag"];
+
+	} elseif ($buttonAction == "edit") {
+		// store public dataset
+		$file = $processForm["data"]["inputs_meta"]["public_ref_dir"]["value"];
+
+		//get the url of git
+		$gitURL_workflow = $processForm["data"]["nextflow_files"]["workflow_file"]["workflow_gitURL"];
+		$gitTag_workflow = $processForm["data"]["nextflow_files"]["workflow_file"]["workflow_gitTag"];
+
+	}
 
 	//get errors (or not) workflow git - the four step
 	$resultWorkflow = _validationStep4($gitURL_workflow, $gitTag_workflow);
-	
+
 	//errors nextflow files
 	if ($resultWorkflow != "OK"){
 		$response_json->setCode(422);
@@ -317,38 +328,61 @@ function setProcess($processStringForm) {
 	} 
 
 	//materialize public data
-	$result = _getPublicData_fromBase64($file, $processForm);	
+	if ($buttonAction == "submit") {
+		$result = _getPublicData_fromBase64($file, $processForm);	
+		
+		//CHECK PUBLIC DATA
+		if ($result[0] != "OK") {
+			$response_json->setCode(422);
+			$response_json->setMessage($result[0]);
 
-	//CHECK PUBLIC DATA
-	if ($result[0] != "OK") {
-		$response_json->setCode(422);
-		$response_json->setMessage($result[0]);
+			return $response_json->getResponse();
+		} 
 
-		return $response_json->getResponse();
-	} 
+		//assign the path of the public_ref_dir
+		$processForm["inputs_meta"]["public_ref_dir"]["value"] = $result[1];
 
-	//assign the path of the public_ref_dir
-	$processForm["inputs_meta"]["public_ref_dir"]["value"] = $result[1];
+	} elseif ($buttonAction == "edit") { 
+		$result = _getPublicData_fromBase64($file, $processForm["data"]);	
+
+		//CHECK PUBLIC DATA
+		if ($result[0] != "OK") {
+			$response_json->setCode(422);
+			$response_json->setMessage($result[0]);
+
+			return $response_json->getResponse();
+		} 
+
+		//assign the path of the public_ref_dir
+		$processForm["data"]["inputs_meta"]["public_ref_dir"]["value"] = $result[1];
+
+	}
 	
 	//user logged
 	$userId = $_SESSION["User"]["id"];
 
 	//MongoDB query
 	$data = array();
+
 	//is a function that is not done by me that create a fake ID
 	$data['_id'] = createLabel($GLOBALS['AppPrefix']."_process",'processCol');
 	$data['data'] = $processForm;
 	//submitted status = 3
 	$data['publication_status'] = 3;
-	
+
 	try {
-		//insert the data in mongo
-		$GLOBALS['processCol']->insert($data);
+		if ($buttonAction == "submit") {
+			//insert the data in mongo
+			$GLOBALS['processCol']->insert($data);
+		} elseif ($buttonAction == "edit") {
+			//insert the data in mongo
+			$GLOBALS['processCol']->update(array("_id" => $processForm["_id"]), $processForm);
+		}
 
 	} catch (Exception $e) {
 		$response_json->setCode(501);
 		$response_json->setMessage("Cannot update data in Mongo. Mongo Error(".$e->getCode()."): ".$e->getMessage());
-	
+
 		return $response_json->getResponse();
 	}
 
@@ -356,6 +390,7 @@ function setProcess($processStringForm) {
 	$response_json->setMessage("OK");
 
 	return $response_json->getResponse();
+	
 }
 
 //validate the file TAR
@@ -794,8 +829,8 @@ function _createToolSpecification_fromWF($workflow) {
 	$process_json = json_decode($validationProcess, true);
 
 	//the ontology of data type and file type - get only once because is slow the process of getting ontologies
-	$fileOntology = loadOntologyToPlainList("https://w3id.org/oebDataFormats", "https://w3id.org/oebDataFormats/FormatDatasets");
-	$dataOntology = loadOntologyToPlainList("https://w3id.org/oebDatasets", "https://w3id.org/oebDatasets/dataset");
+	$fileOntology = loadOntologyToPlainList($GLOBALS['oeb_dataModels']["oeb_formats"], $GLOBALS['oeb_ancestorModels']["oeb_ancestor_formats"]);
+	$dataOntology = loadOntologyToPlainList($GLOBALS['oeb_dataModels']["oeb_datasets"], $GLOBALS['oeb_ancestorModels']["oeb_ancestor_datasets"]);
 
 	$ontology_file_type = json_decode($fileOntology, true);
 	$ontology_data_type = json_decode($dataOntology, true);

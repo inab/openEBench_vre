@@ -11,14 +11,13 @@ var informationUsed = [];
 var value;
 var editorValue;
 var urlJSON = "applib/oeb_processesAPI.php";
+var processEdit;
 
 $(document).ready(function() {
   //get the JSON Schema
-  $.getJSON("https://raw.githubusercontent.com/inab/OpEB-VRE-schemas/master/oeb_workflow_schema.json", function(data) {
-    
+  $.getJSON(oeb_validation_schema, function(data) {
     schema = data;
   }).done(function() {
-    var baseURL = $("#base-url").val();
 
     //get all the necessary information about the ontologies
     let [pathsArray, ancestorsArray, URLontologiesArray] = getInformation(schema);
@@ -42,7 +41,6 @@ $(document).ready(function() {
     //when petitions finished
     $.when(...ajaxPromises).done(function() {
       for (x = 0; x < arguments.length; x++) {
-
         if (arguments[x][0][0]["label"] != "oeb_formats" && arguments[x][0][0]["label"] != "oeb_datasets") {
           labels = [];
           uris = [];
@@ -138,14 +136,32 @@ $(document).ready(function() {
         $('a[href="#Nextflow-files"]').text("STEP 4: Nextflow files");
         $('a[href="#Input-files-&-arguments"]').text("STEP 5: Input files & arguments");
         
+
+        //get the argument/action
+        var currentURL = window.location["href"];
+        var url = new URL(currentURL);
+        var action = url.searchParams.get("action");
+        var idProcess = url.searchParams.get("id");
+
+        if (action == "editProcess") {
+          $.ajax({
+            type: 'POST',
+            url: urlJSON,
+            data: {'action': 'getProcess', 'id': idProcess}
+          }).done(function(data) {
+            processEdit = data;
+            editor.setValue(data["data"]);
+            $("#edit").show();
+          });
+        } else {
+          $("#submit").show();
+        }
+
         //hide the spinner when are all working propertly
         $("#loading-datatable").hide();
-        $("#submit").show();
-
-        console.log(editor);
 
         //ON CLICK SUBMIT 
-        clickSubmit();
+        clickButton();
       });
       
     }).fail(function (jqXHR, textStatus) {
@@ -155,7 +171,7 @@ $(document).ready(function() {
 });
 
 //when click the button submit
-function clickSubmit() {
+function clickButton() {
   
   $('#submit').on("click",function() {
     console.log(editor.getValue());
@@ -168,7 +184,25 @@ function clickSubmit() {
       var json = JSON.stringify(editor.getValue(),null,2);
 
       //inserted into db
-      insertJSON(json);
+      insertJSON(json, "submit");
+    } 
+
+    $(".errorClass").show();
+  });
+
+  $('#edit').on("click",function() {
+    console.log(editor.getValue());
+    //if there are errors = true, no errors = false
+    var errors = validateErr();
+
+    //if there are not errors
+    if (!errors) {
+      //take the value of the editor (the things that are write in inputs and internally)
+      processEdit["data"] = editor.getValue();
+      var json = JSON.stringify(processEdit,null,2);
+
+      //inserted into db
+      insertJSON(json, "edit");
     } 
 
     $(".errorClass").show();
@@ -241,12 +275,12 @@ function getInformation(schema) {
   return [pathsArray, ancestorsArray, URLontologiesArray];
 }
 
-function insertJSON(processJSONForm) {
+function insertJSON(processJSONForm, buttonAction) {
 
   $.ajax({
     type: 'POST',
     url: urlJSON,
-    data: {'action': 'setProcess', 'processForm': processJSONForm}
+    data: {'action': 'setProcess', 'processForm': processJSONForm, 'buttonAction': buttonAction}
   }).done(function(data) {
     if(data['code'] == 200) {
       window.location.href = baseURL + "oeb_management/oeb_process/oeb_processes.php";
@@ -262,7 +296,6 @@ function insertJSON(processJSONForm) {
       $(".errorClass").addClass(" alert alert-danger");
     }
   }).fail(function(data) {
-    console.log(data);
     var error = JSON.parse(data['responseText']);
     $(".errorClass").text(error['message']);
     $(".errorClass").removeClass(" alert alert-info");

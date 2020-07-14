@@ -74,8 +74,8 @@ function deleteProcess(id) {
 	}
 }
 
-function modifyProcess(id) {
-	console.log("EDIT " + id);
+function editProcess(id) {
+	location.href = "oeb_management/oeb_process/oeb_newProcess.php?action=editProcess&id=" + id;
 }
 
 $(document).ready(function() {
@@ -137,7 +137,7 @@ $(document).ready(function() {
 						'<a id="'+row._id+'" onclick="deleteProcess(id);"><i class="fa fa-trash"></i> Delete process</a>' +
 					'</li>' +
 					'<li>' +
-					'<a id="'+row._id+'" onclick="modifyProcess(id);"><i class="fa fa-edit"></i> Modify process</a>' +
+					'<a id="'+row._id+'" onclick="editProcess(id);"><i class="fa fa-edit"></i> Modify process</a>' +
 					'</li>' +
 				'</ul></div>'
 			}, "targets": 3}
@@ -147,6 +147,10 @@ $(document).ready(function() {
 	//button reload
 	$("#processReload").click(function() {
 		reload();
+	});
+
+	$("#newProcess").click(function() {
+		location.href = "oeb_management/oeb_process/oeb_newProcess.php?action=createProcess";
 	});
 
 	//fake things about metrics and consolidation

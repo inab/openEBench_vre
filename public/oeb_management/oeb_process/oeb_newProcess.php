@@ -93,6 +93,7 @@ require "../../htmlib/js.inc.php"; ?>
                                     <div id='editor_holder'></div>
                                     <br>
                                     <button id="submit" style="display:none;" class="btn btn-primary">Submit</button>
+                                    <button id="edit" style="display:none;" class="btn btn-primary">Edit</button>
                                     <br>
                                     <p class="errorClass" id="idP" style="display:none;"></p>
                                 </div>

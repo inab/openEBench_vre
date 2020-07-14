@@ -13,6 +13,11 @@ if($_REQUEST) {
     } elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == "getProcessSelect") {
         echo getProcessSelect();
         exit;
+    } elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == "getProcess") {
+        if (isset($_REQUEST['id'])) {
+            echo _getProcess($_REQUEST['id']);
+            exit;
+        }
     } elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == "getWorkflows") {
         echo getWorkflows();
         exit;
@@ -38,7 +43,7 @@ if($_REQUEST) {
         }
     //https://dev-openebench.bsc.es/vre/applib/oeb_processesAPI.php?processForm=...
     } elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == "setProcess" ) {
-        echo setProcess($_REQUEST['processForm']);
+        echo setProcess($_REQUEST['processForm'], $_REQUEST['buttonAction']);
         exit;
     } elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == "createTool_fromWFs" ) {
         echo createTool_fromWFs($_REQUEST['id']);
