@@ -269,6 +269,7 @@ $GLOBALS['clouds'] = Array(
 );
 
 #OPENEBENCH
+$GLOBALS['oeb_tmp']     = $GLOBALS['shared']."tmp/"; // Temporal data directory
 $GLOBALS['oeb_tool_wrapper'] = "/home/vre/projects/wrapper_test/VRE_NF_RUNNER";
 $GLOBALS['oeb_tool_json_schema']    = $GLOBALS['root']."/install/data/tool_schemas/tool_specification/oeb_tool_schema.json"; // specific data model for OEB-VRE tool registration
 $GLOBALS['status_requested'] = Array(
@@ -279,7 +280,7 @@ $GLOBALS['status_requested'] = Array(
 	4 => "Rejected"
 );
 
-$GLOBALS['oeb_validation_schema'] = "https://raw.githubusercontent.com/inab/OpEB-VRE-schemas/master/oeb_workflow_schema.json";
+$GLOBALS['oeb_validation_schema'] = "https://raw.githubusercontent.com/inab/OpEB-VRE-schemas/master/oeb_validation_workflow_schema.json";
 
 $GLOBALS['oeb_general_ontology_reasoner'] = "https://raw.githubusercontent.com/inab/OEB-ontologies/master/oebDatasets-complete.owl";
 

@@ -755,7 +755,8 @@ function process_URL($url){
 	  
     }elseif ($scheme == "http" || $scheme == "https"){
     	// get URL header
-    	$headers_data = get_headers($url,1);
+		$headers_data = get_headers($url,1);
+		
   	//check server and status
 	if ($headers_data === false){
 	    $_SESSION['errorData']['Error'][] = "Resource URL ('$url') is not valid or unaccessible. Server not found";
@@ -770,17 +771,21 @@ function process_URL($url){
     	// grabs filename
 	$response['filename'] = (isset($headers_data['Content-Disposition']) && preg_match('/filename=(?<f>[^\s]+|\x22[^\x22]+\x22)\x3B?.*$/m',$headers_data['Content-Disposition'],$m)? $m[1] : $response['filename']);
 	$response['size'] = (isset($headers_data['Content-Disposition']) && preg_match("/filename=.+/",$headers_data['Content-Disposition']) && $headers_data['Content-Length']? $headers_data['Content-Length'] : $response['size']);
-    
-    	$status = substr($headers[0], 9, 3);
-    	if (!preg_match('/(200)/',$headers_data[0]) && !preg_match('/^3/',$status) ){
+
+		$status = substr($headers[0], 9, 3);
+
+    	if (!preg_match('/(200)/',$headers_data[0]) && !preg_match('/^3/',$status) ) {
             $_SESSION['errorData']['Error'][] = "Resource URL ('$url') is not valid or unaccessible. Status: $status";
             redirect($_SERVER['HTTP_REFERER']);
- 	}
+		 }
+
     }else{
 	//unsupported URL format
+
         $_SESSION['errorData']['Error'][] = "Resource URL ('$url') scheme is not supported";
-	return false;
-    }
+		return false;
+	}
+
     //filename
     /*
     if (! $filename){

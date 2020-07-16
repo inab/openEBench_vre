@@ -26,9 +26,6 @@ $(document).ready(function() {
     if (URLontologiesArray.length == ancestorsArray.length) {
       for (i = 0; i < URLontologiesArray.length; i++) {
         var url = "applib/oeb_processesAPI.php?action=getForm&urlOntology=" + URLontologiesArray[i] + "&ancestors=" + ancestorsArray[i];
-        if (urlsArray.includes(url)) {
-          url = "applib/oeb_processesAPI.php?action=getForm&urlOntology=" + URLontologiesArray[i] + "&ancestors=false";
-        } 
         urlsArray.push(url);
       }
     }
@@ -151,6 +148,7 @@ $(document).ready(function() {
           }).done(function(data) {
             processEdit = data;
             editor.setValue(data["data"]);
+            $('input[type="file"]').attr("disabled", "disabled");
             $("#edit").show();
           });
         } else {

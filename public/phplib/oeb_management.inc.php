@@ -184,10 +184,24 @@ function loadOntologyToPlainList($ontologyOwl, $ancestors) {
 	$process_json="{}";
 	$label;
 
-	//$GLOBALS['oeb_dataModels']["oeb_datasets_complete"]
-
 	if (in_array($ontologyOwl ,array_values($GLOBALS['oeb_dataModels']))) {
-		if ($ancestors != "false") {
+
+		//get the effective url of the ontology => the last url used
+		$ch = curl_init($ontologyOwl);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
+		curl_setopt($ch, CURLOPT_HEADER, TRUE);
+		$curl_data = curl_exec($ch);
+		$url_effective = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+
+		//create a hash 
+		$hash_ontologyDir = md5($url_effective . '_' . $ancestors);
+
+		//directory in which ontology lists are saved
+		$ontologyDir = $GLOBALS['oeb_tmp'] . $hash_ontologyDir;
+		$ontologyFile = $ontologyDir . "/plain_list.txt";
+		
+		if (!is_dir($ontologyDir) || filesize($ontologyFile) == 0) {
 			//ontology-general
 			//we use the link of .owl and not the pURLs because this function does not accepted it
 
@@ -231,18 +245,14 @@ function loadOntologyToPlainList($ontologyOwl, $ancestors) {
 					}
 				}
 			}
-
-			//$array_gen = array("labels" => $classArray);
 			$process_json = json_encode($classArray, JSON_PRETTY_PRINT);
-			return $process_json;
+			mkdir($ontologyDir, 0777, true);
+			file_put_contents($ontologyFile, $process_json);
 		} else {
-			$arrayRepeat = array("label" => $nameUrlOntology, "URI" => $ontologyOwl);
-			array_push($classArray, $arrayRepeat);
-			$process_json = json_encode($classArray, JSON_PRETTY_PRINT);
-			return $process_json;
+			$process_json = file_get_contents($ontologyFile, FILE_USE_INCLUDE_PATH);
 		}
+		return $process_json;
 	} else {
-		print_r("AQUI NO");
 		return $process_json;
 	}
 }
