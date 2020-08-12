@@ -1,7 +1,7 @@
 <?php
 
 //Get all the workflows to show into the datatable -> depending on the user show ones or others. (LIST PROCESSES)
-function getProcesses() {
+function getProcesses($type) {
 	//initiallize variables
 	$process_json="{}";
 	$processes = array();
@@ -18,16 +18,16 @@ function getProcesses() {
 
 	//if the user is the administrator show all the processes
 	if($userJSON["Type"] == 0) {
-		$allProcesses = $GLOBALS['processCol']->find();
+		$allProcesses = $GLOBALS['processCol']->find(array("data.type" => $type));
 
 	//if the user is not the administrator (=community manager)
 	} elseif($userJSON["Type"] == 1) {
 		//see the community. If user has community
 		if ($community && $community != '') {
-			$allProcesses = $GLOBALS['processCol']->find(array('$or' => array(array("data.owner.user" => $userId), array("publication_status" => 1), array("data.owner.oeb_community" => $community, "publication_status"=>4))));
+			$allProcesses = $GLOBALS['processCol']->find(array('$or' => array(array("data.owner.user" => $userId, "data.type" => $type), array("data.publication_status" => 1, "data.type" => $type), array("data.owner.oeb_community" => $community, "data.publication_status"=>4, "data.type" => $type))));
 		//see the community. If user has not any community
 		} else {
-			$allProcesses = $GLOBALS['processCol']->find(array('$or' => array(array("data.owner.user" => $userId), array("publication_status" => 1))));
+			$allProcesses = $GLOBALS['processCol']->find(array('$or' => array(array("data.owner.user" => $userId, "data.type" => $type), array("data.publication_status" => 1, "data.type" => $type))));
 		}
 
 	}
@@ -44,7 +44,7 @@ function getProcesses() {
 }
 
 //Get all the process that have to be in the selector of NEW WORKFLOW (NEW WORKFLOW)
-function getProcessSelect() {
+function getProcessSelect($type) {
 	//initiallize variables
 	$process_json="{}";
 	$processes = array();
@@ -56,9 +56,9 @@ function getProcessSelect() {
 	$community = $userJSON["oeb_community"];
 
 	if ($community && $community != '') {
-		$allProcesses = $GLOBALS['processCol']->find(array('$or' => array(array("data.owner.user" => $userId), array("publication_status" => 1), array("data.owner.oeb_community" => $community, "publication_status"=>4))));
+		$allProcesses = $GLOBALS['processCol']->find(array('$or' => array(array("data.owner.user" => $userId, "data.type" => $type), array("data.publication_status" => 1, "data.type" => $type), array("data.owner.oeb_community" => $community, "data.publication_status"=>4, "data.type" => $type))));
 	} else {
-		$allProcesses = $GLOBALS['processCol']->find(array('$or' => array(array("data.owner.user" => $userId), array("publication_status" => 1))));
+		$allProcesses = $GLOBALS['processCol']->find(array('$or' => array(array("data.owner.user" => $userId), array("data.publication_status" => 1))));
 	}
 
 	//add query to an array
@@ -105,9 +105,9 @@ function getWorkflows() {
 	return $workflow_json;
 }
 
-//status = 0; private
+//status = 0; coming soon
 //status = 1; public
-//status = 2; coming soon
+//status = 2; private
 //for update the publication_status of workflows (LIST PROCESSES)
 function updateStatusProcess($processId, $statusId) {
 	//jsonResponse class (errors or successfully)
@@ -152,12 +152,13 @@ function updateStatusProcess($processId, $statusId) {
 	}
 	// update process status in Mongo
 	try  {
-		$processCol->update(['_id' => $processId], [ '$set' => [ 'publication_status' => 'NumberLong('+$statusId+')']]);
-		$processFound = $processCol->find(array("publication_status"=>'NumberLong('+$statusId+')', "_id"=>$processId));
+		$processCol->update(['_id' => $processId], [ '$set' => [ 'data.publication_status' => 'NumberLong('+$statusId+')']]);
+		$processFound = $processCol->find(array("data.publication_status"=>'NumberLong('+$statusId+')', "_id"=>$processId));
 
 		if($processFound != "") {
+			$type = $processCol->findOne(array("_id"=>$processId));
 			$response_json->setCode(200);
-			$response_json->setMessage("OK");
+			$response_json->setMessage($type["data"]["type"]);
 		} else {
 			$response_json->setCode(500);
 			$response_json->setMessage("Cannot update data in Mongo. Mongo Error(".$e->getCode()."): ".$e->getMessage());
@@ -300,31 +301,18 @@ function getUser($id) {
 }
 
 //Get the workflow information from the form, validate all the data and inserted in MongoDB (NEW PROCESS)
-function setProcess($processStringForm, $buttonAction) {
+function setProcess($processStringForm, $buttonAction, $filePaths) {
 	$response_json= new JsonResponse();
-
 	$response_json->setCode("405");
 	$response_json->setMessage("ERROR");
 
 	$processForm = json_decode($processStringForm, true);
 
-	if ($buttonAction == "submit") {
-		// store public dataset
-		$file = $processForm["inputs_meta"]["public_ref_dir"]["value"];
+	//GIT VALIDATION
 
-		//get the url of git
-		$gitURL_workflow = $processForm["nextflow_files"]["workflow_file"]["workflow_gitURL"];
-		$gitTag_workflow = $processForm["nextflow_files"]["workflow_file"]["workflow_gitTag"];
-
-	} elseif ($buttonAction == "edit") {
-		// store public dataset
-		$file = $processForm["data"]["inputs_meta"]["public_ref_dir"]["value"];
-
-		//get the url of git
-		$gitURL_workflow = $processForm["data"]["nextflow_files"]["workflow_file"]["workflow_gitURL"];
-		$gitTag_workflow = $processForm["data"]["nextflow_files"]["workflow_file"]["workflow_gitTag"];
-
-	}
+	//get the url of git
+	$gitURL_workflow = $processForm["nextflow_files"]["workflow_file"]["workflow_gitURL"];
+	$gitTag_workflow = $processForm["nextflow_files"]["workflow_file"]["workflow_gitTag"];
 
 	//get errors (or not) workflow git - the four step
 	$resultWorkflow = _validationStep4($gitURL_workflow, $gitTag_workflow);
@@ -337,153 +325,265 @@ function setProcess($processStringForm, $buttonAction) {
 		return $response_json->getResponse();
 	} 
 
-	//materialize public data
-	if ($buttonAction == "submit") {
-		$result = _getPublicData_fromBase64($file, $processForm);	
-		
-		//CHECK PUBLIC DATA
-		if ($result[0] != "OK") {
-			$response_json->setCode(422);
-			$response_json->setMessage($result[0]);
 
-			return $response_json->getResponse();
-		} 
+	//FILES VALIDATION 
+	// store public dataset
 
-		//assign the path of the public_ref_dir
-		$processForm["inputs_meta"]["public_ref_dir"]["value"] = $result[1];
+	$a;
+	$baseProcess;
+	$results = [];
 
-	} elseif ($buttonAction == "edit") { 
-		$result = _getPublicData_fromBase64($file, $processForm["data"]);	
+	for ($i = 0; $i < sizeof($filePaths); $i++) {
+		for ($j = 0; $j < sizeof(explode(".", $filePaths[$i])); $j++) {
+			$wordsPath = explode('.', $filePaths[$i])[$j];
+			if ($wordsPath == "root") {
+				$base = explode('.', $filePaths[$i])[$j+1];
+				if ($buttonAction == "submit") {
+					$baseProcess = $processForm[$base];
+				} else if ($buttonAction == "edit") {
+					$baseProcess = $processForm["data"][$base];
+				}
+				$j++;
+			} else {
+				
+				$a = explode('.', $filePaths[$i])[$j];
+				$baseProcess = $baseProcess[$a];
+				if ($j+1 == sizeof(explode('.', $filePaths[$i]))) {
+					$result = _createPublicData_fromBase64($baseProcess, $processForm, $filePaths[$i]);
+					array_push($results, $result);
+					//CHECK PUBLIC DATA
+					if ($result[0] != "OK") {
+						$response_json->setCode(422);
+						$response_json->setMessage($result[0]);
+			
+						return $response_json->getResponse();
+					} 
+			
+					//assign the path of the each one
+					//$baseProcess = $result[1];
+					if (sizeof($results) == sizeof($filePaths)) {
+						//user logged
+						$userId = $_SESSION["User"]["id"];
 
-		//CHECK PUBLIC DATA
-		if ($result[0] != "OK") {
-			$response_json->setCode(422);
-			$response_json->setMessage($result[0]);
+						//MongoDB query
+						$data = array();
 
-			return $response_json->getResponse();
-		} 
+						//is a function that is not done by me that create a fake ID
+						$data['_id'] = createLabel($GLOBALS['AppPrefix']."_process",'processCol');
+						$data['data'] = $processForm;
+						$data['validation_status'] = "under_validation";
 
-		//assign the path of the public_ref_dir
-		$processForm["data"]["inputs_meta"]["public_ref_dir"]["value"] = $result[1];
+						try {
+							if ($buttonAction == "submit") {
+								//insert the data in mongo
+								$GLOBALS['processCol']->insert($data);
+							} elseif ($buttonAction == "edit") {
+								//insert the data in mongo
+								$GLOBALS['processCol']->update(array("_id" => $processForm["_id"]), $processForm);
+							}
 
+						} catch (Exception $e) {
+							$response_json->setCode(501);
+							$response_json->setMessage("Cannot update data in Mongo. Mongo Error(".$e->getCode()."): ".$e->getMessage());
+
+							return $response_json->getResponse();
+						}
+
+						$response_json->setCode(200);
+						$response_json->setMessage("OK");
+
+						return $response_json->getResponse();
+					}
+				}
+			}
+		}
 	}
 	
-	//user logged
-	$userId = $_SESSION["User"]["id"];
-
-	//MongoDB query
-	$data = array();
-
-	//is a function that is not done by me that create a fake ID
-	$data['_id'] = createLabel($GLOBALS['AppPrefix']."_process",'processCol');
-	$data['data'] = $processForm;
-	//submitted status = 3
-	$data['publication_status'] = 3;
-
-	try {
-		if ($buttonAction == "submit") {
-			//insert the data in mongo
-			$GLOBALS['processCol']->insert($data);
-		} elseif ($buttonAction == "edit") {
-			//insert the data in mongo
-			$GLOBALS['processCol']->update(array("_id" => $processForm["_id"]), $processForm);
-		}
-
-	} catch (Exception $e) {
-		$response_json->setCode(501);
-		$response_json->setMessage("Cannot update data in Mongo. Mongo Error(".$e->getCode()."): ".$e->getMessage());
-
-		return $response_json->getResponse();
-	}
-
-	$response_json->setCode(200);
-	$response_json->setMessage("OK");
-
-	return $response_json->getResponse();
 	
 }
 
 //validate the file TAR
-function _getPublicData_fromBase64($file_base64, $processForm) {
+function _createPublicData_fromBase64($file_base64, $processForm, $path) {
 	$MAX_SIZE = 500000;
 	$response_json= new JsonResponse();
-	 
+	// uncompress data
+	$uncompress_cmd="";
+	$uncompressOk = false;
+	$fileOk = true;
+	$tar = false;
+	$bzip = false;
+/* 	if (is_dir($GLOBALS['pubDir'].$file_base64)) {
+		return ["OK", $file_base64];
+	} */
+
+	$processExist = _getProcess($processForm['_id']);
+
 	//create temporal file to check the file and if it is a tar or tar.gz
 	$tempDir = $GLOBALS['dataDir'].$_SESSION['User']['id']."/".$_SESSION['User']['activeProject']."/".$GLOBALS['tmpUser_dir'];
 
 	$tempFile = $tempDir . "public_dataset";
 
-	
 	//if it is not exist the folde tmp create it because file_put_contents only create the file if not exist
 	if (!is_dir($tempDir)) {
 		mkdir($tempDir);
 	}
+
+	$baseProcess;
+	$a;
+	$nameFile;
+
+	for ($j = 0; $j < sizeof(explode(".", $path)); $j++) {
+		$wordsPath = explode('.', $path)[$j];
+		if ($wordsPath == "root") {
+			$base = explode('.', $path)[$j+1];
+			$baseProcess = $processForm[$base];
+		} else {
+			$a = explode('.', $path)[$j+1];
+			$baseProcess = $baseProcess[$a];
+
+			if ($j+3 == sizeof(explode(".", $path))) {
+				$nameFile = $baseProcess["name"];
+			}
+		}
+	}
+
+	for ($j = 0; $j < sizeof(explode(".", $path)); $j++) {
+		$wordsPath = explode('.', $path)[$j];
+		if ($wordsPath == "root") {
+			$base = explode('.', $path)[$j+1];
+			$baseProcess = $processForm[$base];
+		} else {
+			$a = explode('.', $path)[$j+1];
+			$baseProcess = $baseProcess[$a];
+			
+			if ($j+2 == sizeof(explode(".", $path))) {
+				if ($processExist != null && !$file_base64) {
+					return ["OK", $baseProcess];
+				}
+			}
+			if ($j+3 == sizeof(explode(".", $path))) {
+				
+				//move the content to that file: public_dataset
+				//return the size
+				$r = file_put_contents($tempFile ,file_get_contents($file_base64));
+
+				//check return something
+				if (!$r){
+					unlink($tempFile);
+					return [$nameFile . " -> The file cannot be uploaded.", 0];
+				}
+
+				//check size
+				if ($r > $MAX_SIZE) {
+					unlink($tempFile);
+					return [$nameFile . " -> The file is too large.", 0];
+				}
+
+				//check if it is a file
+				if (!is_file($tempFile)){
+					unlink($tempFile);
+					return [$nameFile . " ->C You do not have uploaded a file.", 0];
+				}
+				
+				// guess compression
+				$file_info  = shell_exec("file $tempFile | cut -d: -f2");
+
+				if ($nameFile == "public_ref_dir" || $nameFile == "out_dir" || $nameFile == "data_model_export_dir" || $nameFile == "goldstandard_dir" || $nameFile == "assess_dir") {
+					if (preg_match('/gzip/i',$file_info) == 1 || preg_match('/x-tar/i',$file_info) == 1){
+						$uncompress_cmd = "tar xzvf $tempFile -C $tempDir";
+						$uncompressOk = true;
+						$fileOk = false;
+						$tar = true;
+					//check if it is not a tar of a tar.gz public_ref_dir
+				
+					} else {
+						unlink($tempFile);
+						return [$nameFile . " -> The file is not a TAR or a TAR.GZ.", 0];
+					}
+				}
+				
+				if ($nameFile == "validated_participant" || $nameFile == "assessment_results") {
+					//check the file base64 because json is recognize as ASCII in file info
+					if (preg_match('/json/i',$file_base64) != 1){
+						unlink($tempFile);
+						return [$nameFile . " -> The file is not a JSON", 0];
+						//check if it is not a JSON validated_participant or assessment_results
+					}
+				}
+
+				if ($nameFile == "input") {
+					if (preg_match('/gzip/i',$file_info) == 1 || preg_match('/x-tar/i',$file_info) == 1){
+						$uncompress_cmd = "tar xzvf $tempFile -C $tempDir";
+						//check if it is a tar of a tar.gz input
+						$uncompressOk = true;
+						$fileOk = false;
+						$tar = true;
+					}
+				}
+				
+				if ($uncompressOk) {
+					//execute the command line
+					$uncomprss = shell_exec($uncompress_cmd); 
+
+					//check the content of the tar or tar.gz. If it is empty do not return anything
+					if (!$uncomprss){
+						unlink($tempFile);
+						return [$nameFile . " -> The compressed file is empty.", 0];
+					}
+				}
+
+				if ($fileOk) {
+					if (!filesize($tempFile)) {
+						unlink($tempFile);
+						return [$nameFile . " -> The file is empty.", 0];
+					}
+				}
+
+				// create target dir = where the information is saved
+				$target_folder = hash_file('sha256',$tempFile);
+				$devDir = $GLOBALS['dataDir'].$_SESSION['User']['id']."/".$_SESSION['User']['activeProject']."/".$GLOBALS['devUser_dir'].$target_folder;
+				
+				if (!is_dir($devDir)) {
+					mkdir($devDir);
+				}
+
+				$devFile = $devDir . "/" . "public_dataset";
+				
+				$uncmpssTAR = "";
+				if ($tar) {
+					//uncompress the file
+					$uncmpssTAR = "tar xzvf $devFile -C $devDir";
+					$sh = shell_exec($uncmpssTAR);
+				}
+
+				//if cannot uncompress the file
+				if ($tar && !$uncmpssTAR){
+					unlink($tempFile);
+					rmdir($tempDir);
+					unlink($devFile);
+					rmdir($devDir);
+					return [$nameFile . " -> The file cannot be uploaded.", 0];
+				} else if ($tar && $uncmpssTAR) {
+					unlink($tempFile);
+					rmdir($tempDir);
+					//return the target folder because is the folder name (without all the route)
+					return ["OK", $target_folder];
+				} else {
+					//mover los archivos a la carpeta que me interesa
+					$r = file_put_contents($devFile ,file_get_contents($file_base64));
+
+					unlink($tempFile);
+					rmdir($tempDir);
+ 					if ($r) {
+						return ["OK", $target_folder];
+					} else {
+						return [$nameFile . " -> The file cannot be uploaded.", 0];
+					}
+				}	
+			}
+		}
+	}
 	
-	//move the content to that file: public_dataset
-	//return the size
-	$r = file_put_contents($tempFile ,file_get_contents($file_base64));
-
-	//check return something
-	if (!$r){
-		unlink($tempFile);
-		return ["Public Reference Dataset -> TAR file. The file cannot be uploaded.", $processForm["inputs_meta"]["public_ref_dir"]["value"]];
-	}
-
-	//check size
-	if ($r > $MAX_SIZE) {
-		unlink($tempFile);
-		return ["Public Reference Dataset -> TAR file. The file is too large.", $processForm["inputs_meta"]["public_ref_dir"]["value"]];
-	}
-
-	//check if it is a file
-	if (!is_file($tempFile)){
-		unlink($tempFile);
-		return ["Public Reference Dataset -> TAR file. You do not have upload a file.", $processForm["inputs_meta"]["public_ref_dir"]["value"]];
-	}
-
-	// guess compression
-	$file_info  = shell_exec("file $tempFile | cut -d: -f2");
-
-	// uncompress data
-	$uncompress_cmd="";
-	if (preg_match('/gzip/i',$file_info) == 1 || preg_match('/x-tar/i',$file_info) == 1){
-		$uncompress_cmd = "tar xzvf $tempFile -C $tempDir";
-	//check if it is not a tar of a tar.gz
-
-	} else {
-		unlink($tempFile);
-		return ["Public Reference Dataset -> TAR file. The file is not a TAR or a TAR.GZ.", $processForm["inputs_meta"]["public_ref_dir"]["value"]];
-	}
-		
-	//execute the command line
-	$r = shell_exec($uncompress_cmd); 
-
-	//check the content of the tar or tar.gz. If it is empty do not return anything
-	if (!$r){
-		unlink($tempFile);
-		return ["Public Reference Dataset -> TAR file. The TAR or TAR.GZ is empty.", $processForm["inputs_meta"]["public_ref_dir"]["value"]];
-	}
-
-	// create target dir = where the information is saved
-	$target_folder = hash_file('sha256',$tempFile);
-	$targetDir = $GLOBALS['pubDir'].$target_folder;
-	mkdir($targetDir);
-
-	//uncompress the file
-	$r = shell_exec("tar xzvf $tempFile -C $targetDir");
-
-	//if cannot uncompress the file
-	if (!$r){
-		unlink($tempFile);
-		rmdir($targetDir);
-		return ["Public Reference Dataset -> TAR file. The file cannot be uploaded.", $processForm["inputs_meta"]["public_ref_dir"]["value"]];
-	}
-
-	// clean temporary data
-	unlink($tempFile);
-
-	//return the target folder because is the folder name (without all the route)
-	return ["OK", $target_folder];
 }
 
 //validate the Git URL 
@@ -868,7 +968,7 @@ function _createToolSpecification_fromWF($workflow) {
 	};
 	$jsonTool["keywords"] = $process_json["data"]["keywords"];
 	$jsonTool["keywords_tool"] = $process_json["data"]["keywords_tool"];
-	$jsonTool["status"] = $process_json["publication_status"];
+	$jsonTool["status"] = $process_json["data"]["publication_status"];
 	//infrastructure array
 		$jsonTool["infrastructure"]["memory"] = $process_json["data"]["infrastructure"]["memory"];
 		$jsonTool["infrastructure"]["cpus"] = $process_json["data"]["infrastructure"]["cpus"];
@@ -1038,7 +1138,6 @@ function _createToolSpecification_fromWF($workflow) {
 		}
 	}
 
-
  	$keysOutput = array_keys($process_json["data"]["outputs_meta"]);
 	
 	$jsonTool["output_files"] = [];
@@ -1064,7 +1163,7 @@ function _createToolSpecification_fromWF($workflow) {
 			}
 		}
 
-		if ($process_json["data"]["outputs_meta"][$keysOutput[$i]]["name"] == "validation_results" || $process_json["data"]["outputs_meta"][$keysOutput[$i]]["name"] == "assessment_results") {
+		if ($process_json["data"]["outputs_meta"][$keysOutput[$i]]["name"] == "validated_participant" || $process_json["data"]["outputs_meta"][$keysOutput[$i]]["name"] == "assessment_results") {
 			array_push($jsonTool["output_files"], array(
 				"name" => $process_json["data"]["outputs_meta"][$keysOutput[$i]]["name"],
 				"required" => true,

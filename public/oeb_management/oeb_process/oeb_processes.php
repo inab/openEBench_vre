@@ -84,13 +84,16 @@ require "../../htmlib/js.inc.php"; ?>
                     <div class="tabbable-custom nav-justified">
                         <ul class="nav nav-tabs nav-justified">
                             <li class="active uppercase">
-                                <a href="#validation" data-toggle="tab" style="text-align:center"> Validation </a>
+                                <a href="#validation" data-toggle="tab" style="text-align:center"> Validation <i class="icon-question tooltips" data-container="body" data-html="true" data-placement="right"
+                                        data-original-title="The validation processes you have available"></i></a> 
                             </li>
                             <li class="uppercase">
-                                <a href="#metrics" data-toggle="tab" style="text-align:center"> Metrics </a>
+                                <a href="#metrics" data-toggle="tab" style="text-align:center"> Metrics <i class="icon-question tooltips" data-container="body" data-html="true" data-placement="right"
+                                        data-original-title="The metrics processes you have available"></i></a>
                             </li>
                             <li class="uppercase">
-                                <a href="#consolidation" data-toggle="tab" style="text-align:center"> Consolidation </a>
+                                <a href="#consolidation" data-toggle="tab" style="text-align:center"> Consolidation <i class="icon-question tooltips" data-container="body" data-html="true" data-placement="right"
+                                        data-original-title="The consolidation processes you have available"></i></a>
                             </li>
                         </ul>
                         
@@ -99,13 +102,13 @@ require "../../htmlib/js.inc.php"; ?>
                                 <div id="processes" class="portlet-body">
                                     <div class="btn-group" style="float:right;">
                                         <div class="actions">
-                                            <a id="processReload" class="btn green"> Reload Validation Processes </a>
+                                            <a class="btn green" onclick="reload('validation')"> Reload Validation Processes </a>
                                         </div>
                                     </div>
-                                    <a id="newProcess" class="btn btn-lg green" style="margin-bottom:30px;"> <i class="fa fa-plus"></i> Create new</a>
+                                    <a class="btn btn-lg green newProcess" id="newValidation" style="margin-bottom:30px;"> <i class="fa fa-plus"></i> Create new</a>
 
                                     <input type="hidden" id="base-url" value="<?php echo $GLOBALS['BASEURL']; ?>" />
-
+                                    
                                     <table id="validationTable" class="table table-striped table-hover table-bordered"></table>
                                 </div>
                             </div>
@@ -113,24 +116,24 @@ require "../../htmlib/js.inc.php"; ?>
                                 <div id="metrics" class="portlet-body">
                                     <div class="btn-group" style="float:right;">
                                         <div class="actions">
-                                            <a id="metricReload" class="btn green"> Reload Metric Processes </a>
+                                            <a class="btn green" onclick="reload('metrics')"> Reload Metrics Processes </a>
                                         </div>
                                     </div>
-                                    <a class="btn btn-lg green" style="margin-bottom:30px;"> <i class="fa fa-plus"></i> Create new</a>
+                                    <a class="btn btn-lg green newProcess" id="newMetrics" style="margin-bottom:30px;"> <i class="fa fa-plus"></i> Create new</a>
 
                                     <input type="hidden" id="base-url" value="<?php echo $GLOBALS['BASEURL']; ?>" />
 
-                                    <table id="metricTable" class="table table-striped table-hover table-bordered"></table>
+                                    <table id="metricsTable" class="table table-striped table-hover table-bordered"></table>
                                 </div>
                             </div>
                             <div class="tab-pane" id="consolidation">
                                 <div id="consolidations" class="portlet-body">
                                     <div class="btn-group" style="float:right;">
                                         <div class="actions">
-                                            <a id="consolidationReload" class="btn green"> Reload Consolidation Processes </a>
+                                            <a class="btn green" onclick="reload('consolidation')"> Reload Consolidation Processes </a>
                                         </div>
                                     </div>
-                                    <a class="btn btn-lg green" style="margin-bottom:30px;"> <i class="fa fa-plus"></i> Create new</a>
+                                    <a class="btn btn-lg green newProcess" id="newConsolidation" style="margin-bottom:30px;"> <i class="fa fa-plus"></i> Create new</a>
 
                                     <input type="hidden" id="base-url" value="<?php echo $GLOBALS['BASEURL']; ?>" />
 
@@ -142,7 +145,7 @@ require "../../htmlib/js.inc.php"; ?>
                 </div>
 
                 <style type="text/css">
-                    #validationTable_filter, #metricTable_filter, #consolidationTable_filter {
+                    #validationTable_filter, #metricsTable_filter, #consolidationTable_filter {
                         float: right;
                     }
                 </style>

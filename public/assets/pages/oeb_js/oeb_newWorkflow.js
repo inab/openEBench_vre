@@ -6,7 +6,13 @@ $(document).ready(function() {
     colorSteps();
 
     //insert the processes in the select of validation
-    insertProcessesSelect();
+    insertProcessesSelect("validation");
+
+    //insert the processes in the select of metrics
+    insertProcessesSelect("metrics");
+
+    //insert the processes in the select of consolidation
+    insertProcessesSelect("consolidation");
 
     //on click submit
     $('#submit').on("click",function() {
@@ -75,25 +81,63 @@ function colorSteps() {
 }
 
 //create the validation select
-function insertProcessesSelect() {
+function insertProcessesSelect(typeProcess) {
     $.ajax({
         type: 'POST',
         url: urlJSON,
-        data: {'action': 'getProcessSelect'}
+        data: {'action': 'getProcessSelect', 'type': typeProcess}
     }).done(function(data) {
-        if (data.length != 0) {
-            var sel = $('<select class="form-control" id="validationSelect">').appendTo('#validation');
-            for (let x = 0; x < data.length; x++) {
-                if (data[x]["data"]["type"] == "validation") {
-                    $(data[x]).each(function() {
-                        sel.append($("<option>").attr('value',data[x]["data"]["title"]).text(data[x]["data"]["title"]));
-                    });
-                } 
+        //type validation
+        if (typeProcess == "validation") {
+            if (data.length != 0) {
+                var sel = $('<select class="form-control" id="validationSelect">').appendTo('#validation');
+                for (let x = 0; x < data.length; x++) {
+                    if (data[x]["data"]["type"] == "validation") {
+                        $(data[x]).each(function() {
+                            sel.append($("<option>").attr('value',data[x]["data"]["name"]).text(data[x]["data"]["name"]));
+                        });
+                    } 
+                }
+            } else {
+                //if are not validation processes the select is disabled
+                var sel = $('<select class="form-control" id="validationSelect" disabled>').appendTo('#validation');
             }
-        } else {
-            //if are not validation processes the select is disabled
-            var sel = $('<select class="form-control" id="validationSelect" disabled>').appendTo('#validation');
         }
+
+        //type metrics
+        if (typeProcess == "metrics") {
+            if (data.length != 0) {
+                var sel = $('<select class="form-control" id="metricsSelect">').appendTo('#metrics');
+                for (let x = 0; x < data.length; x++) {
+                    if (data[x]["data"]["type"] == "metrics") {
+                        $(data[x]).each(function() {
+                            sel.append($("<option>").attr('value',data[x]["data"]["name"]).text(data[x]["data"]["name"]));
+                        });
+                    } 
+                }
+            } else {
+                //if are not metrics processes the select is disabled
+                var sel = $('<select class="form-control" id="metricsSelect" disabled>').appendTo('#metrics');
+            }
+        }
+
+        //type consolidation
+        if (typeProcess == "consolidation") {
+            if (data.length != 0) {
+                var sel = $('<select class="form-control" id="consolidationSelect">').appendTo('#metrics');
+                for (let x = 0; x < data.length; x++) {
+                    if (data[x]["data"]["type"] == "consolidation") {
+                        $(data[x]).each(function() {
+                            sel.append($("<option>").attr('value',data[x]["data"]["name"]).text(data[x]["data"]["name"]));
+                        });
+                    } 
+                }
+            } else {
+                //if are not metrics processes the select is disabled
+                var sel = $('<select class="form-control" id="consolidationSelect" disabled>').appendTo('#consolidation');
+            }
+        }
+
     });
 }
 

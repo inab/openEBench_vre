@@ -8,11 +8,15 @@ if(!checkLoggedIn()){
 if($_REQUEST) {
     //https://dev-openebench.bsc.es/vre/applib/oeb_processesAPI.php?action=getProcesses
     if (isset($_REQUEST['action']) && $_REQUEST['action'] == "getProcesses"){
-        echo getProcesses();
-        exit;
+        if (isset($_REQUEST['type'])) {
+            echo getProcesses($_REQUEST['type']);
+            exit;
+        }
     } elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == "getProcessSelect") {
-        echo getProcessSelect();
-        exit;
+        if (isset($_REQUEST['type'])) {
+            echo getProcessSelect($_REQUEST['type']);
+            exit;
+        }
     } elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == "getProcess") {
         if (isset($_REQUEST['id'])) {
             echo _getProcess($_REQUEST['id']);
@@ -43,7 +47,8 @@ if($_REQUEST) {
         }
     //https://dev-openebench.bsc.es/vre/applib/oeb_processesAPI.php?processForm=...
     } elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == "setProcess" ) {
-        echo setProcess($_REQUEST['processForm'], $_REQUEST['buttonAction']);
+        if (isset($_REQUEST['processForm'], $_REQUEST['buttonAction'], $_REQUEST['filePaths'] ))
+        echo setProcess($_REQUEST['processForm'], $_REQUEST['buttonAction'], $_REQUEST['filePaths']);
         exit;
     } elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == "createTool_fromWFs" ) {
         echo createTool_fromWFs($_REQUEST['id']);

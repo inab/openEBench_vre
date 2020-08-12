@@ -41,6 +41,7 @@ $GLOBALS['MAXSIZEUPLOAD']   = 4000; // Maximum upload file size (MB)
 $GLOBALS['caduca']          = "182"; // Expiration date for user files (days)
 $GLOBALS['project_default'] = "MyFirstProject"; // Default name for user project
 $GLOBALS['tmpUser_dir']     = ".tmp/"; // Default name for user temporal forder
+$GLOBALS['devUser_dir']     = ".dev/"; // Default name for user temporal forder
 
 // Tool integration models and templates
 $GLOBALS['tool_json_schema']    = $GLOBALS['root']."/install/data/tool_schemas/tool_specification/tool_schema.json"; // data model for tool registration
@@ -280,7 +281,9 @@ $GLOBALS['status_requested'] = Array(
 	4 => "Rejected"
 );
 
-$GLOBALS['oeb_validation_schema'] = "https://raw.githubusercontent.com/inab/OpEB-VRE-schemas/master/oeb_validation_workflow_schema.json";
+$GLOBALS['oeb_validation_schema'] = "https://raw.githubusercontent.com/inab/OpEB-VRE-schemas/master/oeb_validation_workflow_schema_v2.json";
+$GLOBALS['oeb_metrics_schema'] = "https://raw.githubusercontent.com/inab/OpEB-VRE-schemas/master/oeb_metrics_workflow_schema_v2.json";
+$GLOBALS['oeb_consolidation_schema'] = "https://raw.githubusercontent.com/inab/OpEB-VRE-schemas/master/oeb_consolidation_workflow_schema_v2.json";
 
 $GLOBALS['oeb_general_ontology_reasoner'] = "https://raw.githubusercontent.com/inab/OEB-ontologies/master/oebDatasets-complete.owl";
 

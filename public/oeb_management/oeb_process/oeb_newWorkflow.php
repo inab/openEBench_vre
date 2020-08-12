@@ -84,18 +84,8 @@ require "../../htmlib/js.inc.php"; ?>
                             <div class="tab-pane active" id="validation">
                             </div>
                             <div class="tab-pane" id="metrics">
-                                <select class="form-control" id="metricsSelect">
-                                    <option value="metrics1">Metrics 1</option>
-                                    <option value="metrics2">Metrics 2</option>
-                                    <option value="metrics3">Metrics 3</option>
-                                </select>
                             </div>
                             <div class="tab-pane" id="consolidation">
-                                <select class="form-control" id="consolidationSelect">
-                                    <option value="consolidation1">Consolidation 1</option>
-                                    <option value="consolidation2">Consolidation 2</option>
-                                    <option value="consolidation3">Consolidation 3</option>
-                                </select>
                             </div>
                         </div>
                     </div>
@@ -114,8 +104,8 @@ require "../../htmlib/js.inc.php"; ?>
 								<div class="" data-always-visible="1" data-rail-visible="0">
                                     <div class="form-group">
                                         <label for="nameWorkflow">Name</label>
-                                        <i class="icon-question tooltips" data-container="body" data-html="true" data-placement="right"
-                                        data-original-title="<p align='left' style='margin:0'> Set here the name of your new workflow. </p>"></i>
+                                        <a href="javascript:;" target="_blank" class="tooltips" data-toggle="tooltip" data-trigger="hover" data-placement="top" 
+                                        title="Set here the name of your new workflow."><i class="icon-question"></i></a>
                                         <input type="text" class="form-control" id="nameWorkflow">
                                         <br>
                                         <div id="divErrors" style="display:none;" class="alert alert-danger"></div>

@@ -34,7 +34,7 @@ require "../../htmlib/js.inc.php"; ?>
                             <i class="fa fa-circle"></i>
                         </li>
                         <li>
-                            <span>Create new process</span>
+                            <span id="spanCreate">Create new process</span>
                         </li>
                     </ul>
                 </div>
@@ -104,7 +104,7 @@ require "../../htmlib/js.inc.php"; ?>
                 </div>
                 <!-- END CONTENT BODY -->
                 <style type="text/css">
-                    li a[href="#Infrastructure-details"], li a[href="#Output-results"], li a[href="#Owner"] {
+                    li a[href="#Infrastructure-details"], li a[href="#Owner"] {
                         display: none;
                     }
                     
@@ -123,10 +123,17 @@ require "../../htmlib/js.inc.php"; ?>
                     #idP {
                         margin-top: 20px;
                     }
-
+                    
                     /* Encapsulate some fields */
                     .form-group, .btn-group,
-                    div[data-schemapath="root.nextflow_files.workflow_file"], div[data-schemapath="root.nextflow_files.config_file"], 
+                    div[data-schemapath="root.nextflow_files.files"], div[data-schemapath="root.inputs_meta.goldstandard_dir"], 
+                    div[data-schemapath="root.nextflow_files.config_file"], div[data-schemapath="root.outputs_meta.assessment_results"], 
+                    div[data-schemapath="root.inputs_meta.exit_code"],
+                    div[data-schemapath="root.inputs_meta.validated_participant"],
+                    div[data-schemapath="root.inputs_meta.assessment_results"],
+                    div[data-schemapath="root.inputs_meta.assess_dir"],
+                    div[data-schemapath="root.outputs_meta.data_model_export_dir"],
+                    div[data-schemapath="root.outputs_meta.out_dir"],
                     div[data-schemapath="root.inputs_meta.input"], div[data-schemapath="root.inputs_meta.public_ref_dir"],
                     div[data-schemapath="root.inputs_meta.participant_id"], div[data-schemapath="root.inputs_meta.community_id"],
                     div[data-schemapath="root.inputs_meta.challenges_ids"], div[data-schemapath="root.inputs_meta.challenges_ids.challenges"],
