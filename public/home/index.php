@@ -76,7 +76,23 @@ sort($toolList);
             </div>
           </div>
           <div id="js-grid-lightbox-gallery" class="cbp">
-
+            <div class="cbp-item">
+                <!-- REMOVE cbp-singlePageInline to go to new page -->
+                <a class="cbp-caption cbp-singlePageInline" data-title="aa" rel="nofollow">
+                  <div class="cbp-caption-defaultWrap">
+                    <img src="tools/DREAM/assets/home/logo.png" alt="">
+                  </div>
+                  <div class="cbp-caption-activeWrap">
+                    <div class="cbp-l-caption-alignLeft">
+                      <div class="cbp-l-caption-body">
+                        <div class="cbp-l-caption-title">aaddds</div>
+                        <div class="cbp-l-caption-desc">dsdfr</div>
+                      </div>
+                    </div>
+                  </div>
+                </a>
+              </div>
+              
             <?php
 
             foreach ($toolList as $t) {

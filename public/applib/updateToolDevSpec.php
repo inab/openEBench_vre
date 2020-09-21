@@ -45,7 +45,7 @@ if($_REQUEST){
                                  array('$set'   => array('last_status_date' => date('Y/m/d H:i:s'), 'step3.tool_spec' => $data_json, 'step3.date' => date('Y/m/d H:i:s'), 'step3.status' => $validated, 'step3.tool_spec_validated' => $validated, 'step3.tool_spec_saved' => true)));
 	
 	//$data_json["name"]
-	$working_dir = $GLOBALS['dataDir']."/".$_SESSION['User']['id']."/.dev/".$data_json["_id"];
+	$working_dir = $GLOBALS['dataDir']."/".$_SESSION['User']['id']."/".$GLOBALS['devUser_dir'].$data_json["_id"];
 	$working_dir = preg_replace('#/+#','/',$working_dir);
 	if (!is_dir($working_dir)){
 		mkpath($working_dir);

@@ -139,10 +139,10 @@ foreach (array_values(iterator_to_array($result)) as $v){
 										><i class="fa fa-trash"></i></a>
 										<br><br>
 
-										<?php if(file_exists($GLOBALS['dataDir']."/".$v["user_id"]."/.dev/".$v['_id']."/logo/logo.png")) { ?>
+										<?php if(file_exists($GLOBALS['dataDir']."/".$v["user_id"]."/" . $GLOBALS['devUser_dir'] .$v['_id']."/logo/logo.png")) { ?>
 
-										<a href="workspace/workspace.php?op=openPlainFileFromPath&fnPath=<?php echo $v["user_id"]."/.dev/".$v['_id']."/logo/logo.png";?>" target="_blank">
-											<img src="workspace/workspace.php?op=openPlainFileFromPath&fnPath=<?php echo $v["user_id"]."/.dev/".$v['_id']."/logo/logo.png";?>" style="width:100px;border:1px solid #999;" />
+										<a href="workspace/workspace.php?op=openPlainFileFromPath&fnPath=<?php echo $v["user_id"]."/" .$GLOBALS['devUser_dir'].$v['_id']."/logo/logo.png";?>" target="_blank">
+											<img src="workspace/workspace.php?op=openPlainFileFromPath&fnPath=<?php echo $v["user_id"]."/".$GLOBALS['devUser_dir'].$v['_id']."/logo/logo.png";?>" style="width:100px;border:1px solid #999;" />
 										</a>
 										<br>
 										<a href="applib/createLogo.php?toolid=<?php echo $v["_id"]; ?>" class="btn green tooltips" style="margin-top:10px;"

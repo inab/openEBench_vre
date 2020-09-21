@@ -42,7 +42,7 @@ $GLOBALS['dataTypesCol']    = $GLOBALS['db']->data_types;
 $GLOBALS['helpsCol']        = $GLOBALS['db']->helps;
 $GLOBALS['sampleDataCol']   = $GLOBALS['db']->sampleData;
 $GLOBALS['logExecutionsCol']= $GLOBALS['db']->log_executions;
-$GLOBALS['processCol']      = $GLOBALS['db']->processes;
-$GLOBALS['toolSubmissionCol']      = $GLOBALS['db']->tool_submission;
+$GLOBALS['blocksCol']      = $GLOBALS['db']->oeb_blocks;
+$GLOBALS['toolSubmissionCol']      = $GLOBALS['db']->oeb_workflows;
 
 ?>

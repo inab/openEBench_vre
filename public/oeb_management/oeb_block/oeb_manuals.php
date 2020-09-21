@@ -71,7 +71,7 @@ require "../../htmlib/js.inc.php"; ?>
                                             <div>
                                                 Is the interface where all the workflows are listed. Furthermore, there is the Action column. 
                                             </div>
-                                            <img src="oeb_management/oeb_process/photos_manual/workflow/list_workflows_admin.png">
+                                            <img src="oeb_management/oeb_block/photos_manual/workflow/list_workflows_admin.png">
                                             <br><br><br>
 
                                             <h4 for="listProcess"><b>1 - Action column</b></h4>
@@ -82,7 +82,7 @@ require "../../htmlib/js.inc.php"; ?>
                                                     <li><b>Reject workflow: </b>The workflow is rejected.</li>
                                                 </ul>
                                             </div>
-                                            <img src="oeb_management/oeb_process/photos_manual/workflow/actions_workflow_admin.png">
+                                            <img src="oeb_management/oeb_block/photos_manual/workflow/actions_workflow_admin.png">
                                             <br><br><br>
 
                                         </div>
@@ -97,7 +97,7 @@ require "../../htmlib/js.inc.php"; ?>
                                             <div>
                                                 Is the interface where their own workflows are listed. The action column is not in the community manager interface. 
                                             </div>
-                                            <img src="oeb_management/oeb_process/photos_manual/workflow/list_workflows_community.png">
+                                            <img src="oeb_management/oeb_block/photos_manual/workflow/list_workflows_community.png">
                                             <br><br><br>
                                         </div>
                                     </div>
@@ -116,19 +116,19 @@ require "../../htmlib/js.inc.php"; ?>
                                                     <li><b>Community Managers: </b>Can see publics, community avaialables (if they are of the same community) and their own processes</li>
                                                 </ul>
                                             </div>
-                                            <img src="oeb_management/oeb_process/photos_manual/process/list_process.png">
+                                            <img src="oeb_management/oeb_block/photos_manual/process/list_process.png">
                                             <br><br><br>
                                             
-                                            <h4 for="newProcess"><b>1 - Create new Process</b></h4>
+                                            <h4 for="newBlock"><b>1 - Create new Process</b></h4>
                                             <div>Is the same for all users</div>
-                                            <img src="oeb_management/oeb_process/photos_manual/process/new_process.png">
+                                            <img src="oeb_management/oeb_block/photos_manual/process/new_process.png">
                                             <br><br><br>
 
-                                            <h4 for="newProcess"><b>2 - Reload button</b></h4>
+                                            <h4 for="newBlock"><b>2 - Reload button</b></h4>
                                             <div>You can reload ONLY the table clicking this button</div>
                                             <br><br><br>
                                             
-                                            <h4 for="newProcess"><b>3 - Change the status </b></h4>
+                                            <h4 for="newBlock"><b>3 - Change the status </b></h4>
                                             <div>
                                                 You can change the status of the process.
                                                 <br>
@@ -146,10 +146,10 @@ require "../../htmlib/js.inc.php"; ?>
                                                     <li><b>Community available: </b>The process is available for the same community as you (and for all the administrators).</li>
                                                 </ul>
                                             </div>
-                                            <img src="oeb_management/oeb_process/photos_manual/process/change_status_process.jpg">
+                                            <img src="oeb_management/oeb_block/photos_manual/process/change_status_process.jpg">
                                             <br><br><br>
 
-                                            <h4 for="newProcess"><b>4 - Actions</b></h4>
+                                            <h4 for="newBlock"><b>4 - Actions</b></h4>
                                             <div>
                                                 Action column:
                                                 <br>
@@ -157,7 +157,7 @@ require "../../htmlib/js.inc.php"; ?>
                                                     <li><b>Delete: </b>You can remove your process if is not being used in any workflow</li>
                                                 </ul>
                                             </div>
-                                            <img src="oeb_management/oeb_process/photos_manual/process/delete_process.png">
+                                            <img src="oeb_management/oeb_block/photos_manual/process/delete_process.png">
                                             <br><br><br>
                                         </div>
                                         <h3 for="processesTag"><b>Workflows Tag</b></h3>
@@ -169,12 +169,12 @@ require "../../htmlib/js.inc.php"; ?>
                                             <div>Is the same for all users. The processes availables are the own, the public and the community available processes.
                                                 When the workflow is created the responsable administrators and the user received an email.
                                             </div>
-                                            <img src="oeb_management/oeb_process/photos_manual/workflow/new_workflow.png">
+                                            <img src="oeb_management/oeb_block/photos_manual/workflow/new_workflow.png">
                                             <br><br><br>
 
                                             <h4 for="listProcess"><b>2 - View JSON</b></h4>
                                             <div>Users can see their workflow in JSON Format.</div>
-                                            <img src="oeb_management/oeb_process/photos_manual/workflow/view_json_workflow.png">
+                                            <img src="oeb_management/oeb_block/photos_manual/workflow/view_json_workflow.png">
                                             <br><br><br>
                                         </div>
                                     </div>

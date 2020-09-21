@@ -59,7 +59,7 @@ if($_REQUEST){
 
 		$GLOBALS['toolsDevMetaCol']->insert($meta);
 
-		/*$working_dir = $GLOBALS['dataDir']."/".$_SESSION['User']['id']."/.dev/".$_REQUEST['toolid'];
+		/*$working_dir = $GLOBALS['dataDir']."/".$_SESSION['User']['id']."/".$GLOBALS['devUser_dir'].$_REQUEST['toolid'];
     $working_dir = preg_replace('#/+#','/',$working_dir);
 		if (!is_dir($working_dir)){
 			mkpath($working_dir);

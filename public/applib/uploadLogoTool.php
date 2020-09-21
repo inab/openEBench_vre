@@ -8,7 +8,7 @@ if(isset($_POST) and $_SERVER['REQUEST_METHOD'] == "POST"){
 	$toolid = $_REQUEST["toolid"];
 	$result = $GLOBALS['toolsDevMetaCol']->findOne(array("_id" => $toolid));
 
-	$path = $GLOBALS['dataDir']."/".$result["user_id"]."/.dev/".$toolid."/logo/";
+	$path = $GLOBALS['dataDir']."/".$result["user_id"]."/".$GLOBALS['devUser_dir'].$toolid."/logo/";
 	if(!file_exists($path)) mkpath($path);
 
 	$valid_formats = array("png");

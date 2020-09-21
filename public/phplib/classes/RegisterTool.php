@@ -57,8 +57,8 @@ class RegisterTool {
         $this->project ="my_project_id";    
 
         // Create working_dir
-        $this->dev_dir = $GLOBALS['dataDir']."/".$_SESSION['User']['id']."/.dev/".$this->toolId;
-        $this->working_dir = $GLOBALS['dataDir']."/".$_SESSION['User']['id']."/.dev/".$this->toolId."/test";
+        $this->dev_dir = $GLOBALS['dataDir']."/".$_SESSION['User']['id']."/".$GLOBALS['devUser_dir'].$this->toolId;
+        $this->working_dir = $GLOBALS['dataDir']."/".$_SESSION['User']['id']."/".$GLOBALS['devUser_dir'].$this->toolId."/test";
         $this->working_dir = preg_replace('#/+#','/',$this->working_dir);
     	if (!is_dir($this->working_dir)){
             mkpath($this->working_dir);

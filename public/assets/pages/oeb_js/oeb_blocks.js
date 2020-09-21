@@ -75,7 +75,7 @@ function deleteProcess(id, typeProcess) {
 }
 
 function editProcess(id, typeProcess) {
-	location.href = "oeb_management/oeb_process/oeb_newProcess.php?action=editProcess&id=" + id + "&typeProcess="+typeProcess;
+	location.href = "oeb_management/oeb_process/oeb_newBlock.php?action=editProcess&id=" + id + "&typeProcess="+typeProcess;
 }
 
 function currentUser() {
@@ -195,9 +195,9 @@ $(document).ready(function() {
 			});
 		}
 
-		$(".newProcess").click(function() {
+		$(".newBlock").click(function() {
 			var typeProcess = $(this).attr('id');
-			location.href = "oeb_management/oeb_process/oeb_newProcess.php?action=createProcess&typeProcess="+typeProcess;
+			location.href = "oeb_management/oeb_block/oeb_newBlock.php?action=createProcess&typeProcess="+typeProcess;
 		});
 
 	});

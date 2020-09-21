@@ -47,8 +47,8 @@ if($_REQUEST) {
         }
     //https://dev-openebench.bsc.es/vre/applib/oeb_processesAPI.php?processForm=...
     } elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == "setProcess" ) {
-        if (isset($_REQUEST['processForm'], $_REQUEST['buttonAction'], $_REQUEST['filePaths'] ))
-        echo setProcess($_REQUEST['processForm'], $_REQUEST['buttonAction'], $_REQUEST['filePaths']);
+        if (isset($_REQUEST['processForm'], $_REQUEST['buttonAction'] ))
+        echo setProcess($_REQUEST['processForm'], $_REQUEST['buttonAction']);
         exit;
     } elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == "createTool_fromWFs" ) {
         echo createTool_fromWFs($_REQUEST['id']);

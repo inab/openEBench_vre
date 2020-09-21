@@ -178,7 +178,7 @@ function getArgument($arg, $class = null, $defval = null, $input_name = null) {
 function generateLogo($toolid) {
 	$result = $GLOBALS['toolsDevMetaCol']->findOne(array("_id" => $toolid));
 
-	$path = $GLOBALS['dataDir']."/".$result["user_id"]."/.dev/".$toolid."/logo/";
+	$path = $GLOBALS['dataDir']."/".$result["user_id"]."/".$GLOBALS['devUser_dir'].$toolid."/logo/";
 	if(!file_exists($path)) mkpath($path);
 
 	$text = ($result["step3"]["tool_spec"]["name"]=="My Tool"? str_replace(array("_","-")," ",$toolid) : $result["step3"]["tool_spec"]["name"]);

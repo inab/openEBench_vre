@@ -30,18 +30,18 @@ require "../../htmlib/js.inc.php"; ?>
                             <i class="fa fa-circle"></i>
                         </li>
                         <li>
-                            <a href="oeb_management/oeb_process/oeb_processes.php">Processes</a>
+                            <a href="oeb_management/oeb_block/oeb_blocks.php">Blocks</a>
                             <i class="fa fa-circle"></i>
                         </li>
                         <li>
-                            <span id="spanCreate">Create new process</span>
+                            <span id="spanCreate">Create new block</span>
                         </li>
                     </ul>
                 </div>
                 <!-- END PAGE BAR -->
 
                 <!-- BEGIN PAGE TITLE-->
-                <h1 class="page-title"> Create new process</h1>
+                <h1 class="page-title"> Create new block</h1>
                 <!-- END PAGE TITLE -->
                 <!-- END PAGE HEADER -->
 
@@ -82,7 +82,7 @@ require "../../htmlib/js.inc.php"; ?>
                         <div class="col-md-12">
                             <div class="portlet light portlet-fit bordered">
 
-                                <div id="processes" class="portlet-body">
+                                <div id="blocks" class="portlet-body">
                                     <input type="hidden" id="base-url" value="<?php echo $GLOBALS['BASEURL']; ?>" />
                                     <!-- LOADING SPINNER -->
                                     <div id="loading-datatable" class="loadingForm">
@@ -126,22 +126,7 @@ require "../../htmlib/js.inc.php"; ?>
                     
                     /* Encapsulate some fields */
                     .form-group, .btn-group,
-                    div[data-schemapath="root.nextflow_files.files"], div[data-schemapath="root.inputs_meta.goldstandard_dir"], 
-                    div[data-schemapath="root.nextflow_files.config_file"], div[data-schemapath="root.outputs_meta.assessment_results"], 
-                    div[data-schemapath="root.inputs_meta.exit_code"],
-                    div[data-schemapath="root.inputs_meta.validated_participant"],
-                    div[data-schemapath="root.inputs_meta.assessment_results"],
-                    div[data-schemapath="root.inputs_meta.assess_dir"],
-                    div[data-schemapath="root.outputs_meta.data_model_export_dir"],
-                    div[data-schemapath="root.outputs_meta.out_dir"],
-                    div[data-schemapath="root.inputs_meta.input"], div[data-schemapath="root.inputs_meta.public_ref_dir"],
-                    div[data-schemapath="root.inputs_meta.participant_id"], div[data-schemapath="root.inputs_meta.community_id"],
-                    div[data-schemapath="root.inputs_meta.challenges_ids"], div[data-schemapath="root.inputs_meta.challenges_ids.challenges"],
-                    div[data-schemapath^="root.inputs_meta.challenges_ids.challenges."] {
-                        margin-left: 20px;
-                    }
-
-                    div[data-schemapath^="root.inputs_meta.challenges_ids.challenges"] div .btn-group {
+                    div[data-schemapath="root.nextflow_files.files"] {
                         margin-left: 20px;
                     }
 

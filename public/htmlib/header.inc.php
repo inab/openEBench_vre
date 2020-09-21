@@ -218,9 +218,9 @@
 		case 'dashboard':
 		case 'datasets':
 		case 'oeb_manuals':
-		case 'oeb_processes':
+		case 'oeb_blocks':
 		case 'oeb_workflows':
-		case 'oeb_newProcess':
+		case 'oeb_newBlock':
 		case 'oeb_newWorkflow';
 		case 'oeb_generalView':
 		case 'sampleDataList':

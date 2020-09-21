@@ -275,12 +275,12 @@ $GLOBALS['oeb_tool_wrapper'] = "/home/vre/projects/wrapper_test/VRE_NF_RUNNER";
 $GLOBALS['oeb_tool_json_schema']    = $GLOBALS['root']."/install/data/tool_schemas/tool_specification/oeb_tool_schema.json"; // specific data model for OEB-VRE tool registration
 $GLOBALS['status_requested'] = Array(
 	0 => "In preparation",
-	1 => "SUbmitted",
+	1 => "Submitted",
 	2 => "To be reviewed",
 	3 => "Registered",
 	4 => "Rejected"
 );
-
+$GLOBALS['gitlab_server'] = "https://gitlab.bsc.es/";
 $GLOBALS['oeb_validation_schema'] = "https://raw.githubusercontent.com/inab/OpEB-VRE-schemas/master/oeb_validation_workflow_schema_v2.json";
 $GLOBALS['oeb_metrics_schema'] = "https://raw.githubusercontent.com/inab/OpEB-VRE-schemas/master/oeb_metrics_workflow_schema_v2.json";
 $GLOBALS['oeb_consolidation_schema'] = "https://raw.githubusercontent.com/inab/OpEB-VRE-schemas/master/oeb_consolidation_workflow_schema_v2.json";

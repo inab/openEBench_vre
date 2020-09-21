@@ -5,13 +5,13 @@ $(document).ready(function() {
     //Function for the circles of steps (1, 2 and 3) to change the color when they are select
     colorSteps();
 
-    //insert the processes in the select of validation
+    //insert the blocks in the select of validation
     insertProcessesSelect("validation");
 
-    //insert the processes in the select of metrics
+    //insert the blocks in the select of metrics
     insertProcessesSelect("metrics");
 
-    //insert the processes in the select of consolidation
+    //insert the blocks in the select of consolidation
     insertProcessesSelect("consolidation");
 
     //on click submit
@@ -161,7 +161,7 @@ function setWorkflow() {
             $("#divErrors").addClass(" alert alert-info");
             $("#divErrors").text("Workflow inserted successfully");
             $("#divErrors").show();
-            location.href="oeb_management/oeb_process/oeb_workflows.php";
+            location.href="oeb_management/oeb_block/oeb_workflows.php";
         //errors
         } else {
             $("#divErrors").removeClass(" alert alert-info");

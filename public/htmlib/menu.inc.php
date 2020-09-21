@@ -347,17 +347,17 @@ sort($visualizers);
 						</a>
 						<ul class="sub-menu">
 							<li class="nav-item  <?php if ($currentSubSection == 'ps') { ?>active open<?php } ?>">
-								<a href="oeb_management/oeb_process/oeb_processes.php" class="nav-link ">
-									<span class="title">Processes</span>
+								<a href="oeb_management/oeb_block/oeb_blocks.php" class="nav-link ">
+									<span class="title">Blocks</span>
 								</a>
 							</li>
 							<li class="nav-item  <?php if ($currentSubSection == 'ps') { ?>active open<?php } ?>">
-								<a href="oeb_management/oeb_process/oeb_workflows.php" class="nav-link ">
+								<a href="oeb_management/oeb_block/oeb_workflows.php" class="nav-link ">
 									<span class="title">Workflows</span>
 								</a>
 							</li>
 							<li class="nav-item  <?php if ($currentSubSection == 'ps') { ?>active open<?php } ?>">
-								<a href="oeb_management/oeb_process/oeb_manuals.php" class="nav-link ">
+								<a href="oeb_management/oeb_block/oeb_manuals.php" class="nav-link ">
 									<span class="title">Manuals</span>
 								</a>
 							</li>

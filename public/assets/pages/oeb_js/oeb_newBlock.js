@@ -142,16 +142,7 @@ $(document).ready(function() {
         editor.getEditor("root.owner").setValue(value);
 
         //change name of the navbar of steps to see it like I want (the JSONEditor, actually, do not have the option to change that)
-        $('a[href="##Nextflow-files,-Dockerfile-and-YML-file"]').text("STEP 2: Nextflow Files, Dockerfile and YML File");
-        $('a[href="#Input-files-&-arguments"]').text("STEP 3: Testing Integration Test");
-        $('a[href="#Output-results"]').text("STEP 4: Output results");
-
-        for(var i = 0; i < $('input[type="file"]').length; i++) {
-          var input = $('input[type="file"]');
-
-          input.eq(i).attr('id', 'input_' + i);
-          filePaths.push($("#input_"+i).parent().parent().attr("data-schemapath"));
-        }
+        $('a[href="#Nextflow-files,-Dockerfile-and-YML-file"]').text("STEP 2: Nextflow Files, Dockerfile and YML File");
 
         //get the argument/action
         var currentURL = window.location["href"];
@@ -199,9 +190,7 @@ function clickButton() {
   $('#submit').on("click",function() {
     console.log(editor.getValue());
     //if there are errors = true, no errors = false
-    var errors = validateErr("submit");
-
-    var fichero = $("#input_0");
+    var errors = validateErr();
 
     //if there are not errors
     if (!errors) {
@@ -218,7 +207,7 @@ function clickButton() {
   $('#edit').on("click",function() {
     console.log(editor.getValue());
     //if there are errors = true, no errors = false
-    var errors = validateErr("edit");
+    var errors = validateErr();
 
     //if there are not errors
     if (!errors) {
@@ -305,10 +294,10 @@ function insertJSON(processJSONForm, buttonAction) {
   $.ajax({
     type: 'POST',
     url: urlJSON,
-    data: {'action': 'setProcess', 'processForm': processJSONForm, 'buttonAction': buttonAction, 'filePaths': filePaths}
+    data: {'action': 'setProcess', 'processForm': processJSONForm, 'buttonAction': buttonAction }
   }).done(function(data) {
     if(data['code'] == 200) {
-      window.location.href = baseURL + "oeb_management/oeb_process/oeb_processes.php";
+      window.location.href = baseURL + "oeb_management/oeb_block/oeb_blocks.php";
       
       $(".errorClass").removeClass(" alert alert-danger");
       $(".errorClass").addClass(" alert alert-info");
@@ -329,7 +318,7 @@ function insertJSON(processJSONForm, buttonAction) {
 }
 
 //function to validate the errors
-function validateErr(clickButton) {
+function validateErr() {
   var errors = editor.validate();
   var inputArray = [];
   var countFiles = 0;
@@ -338,34 +327,6 @@ function validateErr(clickButton) {
     console.log("ERRORS: ");
     console.log(errors);
     fileError = 0;
-    //if there are errors show the errors on click submit
-
-    $(".form-control-file").css({"color": "#333"});
-
-    for(var i = 0; i < $('input[type="file"]').length; i++) {
-      var path = $("#input_"+i).parent().parent().attr("data-schemapath");
-      inputArray.push(path);
-
-      for(let j = 0; j < errors.length; j++) {
-        if (errors[j]["path"] == path) {
-          $("#input_"+i).css({"color": "red"});
-        }
-      }
-    }
-
-    if (clickButton == "edit") {
-      for (let i = 0; i < errors.length; i++) {
-        for (let j = 0; j < inputArray.length; j++) {
-          if (errors[i]["path"] == inputArray[j]) {
-            countFiles++;
-          }
-        }
-      }
-    }
-
-    if (countFiles == inputArray.length) {
-      return false;
-    }
 
     editor.options.show_errors = "always";
     $(".errorClass").text("There are errors in some fields of the form.");

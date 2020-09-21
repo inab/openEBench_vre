@@ -18,16 +18,16 @@ function getProcesses($type) {
 
 	//if the user is the administrator show all the processes
 	if($userJSON["Type"] == 0) {
-		$allProcesses = $GLOBALS['processCol']->find(array("data.type" => $type));
+		$allProcesses = $GLOBALS['blocksCol']->find(array("data.type" => $type));
 
 	//if the user is not the administrator (=community manager)
 	} elseif($userJSON["Type"] == 1) {
 		//see the community. If user has community
 		if ($community && $community != '') {
-			$allProcesses = $GLOBALS['processCol']->find(array('$or' => array(array("data.owner.user" => $userId, "data.type" => $type), array("data.publication_status" => 1, "data.type" => $type), array("data.owner.oeb_community" => $community, "data.publication_status"=>4, "data.type" => $type))));
+			$allProcesses = $GLOBALS['blocksCol']->find(array('$or' => array(array("data.owner.user" => $userId, "data.type" => $type), array("data.publication_status" => 1, "data.type" => $type), array("data.owner.oeb_community" => $community, "data.publication_status"=>4, "data.type" => $type))));
 		//see the community. If user has not any community
 		} else {
-			$allProcesses = $GLOBALS['processCol']->find(array('$or' => array(array("data.owner.user" => $userId, "data.type" => $type), array("data.publication_status" => 1, "data.type" => $type))));
+			$allProcesses = $GLOBALS['blocksCol']->find(array('$or' => array(array("data.owner.user" => $userId, "data.type" => $type), array("data.publication_status" => 1, "data.type" => $type))));
 		}
 
 	}
@@ -56,9 +56,9 @@ function getProcessSelect($type) {
 	$community = $userJSON["oeb_community"];
 
 	if ($community && $community != '') {
-		$allProcesses = $GLOBALS['processCol']->find(array('$or' => array(array("data.owner.user" => $userId, "data.type" => $type), array("data.publication_status" => 1, "data.type" => $type), array("data.owner.oeb_community" => $community, "data.publication_status"=>4, "data.type" => $type))));
+		$allProcesses = $GLOBALS['blocksCol']->find(array('$or' => array(array("data.owner.user" => $userId, "data.type" => $type), array("data.publication_status" => 1, "data.type" => $type), array("data.owner.oeb_community" => $community, "data.publication_status"=>4, "data.type" => $type))));
 	} else {
-		$allProcesses = $GLOBALS['processCol']->find(array('$or' => array(array("data.owner.user" => $userId), array("data.publication_status" => 1))));
+		$allProcesses = $GLOBALS['blocksCol']->find(array('$or' => array(array("data.owner.user" => $userId), array("data.publication_status" => 1))));
 	}
 
 	//add query to an array
@@ -120,7 +120,7 @@ function updateStatusProcess($processId, $statusId) {
 	$typeUser = $GLOBALS['usersCol']->findOne(array("id"=>$userId), array("Type"=>1));
 
 	//collection processes
-	$processCol = $GLOBALS['processCol'];
+	$blocksCol = $GLOBALS['blocksCol'];
 
 	// check if user is authorized to update object
 	$authorized = false;
@@ -131,7 +131,7 @@ function updateStatusProcess($processId, $statusId) {
 		$authorized = true;
 	//if community manager
 	} else if ($typeUser["Type"] == 1) {
-		$processToolDev = $processCol->findOne(array("data.owner.user" => $userId, "_id" => $processId));
+		$processToolDev = $blocksCol->findOne(array("data.owner.user" => $userId, "_id" => $processId));
 	
 		if(!$processToolDev) {
 			$authorized = false;
@@ -152,11 +152,11 @@ function updateStatusProcess($processId, $statusId) {
 	}
 	// update process status in Mongo
 	try  {
-		$processCol->update(['_id' => $processId], [ '$set' => [ 'data.publication_status' => 'NumberLong('+$statusId+')']]);
-		$processFound = $processCol->find(array("data.publication_status"=>'NumberLong('+$statusId+')', "_id"=>$processId));
+		$blocksCol->update(['_id' => $processId], [ '$set' => [ 'data.publication_status' => 'NumberLong('+$statusId+')']]);
+		$processFound = $blocksCol->find(array("data.publication_status"=>'NumberLong('+$statusId+')', "_id"=>$processId));
 
 		if($processFound != "") {
-			$type = $processCol->findOne(array("_id"=>$processId));
+			$type = $blocksCol->findOne(array("_id"=>$processId));
 			$response_json->setCode(200);
 			$response_json->setMessage($type["data"]["type"]);
 		} else {
@@ -301,7 +301,8 @@ function getUser($id) {
 }
 
 //Get the workflow information from the form, validate all the data and inserted in MongoDB (NEW PROCESS)
-function setProcess($processStringForm, $buttonAction, $filePaths) {
+function setProcess($processStringForm, $buttonAction) {
+
 	$response_json= new JsonResponse();
 	$response_json->setCode("405");
 	$response_json->setMessage("ERROR");
@@ -311,326 +312,113 @@ function setProcess($processStringForm, $buttonAction, $filePaths) {
 	//GIT VALIDATION
 
 	//get the url of git
-	$gitURL_workflow = $processForm["nextflow_files"]["workflow_file"]["workflow_gitURL"];
-	$gitTag_workflow = $processForm["nextflow_files"]["workflow_file"]["workflow_gitTag"];
+	$gitURL = $processForm["nextflow_files"]["files"]["gitURL"];
+	$gitTag = $processForm["nextflow_files"]["files"]["gitTag"];
+	$privateToken = $processForm["nextflow_files"]["files"]["privateToken"];
 
 	//get errors (or not) workflow git - the four step
-	$resultWorkflow = _validationStep4($gitURL_workflow, $gitTag_workflow);
+	$validationGit = _validationGit($gitURL, $gitTag, $privateToken);
 
 	//errors nextflow files
-	if ($resultWorkflow != "OK"){
+	if ($validationGit != "OK" && $validationGit != "SUCCESS"){
 		$response_json->setCode(422);
-		$response_json->setMessage($resultWorkflow);
+		$response_json->setMessage($validationGit);
 
 		return $response_json->getResponse();
 	} 
 
+	//user logged
+	$userId = $_SESSION["User"]["id"];
 
-	//FILES VALIDATION 
-	// store public dataset
+	//MongoDB query
+	$data = array();
 
-	$a;
-	$baseProcess;
-	$results = [];
+	//is a function that is not done by me that create a fake ID
+	$data['_id'] = createLabel($GLOBALS['AppPrefix']."_process",'blocksCol');
+	$data['data'] = $processForm;
 
-	for ($i = 0; $i < sizeof($filePaths); $i++) {
-		for ($j = 0; $j < sizeof(explode(".", $filePaths[$i])); $j++) {
-			$wordsPath = explode('.', $filePaths[$i])[$j];
-			if ($wordsPath == "root") {
-				$base = explode('.', $filePaths[$i])[$j+1];
-				if ($buttonAction == "submit") {
-					$baseProcess = $processForm[$base];
-				} else if ($buttonAction == "edit") {
-					$baseProcess = $processForm["data"][$base];
-				}
-				$j++;
-			} else {
-				
-				$a = explode('.', $filePaths[$i])[$j];
-				$baseProcess = $baseProcess[$a];
-				if ($j+1 == sizeof(explode('.', $filePaths[$i]))) {
-					$result = _createPublicData_fromBase64($baseProcess, $processForm, $filePaths[$i]);
-					array_push($results, $result);
-					//CHECK PUBLIC DATA
-					if ($result[0] != "OK") {
-						$response_json->setCode(422);
-						$response_json->setMessage($result[0]);
-			
-						return $response_json->getResponse();
-					} 
-			
-					//assign the path of the each one
-					//$baseProcess = $result[1];
-					if (sizeof($results) == sizeof($filePaths)) {
-						//user logged
-						$userId = $_SESSION["User"]["id"];
-
-						//MongoDB query
-						$data = array();
-
-						//is a function that is not done by me that create a fake ID
-						$data['_id'] = createLabel($GLOBALS['AppPrefix']."_process",'processCol');
-						$data['data'] = $processForm;
-						$data['validation_status'] = "under_validation";
-
-						try {
-							if ($buttonAction == "submit") {
-								//insert the data in mongo
-								$GLOBALS['processCol']->insert($data);
-							} elseif ($buttonAction == "edit") {
-								//insert the data in mongo
-								$GLOBALS['processCol']->update(array("_id" => $processForm["_id"]), $processForm);
-							}
-
-						} catch (Exception $e) {
-							$response_json->setCode(501);
-							$response_json->setMessage("Cannot update data in Mongo. Mongo Error(".$e->getCode()."): ".$e->getMessage());
-
-							return $response_json->getResponse();
-						}
-
-						$response_json->setCode(200);
-						$response_json->setMessage("OK");
-
-						return $response_json->getResponse();
-					}
-				}
-			}
-		}
+	if ($validationGit == "OK") {
+		$data['validation_status'] = "under_validation";
+	} elseif ($validationGit == "SUCCESS") {
+		$data['validation_status'] = "registered";
 	}
 	
-	
-}
-
-//validate the file TAR
-function _createPublicData_fromBase64($file_base64, $processForm, $path) {
-	$MAX_SIZE = 500000;
-	$response_json= new JsonResponse();
-	// uncompress data
-	$uncompress_cmd="";
-	$uncompressOk = false;
-	$fileOk = true;
-	$tar = false;
-	$bzip = false;
-/* 	if (is_dir($GLOBALS['pubDir'].$file_base64)) {
-		return ["OK", $file_base64];
-	} */
-
-	$processExist = _getProcess($processForm['_id']);
-
-	//create temporal file to check the file and if it is a tar or tar.gz
-	$tempDir = $GLOBALS['dataDir'].$_SESSION['User']['id']."/".$_SESSION['User']['activeProject']."/".$GLOBALS['tmpUser_dir'];
-
-	$tempFile = $tempDir . "public_dataset";
-
-	//if it is not exist the folde tmp create it because file_put_contents only create the file if not exist
-	if (!is_dir($tempDir)) {
-		mkdir($tempDir);
-	}
-
-	$baseProcess;
-	$a;
-	$nameFile;
-
-	for ($j = 0; $j < sizeof(explode(".", $path)); $j++) {
-		$wordsPath = explode('.', $path)[$j];
-		if ($wordsPath == "root") {
-			$base = explode('.', $path)[$j+1];
-			$baseProcess = $processForm[$base];
-		} else {
-			$a = explode('.', $path)[$j+1];
-			$baseProcess = $baseProcess[$a];
-
-			if ($j+3 == sizeof(explode(".", $path))) {
-				$nameFile = $baseProcess["name"];
-			}
+	try {
+		if ($buttonAction == "submit") {
+			//insert the data in mongo
+			$GLOBALS['blocksCol']->insert($data);
+		} elseif ($buttonAction == "edit") {
+			//insert the data in mongo
+			$GLOBALS['blocksCol']->update(array("_id" => $processForm["_id"]), $processForm);
 		}
+
+	} catch (Exception $e) {
+		$response_json->setCode(501);
+		$response_json->setMessage("Cannot update data in Mongo. Mongo Error(".$e->getCode()."): ".$e->getMessage());
+
+		return $response_json->getResponse();
 	}
 
-	for ($j = 0; $j < sizeof(explode(".", $path)); $j++) {
-		$wordsPath = explode('.', $path)[$j];
-		if ($wordsPath == "root") {
-			$base = explode('.', $path)[$j+1];
-			$baseProcess = $processForm[$base];
-		} else {
-			$a = explode('.', $path)[$j+1];
-			$baseProcess = $baseProcess[$a];
-			
-			if ($j+2 == sizeof(explode(".", $path))) {
-				if ($processExist != null && !$file_base64) {
-					return ["OK", $baseProcess];
-				}
-			}
-			if ($j+3 == sizeof(explode(".", $path))) {
-				
-				//move the content to that file: public_dataset
-				//return the size
-				$r = file_put_contents($tempFile ,file_get_contents($file_base64));
+	$response_json->setCode(200);
+	$response_json->setMessage("OK");
 
-				//check return something
-				if (!$r){
-					unlink($tempFile);
-					return [$nameFile . " -> The file cannot be uploaded.", 0];
-				}
-
-				//check size
-				if ($r > $MAX_SIZE) {
-					unlink($tempFile);
-					return [$nameFile . " -> The file is too large.", 0];
-				}
-
-				//check if it is a file
-				if (!is_file($tempFile)){
-					unlink($tempFile);
-					return [$nameFile . " ->C You do not have uploaded a file.", 0];
-				}
-				
-				// guess compression
-				$file_info  = shell_exec("file $tempFile | cut -d: -f2");
-
-				if ($nameFile == "public_ref_dir" || $nameFile == "out_dir" || $nameFile == "data_model_export_dir" || $nameFile == "goldstandard_dir" || $nameFile == "assess_dir") {
-					if (preg_match('/gzip/i',$file_info) == 1 || preg_match('/x-tar/i',$file_info) == 1){
-						$uncompress_cmd = "tar xzvf $tempFile -C $tempDir";
-						$uncompressOk = true;
-						$fileOk = false;
-						$tar = true;
-					//check if it is not a tar of a tar.gz public_ref_dir
-				
-					} else {
-						unlink($tempFile);
-						return [$nameFile . " -> The file is not a TAR or a TAR.GZ.", 0];
-					}
-				}
-				
-				if ($nameFile == "validated_participant" || $nameFile == "assessment_results") {
-					//check the file base64 because json is recognize as ASCII in file info
-					if (preg_match('/json/i',$file_base64) != 1){
-						unlink($tempFile);
-						return [$nameFile . " -> The file is not a JSON", 0];
-						//check if it is not a JSON validated_participant or assessment_results
-					}
-				}
-
-				if ($nameFile == "input") {
-					if (preg_match('/gzip/i',$file_info) == 1 || preg_match('/x-tar/i',$file_info) == 1){
-						$uncompress_cmd = "tar xzvf $tempFile -C $tempDir";
-						//check if it is a tar of a tar.gz input
-						$uncompressOk = true;
-						$fileOk = false;
-						$tar = true;
-					}
-				}
-				
-				if ($uncompressOk) {
-					//execute the command line
-					$uncomprss = shell_exec($uncompress_cmd); 
-
-					//check the content of the tar or tar.gz. If it is empty do not return anything
-					if (!$uncomprss){
-						unlink($tempFile);
-						return [$nameFile . " -> The compressed file is empty.", 0];
-					}
-				}
-
-				if ($fileOk) {
-					if (!filesize($tempFile)) {
-						unlink($tempFile);
-						return [$nameFile . " -> The file is empty.", 0];
-					}
-				}
-
-				// create target dir = where the information is saved
-				$target_folder = hash_file('sha256',$tempFile);
-				$devDir = $GLOBALS['dataDir'].$_SESSION['User']['id']."/".$_SESSION['User']['activeProject']."/".$GLOBALS['devUser_dir'].$target_folder;
-				
-				if (!is_dir($devDir)) {
-					mkdir($devDir);
-				}
-
-				$devFile = $devDir . "/" . "public_dataset";
-				
-				$uncmpssTAR = "";
-				if ($tar) {
-					//uncompress the file
-					$uncmpssTAR = "tar xzvf $devFile -C $devDir";
-					$sh = shell_exec($uncmpssTAR);
-				}
-
-				//if cannot uncompress the file
-				if ($tar && !$uncmpssTAR){
-					unlink($tempFile);
-					rmdir($tempDir);
-					unlink($devFile);
-					rmdir($devDir);
-					return [$nameFile . " -> The file cannot be uploaded.", 0];
-				} else if ($tar && $uncmpssTAR) {
-					unlink($tempFile);
-					rmdir($tempDir);
-					//return the target folder because is the folder name (without all the route)
-					return ["OK", $target_folder];
-				} else {
-					//mover los archivos a la carpeta que me interesa
-					$r = file_put_contents($devFile ,file_get_contents($file_base64));
-
-					unlink($tempFile);
-					rmdir($tempDir);
- 					if ($r) {
-						return ["OK", $target_folder];
-					} else {
-						return [$nameFile . " -> The file cannot be uploaded.", 0];
-					}
-				}	
-			}
-		}
-	}
-	
+	return $response_json->getResponse();
 }
 
 //validate the Git URL 
-function _validationStep4($gitURL, $gitTag) {
+function _validationGit($gitURL, $gitTag, $privateToken) {
 	$resultValidation = "";
 
 	//clone the git 
 	$tempDir = _cloneGit($gitURL, $gitTag);
-
+	
 	//validate the git url
-	$gitValidation = _validateGit($tempDir);
+	$gitValidation = _validateGitFiles($tempDir);
 
 	switch($gitValidation) {
 		case 0: 
-			$resultValidation = "Nextflow files -> Workflow file. The git URL cannot be uploaded.";
+			$resultValidation = "Nextflow files, Dockerfile and YML file -> Git Files. The git URL cannot be cloned.";
 			break;
 		case 1:
-			$resultValidation = "Nextflow files -> Workflow file. The git link is empty.";
+			$resultValidation = "Nextflow files, Dockerfile and YML file -> Git Files. The git repo is empty.";
 			break;
 		case 2:
+			$filesValidation = _validateFileNames($tempDir);
+			switch($filesValidation) {
+				case 0: 
+					$resultValidation = "Git Files -> Nextflow file. The 'workflow-block/main.nf' file is not found.";
+					break;
+				case 1: 
+					$resultValidation = "Git Files -> Nextflow file. The 'workflow-block/nextflow.config' file is not found.";
+					break;
+				case 2: 
+					$resultValidation = "Git Files -> Dockerfile. The 'Dockerfile' file is not found.";
+					break;
+				case 3: 
+					$resultValidation = "Git Files -> YML file. The '.gitlab-ci.yml' file is not found.";
+					break;
+				case 4:
+					$resultValidation = "OK";
+					if (strpos($gitURL, $GLOBALS['gitlab_server']) !== false) {
+						$nextflowValidation = _validateNextflow($gitURL, $privateToken);
+						if($nextflowValidation == 1) {
+							$resultValidation = "SUCCESS";
+						} else {
+							$resultValidation = $nextflowValidation;
+						}
+					}
+					break;
+				default:
+					$resultValidation = "Some error ocurred";
+			}
+			break;
+		default: 
 			$resultValidation = "Some error ocurred";
 			break;
 	}
 
-	if ($gitValidation == 2) {
-		//validate the content of the git (nextflow files)
-		$nextflowFileValidation = _validateNextflowFiles($tempDir);
-		
-		switch($nextflowFileValidation) {
-			case 0: 
-				$resultValidation = "Nextflow files -> Workflow file. The 'main.nf' file is not found.";
-				break;
-			case 1: 
-				$resultValidation = "Nextflow files -> Workflow file. The 'nextflow.config' file is not found.";
-				break;
-			case 2: 
-				$resultValidation = "Nextflow files -> Workflow file. Missing parameters. Make sure that the following paratemers are set: input, public_ref_dir, participant_id, challenges_id and community_id.";
-				break;
-			case 3: 
-				$resultValidation = "OK";
-				break;
-		}
-	}
-	
 	//remove temperal directory
 	$r = shell_exec("rm -rf $tempDir");
-	
 	return $resultValidation;	
 }
 
@@ -641,22 +429,59 @@ function _cloneGit($gitURL, $gitTag) {
 	//create temporal file to check the git url
 	$tempDir = $GLOBALS['dataDir'].$_SESSION['User']['id']."/".$_SESSION['User']['activeProject']."/".$GLOBALS['tmpUser_dir']."gitDir/";
 
+	$r = shell_exec("rm -r $tempDir");
+
 	//clone the git if exist (taking into account the tag)
 	$cmnd = "git clone -b $gitTag $gitURL $tempDir";
-
 	//execute the command
 	$r = shell_exec($cmnd);
 
 	return $tempDir;
 }
 
+function _validateNextflow($gitURL, $privateToken) {
+
+	$gitlabPath = str_replace($GLOBALS['gitlab_server'], "", $gitURL);
+	$gitlabPath = str_replace(".git", "", $gitlabPath);
+
+	$cmd = 'curl --header "PRIVATE-TOKEN: ' . $privateToken . '" "'. $GLOBALS['gitlab_server'] .'api/v4/projects?search=' . $gitlabPath . '"';
+	$output = shell_exec($cmd);
+
+	$reposSelected = json_decode($output, true);
+
+	$repoFound = false;
+
+	foreach ($reposSelected as $repo) {
+		if ($repo["path_with_namespace"] == $gitlabPath) {
+			$repoFound = true;
+			$repoId = $repo["id"];
+			$cmdPipeline = 'curl --header "PRIVATE-TOKEN: ' . $privateToken . '" "'.$GLOBALS['gitlab_server'].'api/v4/projects/'. $repoId .'/pipelines"';
+			//print_r($cmdPipeline);
+			$outputPipeline = shell_exec($cmdPipeline);
+			$pipeline = json_decode($outputPipeline, true);
+			if ($pipeline[0]["status"] == "success") {
+				return 1;
+			} else {
+				return 0;
+			}
+		} 
+		if ($reposSelected["message"]) {
+			return "Gitlab Pipeline -> " . $reposSelected["message"];
+		}
+	}
+
+	if (!$repoFound) {
+		return "error";
+	}
+}
+
 //validate the git url
-function _validateGit($tempDir) {
+function _validateGitFiles($tempDir) {
 	//check if the git URL and Tag exist
 	if (!is_dir($tempDir)) {
 		return 0;
 	}
-
+	
 	//check if the git link is empty
 	$files = count(glob($tempDir . '*', GLOB_MARK));
 	if ($files == 0) {
@@ -667,24 +492,48 @@ function _validateGit($tempDir) {
 }
 
 //validate the nextflow files inside the git url
-function _validateNextflowFiles($tempDir) {
+function _validateFileNames($tempDir) {
+
 	//get the git directory file paths (clone it in the tempDir)
-	$files = glob($tempDir . '*', GLOB_MARK);
+	$files = glob($tempDir . '{,.}*', GLOB_BRACE);
 
 	$mainExist = 0;
 	$nextflowExist = 0;
+	$dockerfileExist = 0;
+	$ymlExist = 0;
 
 	foreach ($files as $file) {
-		//check if exist the main.nf file
-		if (strtoupper($file) == strtoupper($tempDir. "main.nf")) {
-			$mainExist++;
+		
+		if (strtoupper($file) == strtoupper($tempDir. "workflow-block")) {
+			$filesWorkflow_block = glob($tempDir . "workflow-block/" . '{,.}*', GLOB_BRACE);
+			foreach ($filesWorkflow_block as $fileWorkflow) {
+				//check if exist the main.nf file
+				if (strtoupper($fileWorkflow) == strtoupper($tempDir. "workflow-block/main.nf")) {
+					$mainExist++;
+				}
+				//check if exist the nextflow.config file
+				if (strtoupper($fileWorkflow) == strtoupper($tempDir. "workflow-block/nextflow.config")) {
+					$nextflowExist++;
+				}
+			}
 		} 
-		//check if exist the nextflow.config file
-		if(strtoupper($file) == strtoupper($tempDir . "nextflow.config")) {
-			$nextflowExist++;
+
+		if (strtoupper($file) == strtoupper($tempDir. "container")) {
+			$filesContainer = glob($tempDir . "container/" . '{,.}*', GLOB_BRACE);
+			foreach ($filesContainer as $fileContainer) {
+				//check if exist the Dockerfile file
+				if (strtoupper($fileContainer) == strtoupper($tempDir. "container/Dockerfile")) {
+					$dockerfileExist++;
+				}
+			}
+		} 
+		
+		//check if exist the .gitlab-ci.yml file
+		if(strtoupper($file) == strtoupper($tempDir . ".gitlab-ci.yml")) {
+			$ymlExist++;
 		}
 	}
-
+	
 	//check only there are a main.nf
 	if($mainExist != 1) {
 		return 0;	
@@ -693,42 +542,18 @@ function _validateNextflowFiles($tempDir) {
 	//check only there are a nextflow.config
 	if($nextflowExist != 1) {
 		return 1;	
-	} 
-
-	$input = false;
-	$public_ref_dir = false;
-	$participant_id = false;
-	$challenges_ids = false;
-	$community_id = false;
-
-	//check that there are all the necessary params in the main.nf file
-	foreach ($files as $file) {
-		if (strtoupper($file) == strtoupper($tempDir . "main.nf")) {
-			$fp = fopen($file, "r");
-			while (!feof($fp)){
-				$linea = fgets($fp);
-				if (preg_match('/params.input/i',$linea) == 1) {
-					$input = true;
-				} else if (preg_match('/params.public_ref_dir/i',$linea) == 1) {
-					$public_ref_dir = true;
-				} elseif (preg_match('/params.participant_id/i',$linea) == 1) {
-					$participant_id = true;
-				} elseif(preg_match('/params.challenges_ids/i',$linea) == 1) {
-					$challenges_ids = true;
-				} elseif(preg_match('/params.community_id/i',$linea) == 1) {
-					$community_id = true;
-				}
-			}
-			fclose($fp);
-		}
 	}
-
-	//if not are all the necessary params return an error
-	if(!$input || !$public_ref_dir || !$participant_id || !$challenges_ids || !$community_id) {
-		return 2;
-	} 
 	
-	return 3;
+	//check only there are a main.nf
+	if($dockerfileExist != 1) {
+		return 2;	
+	} 
+
+	//check only there are a nextflow.config
+	if($ymlExist != 1) {
+		return 3;	
+	} 	
+	return 4;
 }
 
 //return a workflow from the id
@@ -751,7 +576,7 @@ function _getProcess($id) {
 	$process_json="{}";
 	$process = "";
 
-	$process = $GLOBALS['processCol']->findOne(array('_id' => $id));
+	$process = $GLOBALS['blocksCol']->findOne(array('_id' => $id));
 
 	//convert array into json 
 	$process_json = json_encode($process, JSON_PRETTY_PRINT);
@@ -1214,14 +1039,14 @@ function deleteProcess($id) {
 	$userId = $_SESSION["User"]["id"];
 
 	$workflows = array();
-	$processCol = $GLOBALS['processCol'];
+	$blocksCol = $GLOBALS['blocksCol'];
 
 	//get the current user
 	$currentUser = getUser("current");
 	$typeUserLogged = json_decode($currentUser, true);
 
 	//find the owner of the process
-	$process = $processCol->findOne(array('_id' => $id));
+	$process = $blocksCol->findOne(array('_id' => $id));
 
 	//if the current user is not the same that the user owner of the process AND if the user is not admin
 	if ($userId != $process["data"]["owner"]["user"] && $typeUserLogged["Type"] != 0) {
@@ -1247,7 +1072,7 @@ function deleteProcess($id) {
 
 	//if all is correct remove the process
 	try  {
-		$processCol->remove(array('_id' => $id));
+		$blocksCol->remove(array('_id' => $id));
 
 		$response_json->setCode(200);
 		$response_json->setMessage("OK");
@@ -1283,7 +1108,7 @@ function setWorkflow($nameWF, $validation, $metrics, $consolidation) {
 	}
 
 	//get the id of the validation selected in the select
-	$validation_id = $GLOBALS['processCol']->findOne(array("data.title" => $validation), array("_id" => 1));
+	$validation_id = $GLOBALS['blocksCol']->findOne(array("data.title" => $validation), array("_id" => 1));
 
 	//MongoDB query
 	$data = array();

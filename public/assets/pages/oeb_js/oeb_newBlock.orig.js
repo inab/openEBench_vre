@@ -281,7 +281,7 @@ function insertJSON(processJSONForm, buttonAction) {
     data: {'action': 'setProcess', 'processForm': processJSONForm, 'buttonAction': buttonAction}
   }).done(function(data) {
     if(data['code'] == 200) {
-      window.location.href = baseURL + "oeb_management/oeb_process/oeb_processes.php";
+      window.location.href = baseURL + "oeb_management/oeb_process/oeb_blocks.php";
       
       $(".errorClass").removeClass(" alert alert-danger");
       $(".errorClass").addClass(" alert alert-info");

@@ -194,7 +194,7 @@ function deleteToolDev($toolId) {
         return 1;
     }
     // Clean associated dev files
-    $dev_dir = $GLOBALS['dataDir']."/".$_SESSION['User']['id']."/.dev/".$toolId;
+    $dev_dir = $GLOBALS['dataDir']."/".$_SESSION['User']['id']."/".$GLOBALS['devUser_dir'].$toolId;
     if (is_dir($dev_dir)){
         exec ("rm -r \"$dev_dir\" 2>&1",$output);
    		if (error_get_last()){

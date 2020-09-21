@@ -75,7 +75,7 @@ function deleteProcess(id) {
 }
 
 function editProcess(id) {
-	location.href = "oeb_management/oeb_process/oeb_newProcess.php?action=editProcess&id=" + id;
+	location.href = "oeb_management/oeb_process/oeb_newBlock.php?action=editProcess&id=" + id;
 }
 
 $(document).ready(function() {
@@ -149,8 +149,8 @@ $(document).ready(function() {
 		reload();
 	});
 
-	$("#newProcess").click(function() {
-		location.href = "oeb_management/oeb_process/oeb_newProcess.php?action=createProcess";
+	$("#newBlock").click(function() {
+		location.href = "oeb_management/oeb_process/oeb_newBlock.php?action=createProcess";
 	});
 
 	//fake things about metrics and consolidation

@@ -140,10 +140,10 @@ function setUserWorkSpace($homeDir,$projectDir,$sampleData="",$projectData,$verb
 
 	// creating other directories not registered in mongo
 
-		if (!is_dir("$dataDirP/.jbrowse") || !is_dir("$dataDirP/.tadkit") || !is_dir("$dataDirP/.dev") || !is_dir($dataDirP."/".$GLOBALS['tmpUser_dir']) ){
+		if (!is_dir("$dataDirP/.jbrowse") || !is_dir("$dataDirP/.tadkit") || !is_dir("$dataDirP/".$GLOBALS['devUser_dir']) || !is_dir($dataDirP."/".$GLOBALS['tmpUser_dir']) ){
 			mkdir("$dataDirP/.jbrowse", 0775);
 			mkdir("$dataDirP/.tadkit", 0775);
-			mkdir("$dataDirP/.dev", 0775);
+			mkdir("$dataDirP/".$GLOBALS['devUser_dir'], 0775);
 			mkdir("$dataDirP/".$GLOBALS['tmpUser_dir'], 0775);
 		}
 
