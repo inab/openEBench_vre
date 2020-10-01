@@ -10,26 +10,19 @@ var arrayOntologies = [];
 var informationUsed = [];
 var value;
 var editorValue;
-var urlJSON = "applib/oeb_processesAPI.php";
-var processEdit;
+var urlJSON = "applib/oeb_blocksAPI.php";
+var blockEdit;
 var filePaths = [];
 
 $(document).ready(function() {
   var currentURL = window.location["href"];
   var url = new URL(currentURL);
-  var typeProcess = url.searchParams.get("typeProcess");
+  var typeBlock = url.searchParams.get("typeBlock");
 
-  var oeb_schema;
-  if(typeProcess == "newValidation" || typeProcess == "validation") {
-    oeb_schema = oeb_validation_schema;
-  } else if (typeProcess == "newMetrics" || typeProcess == "metrics") {
-    oeb_schema = oeb_metrics_schema;
-  } else if (typeProcess == "newConsolidation" || typeProcess == "consolidation") {
-    oeb_schema = oeb_consolidation_schema;
-  }
+  //typeBlock ==> for type
 
   //get the JSON Schema
-  $.getJSON(oeb_schema, function(data) {
+  $.getJSON(oeb_block_schema, function(data) {
     schema = data;
   }).done(function() {
 
@@ -39,7 +32,7 @@ $(document).ready(function() {
     //it has to be the same number of ancestors that ontologies params because for each ontology there are one ancestor. 
     if (URLontologiesArray.length == ancestorsArray.length) {
       for (i = 0; i < URLontologiesArray.length; i++) {
-        var url = "applib/oeb_processesAPI.php?action=getForm&urlOntology=" + URLontologiesArray[i] + "&ancestors=" + ancestorsArray[i];
+        var url = "applib/oeb_blocksAPI.php?action=getForm&urlOntology=" + URLontologiesArray[i] + "&ancestors=" + ancestorsArray[i];
         urlsArray.push(url);
       }
     }
@@ -101,7 +94,7 @@ $(document).ready(function() {
       }
 
       //INSERT THE OWNER
-      var urlDefaultValues = "applib/oeb_processesAPI.php?action=getDefaultValues&owner";
+      var urlDefaultValues = "applib/oeb_blocksAPI.php?action=getDefaultValues&owner";
       $.ajax({
         type: 'POST',
         url: urlDefaultValues,
@@ -117,7 +110,7 @@ $(document).ready(function() {
           disable_edit_json: true,
           disable_properties: true
         });
-        //if there are oeb_community param in the process
+        //if there are oeb_community param in the block
         if (data["oeb_community"]) {
           //DATA only has OWNER. If we want another variable we have to implement in the API and get it
           var value = {
@@ -142,24 +135,23 @@ $(document).ready(function() {
         editor.getEditor("root.owner").setValue(value);
 
         //change name of the navbar of steps to see it like I want (the JSONEditor, actually, do not have the option to change that)
-        $('a[href="#Nextflow-files,-Dockerfile-and-YML-file"]').text("STEP 2: Nextflow Files, Dockerfile and YML File");
+        $('a[href="#Nextflow-files"]').text("STEP 2: Nextflow Files");
 
         //get the argument/action
         var currentURL = window.location["href"];
         var url = new URL(currentURL);
         var action = url.searchParams.get("action");
-        var idProcess = url.searchParams.get("id");
-        var type = url.searchParams.get("typeProcess");
+        var idBlock = url.searchParams.get("id");
 
-        if (action == "editProcess") {
-          $(".page-title").text("Edit process");
-          $("#spanCreate").text("Edit process");
+        if (action == "editBlock") {
+          $(".page-title").text("Edit block");
+          $("#spanCreate").text("Edit block");
           $.ajax({
             type: 'POST',
             url: urlJSON,
-            data: {'action': 'getProcess', 'id': idProcess}
+            data: {'action': 'getBlock', 'id': idBlock}
           }).done(function(data) {
-            processEdit = data;
+            blockEdit = data;
             editor.setValue(data["data"]);
 
             //$('input[type="file"]').attr("disabled", "disabled");
@@ -175,7 +167,7 @@ $(document).ready(function() {
         $("#loading-datatable").hide();
 
         //ON CLICK SUBMIT 
-        clickButton();
+        clickButton(typeBlock);
       });
       
     }).fail(function (jqXHR, textStatus) {
@@ -185,7 +177,7 @@ $(document).ready(function() {
 });
 
 //when click the button submit
-function clickButton() {
+function clickButton(typeBlock) {
   
   $('#submit').on("click",function() {
     console.log(editor.getValue());
@@ -198,25 +190,7 @@ function clickButton() {
       var json = JSON.stringify(editor.getValue(),null,2);
 
       //inserted into db
-      insertJSON(json, "submit");
-    } 
-
-    $(".errorClass").show();
-  });
-
-  $('#edit').on("click",function() {
-    console.log(editor.getValue());
-    //if there are errors = true, no errors = false
-    var errors = validateErr();
-
-    //if there are not errors
-    if (!errors) {
-      //take the value of the editor (the things that are write in inputs and internally)
-      processEdit["data"] = editor.getValue();
-      var json = JSON.stringify(processEdit,null,2);
-
-      //inserted into db
-      insertJSON(json, "edit");
+      insertJSON(json, typeBlock, "submit");
     } 
 
     $(".errorClass").show();
@@ -289,12 +263,12 @@ function getInformation(schema) {
   return [pathsArray, ancestorsArray, URLontologiesArray];
 }
 
-function insertJSON(processJSONForm, buttonAction) {
+function insertJSON(blockJSONForm, typeBlock, buttonAction) {
 
   $.ajax({
     type: 'POST',
     url: urlJSON,
-    data: {'action': 'setProcess', 'processForm': processJSONForm, 'buttonAction': buttonAction }
+    data: {'action': 'setBlock', 'blockForm': blockJSONForm, 'typeBlock': typeBlock, 'buttonAction': buttonAction }
   }).done(function(data) {
     if(data['code'] == 200) {
       window.location.href = baseURL + "oeb_management/oeb_block/oeb_blocks.php";
@@ -311,17 +285,23 @@ function insertJSON(processJSONForm, buttonAction) {
     }
   }).fail(function(data) {
     var error = JSON.parse(data['responseText']);
-    $(".errorClass").text(error['message']);
-    $(".errorClass").removeClass(" alert alert-info");
-    $(".errorClass").addClass(" alert alert-danger");
+    var errorMessage = "";
+    if(typeof(error['message']) == "object") {
+      error['message'].forEach(element => errorMessage = errorMessage + element + "<br>");
+      $(".errorClass").html(errorMessage);
+      $(".errorClass").removeClass(" alert alert-info");
+      $(".errorClass").addClass(" alert alert-danger");
+    } else {
+      $(".errorClass").text(error['message']);
+      $(".errorClass").removeClass(" alert alert-info");
+      $(".errorClass").addClass(" alert alert-danger");
+    }
   });
 }
 
 //function to validate the errors
 function validateErr() {
   var errors = editor.validate();
-  var inputArray = [];
-  var countFiles = 0;
 
   if(errors.length != 0) {
     console.log("ERRORS: ");

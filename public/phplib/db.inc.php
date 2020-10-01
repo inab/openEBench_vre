@@ -43,6 +43,6 @@ $GLOBALS['helpsCol']        = $GLOBALS['db']->helps;
 $GLOBALS['sampleDataCol']   = $GLOBALS['db']->sampleData;
 $GLOBALS['logExecutionsCol']= $GLOBALS['db']->log_executions;
 $GLOBALS['blocksCol']      = $GLOBALS['db']->oeb_blocks;
-$GLOBALS['toolSubmissionCol']      = $GLOBALS['db']->oeb_workflows;
+$GLOBALS['workflowsCol']      = $GLOBALS['db']->oeb_workflows;
 
 ?>

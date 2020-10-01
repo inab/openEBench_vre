@@ -105,7 +105,7 @@ require "../../htmlib/js.inc.php"; ?>
                                             <a class="btn green" onclick="reload('validation')"> Reload Validation Blocks </a>
                                         </div>
                                     </div>
-                                    <a class="btn btn-lg green newBlock" id="newValidation" style="margin-bottom:30px;"> <i class="fa fa-plus"></i> Create new</a>
+                                    <a class="btn btn-lg green newBlock" name="validation" style="margin-bottom:30px;"> <i class="fa fa-plus"></i> Create new</a>
 
                                     <input type="hidden" id="base-url" value="<?php echo $GLOBALS['BASEURL']; ?>" />
                                     
@@ -119,7 +119,7 @@ require "../../htmlib/js.inc.php"; ?>
                                             <a class="btn green" onclick="reload('metrics')"> Reload Metrics Blocks </a>
                                         </div>
                                     </div>
-                                    <a class="btn btn-lg green newBlock" id="newMetrics" style="margin-bottom:30px;"> <i class="fa fa-plus"></i> Create new</a>
+                                    <a class="btn btn-lg green newBlock" name="metrics" style="margin-bottom:30px;"> <i class="fa fa-plus"></i> Create new</a>
 
                                     <input type="hidden" id="base-url" value="<?php echo $GLOBALS['BASEURL']; ?>" />
 
@@ -133,7 +133,7 @@ require "../../htmlib/js.inc.php"; ?>
                                             <a class="btn green" onclick="reload('consolidation')"> Reload Consolidation Blocks </a>
                                         </div>
                                     </div>
-                                    <a class="btn btn-lg green newBlock" id="newConsolidation" style="margin-bottom:30px;"> <i class="fa fa-plus"></i> Create new</a>
+                                    <a class="btn btn-lg green newBlock" name="consolidation" style="margin-bottom:30px;"> <i class="fa fa-plus"></i> Create new</a>
 
                                     <input type="hidden" id="base-url" value="<?php echo $GLOBALS['BASEURL']; ?>" />
 

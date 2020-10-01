@@ -81,7 +81,7 @@ require "../../htmlib/js.inc.php"; ?>
                                             <a id="workflowsReload" class="btn green"> Reload Workflows </a>
                                         </div>
                                     </div>
-                                    <a href="oeb_management/oeb_process/oeb_newWorkflow.php" class="btn btn-lg green" id="newWorkflow" style="margin-bottom:30px;"> <i class="fa fa-plus"></i> Create new</a>
+                                    <a href="oeb_management/oeb_block/oeb_newWorkflow.php" class="btn btn-lg green" id="newWorkflow" style="margin-bottom:30px;"> <i class="fa fa-plus"></i> Create new</a>
 
                                     <input type="hidden" id="base-url" value="<?php echo $GLOBALS['BASEURL']; ?>" />
 

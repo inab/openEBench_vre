@@ -1,6 +1,6 @@
 //function for the admin to reject a tool
 function rejectTool(id) {
-    var urlJSON = "applib/oeb_processesAPI.php";
+    var urlJSON = "applib/oeb_blocksAPI.php";
 
     if(confirm("Do you want to reject the workflow?")) {
         $.ajax({
@@ -16,7 +16,7 @@ function rejectTool(id) {
 
 //function for the admin to register a tool
 function registerTool(id) {
-	var urlJSON = "applib/oeb_processesAPI.php";
+	var urlJSON = "applib/oeb_blocksAPI.php";
 	
 	if(confirm("Do you want to create a tool?")) {
         $("#general").hide();
@@ -61,7 +61,7 @@ function registerTool(id) {
                 reload();
             //if there are an error that no corresponds to the validator is that.
             } else {
-                $("#errorsTool").text("The validation process used in WF does not exist in the DDBB.");
+                $("#errorsTool").text("The validation block used in WF does not exist in the DDBB.");
             }
             $("#errorsTool").removeClass("alert alert-info");
             $("#errorsTool").addClass("alert alert-danger");
@@ -73,7 +73,7 @@ function registerTool(id) {
 
 //for the View JSON option
 function callShowWorkflowJson(id) {
-    var urlJSON = "applib/oeb_processesAPI.php";
+    var urlJSON = "applib/oeb_blocksAPI.php";
     $('#modalAnalysis').modal('show');
 	$('#modalAnalysis .modal-body').html('Loading data...');
 
@@ -92,7 +92,7 @@ $(document).ready(function() {
 
 	$("#errorsTool").hide();
 
-    var urlJSON = "applib/oeb_processesAPI.php";
+    var urlJSON = "applib/oeb_blocksAPI.php";
 	//the id has to be current in the petition. If not, returns information about the owner with the id given
     $.ajax({
 		type: 'POST',
@@ -100,11 +100,10 @@ $(document).ready(function() {
 		data: {'action': 'getUser', 'id': 'current'}
 	}).done(function(data) {
         var currentUser = data;
-        
-        var columns = [{ "data" : "_id"},
+        var columns = [{ "data" : "data.title"},
         { "data" : "date" },
-        { "data" : "owner.author" },
-        { "data" : "owner.community", 'defaultContent': '' },
+        { "data" : "data.owner.author" },
+        { "data" : "data.owner.oeb_community", 'defaultContent': '' },
         { "data" : null, 'defaultContent': '' },
         { "data" : "request_status" }];
 
@@ -112,19 +111,15 @@ $(document).ready(function() {
         if(currentUser["Type"] == 0){
             columns.push({"data": null,  'defaultContent': '', "title": "Actions", "targets": 6, render: function(data, type, row) {
                 if (data["request_status"] == "submitted") {
-                    if (currentUser["Type"] == 0) {
-                        return '<div class="btn-group"><button class="btn btn-xs green dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false"> Actions <i class="fa fa-angle-down"></i></button>' +
-                            '<ul class="dropdown-menu pull-right" role="menu">' +
-                                '<li>' +
-                                    '<a onclick="registerTool(name);" name="'+row._id+'" id="s'+row._id+'"><i class="fa fa-check-square-o"></i> Create VRE tool</a>' +
-                                '</li>' +
-                                '<li>' +
-                                    '<a onclick="rejectTool(name);" name="'+row._id+'" id="r'+row._id+'"><i class="fa fa-ban"></i> Reject workflow</a>' +
-                                '</li>' +
-                            '</ul></div>'
-                    } else if (currentUser["Type"] == 1) {
-                        return '';
-                    }
+                    return '<div class="btn-group"><button class="btn btn-xs green dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false"> Actions <i class="fa fa-angle-down"></i></button>' +
+                        '<ul class="dropdown-menu pull-right" role="menu">' +
+                            '<li>' +
+                                '<a onclick="registerTool(name);" name="'+row._id+'" id="s'+row._id+'"><i class="fa fa-check-square-o"></i> Create VRE tool</a>' +
+                            '</li>' +
+                            '<li>' +
+                                '<a onclick="rejectTool(name);" name="'+row._id+'" id="r'+row._id+'"><i class="fa fa-ban"></i> Reject workflow</a>' +
+                            '</li>' +
+                        '</ul></div>';
                 } else {
                     return '';
                 }
@@ -134,7 +129,7 @@ $(document).ready(function() {
         //GENERAL DATATABLE
         $('#workflowsTable').DataTable( {
             "ajax": {
-                url: 'applib/oeb_processesAPI.php?action=getWorkflows',
+                url: 'applib/oeb_blocksAPI.php?action=getWorkflows',
                 dataSrc: ''
             },
             autoWidth: false,
@@ -181,7 +176,7 @@ $(document).ready(function() {
 
 //for reload the table of workflows
 function reload() {
-	$.getJSON('applib/oeb_processesAPI.php?action=getWorkflows', function() {
+	$.getJSON('applib/oeb_blocksAPI.php?action=getWorkflows', function() {
 		var oTblReport;
 
 		if ($.fn.dataTable.isDataTable('#workflowsTable')) {

@@ -348,6 +348,7 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 	<?php break;
 	case 'oeb_newWorkflow': ?>
 		<script src="assets/pages/oeb_js/oeb_newWorkflow.js?v=<?php echo rand(); ?>" type="text/javascript"></script>
+		<script src="https://cdn.jsdelivr.net/npm/@json-editor/json-editor@latest/dist/jsoneditor.min.js"></script>
 	<?php break;
 	case 'adminJobs': ?>
 		<script src="assets/pages/scripts/adminJobs.js?v=<?php echo rand(); ?>" type="text/javascript"></script>

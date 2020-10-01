@@ -29,7 +29,7 @@ require "../../htmlib/js.inc.php"; ?>
                             <i class="fa fa-circle"></i>
                         </li>
                         <li>
-                            <a href="oeb_management/oeb_process/oeb_workflows.php">Workflows</a>
+                            <a href="oeb_management/oeb_block/oeb_workflows.php">Workflows</a>
                             <i class="fa fa-circle"></i>
                         </li>
                         <li>
@@ -46,7 +46,11 @@ require "../../htmlib/js.inc.php"; ?>
                 <!-- END PAGE TITLE -->
                 <!-- END PAGE HEADER -->
 
-                <div class="row">
+                <div id="loading-datatable" class="loadingForm">
+                    <div id="loading-spinner">LOADING</div>
+                    <div id="loading-text">It could take a few minutes</div>
+                </div>
+                <div class="row steps">
 			        <div class="col-md-12">
 						<div class="mt-element-step">
 							<div class="row step-line">
@@ -67,7 +71,7 @@ require "../../htmlib/js.inc.php"; ?>
 
 					</div>
 			    </div>
-                <div class="portlet-body">
+                <div class="portlet-body steps">
                     <div class="tabbable-custom nav-justified">
                         <ul class="nav nav-tabs nav-justified">
                             <li class="active uppercase">
@@ -87,10 +91,12 @@ require "../../htmlib/js.inc.php"; ?>
                             </div>
                             <div class="tab-pane" id="consolidation">
                             </div>
+                            <br>
+                            <div id="divErrors"></div>
                         </div>
                     </div>
                 </div>
-                <div class="row">
+                <div class="row steps">
 					<div class="col-md-12 col-sm-12">
 						<div class="portlet light bordered">
 							<div class="portlet-title">
@@ -99,19 +105,21 @@ require "../../htmlib/js.inc.php"; ?>
 									<span class="caption-subject font-dark bold uppercase">Necessary Information</span>
 								</div>
 							</div>
-
+                            <!-- LOADING SPINNER -->
+                            <br>
+                            
 							<div class="portlet-body">
 								<div class="" data-always-visible="1" data-rail-visible="0">
                                     <div class="form-group">
-                                        <label for="nameWorkflow">Name</label>
+                                        <div id='editor_holder'></div>
+                                        <button id="submit" style="display:none;" class="btn btn-primary">Submit</button>
+                                        <br>
+                                        <p class="errorClass" id="idP" style="display:none;"></p>
+<!--                                    <label for="nameWorkflow">Name</label>
                                         <a href="javascript:;" target="_blank" class="tooltips" data-toggle="tooltip" data-trigger="hover" data-placement="top" 
                                         title="Set here the name of your new workflow."><i class="icon-question"></i></a>
                                         <input type="text" class="form-control" id="nameWorkflow">
-                                        <br>
-                                        <div id="divErrors" style="display:none;" class="alert alert-danger"></div>
-                                        <div id="setWorkflow" class="portlet-body" >
-                                            <button id="submit" class="btn btn-lg green"> <i class="fa fa-plus"></i>  SUBMIT</button>
-                                        </div>
+                                        <br> -->
                                     </div>
 								</div>
 							</div>
@@ -119,8 +127,44 @@ require "../../htmlib/js.inc.php"; ?>
 					</div>
                 </div>
             </div>
-                <!-- END CONTENT BODY -->
+            <!-- END CONTENT BODY -->
+            <style type="text/css">
+                li a[href="#Owner"], li a[href="#Output-results"] {
+                    display: none;
+                }
 
-                <?php
-                require "../../htmlib/footer.inc.php";
-                ?>
+                .invalid-feedback {
+                    color: red;
+                }
+
+                button {
+                    margin: 3px;
+                }
+
+                label {
+                    font-weight: bold;
+                }
+
+                #idP {
+                    margin-top: 20px;
+                }
+                
+                /* Encapsulate some fields */
+                .form-group, .btn-group,
+                div[data-schemapath="root.nextflow_files.files"] {
+                    margin-left: 20px;
+                }
+
+                input[type="file"] {
+                    color: red;
+                }
+
+                .form-group .required {
+                    font-size: 14px;
+                    color: #333;
+                }
+            </style>
+
+            <?php
+            require "../../htmlib/footer.inc.php";
+            ?>

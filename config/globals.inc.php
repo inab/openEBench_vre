@@ -281,9 +281,8 @@ $GLOBALS['status_requested'] = Array(
 	4 => "Rejected"
 );
 $GLOBALS['gitlab_server'] = "https://gitlab.bsc.es/";
-$GLOBALS['oeb_validation_schema'] = "https://raw.githubusercontent.com/inab/OpEB-VRE-schemas/master/oeb_validation_workflow_schema_v2.json";
-$GLOBALS['oeb_metrics_schema'] = "https://raw.githubusercontent.com/inab/OpEB-VRE-schemas/master/oeb_metrics_workflow_schema_v2.json";
-$GLOBALS['oeb_consolidation_schema'] = "https://raw.githubusercontent.com/inab/OpEB-VRE-schemas/master/oeb_consolidation_workflow_schema_v2.json";
+$GLOBALS['oeb_block_schema'] = "https://raw.githubusercontent.com/inab/OpEB-VRE-schemas/master/oeb_block_UI.json";
+$GLOBALS['oeb_workflow_schema'] = "https://raw.githubusercontent.com/inab/OpEB-VRE-schemas/master/oeb_workflow_UI.json";
 
 $GLOBALS['oeb_general_ontology_reasoner'] = "https://raw.githubusercontent.com/inab/OEB-ontologies/master/oebDatasets-complete.owl";
 
@@ -298,3 +297,8 @@ $GLOBALS['oeb_ancestorModels'] = Array(
  	"oeb_ancestor_datasets" => "https://w3id.org/oebDatasets/dataset",
 	"oeb_ancestor_formats" => "https://w3id.org/oebDataFormats/FormatDatasets"
 );
+
+$GLOBALS['oeb_block_validator'] = 'oeb_block_validator.json';
+$GLOBALS['oeb_workflow_validator'] = 'oeb_workflow_validator.json';
+//script to run the JM validator
+$GLOBALS['oeb_script_validator'] = "oeb_validatorScript.sh";
