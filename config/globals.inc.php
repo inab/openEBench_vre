@@ -270,34 +270,40 @@ $GLOBALS['clouds'] = Array(
 );
 
 #OPENEBENCH
+// Temporal directory used when uploading reference data
 $GLOBALS['oeb_tmp']     = $GLOBALS['shared']."tmp/"; // Temporal data directory
-$GLOBALS['oeb_tool_wrapper'] = "/home/vre/projects/wrapper_test/VRE_NF_RUNNER";
+
+// From OEB WF to VRE tool
+$GLOBALS['oeb_tool_wrapper'] = "/home/vre/projects/wrapper_test/VRE_NF_RUNNER"; // in VM-tool
 $GLOBALS['oeb_tool_json_schema']    = $GLOBALS['root']."/install/data/tool_schemas/tool_specification/oeb_tool_schema.json"; // specific data model for OEB-VRE tool registration
+
+// OEB WF VALIDATION
 $GLOBALS['status_requested'] = Array(
 	0 => "In preparation",
 	1 => "Submitted",
 	2 => "To be reviewed",
 	3 => "Registered",
 	4 => "Rejected"
-);
-$GLOBALS['gitlab_server'] = "https://gitlab.bsc.es/";
-$GLOBALS['oeb_block_schema'] = "https://raw.githubusercontent.com/inab/OpEB-VRE-schemas/master/oeb_block_UI.json";
-$GLOBALS['oeb_workflow_schema'] = "https://raw.githubusercontent.com/inab/OpEB-VRE-schemas/master/oeb_workflow_UI.json";
+); // WF status
+$GLOBALS['gitlab_server'] = "https://gitlab.bsc.es/"; //reference git server supporting CI
+$GLOBALS['oeb_block_schema'] = "https://raw.githubusercontent.com/inab/OpEB-VRE-schemas/master/oeb_block_UI.json";  // block web form json (ui)
+$GLOBALS['oeb_workflow_schema'] = "https://raw.githubusercontent.com/inab/OpEB-VRE-schemas/master/oeb_workflow_UI.json"; // workflow web form json (ui)
 
-$GLOBALS['oeb_general_ontology_reasoner'] = "https://raw.githubusercontent.com/inab/OEB-ontologies/master/oebDatasets-complete.owl";
+$GLOBALS['oeb_general_ontology_reasoner'] = "https://raw.githubusercontent.com/inab/OEB-ontologies/master/oebDatasets-complete.owl"; // should correspond to the URIs refered in 'oeb_workflow_schema'
 
-//ontologies
+// List of URI ontologies accepted in our schemas
 $GLOBALS['oeb_dataModels'] = Array(
 	"oeb_datasets_complete" => "https://w3id.org/oebDatasets/complete", //equivalent to oeb_datasets but without imports (in a plain text)
  	"oeb_datasets" => "https://w3id.org/oebDatasets",
 	"oeb_formats" => "https://w3id.org/oebDataFormats"
 );
-
+// List of URI ontologies accepted in our schemas
 $GLOBALS['oeb_ancestorModels'] = Array(
  	"oeb_ancestor_datasets" => "https://w3id.org/oebDatasets/dataset",
 	"oeb_ancestor_formats" => "https://w3id.org/oebDataFormats/FormatDatasets"
 );
-
+// JSON schemas used by the enriched validator
+// should be found at the directory specified at oeb_tool_validation/fairtracks_validator/python
 $GLOBALS['oeb_block_validator'] = 'oeb_block_validator.json';
 $GLOBALS['oeb_workflow_validator'] = 'oeb_workflow_validator.json';
 //script to run the JM validator

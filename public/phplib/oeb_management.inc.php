@@ -683,7 +683,7 @@ function _validateObject($nameFile, $data, $schema_validator) {
 	}
 
 	//calls to the script to run the validator
-	$cmd = "bash ./" . $GLOBALS['oeb_script_validator']. " " . $tempFile . " " . $schema_validator;
+	$cmd = "bash ./oeb_validatorScript.sh $tempFile $schema_validator";
 
 	//execute the comand script
 	$output = shell_exec($cmd);
@@ -1128,7 +1128,25 @@ function setWorkflow($json, $validation, $metrics, $consolidation) {
 
 	$data_workflow = json_decode($json, true);
 
-	//MongoDB query
+	//Validate form data
+
+	// TODO: materialize reference datasets
+	// take as reference old validation function : https://github.com/inab/openEBench_vre/blob/e5f85e45c65cb1fe103504e037ee1b9f71cabf73/public/phplib/oeb_management.inc.php#L406	
+
+	// TODO: use JM validator to check form data
+	// take as references setBlock()
+	/*
+	$validator = _validateObject("block.json", $data, $GLOBALS['oeb_block_validator']);
+        if($validator[0] != 200) {
+                $response_json->setCode($validator[0]);
+                $response_json->setMessage($validator[1]);
+
+                return $response_json->getResponse();
+        } */ 
+
+
+	//Compose WF data from 3 blocks + form data
+
 	$data = array();
 	//is a function that is not done by me that create a fake ID
 	$data['_id'] = createLabel($GLOBALS['AppPrefix']."_workflow",'workflowsCol');
@@ -1142,7 +1160,7 @@ function setWorkflow($json, $validation, $metrics, $consolidation) {
 	//by default the status is submitted
 	$data['request_status'] = "submitted";
 	
-	//mongo query
+	//Mongo query insert into Workflows collection
 	try {
 		//insert the workflow
 		$GLOBALS['workflowsCol']->insert($data);

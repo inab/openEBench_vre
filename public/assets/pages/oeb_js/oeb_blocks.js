@@ -75,6 +75,7 @@ function deleteBlock(id, typeBlock) {
 }
 
 function editBlock(id, typeBlock) {
+	// id =>  block id; typeBlock => either "edit" or "submit" 
 	location.href = "oeb_management/oeb_block/oeb_newBlock.php?action=editBlock&id=" + id + "&typeBlock="+typeBlock;
 }
 

@@ -143,6 +143,7 @@ $(document).ready(function() {
         var action = url.searchParams.get("action");
         var idBlock = url.searchParams.get("id");
 
+	// show either submit button or edit button (with blocks data)
         if (action == "editBlock") {
           $(".page-title").text("Edit block");
           $("#spanCreate").text("Edit block");
@@ -151,6 +152,7 @@ $(document).ready(function() {
             url: urlJSON,
             data: {'action': 'getBlock', 'id': idBlock}
           }).done(function(data) {
+	    // load block  fields as default values
             blockEdit = data;
             editor.setValue(data["data"]);
 
@@ -195,6 +197,25 @@ function clickButton(typeBlock) {
 
     $(".errorClass").show();
   });
+
+ $('#edit').on("click",function() {
+    console.log(editor.getValue());
+    //if there are errors = true, no errors = false
+    var errors = validateErr("edit");
+
+    //if there are not errors
+    if (!errors) {
+      //take the value of the editor (the things that are write in inputs and internally)
+      var json = JSON.stringify(editor.getValue(),null,2);
+ 
+      //inserted into db
+      insertJSON(json, typeBlock, "edit");
+    } 
+
+    $(".errorClass").show();
+  });
+
+
 }
 
 //to get the path
