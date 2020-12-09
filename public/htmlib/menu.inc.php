@@ -3,6 +3,11 @@
 // set seccion for each page
 
 $currentSection = '';
+$currentSubSection='';
+$currentSubSubSection='';
+$currentSubSubSubSection='';
+
+
 
 switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 	case 'index':
@@ -14,6 +19,8 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 			$currentSection = '';
 		} elseif (dirname($_SERVER['PHP_SELF']) == '/launch') {
 			$currentSection = 'lt';
+		} elseif (dirname($_SERVER['PHP_SELF']) == '/oeb_publish') {
+			$currentSection = 'pb';
 		} else {
 			$currentSection = 'uw';
 		}
@@ -391,7 +398,17 @@ sort($visualizers);
 						</ul>
 					</li>
 				<?php } ?>
-
+				<!-- publish to  EUDAT -->
+				<?php if (allowedRoles($_SESSION['User']['Type'], $GLOBALS['ADMIN']) || allowedRoles($_SESSION['User']['Type'], $GLOBALS['TOOLDEV'])) { ?>
+					<li class="nav-item  <?php if ($currentSection == 'pb') { ?>active open<?php } ?>">
+						<a href="oeb_publish/" class="nav-link nav-toggle">
+							<i class="fa fa-upload"></i>
+							<span class="title">Publish to EUDAT</span>
+						</a>
+					</li>
+				<?php } ?>
+				
+				<!-- helpdesk -->
 				<?php if (allowedRoles($_SESSION['User']['Type'], $GLOBALS['NO_GUEST'])) { ?>
 					<li>
 					<li class="nav-item <?php if ($currentSection == 'hd') { ?>active open<?php } ?>">

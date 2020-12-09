@@ -22,6 +22,9 @@ $(document).ready(function() {
   //typeBlock ==> for type
 
   //get the JSON Schema
+
+  console.log(oeb_block_schema);
+
   $.getJSON(oeb_block_schema, function(data) {
     schema = data;
   }).done(function() {

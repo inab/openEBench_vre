@@ -308,3 +308,6 @@ $GLOBALS['oeb_block_validator'] = 'oeb_block_validator.json';
 $GLOBALS['oeb_workflow_validator'] = 'oeb_workflow_validator.json';
 //script to run the JM validator
 $GLOBALS['oeb_script_validator'] = "oeb_validatorScript.sh";
+
+//schema from EUDAT
+$GLOBALS['oeb_eudat_schema'] = "https://raw.githubusercontent.com/inab/EUDAT-OEB-schemas/main/eudatSchema.json";

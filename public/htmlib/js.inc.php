@@ -350,6 +350,10 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 		<script src="assets/pages/oeb_js/oeb_newWorkflow.js?v=<?php echo rand(); ?>" type="text/javascript"></script>
 		<script src="https://cdn.jsdelivr.net/npm/@json-editor/json-editor@latest/dist/jsoneditor.min.js"></script>
 	<?php break;
+	case 'oeb_EUDATdataset': ?>
+		<script src="oeb_publish/oeb_EUDATdataset.js?v=<?php echo rand(); ?>" type="text/javascript"></script>
+		<script src="https://cdn.jsdelivr.net/npm/@json-editor/json-editor@latest/dist/jsoneditor.min.js"></script>
+	<?php break;
 	case 'adminJobs': ?>
 		<script src="assets/pages/scripts/adminJobs.js?v=<?php echo rand(); ?>" type="text/javascript"></script>
 	<?php break;
@@ -418,6 +422,7 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 	case 'uploadForm':
 	case 'oeb_newBlock':
 	case 'oeb_newWorkflow':
+	case 'oeb_EUDATdataset':
 	case 'oeb_manuals':
 	case 'oeb_blocks':
 	case 'oeb_workflows':
