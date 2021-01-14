@@ -10,6 +10,7 @@ $currentSubSubSubSection='';
 
 
 switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
+
 	case 'index':
 		if (dirname($_SERVER['PHP_SELF']) == '/home') {
 			$currentSection = 'hp';
@@ -19,8 +20,12 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 			$currentSection = '';
 		} elseif (dirname($_SERVER['PHP_SELF']) == '/launch') {
 			$currentSection = 'lt';
-		} elseif (dirname($_SERVER['PHP_SELF']) == '/oeb_publish') {
+		} elseif (dirname($_SERVER['PHP_SELF']) == '/oeb_publish/eudat') {
 			$currentSection = 'pb';
+			$currentSubSection = 'eudat';
+		} elseif (dirname($_SERVER['PHP_SELF']) == '/oeb_publish/oeb') {
+			$currentSection = 'pb';
+			$currentSubSection = 'oeb';
 		} else {
 			$currentSection = 'uw';
 		}
@@ -399,13 +404,30 @@ sort($visualizers);
 					</li>
 				<?php } ?>
 				<!-- publish to  EUDAT -->
-				<?php if (allowedRoles($_SESSION['User']['Type'], $GLOBALS['ADMIN']) || allowedRoles($_SESSION['User']['Type'], $GLOBALS['TOOLDEV'])) { ?>
+				<?php if (allowedRoles($_SESSION['User']['Type'], $GLOBALS['NO_GUEST'])) { ?>
+
 					<li class="nav-item  <?php if ($currentSection == 'pb') { ?>active open<?php } ?>">
-						<a href="oeb_publish/" class="nav-link nav-toggle">
-							<i class="fa fa-upload"></i>
-							<span class="title">Publish to EUDAT</span>
+						<a href="javascript:;" class="nav-link nav-toggle">
+							<i class="fa fa-upload" style="color: #B4B4B4;"></i>
+							<span class="title">Publish</span>
+
+							<?php if ($currentSection == 'pg') { ?><span class="selected"></span><?php } ?>
+							<span class="arrow <?php if ($currentSection == 'pg') { ?>open<?php } ?>"></span>
 						</a>
+						<ul class="sub-menu">
+							<li class="nav-item  <?php if ($currentSubSection == 'oeb') { ?>active open<?php } ?>">
+								<a href="oeb_publish/oeb/" class="nav-link ">
+									<span class="title">to OpenEBench</span>
+								</a>
+							</li>
+							<li class="nav-item  <?php if ($currentSubSection == 'eudat') { ?>active open<?php } ?>">
+								<a href="oeb_publish/eudat/" class="nav-link ">
+									<span class="title">to EUDAT/B2SHARE</span>
+								</a>
+							</li>
+						</ul>
 					</li>
+
 				<?php } ?>
 				
 				<!-- helpdesk -->

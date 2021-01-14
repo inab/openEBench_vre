@@ -55,7 +55,7 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 		<?php }
 		break;
 	case 'resetPassword':
-	case 'index': ?>
+	case 'index':?>
 		<?php if (dirname($_SERVER['PHP_SELF']) == '/workspace') { ?>
 			<script src="assets/global/scripts/jquery.dataTables.min.js" type="text/javascript"></script>
 			<script src="assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
@@ -68,7 +68,13 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 			<script src="assets/global/scripts/jquery.dataTables.min.js" type="text/javascript"></script>
 			<script src="assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
 			<script src="assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
-		<?php } elseif ((dirname($_SERVER['PHP_SELF']) == '/home') || (dirname($_SERVER['PHP_SELF']) == '/publicsite')) { ?>
+		<?php } elseif (dirname($_SERVER['PHP_SELF']) == '/oeb_publish/eudat') { ?>
+			<script src="assets/global/scripts/datatable.js" type="text/javascript"></script>
+			<script src="assets/global/plugins/datatables/datatables.min.js" type="text/javascript"></script>
+			<script src="assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
+			<script src="assets/global/scripts/jquery.dataTables.min.js" type="text/javascript"></script>
+			<script src="assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
+		<?php }elseif ((dirname($_SERVER['PHP_SELF']) == '/home') || (dirname($_SERVER['PHP_SELF']) == '/publicsite')) { ?>
 			<script src="assets/global/plugins/cubeportfolio/js/jquery.cubeportfolio.min.js" type="text/javascript"></script>
 		<?php } else { ?>
 			<script src="assets/global/plugins/jquery-validation/js/jquery.validate.min.js" type="text/javascript"></script>
@@ -281,6 +287,8 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 			<script src="assets/pages/scripts/restore-link.js?v=<?php echo rand(); ?>" type="text/javascript"></script>
 		<?php } elseif (dirname($_SERVER['PHP_SELF']) == '/launch') { ?>
 			<script src="assets/pages/scripts/launch-tool.js" type="text/javascript"></script>
+		<?php } elseif (dirname($_SERVER['PHP_SELF']) == '/oeb_publish/eudat') { ?>
+			<script src="oeb_publish/eudat/index.js" type="text/javascript"></script>
 		<?php } elseif ((dirname($_SERVER['PHP_SELF']) == '/home') || (dirname($_SERVER['PHP_SELF']) == '/publicsite')) { ?>
 			<script src="assets/pages/scripts/home.js?v=<?php echo rand(); ?>" type="text/javascript"></script>
 			<script src="assets/pages/scripts/portfolio.js?v=<?php echo rand(); ?>" type="text/javascript"></script>
@@ -351,7 +359,7 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 		<script src="https://cdn.jsdelivr.net/npm/@json-editor/json-editor@latest/dist/jsoneditor.min.js"></script>
 	<?php break;
 	case 'oeb_EUDATdataset': ?>
-		<script src="oeb_publish/oeb_EUDATdataset.js?v=<?php echo rand(); ?>" type="text/javascript"></script>
+		<script src="oeb_publish/eudat/oeb_EUDATdataset.js?v=<?php echo rand(); ?>" type="text/javascript"></script>
 		<script src="https://cdn.jsdelivr.net/npm/@json-editor/json-editor@latest/dist/jsoneditor.min.js"></script>
 	<?php break;
 	case 'adminJobs': ?>
@@ -456,6 +464,7 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 	case 'upload':
 	case 'ws':
 	case 'launch':
+	case 'oeb_publish':
 	case 'hdesk':
 	case 'related':
 	case 'refs':
@@ -497,6 +506,7 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 	case 'upload':
 	case 'ws':
 	case 'launch':
+	case 'oeb_publish':
 	case 'hdesk':
 	case 'related':
 	case 'refs':

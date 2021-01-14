@@ -56,6 +56,11 @@
 				<link href="assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css" rel="stylesheet" type="text/css" />
 				<link href="assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
 				<link href="assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
+			<?php } elseif (dirname($_SERVER['PHP_SELF']) == '/oeb_publish') { ?>
+				<link href="assets/pages/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css" />
+				<link href="assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css" rel="stylesheet" type="text/css" />
+				<link href="assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
+				<link href="assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
 			<?php } elseif ((dirname($_SERVER['PHP_SELF']) == '/home') || (dirname($_SERVER['PHP_SELF']) == '/publicsite')) { ?>
 				<link href="assets/global/plugins/cubeportfolio/css/cubeportfolio.css" rel="stylesheet" type="text/css" />
 			<?php } else { ?>
@@ -235,6 +240,7 @@
 		case 'upload':
 		case 'ws':
 		case 'launch':
+		case "oeb_EUDATdataset":
 		case 'hdesk':
 		case 'related':
 		case 'refs':

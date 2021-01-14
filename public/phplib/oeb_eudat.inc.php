@@ -1,21 +1,5 @@
 <?php
 
-function test(){
-
-	//test data // TODO: hardcoded!!!
-	$fn = "OpEBUSER5e3013febf0a8_5f744250b31b52.35504278";
-	//validate metadata json?
-	$metadata = "./test.json";
-
-	$doi = oeb_publish_file_eudat($fn,"g");
-	echo $doi;
-	if (!is_null($doi)) {
- 		if (registerDOIToVRE($fn, $doi)){
-        		echo "doi correctly registered";
-    		}
-	}
-}
-
 /**
  * Called when user clicks on button to publish to EUDAT 
  * @param fn id of file in VRE
@@ -24,13 +8,12 @@ function test(){
  */
 function oeb_publish_file_eudat($fn,$metadata){
     $eudat_doi=null;
-   
     // fetch file path
-    //$file_path  = $GLOBALS['dataDir']."/".getAttr_fromGSFileId($fn,'path');
+    $file_path  = $GLOBALS['dataDir'].getAttr_fromGSFileId($fn,'path');
 
     //publication subprocess
-    $eudat_doi = system('python ../../scripts/populate/upload.py '.$metadata, $retvalue);
-    //$eudat_doi = system('python ../../scripts/populate/upload.py '.$metadata.' '.$file_path, $retvalue);
+    //add token parametre!
+    $eudat_doi = system("python ../../scripts/populate/publish.py "."'".$metadata."' '".$file_path."'", $retvalue);
 
     return $eudat_doi;
 }
@@ -43,7 +26,7 @@ function oeb_publish_file_eudat($fn,$metadata){
 function registerDOIToVRE ($fn, $DOI) {
     $registered = false;
     if ($DOI != null) {
-        $newMetadata = array("eudat_DOI" => $DOI);
+        $newMetadata = array("oeb_eudatDOI" => $DOI);
         if(addMetadataBNS($fn,$newMetadata)){
             $registered = true;
         }

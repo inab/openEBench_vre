@@ -21,11 +21,12 @@ import json
 #module created by txelfe with functions to validate json docs 
 #import validation
 
-#token from txellfe user and test env
-#token = "CcPEWY59ylwOFZCIAyI0wyHRlgldSR8dFtPzshbFKnC6A2L1umi7IFP3uO6v"
-#token test
-token = "ixQFTHFCUIPTjaBRps6ixPjLAo40M8fCE6AR6lEsttokUuS7q8xP2pLnD7Is"
+#training env
 #host = "trng-b2share.eudat.eu"
+#token = "CcPEWY59ylwOFZCIAyI0wyHRlgldSR8dFtPzshbFKnC6A2L1umi7IFP3uO6v"
+
+#test env
+token = "ixQFTHFCUIPTjaBRps6ixPjLAo40M8fCE6AR6lEsttokUuS7q8xP2pLnD7Is"
 host = "eudat-b2share-test.csc.fi"
 
 #schemaFileName = "openSchema.json"
@@ -33,20 +34,26 @@ host = "eudat-b2share-test.csc.fi"
 #OpenEBench community ID:b3b2f331-7cf8-44c5-a15a-1dae9dca48f6
 #Prod enviroment host: b2share.eudat.eu
 
-#PAth where to save logs
 
 
 def main():
-    
+    #global token
+
     if len(sys.argv) > 1:
+        #token 
+        #token = sys.argv[1]
+
         #json to upload
-        fileWithMetadata = sys.argv[1]
+        #x = sys.argv[2]
+        #metadata = json.loads(x)
+        x = sys.argv[1]
+        metadata = json.loads(x)
+
         #create draft record from json
-        getResult, created = createDraftRecord(fileWithMetadata)
+        getResult, created = createDraftRecord(metadata)
         if (created):
             bucketID = fileBucketID(getResult)
-            DOI = recordID(getResult)
-            print(DOI)
+            ID = recordID(getResult)
             
             #DOI with files to add
             if len(sys.argv) > 2:
@@ -59,23 +66,26 @@ def main():
                     addFileToRecord(bucketID, fileToAddOnDOI)
             
             #to publish
-            #if (validateJson (fileWithMetadata)):
-            if(updateMetadata(DOI)):
+            #if (validateJson (metadata)):
+            published, DOI = updateMetadata(ID)
+            if(published):
                 print("Record correcltly published")
-                print(DOI)
+                print("\n"+DOI)
             else:
                 print("Record NOT correcltly published")
             
         else:
             print("Error creating DOI")
+            #return false
         
         
     else:
         print("Error - Not correctly introduce arguments")
+        #return false
 
     
 
-def createDraftRecord (jsonMetadataFile):
+def createDraftRecord (jsonMetadata):
     """
     Creates a draft reacord to B2SHARE test enviroment on EUDAT community
 
@@ -86,29 +96,21 @@ def createDraftRecord (jsonMetadataFile):
 
     """
     created = False
-    try:
-        with open(jsonMetadataFile) as json_file: 
-            metadata = json.load(json_file) 
         
-        
-        header = {"Content-Type": "application/json"}
-        url = "https://"+host+"/api/records/"
-        response = requests.request("POST", url, params={'access_token': token}, data=json.dumps(metadata),headers=header)
-        
-        #saveToFile(path, response)
-        if (response.status_code == 201):
-             #print(response.text.encode('utf8'))
+    header = {"Content-Type": "application/json"}
+    url = "https://"+host+"/api/records/"
+    response = requests.request("POST", url, params={'access_token': token}, data=json.dumps(jsonMetadata),headers=header)
+
+    if (response.status_code == 201):
            
-             created = True
+        created = True
              
-        elif (response.status_code == 401):
-             print("Permision denied")
-             sys.exit()
-        return response, created
-    
-    except IOError or TypeError:
-        print("No such file or directory")
+    elif (response.status_code == 401):
+        print("Permision denied")
         sys.exit()
+    return response, created
+    
+    
 
 
 def fileBucketID(responseUpload):
@@ -142,14 +144,16 @@ def recordID(responseUpload):
 
     Returns
     -------
-    None.
+    ID
 
     """
     
     result = json.loads(responseUpload.text)
-    DOI = result["id"]
+    ID = result["id"]
 
-    return DOI
+    return ID
+
+
 
 
 
@@ -169,8 +173,9 @@ def addFileToRecord(fileBucketID, fileToAdd):
     None.
 
     """
+    filename = fileToAdd.split("/")[-1]
     try: 
-        url = "https://"+host+"/api/files/"+fileBucketID+"/"+fileToAdd+"?access_token="+token
+        url = "https://"+host+"/api/files/"+fileBucketID+"/"+filename+"?access_token="+token
     
         payload = open(fileToAdd, "r")
         payload = payload.read()
@@ -209,9 +214,10 @@ def updateMetadata(draftID):
     """
 
     published = False
+    DOI = ""
+
     url = "https://"+host+"/api/records/"+draftID+"/draft?access_token="+token
     
-    #payload = "[\n    {\"op\": \"add\", \"path\":\"/publication_state\", \"value\": \"submitted\"},\n    { \"op\": \"add\", \"path\": \"/community_specific\", \"value\": {} }\n    \n    ]"
     payload = "[{\"op\": \"add\", \"path\":\"/publication_state\", \"value\": \"submitted\"}]"
     headers = {
       'Content-Type': 'application/json-patch+json'
@@ -219,10 +225,16 @@ def updateMetadata(draftID):
     response = requests.request("PATCH", url, headers=headers, data = payload)
     #saveToFile(path, response)
     if (response.status_code == 200):
-         #print(response.text.encode('utf8'))
-         published = True
+        print(response.text.encode('utf8'))
+        published = True
+        #get doi
+        result = json.loads(response.text)
+        DOI = result["metadata"]["$future_doi"]
+
+         
+
     
-    return published
+    return published, DOI
     
 
 

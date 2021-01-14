@@ -2,7 +2,7 @@
 
 require __DIR__."/../../config/bootstrap.php";
 redirectOutside();
-
+echo "hola";
 require "../htmlib/header.inc.php";
 
 $tls = getTools_ListComplete(1);
