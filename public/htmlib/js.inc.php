@@ -68,6 +68,12 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 			<script src="assets/global/scripts/jquery.dataTables.min.js" type="text/javascript"></script>
 			<script src="assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
 			<script src="assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
+		<?php } elseif (dirname($_SERVER['PHP_SELF']) == '/oeb_publish/oeb') { ?>
+			<script src="assets/global/scripts/datatable.js" type="text/javascript"></script>
+			<script src="assets/global/plugins/datatables/datatables.min.js" type="text/javascript"></script>
+			<script src="assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
+			<script src="assets/global/scripts/jquery.dataTables.min.js" type="text/javascript"></script>
+			<script src="assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
 		<?php } elseif (dirname($_SERVER['PHP_SELF']) == '/oeb_publish/eudat') { ?>
 			<script src="assets/global/scripts/datatable.js" type="text/javascript"></script>
 			<script src="assets/global/plugins/datatables/datatables.min.js" type="text/javascript"></script>
@@ -287,6 +293,8 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 			<script src="assets/pages/scripts/restore-link.js?v=<?php echo rand(); ?>" type="text/javascript"></script>
 		<?php } elseif (dirname($_SERVER['PHP_SELF']) == '/launch') { ?>
 			<script src="assets/pages/scripts/launch-tool.js" type="text/javascript"></script>
+		<?php } elseif (dirname($_SERVER['PHP_SELF']) == '/oeb_publish/oeb') { ?>
+			<script src="oeb_publish/oeb/index.js" type="text/javascript"></script>
 		<?php } elseif (dirname($_SERVER['PHP_SELF']) == '/oeb_publish/eudat') { ?>
 			<script src="oeb_publish/eudat/index.js" type="text/javascript"></script>
 		<?php } elseif ((dirname($_SERVER['PHP_SELF']) == '/home') || (dirname($_SERVER['PHP_SELF']) == '/publicsite')) { ?>

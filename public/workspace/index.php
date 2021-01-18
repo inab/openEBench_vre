@@ -3,7 +3,6 @@
 require __DIR__ . "/../../config/bootstrap.php";
 redirectOutside();
 
-
 // Print header
 
 require "../htmlib/header.inc.php";

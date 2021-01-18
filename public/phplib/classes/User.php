@@ -17,10 +17,11 @@ class User {
     public $dataDir;
     public $DataSample;
     public $Token;
-    public $AuthProvider;
     public $id;
+    public $AuthProvider;
     public $activeProject;
     public $oeb_community;
+    public $oeb_roles;
 
     function __construct($f) {
 
@@ -29,7 +30,7 @@ class User {
             return 0;
 
         // set attributes from arguments
-        foreach (array('Surname','Name','Inst','Country','Email','Type','dataDir','diskQuota','DataSample','AuthProvider','activeProject','oeb_community') as $k)
+        foreach (array('Surname','Name','Inst','Country','Email','Type','dataDir','diskQuota','DataSample','AuthProvider','activeProject','oeb_community','oeb_roles') as $k)
             $this->$k= sanitizeString($f[$k]);
 
         // set credential attributes (crypPassword or Token or ANON)

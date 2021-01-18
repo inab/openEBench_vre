@@ -13,7 +13,7 @@ $(document).ready(function() {
         //build table
         var table = $('#filesTable').DataTable( {
             "ajax": {
-                url: 'applib/publishFormAPI.php?action=getAllFiles',
+                url: 'applib/publishFormAPI.php?action=getAllFiles&type=participant',
                 dataSrc: ''
             },
             "columns" : [

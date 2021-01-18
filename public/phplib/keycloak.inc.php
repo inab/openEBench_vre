@@ -36,9 +36,9 @@ function get_keycloak_admintoken(){
     if ($info['http_code'] != 200 && $info['http_code'] != 204){
         if ($resp){
             $err = json_decode($resp,TRUE);
-            $_SESSION['errorData']['Warning'][]="Admin access to MuG Auth Server unauthorized. [".$err['error']."]: ".$err['error_description'];
+            $_SESSION['errorData']['Warning'][]="Admin access to Auth Server unauthorized. [".$err['error']."]: ".$err['error_description'];
         }else{
-            $_SESSION['errorData']['Warning'][]="Admin access to MuG Auth Server unauthorized.";
+            $_SESSION['errorData']['Warning'][]="Admin access to Auth Server unauthorized.";
         }
         return false;
     }
@@ -47,20 +47,22 @@ function get_keycloak_admintoken(){
     return json_decode($resp,TRUE);
 }
 
-function get_keycloak_user($username,$token){
+function get_keycloak_user($email,$token){
         
-    $url     =   $GLOBALS['authServer']."/admin/realms/mug/users?username=$username";
+    $url     =   $GLOBALS['authServer']."/admin/realms/".$GLOBALS['authRealm']."/users?email=$email";
     $headers = array("Content-Type: application/json" , "Authorization: Bearer $token");
 
     #curl -v  -X GET -H "Authorization: Bearer  $token" -H "Accept: application/json" https://inb.bsc.es/auth/admin/realms/mug/users?username=user@mail.com
+
     list($resp,$info) =get($url,$headers);
+var_dump("RESP email=$email",$info);
 
     if ($info['http_code'] != 200 && $info['http_code'] != 204){
             if ($resp){
                 $err = json_decode($resp,TRUE);
-                $_SESSION['errorData']['Warning'][]="Admin access to MuG Auth Server users unauthorized. [".$err['error']."]: ".$err['error_description'];
+                $_SESSION['errorData']['Warning'][]="Admin access to Auth Server users unauthorized. [".$err['error']."]: ".$err['error_description'];
             }else{
-                $_SESSION['errorData']['Warning'][]="Admin access to MuG Auth Server users unauthorized.";
+                $_SESSION['errorData']['Warning'][]="Admin access to Auth Server users unauthorized.";
             }
             return false;
     }
@@ -69,7 +71,7 @@ function get_keycloak_user($username,$token){
 }
 
 function update_keycloak_user($userId,$userData,$token){
-    $url     =   $GLOBALS['authServer']."/admin/realms/mug/users/$userId";
+    $url     =   $GLOBALS['authServer']."/admin/realms/".$GLOBALS['authRealm']."/users/$userId";
     $headers = array("Content-Type: application/json" , "Authorization: Bearer $token");
 
     #curl -v  -X PUT -H "Authorization: Bearer  $1" -H "Accept: application/json" -H "Content-Type: application/json" -d '{ "attributes": { "vre_id": ["MuGUSER59647a6c60244"] }}' https://inb.bsc.es/auth/admin/realms/mug/users/ad9ced86-38f5-4027-8338-d18a3b08990e    
@@ -79,9 +81,9 @@ function update_keycloak_user($userId,$userData,$token){
     if ($info['http_code'] != 200 && $info['http_code'] != 204){
         if ($resp){
             $err = json_decode($resp,TRUE);
-            $_SESSION['errorData']['Warning'][]="Admin access to MuG Auth Server for user update unauthorized. [".$err['error']."]: ".$err['error_description'];
+            $_SESSION['errorData']['Warning'][]="Admin access to Auth Server for user update unauthorized. [".$err['error']."]: ".$err['error_description'];
         }else{
-           $_SESSION['errorData']['Warning'][]="Admin access to MuG Auth Server for user update unauthorized.";
+           $_SESSION['errorData']['Warning'][]="Admin access to Auth Server for user update unauthorized.";
         }
         return false;
     }
@@ -90,7 +92,7 @@ function update_keycloak_user($userId,$userData,$token){
 
 function update_keycloak_userPass($userId,$token){
 
-    $url     =   $GLOBALS['authServer']."/admin/realms/mug/users/$userId/execute-actions-email";
+    $url     =   $GLOBALS['authServer']."/admin/realms/".$GLOBALS['authRealm']."/users/$userId/execute-actions-email";
     $headers = array("Content-Type: application/json" , "Authorization: Bearer $token");
 
     $data = json_encode(array("UPDATE_PASSWORD"));
@@ -100,9 +102,9 @@ function update_keycloak_userPass($userId,$token){
     if ($info['http_code'] != 200 && $info['http_code'] != 204){
         if ($resp){
             $err = json_decode($resp,TRUE);
-            $_SESSION['errorData']['Warning'][]="Admin access to MuG Auth Server for user password update unauthorized. [".$err['error']."]: ".$err['error_description'];
+            $_SESSION['errorData']['Warning'][]="Admin access to Auth Server for user password update unauthorized. [".$err['error']."]: ".$err['error_description'];
         }else{
-           $_SESSION['errorData']['Warning'][]="Admin access to MuG Auth Server for user password update unauthorized.";
+           $_SESSION['errorData']['Warning'][]="Admin access to Auth Server for user password update unauthorized.";
         }
         return false;
     }

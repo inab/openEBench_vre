@@ -39,14 +39,14 @@ $projects = getProjects_byOwner();
                             <i class="fa fa-circle"></i>
                         </li>
                         <li>
-                            <span>Publish participant data</span>
+                            <span>Publish data</span>
                         </li>
                     </ul>
                 </div>
                 <!-- END PAGE BAR -->
                 <!-- BEGIN PAGE TITLE-->
                 <!-- BEGIN PAGE TITLE-->
-                <h1 class="page-title"> Publish participant data
+                <h1 class="page-title"> Publish data
                     <!-- Choose project from list of projects the user has in his workspace -->
                     <div class="input-group" style="float:right; width:200px; margin-right:10px;">
                         <span class="input-group-addon" style="background:#5e738b;"><i class="fa fa-sitemap font-white"></i></span>
@@ -74,7 +74,7 @@ $projects = getProjects_byOwner();
                             <div class="portlet-title">
                                 <div class="caption">
                                     <i class="icon-share font-dark hide"></i>
-                                    <span class="caption-subject font-dark bold uppercase">Select File(s)</span> <small style="font-size:75%;">Please select the file or files you want to use</small>
+                                    <span class="caption-subject font-dark bold uppercase">Select File(s)</span> <small style="font-size:75%;">Please select the file or files you want to request to include into the challenge:</small>
                                 </div>
                                 <div class="actions">
                                     <a href="<?php echo $GLOBALS['BASEURL']; ?>oeb_publish/eudat/index.php" class="btn green"> Reload Workspace </a>
@@ -82,23 +82,12 @@ $projects = getProjects_byOwner();
                             </div>
 
                             <div class="portlet-body">
-                                <!--table with files-->
-                                <table id="filesTable" class="table table-striped table-hover table-bordered" width="100%">
-                                
-                                    <thead>
-                                        <tr> 
-                                            <th><input name="select_all" value="1" id="example-select-all" type="checkbox" /></th>
-                                            <th>id</th>
-                                            <th>Filename</th>
-                                            <th>Data type</th>
-                                            <th>OEB ID</th>
-                                            <th>Eudat DOI</th>
-                                        </tr>
-                                    </thead>
-                                </table>
-                                
-                                <button class=" btn green"  id="btn-run-files" style="margin-top:20px;">Submit file(s)</button> <p id="message"></p>
-                            </div>
+								<div class="tabbable-custom nav-justified">
+									<ul id = "tabs" class="nav nav-tabs nav-justified"></ul>
+									<div class="tab-content">
+									
+									</div>
+								</div>
                         </div>
                     </div>
                 </div>

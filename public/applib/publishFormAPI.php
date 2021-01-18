@@ -5,8 +5,13 @@ redirectOutside();
 
 if($_REQUEST) {
 	if(isset($_REQUEST['action']) && $_REQUEST['action'] == "getAllFiles") {
-		echo(participantFiles());
-		exit;
+		if ($_REQUEST['type'] == 'participant') {
+            echo(files("participant"));
+            exit;
+        } elseif($_REQUEST['type'] == 'assessment') {
+            echo(files("assessment"));
+			exit;
+		}
 		
 	} elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == "getUserInfo") {
 		echo user_info();
@@ -40,17 +45,27 @@ if($_REQUEST) {
     exit;
 }
 
-function participantFiles() {
+function files($type) {
 	//initiallize variables
 	$block_json="{}";
 	$files = array();
 
 	//get data from DB
-	$proj_name_active   = basename(getAttr_fromGSFileId($_SESSION['User']['dataDir'], "path"));        
-    $file_filter = array(
+	$proj_name_active   = basename(getAttr_fromGSFileId($_SESSION['User']['dataDir'], "path"));
+	if ($type == "participant") {
+		$file_filter = array(
             "data_type" => "participant",
             "project"   => $proj_name_active
-    );
+    	);
+
+	} elseif ($type == "assessment") {
+		$file_filter = array(
+            "data_type" => "assessment",
+            "project"   => $proj_name_active
+    	);
+
+	}  
+    
 	$filteredFiles = getGSFiles_filteredBy($file_filter);
 	
 	foreach ($filteredFiles as $key => $value) {

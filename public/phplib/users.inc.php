@@ -119,6 +119,10 @@ function createUserFromToken($login,$token,$userinfo=array(),$anonID=false){
             $f['Name'] = $userinfo['given_name'];
         if ($userinfo['provider'])
             $f['AuthProvider'] = $userinfo['provider'];
+        if ($userinfo['oeb:roles'])
+            $f['oeb_roles'] = $userinfo['oeb:roles'];
+        if ($userinfo['oeb:community'])
+            $f['oeb_community'] = $userinfo['oeb:community'];
     }
     $objUser = new User($f, True);
     if (!$objUser)
@@ -326,16 +330,12 @@ function injectMugIdToKeycloak($login,$id){
 
     if ($kc_token  && isset($kc_token['access_token'])){
         $kc_user = get_keycloak_user($login,$kc_token['access_token']);
-print "\n\n\nKC USER\n";
-var_dump($kc_user);
         if ($kc_user && isset($kc_user['id'])){
             $attributes = array();
             if ($kc_user['attributes'])
                 $attributes = $kc_user['attributes'];
             $attributes['vre_id'] = array($id);
             $data = array("attributes" => $attributes); 
-print "\nPOST DATA\n";
-var_dump(json_encode($data));
             $r = update_keycloak_user($kc_user['id'],json_encode($data),$kc_token['access_token']);
 
             if (!$r){
@@ -475,7 +475,6 @@ function loadUser($login, $pass) {
 function loadUserWithToken($userinfo, $token){
     $login = $userinfo['email'];
     $user = $GLOBALS['usersCol']->findOne(array('_id' => $login));
-
     if (!$user['_id'] || $user['Status'] == 0)
         return False;
     
