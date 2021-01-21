@@ -1,7 +1,7 @@
 <?php
 
-function getCommunities()
-{
+//get all communitites info: id, name...
+function getCommunities(){
 
   $res = array();
   $data_string =
@@ -46,8 +46,7 @@ function getCommunities()
 }
 
 
-function getDatasets()
-{
+function getDatasets(){
   $data_string =
     '{ "query" : 
   "{ 
@@ -95,3 +94,6 @@ function getDatasets()
   return json_decode($r)->data->getDatasets;
   
 }
+
+
+

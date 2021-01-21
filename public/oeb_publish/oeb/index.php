@@ -9,6 +9,9 @@ require "../../htmlib/header.inc.php";
 
 //project list of the user
 $projects = getProjects_byOwner();
+//$communities = getCommunities();
+//var_dump($communities);
+
 
 
 ?>
@@ -20,7 +23,9 @@ $projects = getProjects_byOwner();
         <?php
         require "../../htmlib/top.inc.php"; 
         require "../../htmlib/menu.inc.php";
+        var_dump($_SESSION['User']['TokenInfo']['oeb:roles']);
         ?>
+
 
         <!-- BEGIN CONTENT -->
         <div class="page-content-wrapper">
@@ -47,28 +52,34 @@ $projects = getProjects_byOwner();
                 <!-- BEGIN PAGE TITLE-->
                 <!-- BEGIN PAGE TITLE-->
                 <h1 class="page-title"> Publish data
-                    <!-- Choose project from list of projects the user has in his workspace -->
+                    <!--
+                    <!-- Choose project from list of projects the user has in his workspace 
                     <div class="input-group" style="float:right; width:200px; margin-right:10px;">
                         <span class="input-group-addon" style="background:#5e738b;"><i class="fa fa-sitemap font-white"></i></span>
                         <select class="form-control" id="select_project" onchange="loadProjectWS(this);">
+                            
                             <?php 
+                            /** 
                             foreach ($projects as $p_id => $p) {
                                 $selected = (($_SESSION['User']['dataDir'] == $p_id) ? "selected" : ""); 
                                 echo "<option value=$p_id $selected>". $p['name']."</option>";
                             }
+                            */
                             ?>
+                            
                         </select>
                     </div>
+                    -->
+
                 </h1>
 
                 <!-- END PAGE TITLE -->
                 <!-- END PAGE TITLE-->
                 <!-- END PAGE HEADER-->
-                <!-- BEGIN EXAMPLE TABLE PORTLET -->
 
+                <!-- BEGIN TABS AND TABLE  PORTLET -->
                 <div class="row">
                     <div class="col-md-12 col-sm-12">
-
                         <div class="portlet light bordered">
 
                             <div class="portlet-title">
@@ -76,28 +87,48 @@ $projects = getProjects_byOwner();
                                     <i class="icon-share font-dark hide"></i>
                                     <span class="caption-subject font-dark bold uppercase">Select File(s)</span> <small style="font-size:75%;">Please select the file or files you want to request to include into the challenge:</small>
                                 </div>
-                                <div class="actions">
-                                    <a href="<?php echo $GLOBALS['BASEURL']; ?>oeb_publish/eudat/index.php" class="btn green"> Reload Workspace </a>
-                                </div>
                             </div>
 
                             <div class="portlet-body">
 								<div class="tabbable-custom nav-justified">
 									<ul id = "tabs" class="nav nav-tabs nav-justified"></ul>
 									<div class="tab-content">
-									
-									</div>
+                                    
+                                    </div>
 								</div>
+                                <!--
+                                <button class="btn green" type="submit" id="btn-request-publish" style="margin-top:20px;">ADD FILES</button>
+                                -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 col-sm-12">
+                        <div class="portlet light portlet-fit bordered">
+                            <div class="portlet-body">
+                                
+				                <h4 style="font-weight: bold; color: #666;">List of all status files
+                                <span style="float:right;"><button id ="show-all-files" type="button" class="btn" data-toggle="collapse" data-target="#files"><i class="fa fa-angle-down"></i></button></span>
+                                
+                                </h4>
+                                <br>
+                                <div id="files" class="collapse">
+                                <p style="text-align: center">Under construction</p>
+                                </div>
+                                
+
+                            </div>
+
                         </div>
                     </div>
                 </div>
             </div>
-            
-        
-            <!-- END EXAMPLE TABLE PORTLET-->
+            <!-- END TABS AND TABLE  PORTLET -->
 
             <!-- Footer-->
-            <?php require "../../htmlib/footer.inc.php"; 
+            <?php 
+            require "../../htmlib/footer.inc.php"; 
             require "../../htmlib/js.inc.php";
             ?>                                    
             <style>

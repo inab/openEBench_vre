@@ -22,8 +22,6 @@ require "../../htmlib/js.inc.php";
 
         <?php require "../../htmlib/top.inc.php"; ?>
         <?php require "../../htmlib/menu.inc.php"; ?>
-
-        
         
         <!-- BEGIN CONTENT -->
         <div class="page-content-wrapper">
@@ -31,7 +29,6 @@ require "../../htmlib/js.inc.php";
             <div class="page-content">
 
                 <!-- BEGIN PAGE HEADER-->
-
                 <!-- BEGIN PAGE BAR -->
                 <div class="page-bar">
                     <ul class="page-breadcrumb">
@@ -55,48 +52,53 @@ require "../../htmlib/js.inc.php";
                 <h1 class="page-title">EUDAT Publication</h1>
                 <!-- END PAGE TITLE -->
                 <!-- END PAGE HEADER -->
+
                 <!-- BEGIN LIST FILES  PORTLET -->
                 <div class="row">
                     <div class="col-md-12">
                         <div class="portlet light portlet-fit bordered">
-                            <div id="blocks" class="portlet-body">
-				<h3 style="font-weight: bold; color: #666;">List of datasets</h3>
+                            <div class="portlet-body">
+				                <h3 style="font-weight: bold; color: #666;">List of datasets</h3>
 
+                                <div data-always-visible="1" data-rail-visible="0">
+                                    <div>List of datasets to be published.</div><br/>
+                                    <ul class="feeds" id="list-files-run-tools">
+                                        <?php 
+                                        if (isset($_REQUEST['files']) ){
+                                            $fns =(is_array($_REQUEST['files'])? $_REQUEST['files'] : array($_REQUEST['files']));
 
-				   <div class="portlet-body">
-                        <div class="" data-always-visible="1" data-rail-visible="0">
-                            <div id="desc-run-tools">List of datasets to be published.</div><br/>
-                            <ul class="feeds" id="list-files-run-tools">
-					   <?php 
-					   if (isset($_REQUEST['files']) ){
-						$fns =(is_array($_REQUEST['files'])? $_REQUEST['files'] : array($_REQUEST['files']));
+                                            foreach($fns as $fn){
+                                                $fnPath    = getAttr_fromGSFileId($fn,'path');
+                                                $filename  = basename($fnPath);
+                                                $filedir   = basename(dirname($fnPath));
 
-						foreach($fns as $fn){
-						   $fnPath    = getAttr_fromGSFileId($fn,'path');
-						   $filename  = basename($fnPath);
-						   $filedir   = basename(dirname($fnPath));
-
-					   	?>	
-                            <li>
-                                <div class="col1"><div class="cont">
-                                    <div class="cont-col1"><div class="label label-sm label-info"><i class="fa fa-file"></i></div></div>
-                                    <div class="cont-col2"><div class="desc"><span class="text-info" style="font-weight:bold;"><?php echo $filedir; ?>  /</span> <?php echo $filename; ?></div></div>
-                                </div></div>
-                            </li>
-					   	<?php
-						}
-					   }
-					   ?> 
-					        </ul>
-                        </div>
-                        <div class="scroller-footer">
-					        <a class="btn btn-sm green pull-right" id="btn-rmv-all" href="javascript:windows.history.back(); return false;"><i class="fa fa-times-circle"></i> Edit list</a>
+                                            ?>	
+                                        <li>
+                                            <div class="col1">
+                                                <div class="cont">
+                                                    <div class="cont-col1">
+                                                        <div class="label label-sm label-info">
+                                                            <i class="fa fa-file"></i>
+                                                        </div>
+                                                    </div>
+                                                    <div class="cont-col2">
+                                                        <div class="desc">
+                                                            <span class="text-info" style="font-weight:bold;">
+                                                            <?php echo $filedir; ?>  /</span> <?php echo $filename; }}?>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                    <div class="scroller-footer">
+                                        <a class="btn btn-sm green pull-right" id="btn-rmv-all" href="javascript:windows.history.back(); return false;"><i class="fa fa-times-circle"></i> Edit list</a>
+                                    </div>
+                                </div>
+			                </div>
                         </div>
                     </div>
-			   </div>
-			</div>
-		   </div>
-		</div>
+                </div>
                 <!-- END LIST FILES PORTLET -->
 
                 <!-- BEGIN EXAMPLE TABLE PORTLET -->
