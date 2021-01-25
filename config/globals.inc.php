@@ -132,6 +132,7 @@ $GLOBALS['placeholder_textarea'] = "Click right button to select file(s)"; // te
 
 $GLOBALS['OEB_idsolv'] = "https://openebench.bsc.es/api/scientific/idsolv";
 $GLOBALS['OEB_sciapi'] = "https://openebench.bsc.es/sciapi/graphql/";
+$GLOBALS['OEB_scirestapi'] = "https://openebench.bsc.es/api/scientific/access";
 
 // Cloud infrastructures
 $GLOBALS['cloud']              = "life-bsc"; // VRE central cloud. Options are any of $GLOBALS['clouds']

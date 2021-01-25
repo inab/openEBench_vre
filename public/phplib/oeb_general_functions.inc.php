@@ -1,6 +1,185 @@
 <?php
 
+
+/**
+ * Gets all communitites with their info or an specific community filtered or not
+ * @param $community_id, the id of the community to find
+ * @param $filter_field, the attribute of the given community
+ * @return community/ies (json format). If an error ocurs it return false.
+ */
+function getCommunities($community_id = null, $filter_field = null ){
+  $GLOBALS['OEB_scirestapi'] = 'https://openebench.bsc.es/api/scientific/access';
+
+  if ($community_id == null) {
+    $url = $GLOBALS['OEB_scirestapi']."/Community";
+
+  } else {
+    if ($filter_field == null) {
+      $url = $GLOBALS['OEB_scirestapi']."/Community/".$community_id;
+    } else {
+      $url = $GLOBALS['OEB_scirestapi']."/Community/".$community_id."/".$filter_field;
+    }
+    
+  }
+
+  $curl = curl_init();
+
+  curl_setopt_array($curl, array(
+    CURLOPT_URL => $url,
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_ENCODING => '',
+    CURLOPT_MAXREDIRS => 10,
+    CURLOPT_TIMEOUT => 0,
+    CURLOPT_FOLLOWLOCATION => true,
+    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+    CURLOPT_CUSTOMREQUEST => 'GET',
+    CURLOPT_HTTPHEADER => array(
+      'Accept: aplication/json'
+    ),
+  ));
+
+  $response = curl_exec($curl);
+  $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+
+  if ($status!= 200) {
+    $_SESSION['errorData']['Warning'][]="Error getting datasets. Http code= ".$status;
+    return false;
+  } else {
+     return json_decode($response, true);
+  }
+
+  curl_close($curl);
+
+}
+
+/**
+ * Gets all datasets with their info or an specific dataset filtered or not
+ * @param $dataset_id, the id of the dataset to find
+ * @param $filter_field, the attribute of the given dataset
+ * @return dataset/s (json format). If an error ocurs it return false.
+ */
+function getDatasets($dataset_id = null, $filter_field = null ){
+
+  if ($dataset_id == null) {
+    $url = $GLOBALS['OEB_scirestapi']."/Dataset";
+
+  } else {
+    if ($filter_field == null) {
+      $url = $GLOBALS['OEB_scirestapi']."/Dataset/".$dataset_id;
+    } else {
+      $url = $GLOBALS['OEB_scirestapi']."/Dataset/".$dataset_id."/".$filter_field;
+    }
+    
+  }
+
+
+  $curl = curl_init();
+
+  curl_setopt_array($curl, array(
+    CURLOPT_URL => $url,
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_ENCODING => '',
+    CURLOPT_MAXREDIRS => 10,
+    CURLOPT_TIMEOUT => 0,
+    CURLOPT_FOLLOWLOCATION => true,
+    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+    CURLOPT_CUSTOMREQUEST => 'GET',
+    CURLOPT_HTTPHEADER => array(
+      'Accept: application/json'
+    ),
+  ));
+
+  $response = curl_exec($curl);
+  $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+
+  if ($status!= 200) {
+    $_SESSION['errorData']['Warning'][]="Error getting datasets. Http code= ".$status;
+    return false;
+  } else {
+     return json_decode($response, true);
+  }
+
+  curl_close($curl);
+
+}
+
+
+/**
+ * Get community id
+ * @param challenge_id
+ * @return the community id from the given challenge or false if an error occur.
+ */
+function getCommunityFromChallenge($challenge_id){
+
+  //1. Get benchmarking event id
+
+  $curl = curl_init();
+
+  curl_setopt_array($curl, array(
+    CURLOPT_URL => $GLOBALS['OEB_scirestapi'].'/Challenge/'.$challenge_id.'/benchmarking_event_id',
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_ENCODING => '',
+    CURLOPT_MAXREDIRS => 10,
+    CURLOPT_TIMEOUT => 0,
+    CURLOPT_FOLLOWLOCATION => true,
+    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+    CURLOPT_CUSTOMREQUEST => 'GET'
+  ));
+
+  $response = curl_exec($curl);
+  $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+
+  if ($status!= 200) {
+    $_SESSION['errorData']['Warning'][]="Error getting benchmnarking id. Http code= ".$status;
+    return false;
+  } else {
+    $response = substr($response,1,-1);
+    
+    //2. Get community id from the benchmarking event id
+    $c = curl_init();
+
+    curl_setopt_array($c, array(
+      CURLOPT_URL => $GLOBALS['OEB_scirestapi'].'/BenchmarkingEvent/'.$response.'/community_id',
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_ENCODING => '',
+      CURLOPT_MAXREDIRS => 10,
+      CURLOPT_TIMEOUT => 0,
+      CURLOPT_FOLLOWLOCATION => true,
+      CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+      CURLOPT_CUSTOMREQUEST => 'GET',
+      CURLOPT_HTTPHEADER => array(
+        'Accept: application/json'
+      ),
+    ));
+    
+    $r = curl_exec($c);
+    $s = curl_getinfo($c, CURLINFO_HTTP_CODE);
+
+    if ($s!= 200) {
+      $_SESSION['errorData']['Warning'][]="Error getting community id. Http code= ".$status;
+      return false;
+    } else {
+      $r= substr($r,1,-1);
+      return $r;
+    }
+  }
+
+  curl_close($curl);
+  curl_close($c);
+}
+
+
+
+
+
+$e=getCommunityFromChallenge("OEBX001000000I");
+var_dump($e);
+
+
+
 //get all communitites info: id, name...
+//GraphQL
+/*
 function getCommunities(){
 
   $res = array();
@@ -95,5 +274,4 @@ function getDatasets(){
   
 }
 
-
-
+*/
