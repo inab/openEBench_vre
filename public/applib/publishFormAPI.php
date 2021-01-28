@@ -1,5 +1,7 @@
 <?php
 
+//Manages the backend request of publication tabs
+
 require __DIR__."/../../config/bootstrap.php";
 redirectOutside();
 
@@ -24,6 +26,7 @@ if($_REQUEST) {
         exit;
 	}
 	elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == "publish") {
+		
 		$metadata = $_REQUEST['metadata'];
 		$fn = $_REQUEST['fileId'];
 		
@@ -36,15 +39,30 @@ if($_REQUEST) {
 			}
 		}
 		exit;
+
+	} elseif (isset($_REQUEST['role'])) {
+		$block_json = json_encode($_SESSION['User']['TokenInfo']['oeb:roles'], JSON_PRETTY_PRINT);
+		echo $block_json;
+		exit; 
+
 	}else {
         echo "IN";
         var_dump($_REQUEST);
-    	} 
+    } 
 } else {
     echo '{}';
     exit;
 }
 
+
+
+/**********************************FUNCIONS****************************** */
+
+/**
+ * Gets all files of user
+ * @param type of file to filter (participant, assessment)
+ * @return string (json) with files information
+ */
 function files($type) {
 	//initiallize variables
 	$block_json="{}";
@@ -82,6 +100,11 @@ function files($type) {
 
 }
 
+
+/**
+ * Gets user logged information
+ * @return string (json) with user info
+ */
 function user_info() {
 	//initiallize variables
 	$block_json="{}";
@@ -97,6 +120,11 @@ function user_info() {
 	return $block_json;
 }
 
+/**
+ * Gets file information
+ * @param file id to search
+ * @return string (json format) with the info of the given file.
+ */
 function file_Info($fn){
 	//initiallize variables
 	$block_json="{}";
@@ -110,3 +138,4 @@ function file_Info($fn){
 	return $block_json;
 	
 }
+

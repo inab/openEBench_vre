@@ -8,7 +8,7 @@
  * @return community/ies (json format). If an error ocurs it return false.
  */
 function getCommunities($community_id = null, $filter_field = null ){
-  $GLOBALS['OEB_scirestapi'] = 'https://openebench.bsc.es/api/scientific/access';
+  //$GLOBALS['OEB_scirestapi'] = 'https://openebench.bsc.es/api/scientific/access';
 
   if ($community_id == null) {
     $url = $GLOBALS['OEB_scirestapi']."/Community";
@@ -111,7 +111,7 @@ function getDatasets($dataset_id = null, $filter_field = null ){
  */
 function getCommunityFromChallenge($challenge_id){
 
-  //1. Get benchmarking event id
+  //1. Get benchmarking event id from challenge collection
 
   $curl = curl_init();
 
@@ -170,11 +170,28 @@ function getCommunityFromChallenge($challenge_id){
 
 
 
-
-
-$e=getCommunityFromChallenge("OEBX001000000I");
-var_dump($e);
-
+/**
+ * Get the communities the user have permisions to submit files
+ * @param roles array of user roles
+ * @return array of communitites id's
+ */
+function getCommunitiesFromRoles (array $roles) {
+	$communitites_ids = array();
+  
+	foreach ($roles as $elem) {
+	  $r = explode(":", $elem);
+	  if($r[0] == "owner") {
+		array_push($communitites_ids, $r[1] );
+	  }else {
+		if($r[0] == "manager" || $r[0] == "contributor") {
+		  array_push($communitites_ids, getCommunityFromChallenge($r[1]) );
+		}
+	  }
+  
+	}
+	return $communitites_ids;
+  
+  }
 
 
 //get all communitites info: id, name...

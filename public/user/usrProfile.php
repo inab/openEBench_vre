@@ -372,6 +372,36 @@ foreach (array_values(iterator_to_array($GLOBALS['countriesCol']->find(array(), 
                                                         <br />
                                                         <pre><?php echo json_encode($_SESSION['User']['TokenInfo'], JSON_PRETTY_PRINT); ?></pre>
                                                     </div>
+                                                    <br>
+                                                    <br>
+                                                    <span class="caption-subject font-blue-madison bold uppercase">Linked Accounts</span>
+                                                    <hr>
+                                                    <!--EUDAT/B2SHARE ACCOUNT-->
+
+                                                    <img src="https://b2share.eudat.eu/img/logo.png" style="float: right; height: 60px; margin: 0 60px;">
+                                                    <h4>EUDAT B2SHARE repository</h4>
+                                                    <br>
+                                                    <p>
+                                                        <span style="color: #666;font-weight: bold;">Do you have an B2SHARE account?</span>
+                                                        Link it and you'll be allowed to upload OEB datasets and have one-click access for all your records on B2SHARE repository <a href="https://b2share.eudat.eu/" target="blank"> <i class="icon-cloud-upload"></i> Get Records<i class="fa fa-circle" style="font-size:5px; margin: 0 5px; position: relative;top: -3px;"></i> B2SHARE </a>
+                                                    </p>
+                                                    <div class="row" style="margin-left:30px;">
+                                                        <div class="col-md-6">
+                                                            <a href="javascript:addTokenEUDAT();" class="btn green"><i class="fa fa-plus"></i> &nbsp; Link your account</a>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <a href="https://eudat.eu/services/userdoc/b2share-http-rest-api#Creating_an_access_token" target="_blank"><i class="fa fa-sign-in"></i> How to apply for B2SHARE token?</a>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group mt-clipboard-container" style="display:none;">
+                                                        <label class="control-label">Access B2SHARE Token <i class="icon-question tooltips" data-container="body" data-html="true" data-placement="right" data-original-title="<p align='left' style='margin:0'>Token used to authenticate your access to upload file to B2SHARE repository.</p>"></i></label>
+                                                        <div class="input-group">
+                                                            <input id="tokenB2SHARE" type="text" class="form-control" value="<?php echo $_SESSION['User']['oeb_community'] ?>" style="background:#fff;">
+                                                            <span class="input-group-btn">
+                                                                <button class="btn green mt-clipboard" data-clipboard-action="copy" data-clipboard-target="#mt-target-1" type="button"><i class="fa fa-copy"></i> Copy to clipboard</button>
+                                                            </span>
+                                                        </div>
+                                                    </div>
 
                                                 </div>
 
@@ -399,3 +429,11 @@ foreach (array_values(iterator_to_array($GLOBALS['countriesCol']->find(array(), 
         require "../htmlib/js.inc.php";
 
         ?>
+        <script>
+        function addTokenEUDAT() {
+            
+            
+        }
+        
+        
+        </script>

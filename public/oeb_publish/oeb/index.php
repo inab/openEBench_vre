@@ -15,6 +15,14 @@ $projects = getProjects_byOwner();
 //var_dump($_SESSION['errorData']['Warning']);
 
 
+if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
+    $communityList = getCommunitiesFromRoles($_SESSION['User']['TokenInfo']['oeb:roles']);
+} else {
+    $communityList = array("Filter files by community");
+}
+
+
+
 
 ?>
 
@@ -25,7 +33,6 @@ $projects = getProjects_byOwner();
         <?php
         require "../../htmlib/top.inc.php"; 
         require "../../htmlib/menu.inc.php";
-        var_dump($_SESSION['User']['TokenInfo']['oeb:roles']);
         ?>
 
 
@@ -50,83 +57,133 @@ $projects = getProjects_byOwner();
                         </li>
                     </ul>
                 </div>
+            
                 <!-- END PAGE BAR -->
-                <!-- BEGIN PAGE TITLE-->
-                <!-- BEGIN PAGE TITLE-->
-                <h1 class="page-title"> Publish data
-                    <!--
-                    <!-- Choose project from list of projects the user has in his workspace 
-                    <div class="input-group" style="float:right; width:200px; margin-right:10px;">
-                        <span class="input-group-addon" style="background:#5e738b;"><i class="fa fa-sitemap font-white"></i></span>
-                        <select class="form-control" id="select_project" onchange="loadProjectWS(this);">
-                            
-                            <?php 
-                            /** 
-                            foreach ($projects as $p_id => $p) {
-                                $selected = (($_SESSION['User']['dataDir'] == $p_id) ? "selected" : ""); 
-                                echo "<option value=$p_id $selected>". $p['name']."</option>";
-                            }
-                            */
-                            ?>
-                            
-                        </select>
-                    </div>
-                    -->
 
-                </h1>
+                
+                <!-- BEGIN PAGE WARNING-->
+                <div id= "warning-notAllowed" style="display:none;">
+                    <br>
+                    <div class="alert alert-warning expand" role="alert">
+                        <h4 class="alert-heading bold">You are not allowed
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </h4>
+                        <p>You don't have the properly permisions to request to publish datafiles. Only owners, managers and challanege contributors are allowed.</p>
+                        
+                        <p class="mb-0">You acan request that permision sending an email to: <a _ngcontent-imk-c2="" href="mailto:openebench-support@bsc.es">openebench-support@bsc.es</a></p>
+                    </div>
+                </div>
+                <!-- END PAGE WARNING-->
+
+                <!-- BEGIN PAGE TITLE-->
+                <h1 class="page-title"> Publish data</h1>
 
                 <!-- END PAGE TITLE -->
                 <!-- END PAGE TITLE-->
                 <!-- END PAGE HEADER-->
 
-                <!-- BEGIN TABS AND TABLE  PORTLET -->
+                <!-- BEGIN SELECT AND TABLE PORTLET -->
                 <div class="row">
                     <div class="col-md-12 col-sm-12">
                         <div class="portlet light bordered">
-
+                        <?php var_dump($_SESSION['User']['TokenInfo']['oeb:roles']); ?>
                             <div class="portlet-title">
                                 <div class="caption">
                                     <i class="icon-share font-dark hide"></i>
                                     <span class="caption-subject font-dark bold uppercase">Select File(s)</span> <small style="font-size:75%;">Please select the file or files you want to request to include into the challenge:</small>
                                 </div>
                             </div>
-
+                            <!--only communities you are allowed to submit will be apperar-->
                             <div class="portlet-body">
-								<div class="tabbable-custom nav-justified">
-									<ul id = "tabs" class="nav nav-tabs nav-justified"></ul>
-									<div class="tab-content">
-                                    
-                                    </div>
+                                <div class="input-group" style="margin-bottom:20px;">
+									<span class="input-group-addon" style="background:#5e738b;"><i class="fa fa-users font-white"></i></span>
+									<select id="communitySelector" class="form-control" style="width:100%;" onchange="loadCommunity(this)">
+										<option value="">Filter files by community</option>
+										<?php foreach ($communityList as $cl) { ?>
+										    <option value="<?php echo $cl ?>" <?php if ($_REQUEST["community"] == $cl) echo 'selected'; ?>><?php echo getCommunities($cl, "name"); ?></option>
+										<?php } ?>
+									</select>
 								</div>
-                                <!--
-                                <button class="btn green" type="submit" id="btn-request-publish" style="margin-top:20px;">ADD FILES</button>
-                                -->
+                                
+                                <div id ="tableMyFiles" style="display:<?php if (!isset($_REQUEST["community"]) || empty($_REQUEST["community"])) echo 'none'; ?>;">
+                                    <br>
+                                    <br>
+                                    <table id="communityTable" class="table table-striped table-hover table-bordered" width="100%"></table>
+                                </div>
+                                    
                             </div>
                         </div>
                     </div>
                 </div>
+                <!-- END SELECT AND TABLE  PORTLET -->
+                <!-- BEGIN LIST TO MANAGE FILES -->
                 <div class="row">
-                    <div class="col-md-12 col-sm-12">
-                        <div class="portlet light portlet-fit bordered">
-                            <div class="portlet-body">
-                                
-				                <h4 style="font-weight: bold; color: #666;">List of all status files
+					<div class="col-md-12 col-sm-12">
+						<div class="portlet light bordered">
+							<div class="portlet-title">
+								<div class="caption">
+									<i class="icon-share font-dark hide"></i>
+									<span class="caption-subject font-dark bold uppercase">Publishable Files</span>
+								</div>
+
+								<div class="actions" style="display:none!important;" id="actions-files">
+									<div class="btn-group">
+										<a class="btn btn-sm blue-madison" href="javascript:;" data-toggle="dropdown">
+											<i class="fa fa-cogs"></i> Actions
+											<i class="fa fa-angle-down"></i>
+										</a>
+										<ul class="dropdown-menu pull-right" role="menu">
+											<li><a href="javascript:submit();"> Submit selected files </a></li>
+										</ul>
+									</div>
+									<div class="btn-group">
+                                        <a class="btn btn-sm red pull-right" id="btn-rmv-all" href="javascript: removeFromList('all');">
+                                            <i class="fa fa-times-circle"></i> Clear all files from list
+                                        </a>
+
+									</div>
+								</div>
+							</div>
+
+							<div class="portlet-body">
+								<div class="" data-always-visible="1" data-rail-visible="0">
+									<ul class="feeds" id="list-files-submit"></ul>
+									<div id="desc-files-submit">In order to select the file to submit, please select them clicking on the checkboxes from the table above.</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+                <!-- END LIST TO MANAGE FILES -->
+
+                <!-- BEGIN LIST OF ALL FILES -->
+
+                <div class="row">
+					<div class="col-md-12 col-sm-12">
+						<div class="portlet light bordered">
+							<div class="portlet-title">
+								<div class="caption">
+									<span class="caption-subject font-dark bold uppercase">List of all status files</span>
+								</div>
                                 <span style="float:right;"><button id ="show-all-files" type="button" class="btn" data-toggle="collapse" data-target="#files"><i class="fa fa-angle-down"></i></button></span>
-                                
-                                </h4>
+                            </div>
+                            <div class="portlet-body">
                                 <br>
                                 <div id="files" class="collapse">
-                                <p style="text-align: center">Under construction</p>
+                                    <p style="text-align: center">Under construction</p>
+                                    <table id="tableAllFiles" class="table table-striped table-hover table-bordered" width="100%"></table>
                                 </div>
-                                
+                            </div>   
 
-                            </div>
+                            
 
                         </div>
                     </div>
                 </div>
             </div>
-            <!-- END TABS AND TABLE  PORTLET -->
+            <!-- END LIST OF ALL FILES -->
 
             <!-- Footer-->
             <?php 
@@ -140,12 +197,13 @@ $projects = getProjects_byOwner();
             </style>
 
             <script>
-                var redirect_url = "oeb_publish/eudat/";
+                var redirect_url = "oeb_publish/oeb/";
 
-                function loadProjectWS(id) {
-                    var baseURL = $('#base-url').val();
-                    console.log(id);
-                    location.href = baseURL + 'applib/oeb_manageProjects.php?op=reload&pr_id=' + id.value + '&redirect_url=' + redirect_url;
-                };  
+               
+                function loadCommunity(op) {
+                    console.log(op.value)
+                    location.href = baseURL + redirect_url + "?community=" + op.value;
+
+                }
                     
             </script>

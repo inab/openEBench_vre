@@ -101,7 +101,7 @@ require "../../htmlib/js.inc.php";
                 </div>
                 <!-- END LIST FILES PORTLET -->
 
-                <!-- BEGIN EXAMPLE TABLE PORTLET -->
+                <!-- BEGIN EXAMPLE FORM PORTLET -->
                 <div class="row">
                     <div class="col-md-12">
                         <div class="portlet light portlet-fit bordered">
@@ -201,7 +201,7 @@ require "../../htmlib/js.inc.php";
                         </div>
                     </div>
                 </div>
-                <!-- END EXAMPLE TABLE PORTLET-->
+                <!-- END EXAMPLE FORM PORTLET-->
             </div>
             <!-- END CONTENT BODY -->
             
