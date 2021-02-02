@@ -45,7 +45,17 @@ if($_REQUEST) {
 		echo $block_json;
 		exit; 
 
-	}else {
+	}elseif (isset($_REQUEST['fileId'])) {
+		$fn = $_REQUEST['fileId'];
+		$metadata = array('_id' => createLabel('oebreq', 'pubRegistersCol'), 'fileId'=>$_REQUEST['fileId'], "requester" => $_SESSION['User']['id'], "status" =>"pending approval", "timestamp" => date('H:i:s Y-m-d'));           
+		uploadReqRegister($fn, $metadata);
+        exit;
+	}elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == "getSubmitRegisters") {
+		$filters = array ('requester' => $_SESSION['User']['id']);
+		echo submitRegisters($filters);
+		exit;
+
+	} else {
         echo "IN";
         var_dump($_REQUEST);
     } 
@@ -139,3 +149,24 @@ function file_Info($fn){
 	
 }
 
+function submitRegisters($filters) {
+	//initiallize variables
+	$block_json="{}";
+	$reg = array();
+
+	//get data from DB
+	$regData = $GLOBALS['pubRegistersCol']->find($filters);
+
+	foreach ($regData as $r) {
+		$user = $GLOBALS['usersCol']->findOne(array('id' => $r['requester']));
+		$file = $GLOBALS['filesCol']->findOne(array('_id' => $r['fileId']));
+		$r['requester_name'] = $user['Name'];
+		$r['file_path'] = $file['path'];
+		array_push($reg, $r) ;
+	}
+
+	$block_json = json_encode($reg, JSON_PRETTY_PRINT);
+	
+	return $block_json;
+	
+}

@@ -8,7 +8,7 @@
  * @return community/ies (json format). If an error ocurs it return false.
  */
 function getCommunities($community_id = null, $filter_field = null ){
-  //$GLOBALS['OEB_scirestapi'] = 'https://openebench.bsc.es/api/scientific/access';
+  
 
   if ($community_id == null) {
     $url = $GLOBALS['OEB_scirestapi']."/Community";
@@ -59,7 +59,7 @@ function getCommunities($community_id = null, $filter_field = null ){
  * @return dataset/s (json format). If an error ocurs it return false.
  */
 function getDatasets($dataset_id = null, $filter_field = null ){
-
+  //$GLOBALS['OEB_scirestapi'] = 'https://openebench.bsc.es/api/scientific/access';
   if ($dataset_id == null) {
     $url = $GLOBALS['OEB_scirestapi']."/Dataset";
 
@@ -72,7 +72,7 @@ function getDatasets($dataset_id = null, $filter_field = null ){
     
   }
 
-
+  
   $curl = curl_init();
 
   curl_setopt_array($curl, array(
@@ -97,11 +97,13 @@ function getDatasets($dataset_id = null, $filter_field = null ){
     return false;
   } else {
      return json_decode($response, true);
+     
   }
 
   curl_close($curl);
 
 }
+
 
 
 /**
@@ -191,7 +193,7 @@ function getCommunitiesFromRoles (array $roles) {
 	}
 	return $communitites_ids;
   
-  }
+}
 
 
 //get all communitites info: id, name...

@@ -72,7 +72,7 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                         </h4>
                         <p>You don't have the properly permisions to request to publish datafiles. Only owners, managers and challanege contributors are allowed.</p>
                         
-                        <p class="mb-0">You acan request that permision sending an email to: <a _ngcontent-imk-c2="" href="mailto:openebench-support@bsc.es">openebench-support@bsc.es</a></p>
+                        <p class="mb-0">You can request that permision sending a ticket to helpdesk: <a href="/vre/helpdesk/?sel=roleUpgrade">click here!</a></p>
                     </div>
                 </div>
                 <!-- END PAGE WARNING-->
@@ -97,6 +97,7 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                             </div>
                             <!--only communities you are allowed to submit will be apperar-->
                             <div class="portlet-body">
+                            <!--<button type="submit"><a href="javascript:submit2();"> Submit selected files </a></button>-->
                                 <div class="input-group" style="margin-bottom:20px;">
 									<span class="input-group-addon" style="background:#5e738b;"><i class="fa fa-users font-white"></i></span>
 									<select id="communitySelector" class="form-control" style="width:100%;" onchange="loadCommunity(this)">
@@ -172,7 +173,6 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                             <div class="portlet-body">
                                 <br>
                                 <div id="files" class="collapse">
-                                    <p style="text-align: center">Under construction</p>
                                     <table id="tableAllFiles" class="table table-striped table-hover table-bordered" width="100%"></table>
                                 </div>
                             </div>   

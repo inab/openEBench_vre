@@ -35,12 +35,5 @@ function registerDOIToVRE ($fn, $DOI) {
 }
 
 function addB2SHAREtokenToVRE($user, $token){
-    $registered = false;
-    if($DOI != null) {
-        $newMetadata = array("b2share_token" => $token);
-        if(addMetadataBNS($fn,$newMetadata)){
-            $registered = true;
-        }
-    }
-
+    //TODO
 }

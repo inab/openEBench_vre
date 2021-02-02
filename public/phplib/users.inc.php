@@ -119,10 +119,6 @@ function createUserFromToken($login,$token,$userinfo=array(),$anonID=false){
             $f['Name'] = $userinfo['given_name'];
         if ($userinfo['provider'])
             $f['AuthProvider'] = $userinfo['provider'];
-        if ($userinfo['oeb:roles'])
-            $f['oeb_roles'] = $userinfo['oeb:roles'];
-        if ($userinfo['oeb:community'])
-            $f['oeb_community'] = $userinfo['oeb:community'];
     }
     $objUser = new User($f, True);
     if (!$objUser)

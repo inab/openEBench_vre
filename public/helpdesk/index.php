@@ -101,10 +101,12 @@ $tools = getTools_List();
                                                     <option value="tools" <?php if ($_REQUEST["sel"] == "tools") { ?>selected<?php } ?>>I have an issue related with some tool</option>
                                                     <option value="space" <?php if ($_REQUEST["sel"] == "space") { ?>selected<?php } ?>>I need more disk space</option>
                                                     <option value="community" <?php if ($_REQUEST["sel"] == "community") { ?>selected<?php } ?>>Register a new community</option>
+                                                    <option value="roleUpgrade" <?php if ($_REQUEST["sel"] == "roleUpgrade") { ?>selected<?php } ?>>Request to upgrade your OEB role</option>
                                                     <!-- <option value="tooldev" <?php 
                                                                                     ?>selected<?php 
                                                                                                                                         ?>>I want to become a tool developer</option> -->
                                                 </select>
+                                               
                                             </div>
                                         </div>
                                     </div>
@@ -126,6 +128,7 @@ $tools = getTools_List();
                                             <div class="form-group">
                                                 <label class="control-label">Subject</label>
                                                 <input type="text" name="Subject" id="Subject" class="form-control" placeholder="">
+                                                
                                             </div>
                                         </div>
                                     </div>
@@ -203,3 +206,4 @@ $tools = getTools_List();
             require "../htmlib/js.inc.php";
 
             ?>
+

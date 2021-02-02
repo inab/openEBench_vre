@@ -1238,3 +1238,33 @@ function uploadGSFile($col,$fn,$fsFile) {
         }
         return $label;
 }*/
+
+
+//create a submision register
+function uploadReqRegister($fn, $metadata){
+	$collection = $GLOBALS['pubRegistersCol']; 
+	if (empty($collection->findOne(array('_id' => $fn))) ){
+		//File not in the repository
+		
+	}
+
+	//not finished TODO      
+	$collection->save($metadata);
+	return 1;
+}
+
+/*
+function getReqRegisters_filteredBy($filters) {
+	$collection = $GLOBALS['pubRegistersCol'];
+	$registers = array();
+
+	$cursor = $collection->find($filters);
+	if (empty($cursor)){
+		return $registers;
+	}
+	foreach ($cursor as $doc) {
+		
+	}
+
+}
+*/

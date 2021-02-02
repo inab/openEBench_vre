@@ -1,23 +1,61 @@
 //var baseURL = $('#base-url').val();
 
+
+
+
+
+
 var Helpdesk = function() {
 
     var handleHelpdesk = function() {
+                if($('#Request').val() == "roleUpgrade"){
+                    roleUpgrade();
+                }
 
 				$('#Request').change(function() {
+                    $("#Subject").val("");
+                    $("#Message").val("");
+                    console.log(($(this).val()));
 					if($(this).val() == "tools") {
 						$('#Tool').prop('disabled', false);
 						$('#row-tools').show();
 						$('#label-msg').html("Message details");
 					}else if($(this).val() == "tooldev"){
 						$('#label-msg').html("Please tell us which kind of tool(s) you want to integrate in the VRE");
-					}else{
+                    }else if($(this).val() == "roleUpgrade"){
+                        roleUpgrade();
+                    }else{
 						$('#Tool').prop('disabled', true);
 						$('#row-tools').hide();
-						$('#label-msg').html("Message details");
+                        $('#label-msg').html("Message details");
 					}
-				});
+                });
+                
+                   
+                function roleUpgrade () {
+                     //get data --> AJAX TODO
+                     //if user already have manager/owner roles, not show
+                     var requester;
+                     var approvalName;
+                     var approvalEmail;
+                     var roleToupgrade;
 
+                     //subject
+                     $("#Subject").val("Request to upgrade role from "+requester);
+                     //message
+                     $("#Message").val("Dear "+approvalName+",\n\nThe user "+requester+" would like to upgrade its role to "+roleToupgrade+". \nIf you agree on that, please accept that request on OEB. \n\nRegards, \n\nOEB team.");
+
+
+
+                    
+                }
+        
+
+       
+            
+            
+
+        
 
         $('#helpdesk').validate({
             errorElement: 'span', //default input error message container

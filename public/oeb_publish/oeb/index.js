@@ -11,6 +11,7 @@ $(document).ready(function() {
         var files = new Array("");
 
         createTable();
+        createTableRegisters();
         
         //permisions depending on the role
         if (roles === null) {
@@ -145,6 +146,62 @@ $(document).ready(function() {
             });
             
         }
+
+        function createTableRegisters(){
+            var table = $('#tableAllFiles').DataTable( {
+                "ajax": {
+                    url: 'applib/publishFormAPI.php?action=getSubmitRegisters',
+                    dataSrc: ''
+                },
+                "columns" : [
+                    {"data" : "_id" }, //0
+                    { "data" : "file_path" }, //1
+                    { "data" : "requester_name" }, //2
+                    { "data" : "status" }, //3
+                    { "data" : "timestamp" } //4
+
+                ],
+                'columnDefs': [
+                    {
+                        "targets": 0,
+                        "title": '<th>Submission id </th>'
+                        
+                    },
+                    {
+                        "targets": 1,
+                        "title": '<th>File Id </th>',
+                        render: function ( data, type, row ) {
+                            return "<b>"+data.split("/").reverse()[1]+"</b>/"+data.split("/").pop();
+                        }
+                        
+                    },
+                    {
+                        "targets": 2,
+                        "title": '<th>requester</th>'
+                        
+                    },
+                    {
+                        "targets": 3,
+                        "title": '<th>status </th>',
+                        render: function ( data, type, row ) {
+                            return '<a>'+data+'</a'
+                            
+                        }
+                        
+                    },
+                    {
+                        "targets": 4,
+                        "title": '<th>Timestamp </th>'
+                        
+                    },
+
+                ],
+                'order': [[1, 'asc']]
+        
+            });
+            
+
+        }
     })
 
 })
@@ -182,8 +239,34 @@ function removeFromList (option) {
 function submit() {
     console.log(arrayOfFiles);
     confirm("Are you sure you want to request to publish this files?");
+    for (let index = 0; index < arrayOfFiles.length; index++) {
+        $.ajax({
+            type: "POST",
+            url: baseURL + "/applib/publishFormAPI.php",
+            data: "fileId=" + arrayOfFiles[index],
+            success: function(data) {
+
+                if (data == '1') {
+                    
+                    setTimeout(function() {
+                        location.href = 'oeb_publish/oeb/';
+                    }, 500);
+                    
+                } else if (data == '0') {
+                    setTimeout(function() {
+                        location.href = 'workspace/';
+                        alert("files not correctly submited");
+                    }, 500);
+                    
+                }
+            }
+        });
+        
+    }
+
 
 }
+
 
 //get petition to get user roles
 function getRoles() {
