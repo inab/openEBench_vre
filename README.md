@@ -8,7 +8,7 @@ VRE is a web-based collaborative working environment providing its users with a 
 Several research projects has adopted the VRE framework for its project-specific purposes:
 
 - MuG : https://vre.multiscalegenomics.eu
-- OpenEBench : https://openebench.bsc.es/submission
+- OpenEBench : https://openebench.bsc.es/vre
 
 
 ### Code structure
