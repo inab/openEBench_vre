@@ -403,22 +403,34 @@ sort($visualizers);
 						</ul>
 					</li>
 				<?php } ?>
-				<!-- publish to  EUDAT -->
+				<!-- publish -->
 				<?php if (allowedRoles($_SESSION['User']['Type'], $GLOBALS['NO_GUEST'])) { ?>
 
 					<li class="nav-item  <?php if ($currentSection == 'pb') { ?>active open<?php } ?>">
 						<a href="javascript:;" class="nav-link nav-toggle">
 							<i class="fa fa-upload" style="color: #B4B4B4;"></i>
 							<span class="title">Publish</span>
-
 							<?php if ($currentSection == 'pg') { ?><span class="selected"></span><?php } ?>
 							<span class="arrow <?php if ($currentSection == 'pg') { ?>open<?php } ?>"></span>
 						</a>
 						<ul class="sub-menu">
 							<li class="nav-item  <?php if ($currentSubSection == 'oeb') { ?>active open<?php } ?>">
-								<a href="oeb_publish/oeb/" class="nav-link ">
+								<a href="javascript:;" class="nav-link nav-toggle">
 									<span class="title">to OpenEBench</span>
+									<span class="arrow"></span>
 								</a>
+								<ul class="sub-menu">
+									<li class="nav-item  <?php if ($currentSubSection == 'req') { ?>active open<?php } ?>">
+										<a href="oeb_publish/oeb/oeb_newReq.php" class="nav-link ">
+											<span class="title">Create new request</span>
+										</a>
+									</li>
+									<li class="nav-item  <?php if ($currentSubSection == 'req') { ?>active open<?php } ?>">
+										<a href="oeb_publish/oeb/oeb_manageReq.php" class="nav-link ">
+											<span class="title">Manage requests</span>
+										</a>
+									</li>
+								</ul>
 							</li>
 							<li class="nav-item  <?php if ($currentSubSection == 'eudat') { ?>active open<?php } ?>">
 								<a href="oeb_publish/eudat/" class="nav-link ">

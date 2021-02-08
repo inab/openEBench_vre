@@ -47,14 +47,21 @@ if($_REQUEST) {
 
 	}elseif (isset($_REQUEST['fileId'])) {
 		$fn = $_REQUEST['fileId'];
-		$metadata = array('_id' => createLabel('oebreq', 'pubRegistersCol'), 'fileId'=>$_REQUEST['fileId'], "requester" => $_SESSION['User']['id'], "status" =>"pending approval", "timestamp" => date('H:i:s Y-m-d'));           
-		uploadReqRegister($fn, $metadata);
+		$metadata = array('_id' => createLabel('oebreq', 'pubRegistersCol'), 'fileId'=>$_REQUEST['fileId'], "requester" => 
+		$_SESSION['User']['id'], "approvers" => null,"current_status" =>"pending approval", 
+		"history_actions" => array(array("action" => 'request', "user" => $_SESSION['User']['id'], "timestamp" =>date('H:i:s Y-m-d'))));           
+		  
+
+		echo uploadReqRegister($fn, $metadata);
         exit;
 	}elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == "getSubmitRegisters") {
 		$filters = array ('requester' => $_SESSION['User']['id']);
-		echo submitRegisters($filters);
+		echo submitedRegisters($filters);
 		exit;
 
+	}elseif (isset($_REQUEST['actionReq'])) {
+		echo actionRequest($_REQUEST['reqId'], $_REQUEST['actionReq']);
+		exit;
 	} else {
         echo "IN";
         var_dump($_REQUEST);
@@ -100,6 +107,13 @@ function files($type) {
 		//get data type name for each file
 		$datatype_name = getDataTypeName($value['data_type']);
 		$value['datatype_name'] = $datatype_name;
+
+		//get if file is already request to publish
+		$found = $GLOBALS['pubRegistersCol']->findOne(array("fileId" => $value['_id']));
+		if(count($found) !== 0) {
+			$value['current_status'] = $found['current_status'];
+		} 
+		
 		array_push($files, $value);
 		
 	}
@@ -149,7 +163,12 @@ function file_Info($fn){
 	
 }
 
-function submitRegisters($filters) {
+/**
+ * Gets information from mongo to fill status files tables 
+ * @param filters what to look for
+ * @return string (json format) with the info of the register.
+ */
+function submitedRegisters($filters) {
 	//initiallize variables
 	$block_json="{}";
 	$reg = array();
@@ -169,4 +188,44 @@ function submitRegisters($filters) {
 	
 	return $block_json;
 	
+}
+
+/**
+ * Manages user action of a submited request
+ * @param id the file id 
+ * @param action the action to make
+ * @return 1 if correctly updated in mongo, 0 otherwise. (updateReqRegister)
+ */
+function actionRequest($id, $action){
+	//approve
+	if($action == 'approve'){
+		//TODO: upload to nextcloud, get and OEB_id
+		//new action
+		$new_action = array(
+			"action" => "approve",
+			"user" => $_SESSION['User']['id'],
+			"timestamp" => date('H:i:s Y-m-d')
+		  );
+		if (updateReqRegister ($id, array('current_status' => 'approved'))) {
+			if(insertAttrInReqRegister($id, $new_action)){
+				return 1;
+			}
+		}
+
+	}
+
+	//deny
+	elseif ($action == 'deny'){
+		return updateReqRegister ($id, array('current_status' => 'denied','timestamp_denial' => date('H:i:s Y-m-d')));
+
+		
+	}
+
+	//cancel
+	elseif($action == 'cancel'){
+		return updateReqRegister ($id, array('current_status' => 'cancelled','timestamp_cancellation' => date('H:i:s Y-m-d')));
+
+		
+	}
+	return 0;
 }

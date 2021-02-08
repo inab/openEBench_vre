@@ -1240,31 +1240,46 @@ function uploadGSFile($col,$fn,$fsFile) {
 }*/
 
 
-//create a submision register
+//create a new submision register
 function uploadReqRegister($fn, $metadata){
 	$collection = $GLOBALS['pubRegistersCol']; 
+	/*
 	if (empty($collection->findOne(array('_id' => $fn))) ){
 		//File not in the repository
 		
 	}
+	*/
 
 	//not finished TODO      
 	$collection->save($metadata);
 	return 1;
 }
 
-/*
-function getReqRegisters_filteredBy($filters) {
-	$collection = $GLOBALS['pubRegistersCol'];
-	$registers = array();
-
-	$cursor = $collection->find($filters);
-	if (empty($cursor)){
-		return $registers;
+//update a submision register given a submision id
+function updateReqRegister ($id, $metadata){
+	
+	if (empty($GLOBALS['pubRegistersCol']->findOne(array('_id' => $id))) ){
+		$_SESSION['errorData']['mongoDB'][]= "Cannot add metadata for $id. Entry not in the repository";
+		return 0;
 	}
-	foreach ($cursor as $doc) {
+	foreach ($metadata as $k=>$v){
+		$GLOBALS['pubRegistersCol']->update (array('_id'=> $id),array('$set'=> array($k => $v)),array('upsert'=> 1));
 		
 	}
+	return 1;
 
 }
-*/
+
+//insert a new object into an array attribute (history actions)
+function insertAttrInReqRegister ($id, $metadata){
+	
+	if (empty($GLOBALS['pubRegistersCol']->findOne(array('_id' => $id))) ){
+		$_SESSION['errorData']['mongoDB'][]= "Cannot add metadata for $id. Entry not in the repository";
+		return 0;
+	}
+	$GLOBALS['pubRegistersCol']->update (array('_id'=> $id),array('$push'=> array("history_actions" => $metadata)));
+
+	return 1;
+
+}
+

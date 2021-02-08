@@ -166,7 +166,7 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
 						<div class="portlet light bordered">
 							<div class="portlet-title">
 								<div class="caption">
-									<span class="caption-subject font-dark bold uppercase">List of all status files</span>
+									<span class="caption-subject font-dark bold uppercase">Publication requests registers</span>
 								</div>
                                 <span style="float:right;"><button id ="show-all-files" type="button" class="btn" data-toggle="collapse" data-target="#files"><i class="fa fa-angle-down"></i></button></span>
                             </div>
@@ -197,7 +197,7 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
             </style>
 
             <script>
-                var redirect_url = "oeb_publish/oeb/";
+                var redirect_url = "oeb_publish/oeb/oeb_newReq.php";
 
                
                 function loadCommunity(op) {

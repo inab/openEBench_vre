@@ -68,12 +68,6 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 			<script src="assets/global/scripts/jquery.dataTables.min.js" type="text/javascript"></script>
 			<script src="assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
 			<script src="assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
-		<?php } elseif (dirname($_SERVER['PHP_SELF']) == '/oeb_publish/oeb') { ?>
-			<script src="assets/global/scripts/datatable.js" type="text/javascript"></script>
-			<script src="assets/global/plugins/datatables/datatables.min.js" type="text/javascript"></script>
-			<script src="assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
-			<script src="assets/global/scripts/jquery.dataTables.min.js" type="text/javascript"></script>
-			<script src="assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
 		<?php } elseif (dirname($_SERVER['PHP_SELF']) == '/oeb_publish/eudat') { ?>
 			<script src="assets/global/scripts/datatable.js" type="text/javascript"></script>
 			<script src="assets/global/plugins/datatables/datatables.min.js" type="text/javascript"></script>
@@ -98,6 +92,20 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 		<script src="assets/global/scripts/datatable.js" type="text/javascript"></script>
 		<script src="assets/global/plugins/datatables/datatables.min.js" type="text/javascript"></script>
 		<script src="assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
+	<?php break;
+	case 'oeb_newReq':?>
+		<script src="assets/global/scripts/datatable.js" type="text/javascript"></script>
+		<script src="assets/global/plugins/datatables/datatables.min.js" type="text/javascript"></script>
+		<script src="assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
+		<script src="assets/global/scripts/jquery.dataTables.min.js" type="text/javascript"></script>
+		<script src="assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
+	<?php break;
+	case 'oeb_manageReq':?>
+		<script src="assets/global/scripts/datatable.js" type="text/javascript"></script>
+		<script src="assets/global/plugins/datatables/datatables.min.js" type="text/javascript"></script>
+		<script src="assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
+		<script src="assets/global/scripts/jquery.dataTables.min.js" type="text/javascript"></script>
+		<script src="assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
 	<?php break;
 	case 'usrProfile': ?>
 		<script src="assets/global/plugins/jquery-validation/js/jquery.validate.min.js" type="text/javascript"></script>
@@ -293,8 +301,6 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 			<script src="assets/pages/scripts/restore-link.js?v=<?php echo rand(); ?>" type="text/javascript"></script>
 		<?php } elseif (dirname($_SERVER['PHP_SELF']) == '/launch') { ?>
 			<script src="assets/pages/scripts/launch-tool.js" type="text/javascript"></script>
-		<?php } elseif (dirname($_SERVER['PHP_SELF']) == '/oeb_publish/oeb') { ?>
-			<script src="oeb_publish/oeb/index.js" type="text/javascript"></script>
 		<?php } elseif (dirname($_SERVER['PHP_SELF']) == '/oeb_publish/eudat') { ?>
 			<script src="oeb_publish/eudat/index.js" type="text/javascript"></script>
 		<?php } elseif ((dirname($_SERVER['PHP_SELF']) == '/home') || (dirname($_SERVER['PHP_SELF']) == '/publicsite')) { ?>
@@ -388,6 +394,12 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 	case 'dashboard': ?>
 		<script src="assets/pages/scripts/dashboard.js?v=<?php echo rand(); ?>" type="text/javascript"></script>
 	<?php break;
+	case 'oeb_newReq':?>
+		<script src="oeb_publish/oeb/oeb_newReq.js" type="text/javascript"></script>
+	<?php break;
+	case 'oeb_manageReq':?>
+		<script src="oeb_publish/oeb/oeb_manageReq.js" type="text/javascript"></script>
+	<?php break;
 	case 'jsonTestValidator': ?>
 		<script src="assets/pages/scripts/json-test-validator.js?v=<?php echo rand(); ?>" type="text/javascript"></script>
 	<?php break;
@@ -472,7 +484,9 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 	case 'upload':
 	case 'ws':
 	case 'launch':
-	case 'oeb_publish':
+	case 'oeb_newReq':
+	case 'oeb_manageReq':	
+
 	case 'hdesk':
 	case 'related':
 	case 'refs':
