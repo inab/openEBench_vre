@@ -57,6 +57,7 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                         </li>
                     </ul>
                 </div>
+               
             
                 <!-- END PAGE BAR -->
 
@@ -83,12 +84,13 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                 <!-- END PAGE TITLE -->
                 <!-- END PAGE TITLE-->
                 <!-- END PAGE HEADER-->
+                <div id="alert" style="position: absolute; top: 5px; right: 0;"></div>
 
                 <!-- BEGIN SELECT AND TABLE PORTLET -->
                 <div class="row">
                     <div class="col-md-12 col-sm-12">
                         <div class="portlet light bordered">
-                        <?php var_dump($_SESSION['User']['TokenInfo']['oeb:roles']); ?>
+                        <?php //var_dump($_SESSION['User']['TokenInfo']['oeb:roles']); ?>
                             <div class="portlet-title">
                                 <div class="caption">
                                     <i class="icon-share font-dark hide"></i>
@@ -136,7 +138,7 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
 											<i class="fa fa-angle-down"></i>
 										</a>
 										<ul class="dropdown-menu pull-right" role="menu">
-											<li><a href="javascript:submit();"> Submit selected files </a></li>
+											<li><a href="javascript:submit();" > Submit selected files </a></li>
 										</ul>
 									</div>
 									<div class="btn-group">
@@ -158,32 +160,26 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
 					</div>
 				</div>
                 <!-- END LIST TO MANAGE FILES -->
-
-                <!-- BEGIN LIST OF ALL FILES -->
-
-                <div class="row">
-					<div class="col-md-12 col-sm-12">
-						<div class="portlet light bordered">
-							<div class="portlet-title">
-								<div class="caption">
-									<span class="caption-subject font-dark bold uppercase">Publication requests registers</span>
-								</div>
-                                <span style="float:right;"><button id ="show-all-files" type="button" class="btn" data-toggle="collapse" data-target="#files"><i class="fa fa-angle-down"></i></button></span>
+                <!-- Modal -->
+                <div class="modal fade" id="reqSubmitDialog" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="modal-title" id="exampleModalLabel">Are you sure you want to request to publish this files?</h4>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
                             </div>
-                            <div class="portlet-body">
-                                <br>
-                                <div id="files" class="collapse">
-                                    <table id="tableAllFiles" class="table table-striped table-hover table-bordered" width="100%"></table>
-                                </div>
-                            </div>   
-
-                            
-
+                        <div class="modal-body">
+                            <table class="table" id ="filesAboutToSubmit"></table>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                            <button id = "submitModal" type="button" class="btn btn-primary">Submit</button>
+                        </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <!-- END LIST OF ALL FILES -->
 
             <!-- Footer-->
             <?php 
@@ -193,6 +189,12 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
             <style>
                 .hide_column {
                     display : none;
+                }
+
+                .alert-success {
+                    background-color: #dff0d8;
+                    border-color: #dff0d8;
+                    color: #3c763d;
                 }
             </style>
 

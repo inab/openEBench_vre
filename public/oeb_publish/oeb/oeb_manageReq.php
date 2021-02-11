@@ -22,10 +22,7 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
 }
 
 
-
-
 ?>
-
 <body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white page-container-bg-solid page-sidebar-fixed">
     <div class="page-wrapper">
         <input type="hidden" id="base-url" value="<?php echo $GLOBALS['BASEURL']; ?>" />
@@ -108,6 +105,49 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                 </div>
             </div>
             <!-- END LIST OF ALL FILES -->
+            <!-- Modal -->
+            <div class="modal fade" id="actionDialog" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title" id="modalTitle"></h4>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <ul class="feeds" id="file-action">
+                                <li>
+                                    <div class="col1">
+                                        <div class="cont">
+                                            <div class="cont-col1">
+                                                <div class="label label-sm label-info">
+                                                    <i class="fa fa-file"></i>
+                                                 </div>
+                                            </div>
+                                             <div class="cont-col2">
+                                                <div class="desc">
+                                                    <span id="file" class="text-info" style="font-weight:bold;"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                            <br>
+                            <div class="form-group">
+                                <label for="messageAction">Introduce your message: </label>
+                                <textarea class="form-control" id="messageAction" rows="3"></textarea>
+                            </div>
+                            
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                            <button id = "acceptModal" type="button" class="btn btn-primary">Accept</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <!-- Footer-->
             <?php 
@@ -119,5 +159,10 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                     display : none;
                 }
             </style>
+            <script>
+$(document).ready(function(){
+  $('[data-toggle="popover"]').popover();
+});
+</script>
 
            

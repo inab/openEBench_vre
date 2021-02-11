@@ -103,6 +103,7 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 	case 'oeb_manageReq':?>
 		<script src="assets/global/scripts/datatable.js" type="text/javascript"></script>
 		<script src="assets/global/plugins/datatables/datatables.min.js" type="text/javascript"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
 		<script src="assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
 		<script src="assets/global/scripts/jquery.dataTables.min.js" type="text/javascript"></script>
 		<script src="assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>

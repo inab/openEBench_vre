@@ -46,11 +46,24 @@ if($_REQUEST) {
 		exit; 
 
 	}elseif (isset($_REQUEST['fileId'])) {
+		//request to approve
 		$fn = $_REQUEST['fileId'];
+		$msg = $_REQUEST['msg'];
+		//get approvers TODO
+		$approvers = getApprovers($fn);
+		/*
+		foreach ($approvers as $value) {
+			sendRequestToApprover($value, $_SESSION['User']['id'], $fn);
+		}
+		*/
+		
 		$metadata = array('_id' => createLabel('oebreq', 'pubRegistersCol'), 'fileId'=>$_REQUEST['fileId'], "requester" => 
-		$_SESSION['User']['id'], "approvers" => null,"current_status" =>"pending approval", 
-		"history_actions" => array(array("action" => 'request', "user" => $_SESSION['User']['id'], "timestamp" =>date('H:i:s Y-m-d'))));           
-		  
+		$_SESSION['User']['id'], "approvers" => $approvers,"current_status" =>"pending approval", 
+		"history_actions" => array(array("action" => 'request', "user" => $_SESSION['User']['id'], "timestamp" =>date('H:i:s Y-m-d'), "observations" => $msg)));           
+		
+		
+		//upload to nextcloud
+
 
 		echo uploadReqRegister($fn, $metadata);
         exit;
@@ -60,7 +73,7 @@ if($_REQUEST) {
 		exit;
 
 	}elseif (isset($_REQUEST['actionReq'])) {
-		echo actionRequest($_REQUEST['reqId'], $_REQUEST['actionReq']);
+		echo actionRequest($_REQUEST['reqId'], $_REQUEST['actionReq'], $_REQUEST['msg']);
 		exit;
 	} else {
         echo "IN";
@@ -112,7 +125,10 @@ function files($type) {
 		$found = $GLOBALS['pubRegistersCol']->findOne(array("fileId" => $value['_id']));
 		if(count($found) !== 0) {
 			$value['current_status'] = $found['current_status'];
-		} 
+		}
+		
+		//get challenge status
+		//TODO
 		
 		array_push($files, $value);
 		
@@ -196,15 +212,16 @@ function submitedRegisters($filters) {
  * @param action the action to make
  * @return 1 if correctly updated in mongo, 0 otherwise. (updateReqRegister)
  */
-function actionRequest($id, $action){
+function actionRequest($id, $action, $msg){
 	//approve
 	if($action == 'approve'){
-		//TODO: upload to nextcloud, get and OEB_id
+		//TODO: upload to OEB and get oeb_id
 		//new action
 		$new_action = array(
 			"action" => "approve",
 			"user" => $_SESSION['User']['id'],
-			"timestamp" => date('H:i:s Y-m-d')
+			"timestamp" => date('H:i:s Y-m-d'),
+			"observations" => $msg
 		  );
 		if (updateReqRegister ($id, array('current_status' => 'approved'))) {
 			if(insertAttrInReqRegister($id, $new_action)){
@@ -216,16 +233,55 @@ function actionRequest($id, $action){
 
 	//deny
 	elseif ($action == 'deny'){
-		return updateReqRegister ($id, array('current_status' => 'denied','timestamp_denial' => date('H:i:s Y-m-d')));
+		//new action
+		$new_action = array(
+			"action" => "deny",
+			"user" => $_SESSION['User']['id'],
+			"timestamp" => date('H:i:s Y-m-d'),
+			"observations" => $msg
+		  );
+		if (updateReqRegister ($id, array('current_status' => 'denied'))) {
+			if(insertAttrInReqRegister($id, $new_action)){
+				return 1;
+			}
+		}
+		
 
 		
 	}
 
 	//cancel
 	elseif($action == 'cancel'){
-		return updateReqRegister ($id, array('current_status' => 'cancelled','timestamp_cancellation' => date('H:i:s Y-m-d')));
+		//new action
+		$new_action = array(
+			"action" => "cancel",
+			"user" => $_SESSION['User']['id'],
+			"timestamp" => date('H:i:s Y-m-d'),
+			"observations" => $msg
+		  );
+		if (updateReqRegister ($id, array('current_status' => 'cancelled'))) {
+			if(insertAttrInReqRegister($id, $new_action)){
+				return 1;
+			}
+		}
 
 		
 	}
 	return 0;
+}
+
+/**
+ * Gets possible approvers
+ * @param fileId the file to approve (get the challenge first)
+ * @return array of possible approvers
+ */
+function getApprovers($fileId) {
+	$result = null;
+
+
+
+
+
+	return $result;
+
 }

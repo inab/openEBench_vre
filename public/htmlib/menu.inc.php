@@ -422,7 +422,7 @@ sort($visualizers);
 								<ul class="sub-menu">
 									<li class="nav-item  <?php if ($currentSubSection == 'req') { ?>active open<?php } ?>">
 										<a href="oeb_publish/oeb/oeb_newReq.php" class="nav-link ">
-											<span class="title">Create new request</span>
+											<span class="title">New request</span>
 										</a>
 									</li>
 									<li class="nav-item  <?php if ($currentSubSection == 'req') { ?>active open<?php } ?>">

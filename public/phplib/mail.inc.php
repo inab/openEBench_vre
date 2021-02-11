@@ -145,5 +145,32 @@ function sendPasswordToNewUser($login, $name, $surname, $password){
 
 }
 
+/**
+ * Sends an email to the person who can approve petitions
+ * @param recipient the person who will receive the email (approver)
+ * @param requester of the petition
+ * @param fileId to be approved
+ */
+function sendRequestToApprover ($approver, $requester, $fileId){
+
+	$subject = $GLOBALS['NAME']." New Account";
+	$message = ' 
+	Hello '.utf8_decode($approver).' '.utf8_decode($name).',<br><br>
+	
+	The user '.utf8_decode($approver).' has send you a new request of the file '.$fileId.' to be approve.<br><br>
+
+	
+	You can manage your petitions: <strong>On your Virtual Research Enviroment:</strong> <a href="https://dev-openebench.bsc.es/vre/oeb_publish/oeb/oeb_manageReq.php"></a><br><br>
+
+			
+	Thanks,<br><br>
+	
+	OEB team';
+
+
+	sendEmail($recipient,$subject,$message);
+
+}
+
 
 ?>
