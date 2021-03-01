@@ -90,7 +90,7 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                 <div class="row">
                     <div class="col-md-12 col-sm-12">
                         <div class="portlet light bordered">
-                        <?php //var_dump($_SESSION['User']['TokenInfo']['oeb:roles']); ?>
+                        <?php var_dump($_SESSION['User']['TokenInfo']['oeb:roles']); ?>
                             <div class="portlet-title">
                                 <div class="caption">
                                     <i class="icon-share font-dark hide"></i>

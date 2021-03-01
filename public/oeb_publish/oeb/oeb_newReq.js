@@ -45,7 +45,6 @@ $(document).ready(function() {
                     
                     //arrayOfFiles.push($('td:first-child input', this).prop('value'));
                     arrayOfFiles.push(obj);
-                    console.log(arrayOfFiles)
                 }
             });
 
@@ -97,7 +96,7 @@ $(document).ready(function() {
 function createTable(){
     table1 = $('#communityTable').DataTable( {
         "ajax": {
-            url: 'applib/publishFormAPI.php?action=getAllFiles&type=participant',
+            url: 'applib/oeb_publishAPI.php?action=getAllFiles&type=participant',
             dataSrc: ''
         },
         
@@ -226,7 +225,6 @@ function removeFromList (option) {
 
 // remove files from the list
 function submit() {
-    console.log(arrayOfFiles);
     var list = "";
     $("#filesAboutToSubmit tr").remove();
     for (let index = 0; index < arrayOfFiles.length; index++) {
@@ -241,11 +239,11 @@ function submit() {
     
     $("#submitModal").click(function (){
         $("#reqSubmitDialog").modal('hide'); 
-        
+        console.log(arrayOfFiles);
         for (let index = 0; index < arrayOfFiles.length; index++) {
             $.ajax({
                 type: "POST",
-                url: baseURL + "/applib/publishFormAPI.php",
+                url: baseURL + "/applib/oeb_publishAPI.php?action=request",
                 data: {fileId: arrayOfFiles[index]['id'], msg:$('#msg'+index).val()},
                 success: function(data) {
                     if (data == '1') {
@@ -259,13 +257,12 @@ function submit() {
                                     
                                 }
                             })
-                           
+                            
                             
                         }, 500);
                         
                     } else if (data == '0') {
                         setTimeout(function() {
-                            location.href = 'workspace/';
                             alert("files not correctly submited");
                             $("#alert").append(createAlert(arrayOfFiles[index]['filename'],"notComplete"));
                         }, 500);
@@ -274,6 +271,7 @@ function submit() {
                 }
             });
         }
+        
         $("#tableMyFiles" ).click();
     });
     
@@ -284,7 +282,7 @@ function submit() {
 function getRoles() {
     return $.ajax({
         type: 'POST',
-        url: 'applib/publishFormAPI.php?role'
+        url: 'applib/oeb_publishAPI.php?action=getRole'
     })
 }
 

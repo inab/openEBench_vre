@@ -1,9 +1,9 @@
 <?php
 
-namespace MuG_Oauth2Provider;
+namespace Keycloak_Oauth2Provider;
 use League\OAuth2\Client\Provider\GenericProvider;
 
-class MuG_Oauth2Provider extends GenericProvider {
+class Keycloak_Oauth2Provider extends GenericProvider {
 
     protected $urlLogout;
 

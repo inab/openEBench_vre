@@ -61,6 +61,19 @@ $GLOBALS['urlLogout']              = $GLOBALS['authServer'].'/realms/'.$GLOBALS[
 $GLOBALS['adminToken']             = $GLOBALS['authServer']."/realms/master/protocol/openid-connect/token"; // get Admin token
 $GLOBALS['adminRealm']             = $GLOBALS['authServer']."/admin/realms/".$GLOBALS['authRealm']; // admin keycloak users
 
+
+// Respository and storage configuration
+$GLOBALS['repositories'] = array(
+        'nc' => array(
+                'https://dev-openebench.bsc.es/nextcloud/' => array(
+                        'name'        => 'OEB nextcloud (dev)',
+                        'auth'        => 'basic',
+                        'credentials' => array(
+                                        "conf_file" => __DIR__."/nextcloud.conf")
+                )
+        )
+);
+
 /************************
 // Definitions
 ************************/

@@ -8,9 +8,7 @@
 var Helpdesk = function() {
 
     var handleHelpdesk = function() {
-                if($('#Request').val() == "roleUpgrade"){
-                    roleUpgrade();
-                }
+                
 
 				$('#Request').change(function() {
                     $("#Subject").val("");
@@ -19,35 +17,47 @@ var Helpdesk = function() {
 					if($(this).val() == "tools") {
 						$('#Tool').prop('disabled', false);
 						$('#row-tools').show();
+                        $('#row-communities').hide();
+                        $('#row-challenges').hide();
 						$('#label-msg').html("Message details");
 					}else if($(this).val() == "tooldev"){
 						$('#label-msg').html("Please tell us which kind of tool(s) you want to integrate in the VRE");
                     }else if($(this).val() == "roleUpgrade"){
+                        $('#row-tools').hide();
+                        $('#commmunity').prop('disabled', false);
+						$('#row-communities').show();
+                        $('#row-challenges').show();
                         roleUpgrade();
                     }else{
 						$('#Tool').prop('disabled', true);
 						$('#row-tools').hide();
+                        $('#row-communities').hide();
+                        $('#row-challenges').hide();
                         $('#label-msg').html("Message details");
 					}
                 });
                 
                    
                 function roleUpgrade () {
-                     //get data --> AJAX TODO
-                     //if user already have manager/owner roles, not show
-                     var requester;
-                     var approvalName;
-                     var approvalEmail;
-                     var roleToupgrade;
+                     //get data --> AJAX TODO -> get user logged, get approver name
+                     $.ajax({
+                        url: 'applib/helpdeskPetitions.php?getActors'
+                      }).done(function(data) {
+                        var fileinfo = JSON.parse(data);
+                     
 
-                     //subject
-                     $("#Subject").val("Request to upgrade role from "+requester);
-                     //message
-                     $("#Message").val("Dear "+approvalName+",\n\nThe user "+requester+" would like to upgrade its role to "+roleToupgrade+". \nIf you agree on that, please accept that request on OEB. \n\nRegards, \n\nOEB team.");
+                        //if user already have manager/owner roles, not show
+                        var requester = fileinfo['Name']+" "+fileinfo['Surname'];
+                        var roleToupgrade = "contributor";
+                        var community_name = $( "#commmunityList option:selected" ).text();
+                        
 
+                        //subject
+                        $("#Subject").val("Request to upgrade role from "+requester);
+                        //message
+                        $("#Message").val("Dear user,\n\nThe user "+requester+" would like to upgrade its role to "+roleToupgrade+" for the community "+community_name+". \nIf you agree on that, please accept that request on OEB. \n\nRegards, \n\nOEB team.");
 
-
-                    
+                    })
                 }
         
 
@@ -65,7 +75,13 @@ var Helpdesk = function() {
                 Request: {
                     required: true,
                 },
-								Tool: {
+				Tool: {
+                    required: true,
+                },
+                commmunityList: {
+                    required: true,
+                },
+                challengeList: {
                     required: true,
                 },
                 Subject: {
@@ -129,6 +145,32 @@ var Helpdesk = function() {
 
 }();
 
+
 jQuery(document).ready(function() {
     Helpdesk.init();
+});
+
+
+$('#commmunityList').on('change',function(){
+    $('#challengeList').html('');
+    
+    var communityID = $(this).val();
+    if(communityID){
+        $.ajax({
+            type:'POST',
+            url: 'applib/oeb_publishAPI.php?action=listOfChallenge',
+            data:'community_id='+communityID,
+            success:function(data){
+                var cList = JSON.parse(data);
+                cList.forEach((element) => {
+                    $('#challengeList').append('<option value="'+element['_id']+'">'+element['name']+'</option>');
+                });
+                
+              
+
+            }
+        }); 
+    }else{
+        $('#challengeList').html('<option value="">Select a challenge </option>'); 
+    }
 });

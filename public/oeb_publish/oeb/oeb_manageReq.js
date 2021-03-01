@@ -13,7 +13,7 @@ function createTableRegisters(){
     table2 = $('#tableAllFiles').DataTable( {
         "autoWidth": false,
         "ajax": {
-            url: 'applib/publishFormAPI.php?action=getSubmitRegisters',
+            url: 'applib/oeb_publishAPI.php?action=getSubmitRegisters',
             dataSrc: ''
         },
         "columns" : [
@@ -98,7 +98,7 @@ function actionTable2(id, action) {
         $("#actionDialog").modal('hide');
         $.ajax({
             type: "POST",
-            url: baseURL + "/applib/publishFormAPI.php",
+            url: baseURL + "/applib/oeb_publishAPI.php?action=proceedReq",
             data: "actionReq=" + action+"&reqId="+id+"&msg="+$('#messageAction').val(),
             success: function(data) {
                 if (data == '1') {
@@ -126,7 +126,7 @@ function showReqFlow(reqId) {
     /*
     $.ajax({
         type: "POST",
-        url: baseURL + "/applib/publishFormAPI.php",
+        url: baseURL + "/applib/oeb_publishAPI.php",
         data: "flowOf=" + reqId,
         success: function(data) {
             if (data == '1') {
@@ -155,7 +155,7 @@ function showReqFlow(reqId) {
 function getRoles() {
     return $.ajax({
         type: 'POST',
-        url: 'applib/publishFormAPI.php?role'
+        url: 'applib/oeb_publishAPI.php?action=getRole'
     })
 }
 

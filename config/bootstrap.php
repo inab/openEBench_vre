@@ -7,14 +7,14 @@ require dirname(__FILE__)."/../config/globals.inc.php";
 require dirname(__FILE__)."/../vendor/autoload.php"; 
 
 // initialize session
-require dirname(__FILE__)."/../public/phplib/session.inc";
+require dirname(__FILE__)."/../libs/session.inc";
 
 // import local classes
-foreach(glob(dirname(__FILE__)."/../public/phplib/classes/*.php") as $lib){
+foreach(glob(dirname(__FILE__)."/../libs/classes/*.php") as $lib){
     require $lib;
 }
 // import local libs
-foreach(glob(dirname(__FILE__)."/../public/phplib/*.php") as $lib){
+foreach(glob(dirname(__FILE__)."/../libs/*.php") as $lib){
     require $lib;
 }
 

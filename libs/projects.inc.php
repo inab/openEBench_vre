@@ -1883,8 +1883,8 @@ function refresh_token($force=false){
     }
     $existingTokenO = new AccessToken($_SESSION['User']['Token']);
 
-    //$provider = new MuG_Oauth2Provider\MuG_Oauth2Provider(['redirectUri'=> 'http://' . $_SERVER['SERVER_NAME'] . $_SERVER['PHP_SELF']]);
-    $provider = new MuG_Oauth2Provider\MuG_Oauth2Provider(['redirectUri'=> $GLOBALS['URL'] . $_SERVER['PHP_SELF']]);
+    //$provider = new Keycloak_Oauth2Provider\Keycloak_Oauth2Provider(['redirectUri'=> 'http://' . $_SERVER['SERVER_NAME'] . $_SERVER['PHP_SELF']]);
+    $provider = new Keycloak_Oauth2Provider\Keycloak_Oauth2Provider(['redirectUri'=> $GLOBALS['URL'] . $_SERVER['PHP_SELF']]);
 
     if ($force || $existingTokenO->hasExpired()) {
 	try {

@@ -2,10 +2,10 @@
 
 require __DIR__."/../../config/bootstrap.php";
 
-use MuG_Oauth2Provider\MuG_Oauth2Provider;
+use Keycloak_Oauth2Provider\Keycloak_Oauth2Provider;
 
 // Setting auth server
-$provider = new MuG_Oauth2Provider(['redirectUri'=> $GLOBALS['URL'] . $_SERVER['PHP_SELF']]);
+$provider = new Keycloak_Oauth2Provider(['redirectUri'=> $GLOBALS['URL'] . $_SERVER['PHP_SELF']]);
 
 // Get auth code. Redirect user to the authorization URL
 if (!isset($_GET['code'])) {
@@ -40,12 +40,16 @@ if (!isset($_GET['code'])) {
     // Look up user name and other metadata
     try {
         $resourceOwnerO = $provider->getResourceOwner($accessTokenO);
-        $resourceOwner  = array_map('trim', $resourceOwnerO->toArray());
+        //$resourceOwner  = array_map('trim', $resourceOwnerO->toArray()); //inactivate 'trim' for multi-valued claims
+        $resourceOwner  = $resourceOwnerO->toArray();
 
     } catch (\Exception $e) {
 		exit("Internal login service error: cannot obtain user access token from authorization code: ".$e->getMessage());
     }
 
+    //print "KC USERINFO HAS:\n";
+    //var_dump($resourceOwner);
+    //exit(0);
 
     // Check if user exists.
     $u = checkUserLoginExists(sanitizeString($resourceOwner['email']));
@@ -70,8 +74,8 @@ if (!isset($_GET['code'])) {
     }
 
     // load user
+    logger("New log in:".$resourceOwner['email']);
     $user = loadUserWithToken($resourceOwner,$accessToken);
-
     if($user){
         // remediate resource user, if needed 
         if (!$resourceOwner['vre_id']){

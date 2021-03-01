@@ -5,6 +5,8 @@ require __DIR__ . "/../../config/bootstrap.php";
 redirectOutside();
 
 $tools = getTools_List();
+$commmunities = getCommunities();
+
 
 ?>
 
@@ -65,8 +67,7 @@ $tools = getTools_List();
                             <?php } ?>
                         </div>
                     </div>
-
-                    <form name="helpdesk" id="helpdesk" action="applib/openTicket.php" method="post">
+                    <form name="helpdesk" id="helpdesk" action="applib/openTicket.php" method="post" class="needs-validation" novalidate>
 
                         <div class="portlet box blue-oleo">
                             <div class="portlet-title">
@@ -79,13 +80,13 @@ $tools = getTools_List();
                                     <div class="row">
                                         <div class="col-md-6">
                                             <div class="form-group">
-                                                <label class="control-label">Your name</label>
+                                                <label class="control-label"><b>Your name</b></label>
                                                 <input type="text" name="Name" id="Name" value="<?php echo $_SESSION["User"]["Name"] . " " . $_SESSION["User"]["Surname"]; ?>" class="form-control" readonly>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
                                             <div class="form-group">
-                                                <label class="control-label">Your email</label>
+                                                <label class="control-label"><b>Your email</b></label>
                                                 <input type="text" name="Email" id="Email" value="<?php echo $_SESSION["User"]["Email"]; ?>" class="form-control" readonly>
                                             </div>
                                         </div>
@@ -94,14 +95,14 @@ $tools = getTools_List();
                                     <div class="row">
                                         <div class="col-md-12">
                                             <div class="form-group">
-                                                <label class="control-label">Type of request</label>
+                                                <label class="control-label"><b>Type of request</b></label>
                                                 <select name="Request" id="Request" class="form-control">
-                                                    <option value="">Select a request</option>
+                                                    <option value=""><b>Select a request</b></option>
                                                     <option value="general" <?php if ($_REQUEST["sel"] == "general") { ?>selected<?php } ?>>I have a technical question</option>
                                                     <option value="tools" <?php if ($_REQUEST["sel"] == "tools") { ?>selected<?php } ?>>I have an issue related with some tool</option>
                                                     <option value="space" <?php if ($_REQUEST["sel"] == "space") { ?>selected<?php } ?>>I need more disk space</option>
                                                     <option value="community" <?php if ($_REQUEST["sel"] == "community") { ?>selected<?php } ?>>Register a new community</option>
-                                                    <option value="roleUpgrade" <?php if ($_REQUEST["sel"] == "roleUpgrade") { ?>selected<?php } ?>>Request to upgrade your OEB role</option>
+                                                    <option value="roleUpgrade" <?php if ($_REQUEST["sel"] == "roleUpgrade") { ?>selected<?php } ?>>Request to become contributor</option>
                                                     <!-- <option value="tooldev" <?php 
                                                                                     ?>selected<?php 
                                                                                                                                         ?>>I want to become a tool developer</option> -->
@@ -113,9 +114,9 @@ $tools = getTools_List();
                                     <div class="row display-hide" id="row-tools">
                                         <div class="col-md-12">
                                             <div class="form-group">
-                                                <label class="control-label">Tools List</label>
+                                                <label class="control-label"><b>Tools List</b></label>
                                                 <select name="Tool" id="Tool" class="form-control" disabled>
-                                                    <option value="">Select a Tool</option>
+                                                    <option value="">Select a Tool </option>
                                                     <?php foreach ($tools as $t) { ?>
                                                         <option value="<?php echo $t["_id"]; ?>"><?php echo $t["name"]; ?></option>
                                                     <?php } ?>
@@ -123,11 +124,35 @@ $tools = getTools_List();
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="row display-hide" id="row-communities">
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label class="control-label"><b>Community List </b><span style="color:red;">*</span></label>
+                                                <select name="commmunityList" id="commmunityList" class="form-control" >
+                                                    <option value="">Select a commmunity </option>
+                                                    
+                                                    <?php foreach ($commmunities as $c) { ?>
+                                                        <option value="<?php echo $c["_id"]; ?>"><?php echo $c["name"]; ?></option>
+                                                    <?php } ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row display-hide" id="row-challenges">
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label class="control-label"><b>Challenge List </b><span style="color:red;">*</span></label>
+                                                <select name="challengeList" id="challengeList" class="form-control" >
+                                                    <option value="">Select a challenge </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div class="row">
                                         <div class="col-md-12">
                                             <div class="form-group">
-                                                <label class="control-label">Subject</label>
-                                                <input type="text" name="Subject" id="Subject" class="form-control" placeholder="">
+                                                <label class="control-label"><b>Subject </b><span style="color:red;">*</span></label>
+                                                <input type="text" name="Subject" id="Subject" class="form-control" placeholder="" required>
                                                 
                                             </div>
                                         </div>
@@ -136,7 +161,7 @@ $tools = getTools_List();
                                         <div class="col-md-12">
                                             <div class="form-group">
                                                 <?php if ($_REQUEST["sel"] != "tooldev") { ?>
-                                                    <label class="control-label" id="label-msg">Message details</label>
+                                                    <label class="control-label" id="label-msg"><b>Message details </b><span style="color:red;">*</span></label>
                                                 <?php } else { ?>
                                                     <label class="control-label" id="label-msg">Please tell us which kind of tool(s) you want to integrate in the VRE</label>
                                                 <?php } ?>

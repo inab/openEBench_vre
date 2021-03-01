@@ -9,12 +9,12 @@ $(document).ready(function() {
       schema = data;
     }).done(function() {
       //user
-      var getUserInfo = "applib/publishFormAPI.php?action=getUserInfo";
+      var getUserInfo = "applib/oeb_publishAPI.php?action=getUserInfo";
 
       //files
       fn = $("#files").val();
       console.log(fn)
-      var getFileInfo = "applib/publishFormAPI.php?action=getFileInfo";
+      var fileInfo = "applib/oeb_publishAPI.php?action=getFileInfo";
 
       //create jsonEditor obj
       editor = new JSONEditor(document.getElementById("editor_holder"),{
@@ -31,7 +31,7 @@ $(document).ready(function() {
       //file info
       $.ajax({
         type: 'POST',
-        url: getFileInfo,
+        url: fileInfo,
         data: {"files" : fn}
       }).done(function(data) {
         var fileinfo = JSON.parse(data);
@@ -153,7 +153,7 @@ $(document).ready(function() {
         $("#loading-datatable").show();
         $.ajax({
           type: 'POST',
-          url: "applib/publishFormAPI.php?action=publish",
+          url: "applib/oeb_publishAPI.php?action=publish",
           data: {"metadata" : json, "fileId": fn},
           success : function(data) {
             console.log(data);

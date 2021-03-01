@@ -65,9 +65,6 @@ if($_REQUEST) {
         echo setWorkflow($_REQUEST['json'], $_REQUEST['validation'], $_REQUEST['metrics'], $_REQUEST['consolidation']);
     } elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == "showWorkflowJSON") {
         echo showWorkflowJSON($_REQUEST['id']);
-    } else {
-        echo "IN";
-        var_dump($_REQUEST);
     }
 } else {
     echo '{}';
