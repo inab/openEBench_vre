@@ -18,16 +18,16 @@ function getBlocks($type) {
 
 	//if the user is the administrator show all the blocks
 	if($userJSON["Type"] == 0) {
-		$allBlocks = $GLOBALS['blocksCol']->find(array("data.type" => $type));
+		$allBlocks = $GLOBALS['blocksCol']->find(array("data.type" => $type))->toArray();
 
 	//if the user is not the administrator (=community manager)
 	} elseif($userJSON["Type"] == 1) {
 		//see the community. If user has community
 		if ($community && $community != '') {
-			$allBlocks = $GLOBALS['blocksCol']->find(array('$or' => array(array("data.owner.user" => $userId, "data.type" => $type), array("data.publication_status" => 1, "data.type" => $type), array("data.owner.oeb_community" => $community, "data.publication_status"=>4, "data.type" => $type))));
+			$allBlocks = $GLOBALS['blocksCol']->find(array('$or' => array(array("data.owner.user" => $userId, "data.type" => $type), array("data.publication_status" => 1, "data.type" => $type), array("data.owner.oeb_community" => $community, "data.publication_status"=>4, "data.type" => $type))))->toArray();
 		//see the community. If user has not any community
 		} else {
-			$allBlocks = $GLOBALS['blocksCol']->find(array('$or' => array(array("data.owner.user" => $userId, "data.type" => $type), array("data.publication_status" => 1, "data.type" => $type))));
+			$allBlocks = $GLOBALS['blocksCol']->find(array('$or' => array(array("data.owner.user" => $userId, "data.type" => $type), array("data.publication_status" => 1, "data.type" => $type))))->toArray();
 		}
 
 	}
@@ -60,12 +60,12 @@ function getBlockSelect($type) {
 	$community = $userJSON["oeb_community"];
 
 	if ($userType == 0) {
-		$allBlocks = $GLOBALS['blocksCol']->find(array('$or' => array(array("data.type" => $type, "data.publication_status" => 4, "validation_status"=>"registered"), array("data.type" => $type, "data.publication_status" => 1, "validation_status"=>"registered"),  array("data.type" => $type, "data.owner.user" => $userId, "validation_status"=>"registered"))));
+		$allBlocks = $GLOBALS['blocksCol']->find(array('$or' => array(array("data.type" => $type, "data.publication_status" => 4, "validation_status"=>"registered"), array("data.type" => $type, "data.publication_status" => 1, "validation_status"=>"registered"),  array("data.type" => $type, "data.owner.user" => $userId, "validation_status"=>"registered"))))->toArray();
 	} else {
 		if ($community && $community != '') {
-			$allBlocks = $GLOBALS['blocksCol']->find(array('$or' => array(array("data.owner.user" => $userId, "data.type" => $type, "validation_status"=>"registered"), array("data.publication_status" => 1, "data.type" => $type, "validation_status"=>"registered"), array("data.type" => $type, "data.owner.user" => $userId, "validation_status"=>"registered"), array("data.owner.oeb_community" => $community, "data.publication_status"=>4, "data.type" => $type, "validation_status"=>"registered"))));
+			$allBlocks = $GLOBALS['blocksCol']->find(array('$or' => array(array("data.owner.user" => $userId, "data.type" => $type, "validation_status"=>"registered"), array("data.publication_status" => 1, "data.type" => $type, "validation_status"=>"registered"), array("data.type" => $type, "data.owner.user" => $userId, "validation_status"=>"registered"), array("data.owner.oeb_community" => $community, "data.publication_status"=>4, "data.type" => $type, "validation_status"=>"registered"))))->toArray();
 		} else {
-			$allBlocks = $GLOBALS['blocksCol']->find(array('$or' => array(array("data.type" => $type, "data.owner.user" => $userId, "validation_status"=>"registered"), array("data.type" => $type, "data.publication_status" => 1, "validation_status"=>"registered"))));
+			$allBlocks = $GLOBALS['blocksCol']->find(array('$or' => array(array("data.type" => $type, "data.owner.user" => $userId, "validation_status"=>"registered"), array("data.type" => $type, "data.publication_status" => 1, "validation_status"=>"registered"))))->toArray();
 		}
 	}
 
@@ -93,11 +93,11 @@ function getWorkflows() {
 
 	//if the user is the administrator
 	if($user["Type"] == 0) {
-		$allWorkflows = $GLOBALS['workflowsCol']->find();
+		$allWorkflows = $GLOBALS['workflowsCol']->find()->toArray();
 		//if the user is not the administrator (=community manager)
 	} elseif($user["Type"] == 1) {
 		//the workflows has to be registered to see 
-		$allWorkflows = $GLOBALS['workflowsCol']->find(array("data.owner.user" => $userId));
+		$allWorkflows = $GLOBALS['workflowsCol']->find(array("data.owner.user" => $userId))->toArray();
 	}
 
 	//add query to an array
@@ -159,8 +159,8 @@ function updateStatusBlock($blockId, $statusId) {
 	}
 	// update block status in Mongo
 	try  {
-		$blocksCol->update(['_id' => $blockId], [ '$set' => [ 'data.publication_status' => 'NumberLong('+$statusId+')']]);
-		$blockFound = $blocksCol->find(array("data.publication_status"=>'NumberLong('+$statusId+')', "_id"=>$blockId));
+		$blocksCol->updateOne(['_id' => $blockId], [ '$set' => [ 'data.publication_status' => 'NumberLong('+$statusId+')']]);
+		$blockFound = $blocksCol->find(array("data.publication_status"=>'NumberLong('+$statusId+')', "_id"=>$blockId))->toArray();
 
 		if($blockFound != "") {
 			$type = $blocksCol->findOne(array("_id"=>$blockId));
@@ -366,10 +366,10 @@ function setBlock($blockStringForm, $typeBlock, $buttonAction) {
 	try {
 		if ($buttonAction == "submit") {
 			//insert the data in mongo
-			$GLOBALS['blocksCol']->insert($data);
+			$GLOBALS['blocksCol']->insertOne($data);
 		} elseif ($buttonAction == "edit") {
 			//insert the data in mongo but updated
-			$GLOBALS['blocksCol']->update(array("_id" => $blockForm["_id"]), $blockForm);
+			$GLOBALS['blocksCol']->updateOne(array("_id" => $blockForm["_id"]), array('$set' => $blockForm));
 		}
 
 	} catch (Exception $e) {
@@ -723,7 +723,7 @@ function reject_workflow($id) {
 	$response_json = new JsonResponse();
 
 	try  {
-		$workflowCol->update(['_id' => $id], [ '$set' => [ 'request_status' => 'rejected']]);
+		$workflowCol->updateOne(['_id' => $id], [ '$set' => [ 'request_status' => 'rejected']]);
 		$workflowFound = $workflowCol->findOne(array("request_status"=>'rejected', "_id"=>$id));
 
 		if(!$workflowFound) {
@@ -754,7 +754,7 @@ function _register_workflow($id) {
 
 	try  {
 		//change the request status to registered instead of submitted
-		$workflowCol->update(['_id' => $id], [ '$set' => [ 'request_status' => 'registered']]);
+		$workflowCol->updateOne(['_id' => $id], [ '$set' => [ 'request_status' => 'registered']]);
 		//check if the update has work propertly
 		$workflowFound = $workflowCol->findOne(array("request_status"=>'registered', "_id"=>$id));
 
@@ -1086,7 +1086,7 @@ function deleteBlock($id) {
 	}
 	
 	//Get if there are any workflow using this validation block
-	$workflowsInUse = $GLOBALS['workflowsCol']->find(array('validation_id' => $id));
+	$workflowsInUse = $GLOBALS['workflowsCol']->find(array('validation_id' => $id))->toArray();
 	
 	//add query to an array
 	foreach($workflowsInUse as $workflow) {
@@ -1163,7 +1163,7 @@ function setWorkflow($json, $validation, $metrics, $consolidation) {
 	//Mongo query insert into Workflows collection
 	try {
 		//insert the workflow
-		$GLOBALS['workflowsCol']->insert($data);
+		$GLOBALS['workflowsCol']->insertOne($data);
 	} catch(Exception $e) {
 		$response_json->setCode(501);
 		$response_json->setMessage("Cannot update data in Mongo. Mongo Error(".$e->getCode()."): ".$e->getMessage());

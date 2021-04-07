@@ -4,16 +4,18 @@
  * Called when user clicks on button to publish to EUDAT 
  * @param fn id of file in VRE
  * @param metadata a json doc with required fields filled
+ * @param userToken the token of the user in EUDAT
  * @return the DOI from EUDAT
  */
-function oeb_publish_file_eudat($fn,$metadata){
+function oeb_publish_file_eudat($fn,$metadata, $userEudatToken){
     $eudat_doi=null;
     // fetch file path
     $file_path  = $GLOBALS['dataDir'].getAttr_fromGSFileId($fn,'path');
 
     //publication subprocess
-    //add token parametre!
-    $eudat_doi = system("python ../../scripts/populate/publish.py "."'".$metadata."' '".$file_path."'", $retvalue);
+    //txell's token-- > to change for user logged token
+    $userEudatToken = "ixQFTHFCUIPTjaBRps6ixPjLAo40M8fCE6AR6lEsttokUuS7q8xP2pLnD7Is";
+    $eudat_doi = system("python ../../scripts/populate/publish.py "."'".$userEudatToken."' '".$metadata."' '".$file_path."'", $retvalue);
 
     return $eudat_doi;
 }

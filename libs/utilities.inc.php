@@ -387,13 +387,13 @@ function setVREfile_fromScratch($file_data=array()){
         unset($file_data['path']);
     }
     if (!isset($file_data['mtime'])){
-        $file['mtime']= new MongoDate(strtotime("now"));
+        $file['mtime']= new MongoDB\BSON\UTCDateTime(strtotime("now"));
     }else{
         $file['mtime']= $file_data['mtime'];
         unset($file_data['mtime']);
     }
     if (!isset($file_data['atime'])){
-        $file['atime']= new MongoDate(strtotime("now"));
+        $file['atime']= new MongoDB\BSON\UTCDateTime(strtotime("now"));
     }else{
         $file['atime']= $file_data['atime'];
         unset($file_data['atime']);
@@ -405,7 +405,7 @@ function setVREfile_fromScratch($file_data=array()){
         unset($file_data['parentDir']);
     }
     if (!isset($file_data['lastAccess'])){
-        $file['lastAccess']= new MongoDate(strtotime("now"));
+        $file['lastAccess']= new MongoDB\BSON\UTCDateTime(strtotime("now"));
     }else{
         $file['lastAccess']= $file_data['lastAccess'];
         unset($file_data['lastAccess']);
@@ -573,7 +573,7 @@ function prepMetadataResult($meta,$fnPath=0,$lastjob=Array() ){
                         $fnCore = preg_replace("/.$ext/i","",basename($fnPath));
                         $fnCore = preg_replace("/^.*_/","",$fnCore);
                 }
-                $reObj = new MongoRegex("/".$_SESSION['User']['id'].".*".$fnCore."/i");
+		$reObj = new \MongoDB\BSON\MongoRegex($_SESSION['User']['id'].".*".$fnCore);
                 $relatedBAMS = $GLOBALS['filesMetaCol']->find(array('path'  => $reObj));
                 if (!empty($relatedBAMS)){
                        $relatedBAMS->next();
@@ -1001,4 +1001,17 @@ function file_get_contents_chunked($file,$chunk_size,$callback){
 	}
 	return true;
 }
-        
+
+function indexArray($multiArray,$attr="_id"){
+    $assocArray = array();
+    foreach ($multiArray as $key => $value) {
+            if (isset($value['_id'])  &&  !is_object($value['_id']) ) {
+                $k = (string) $value['_id'];
+                $assocArray[$k] = $value;
+            }else{
+                $assocArray[$key] = $value;
+            }
+    }
+    return $assocArray;
+}
+

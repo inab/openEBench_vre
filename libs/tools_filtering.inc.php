@@ -101,7 +101,7 @@ function getTools_DataTypes() {
 
 function getAvailableDTbyTool($tool) {
 
-	$dt = $GLOBALS['toolsCol']->find(array("external" => true, "_id" => $tool), array("input_files_combinations_internal" => true));
+	$dt = $GLOBALS['toolsCol']->find(array("external" => true, "_id" => $tool), array("input_files_combinations_internal" => true))->toArray();
 
 	$array = array();
 

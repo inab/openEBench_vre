@@ -63,6 +63,7 @@ $GLOBALS['adminRealm']             = $GLOBALS['authServer']."/admin/realms/".$GL
 
 
 // Respository and storage configuration
+
 $GLOBALS['repositories'] = array(
         'nc' => array(
                 'https://dev-openebench.bsc.es/nextcloud/' => array(
@@ -151,12 +152,12 @@ $GLOBALS['OEB_scirestapi'] = "https://openebench.bsc.es/api/scientific/access";
 $GLOBALS['cloud']              = "life-bsc"; // VRE central cloud. Options are any of $GLOBALS['clouds']
 $GLOBALS['clouds'] = Array(
 		'life-bsc' => array(
-			"http_host"	    => "openebench.bsc.es",	       // used in getCurrentCloud
+			"http_host"	    => $GLOBALS['SERVER'],	       // used in getCurrentCloud
 			"dataDir_fs"        => "/data/cloud/apps/noroot/elixir_benchmarking_submission/VRE/userdata", //export path for NFS server
 			"pubDir_fs"         => "/data/cloud/apps/noroot/elixir_benchmarking_submission/VRE/public",   //export path for NFS server
-			"dataDir_virtual"   => "/gpfs/VRE/userdata",
-			"pubDir_virtual"    => "/gpfs/VRE/public",
-			"PMESserver_domain" => "multiscalegenomics.bsc.es",
+			"dataDir_virtual"   => $GLOBALS['dataDir'],
+			"pubDir_virtual"    => $GLOBALS['pubDir'],
+			"PMESserver_domain" => "pmes.server.domain",
 			"PMESserver_port"   => "80",
 			"PMESserver_address"=> "pmes/",
 			"imageTypes" 	    => array(),
@@ -325,3 +326,6 @@ $GLOBALS['oeb_script_validator'] = "oeb_validatorScript.sh";
 
 //schema from EUDAT
 $GLOBALS['oeb_eudat_schema'] = "https://raw.githubusercontent.com/inab/EUDAT-OEB-schemas/main/eudatSchema.json";
+
+//schema from oeb (submission)
+$GLOBALS['oeb_submission_schema'] = "https://raw.githubusercontent.com/inab/OEB_level2_data_migration/master/submission_form_schema.json";

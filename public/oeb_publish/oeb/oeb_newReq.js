@@ -3,6 +3,8 @@ var table1;
 
 $(document).ready(function() {
 
+    $("#selectAll").click();
+
     //get user roles
     getRoles().done(function(r) {
         var roles = JSON.parse(r)
@@ -88,6 +90,7 @@ $(document).ready(function() {
     
     })
 
+
 })
 
 
@@ -96,7 +99,7 @@ $(document).ready(function() {
 function createTable(){
     table1 = $('#communityTable').DataTable( {
         "ajax": {
-            url: 'applib/oeb_publishAPI.php?action=getAllFiles&type=participant',
+            url: 'applib/oeb_publishAPI.php?action=getAllFiles&type[]=participant&type[]=assessment',
             dataSrc: ''
         },
         
@@ -104,11 +107,12 @@ function createTable(){
             {"data" : "_id"}, //0
             { "data" : "path" }, //1
             { "data" : "datatype_name" }, //2
-            { "data" : "status" }, //3
-            { "data" : "oeb_id" }, //4
-            { "data" : "current_status" }, //5 --> to hide
-            { "data" : "challenge_status" }, //6
-            { "data" : "oeb_id" } //7
+            { "data" : "oeb_event" }, //3
+            { "data" : "oeb_challenges" }, //4
+            { "data" : "mtime" }, //5
+            { "data" : "current_status" }, //6 --> to hide
+            { "data" : "challenge_status" }, //7
+            { "data" : "oeb_id" } //8
 
 
         ],
@@ -128,7 +132,7 @@ function createTable(){
             },
             {
                 "targets": 1,
-                "title": '<th>Filename <i class="icon-question" data-toggle="tooltip" data-placement="top" title="Execution and file name"></i></th>',
+                "title": '<th>Filenamee <i class="icon-question" data-toggle="tooltip" data-placement="top" title="Execution and file name"></i></th>',
                 render: function ( data, type, row ) {
                     
                     if(row['current_status'] == 'pending approval'){
@@ -143,23 +147,45 @@ function createTable(){
             },
             {
                 "targets": 3,
-                "title": '<th>Challenge name <i class="icon-question" data-toggle="tooltip" data-placement="top" title="OpenEBench identifier"></i></th>',
-                render: function ( data, type, row ) {
-                    return 'QFO challenge 6'
-                    
-                }
+                "title": '<th>Benchmarking Event <i class="icon-question" data-toggle="tooltip" data-placement="top" title="OpenEBench benchmarking event in which the dataset was used or the metrics produced"></i></th>'
+                
 
             },
             {
                 "targets": 4,
+                "title": '<th>Benchmarking Challenges<i class="icon-question" data-toggle="tooltip" data-placement="top" title="OpenEBench benchmarking challenges included in the metrics"></i></th>',
+                render: function ( data, type, row ) {
+                    console.log (data);
+                    if (data != undefined && data.length != 0){
+                        
+                        listChallenges = '<ul id = "ul-challenges">';
+                       for (let index = 0; index < data.length; index++) {
+                        listChallenges += '<li>'+data[index]+'</li>';
+                           
+                       }
+                       listChallenges += '</ul>';
+                       
+                       return listChallenges;
+                    } else return '';
+                    
+                    
+                   
+
+                }
+
+            },
+            {
+                "targets": 5,
                 "title": '<th>Date <i class="icon-question" data-toggle="tooltip" data-placement="top" title="Identifier of EUDAT/B2SHARE"></i></th>',
                 render: function ( data, type, row ) {
-                        return "20-Nov-2020"
+                    console.log(data)
+                    return convertTimestamp(data['$date']['$numberLong']);
+                        //return data['sec'].toLocalTime();
                     
                 }
             },
             {
-                "targets": 5,
+                "targets": 6,
                 className: "hide_column",
                 "title": '<th>Status petition  <i class="icon-question" data-toggle="tooltip" data-placement="top" title="Identifier of EUDAT/B2SHARE"></i></th>',
                 render: function ( data, type, row ) {
@@ -172,15 +198,15 @@ function createTable(){
                 
             },
             {
-                "targets": 6,
-                "title": '<th>Challenge status  <i class="icon-question" data-toggle="tooltip" data-placement="top" title="Identifier of EUDAT/B2SHARE"></i></th>',
+                "targets": 7,
+                "title": '<th>Benchmark event status  <i class="icon-question" data-toggle="tooltip" data-placement="top" title="Identifier of EUDAT/B2SHARE"></i></th>',
                 render: function ( data, type, row ) {
                         return "Open"
                     
                 }
             },
             {
-                "targets": 7,
+                "targets": 8,
                 "title": '<th>OEB id  <i class="icon-question" data-toggle="tooltip" data-placement="top" title="Identifier of EUDAT/B2SHARE"></i></th>',
                 render: function ( data, type, row ) {
                         return ""
@@ -223,6 +249,17 @@ function removeFromList (option) {
     }
 }
 
+function submitFiles() {
+    var myForm = $('#files-form');
+    $('#filesInput').val(JSON.stringify(arrayOfFiles));
+    myForm.submit();
+    return false;
+}
+
+
+
+/*
+
 // remove files from the list
 function submit() {
     var list = "";
@@ -235,11 +272,18 @@ function submit() {
     
     $("#filesAboutToSubmit").append(list);
     $("#reqSubmitDialog").modal('show'); 
+
+   
     
-    
+
     $("#submitModal").click(function (){
         $("#reqSubmitDialog").modal('hide'); 
         console.log(arrayOfFiles);
+        
+        //window.location.href = "oeb_publish/oeb/oeb_editMetadata.php?files="+arrayOfFiles;
+
+
+        /*
         for (let index = 0; index < arrayOfFiles.length; index++) {
             $.ajax({
                 type: "POST",
@@ -257,8 +301,6 @@ function submit() {
                                     
                                 }
                             })
-                            
-                            
                         }, 500);
                         
                     } else if (data == '0') {
@@ -266,18 +308,22 @@ function submit() {
                             alert("files not correctly submited");
                             $("#alert").append(createAlert(arrayOfFiles[index]['filename'],"notComplete"));
                         }, 500);
+                        return false;
+                        
                         
                     }
                 }
             });
         }
+        window.location.href = "oeb_publish/oeb/oeb_editMetadata.php";
         
         $("#tableMyFiles" ).click();
+        
     });
     
 }
 
-
+*/
 //get petition to get user roles
 function getRoles() {
     return $.ajax({
@@ -290,7 +336,7 @@ function createAlert ($fileName, $action) {
     if ($action == "success") {
         return  '<div class="alert alert-success alert-dismissible fade in">\
                     <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>\
-                <strong>File '+$fileName+' correctly request!</strong> To manage your request: <a href="/vre/oeb_publish/oeb/oeb_manageReq.php" class="alert-link">click here!</a>\
+                <strong>File '+$fileName+' correctly requested!</strong> To manage your request: <a href="/vre/oeb_publish/oeb/oeb_manageReq.php" class="alert-link">click here!</a>\
                 </div>'
 
     } else {
@@ -301,4 +347,64 @@ function createAlert ($fileName, $action) {
 
     }
 }
+/***********************FILTERS******************************** */
+$("#selectAll").click(function () {
+    $("#selectAssessment").removeClass('active');
+    $("#selectParticipant").removeClass('active');
+    $("#selectAll").addClass('active');
+    $("#communityTable").find("tbody").find("tr").show();
+});
 
+$("#selectParticipant").click(function () {
+    $("#selectAll").removeClass('active');
+    $("#selectAssessment").removeClass('active');
+    $("#selectParticipant").addClass('active');
+    var rows = $("#communityTable").find("tbody").find("tr").hide();
+    rows.filter(":contains('Input: data to evalute')").show();
+});
+
+$("#selectAssessment").click(function () {
+    $("#selectAll").removeClass('active');
+    $("#selectParticipant").removeClass('active');
+    $("#selectAssessment").addClass("active");
+    var rows = $("#communityTable").find("tbody").find("tr").hide();
+    rows.filter(":contains('Output: consolidated assessment')").show();
+});
+
+
+/**
+ * Converts unix time in human format
+ * @param {*} timestamp 
+ * @return the time in human format
+ */
+function convertTimestamp(timestamp) {
+    var d = new Date(timestamp * 1),	// Convert the passed timestamp to milliseconds
+          yyyy = d.getFullYear(),
+          mm = ('0' + (d.getMonth() + 1)).slice(-2),	// Months are zero based. Add leading 0.
+          dd = ('0' + d.getDate()).slice(-2),			// Add leading 0.
+          hh = d.getHours(),
+          h = hh,
+          min = ('0' + d.getMinutes()).slice(-2),		// Add leading 0.
+          ampm = 'AM',
+          time;
+              
+      if (hh > 12) {
+          h = hh - 12;
+          ampm = 'PM';
+      } else if (hh === 12) {
+          h = 12;
+          ampm = 'PM';
+      } else if (hh == 0) {
+          h = 12;
+      }
+      
+      // ie: 2013-02-18, 8:35 AM	
+      time = yyyy + '-' + mm + '-' + dd + ', ' + h + ':' + min + ' ' + ampm;
+          
+      return time;
+  }
+
+  $('#button-challe').click(function () {
+      alert("hola")
+    $('#ul-challenges').classList.toggle('hidden');
+  });

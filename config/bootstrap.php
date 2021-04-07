@@ -1,5 +1,8 @@
 <?php
 
+error_reporting(E_ALL & ~E_NOTICE);
+
+
 // set up app settings
 require dirname(__FILE__)."/../config/globals.inc.php";
 

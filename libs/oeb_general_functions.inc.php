@@ -338,8 +338,7 @@ function getContactEmail ($contacts_ids) {
       CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
       CURLOPT_CUSTOMREQUEST => 'GET',
       CURLOPT_HTTPHEADER => array(
-        'Accept: application/json',
-        'Authorization: Basic dnJlZGV2OnZyZTIwMjE='
+        'Accept: application/json'
       ),
     ));
 
@@ -359,6 +358,10 @@ function getContactEmail ($contacts_ids) {
   return $contacts_emails;
 
 }
+
+
+//TODO getTools - grapghQL
+
 
 //get all communitites info: id, name...
 //GraphQL

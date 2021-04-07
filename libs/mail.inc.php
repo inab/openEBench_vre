@@ -20,7 +20,7 @@ function sendEmail($recipient, $subject, $body, $reply = null, $bcc = null){
 	
 	$mail = new PHPMailer(); // create a new object
 	$mail->IsSMTP(); // enable SMTP
-	$mail->SMTPDebug = 0; // debugging: 0 = no messages, 1 = errors and messages, 2 = messages only
+	$mail->SMTPDebug = 1; // debugging: 0 = no messages, 1 = errors and messages, 2 = messages only
 	$mail->SMTPAuth = true; // authentication enabled
 	$mail->SMTPSecure = 'ssl'; // secure transfer enabled REQUIRED for Gmail
 	$mail->Host = $conf[2];
@@ -38,7 +38,6 @@ function sendEmail($recipient, $subject, $body, $reply = null, $bcc = null){
 	// ******************
 	$mail->AddAddress($recipient);
 	// ******************
-	//$mail->AddAddress("genis.bayarri@irbbarcelona.org");
 
 	if(isset($bcc)) {
 		$mail->addBcc($bcc);
@@ -50,7 +49,7 @@ function sendEmail($recipient, $subject, $body, $reply = null, $bcc = null){
 		$f = array("Email" => $recipient);
 		$objMail = new Email($f, True);
 		$mailObj = (array)$objMail;
-		$GLOBALS['logMailCol']->insert($mailObj);
+		$GLOBALS['logMailCol']->insertOne($mailObj);
 		return true;
 	}
 
@@ -153,20 +152,18 @@ function sendPasswordToNewUser($login, $name, $surname, $password){
  */
 function sendRequestToApprover ($approver, $requester, $fileId){
 
-	$subject = $GLOBALS['NAME']." New Account";
+	$subject = $GLOBALS['NAME']." New request for OpenEBench data publication. Action required";
 	$message = ' 
 	Hello '.utf8_decode($approver).' '.utf8_decode($name).',<br><br>
 	
-	The user '.utf8_decode($requester).' has send you a new request of the file '.$fileId.' to be approve.<br><br>
+	The user '.utf8_decode($requester).' has send you a new petition for publishing a dataset associated to your OpenEBench benchmarking community. Please, login to the <a href="'.$GLOBALS['URL_login'].'">OpenEBench Virtual Research Environment</a> and evaluate it. ----- '.$fileId.' ------ .<br><br>
 
 	
-	You can manage your petitions: <strong>On your Virtual Research Enviroment:</strong> <a href="https://dev-openebench.bsc.es/vre/oeb_publish/oeb/oeb_manageReq.php"></a><br><br>
+	Learn more about the OEB publication process <a href="https://openebench.bsc.es/vre/oeb_publish/oeb/oeb_manageReq.php">here</a>. For further information or any other enquiry, please, email to <a href="mailto:'.$GLOBALS['ADMINMAIL'].'?Subject=Enquiry relate to ticket '.$GLOBALS['NAME'].'">'.$GLOBALS['ADMINMAIL'].'</a>.<br><br>
 
-			
-	Thanks,<br><br>
+	Thank you,<br><br>
 	
-	OEB team';
-
+	OpenEBench team';
 
 	sendEmail($approver,$subject,$message);
 

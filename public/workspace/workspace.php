@@ -140,7 +140,6 @@ if (isset($_REQUEST['op'])){
 		$content_types_list = mimeTypes();
 		if (array_key_exists($fileExtension, $content_types_list))
 			$contentType = $content_types_list[$fileExtension];
-
 		if (!$fileData && !preg_match('/\.log/',$rfn) ){
             		break;
 	      	}

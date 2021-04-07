@@ -23,18 +23,24 @@ require "../../config/globals.inc.php";
                 <h3 class="form-title font-green">Oups...</h3>
                 <p>Something went wrong... try to access the platform later</p>
 		<p style="text-align:center;font-weight:bold;">
-		<?php if (isset($_SESSION['errorData'])) {
-			foreach ($_SESSION['errorData'] as $subTitle => $txts) {
+		<?php
+			if (isset($_SESSION['errorData'])) {
+			   foreach ($_SESSION['errorData'] as $subTitle => $txts) {
 				print "$subTitle : &nbsp;&nbsp;";
 				foreach ($txts as $txt) {
                                        	print "$txt<br/>";
                         	}
+			   }
 			}
 			unset($_SESSION['errorData']);
-		} ?>
+
+			if (isset($_REQUEST['msg'])) {
+				print $_REQUEST['msg'];
+			}
+		?>
 
 		</p>
-                <!--<p><?//php echo $_REQUEST['msg'];  echo $_SESSION;?> </p> -->
+                <h3 style="font-size:1.3em;" class="form-title font-green"><a href="<?php echo $GLOBALS['URL']; ?>">RELOAD</a></h3>
 	</div>
 
 <?php 

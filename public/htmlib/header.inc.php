@@ -185,18 +185,15 @@
 		case 'usrProfile': ?>
 			<link href="assets/pages/css/profile.min.css" rel="stylesheet" type="text/css" />
 		<?php break;
-		case 'oeb_newReq':?>
-			<link href="assets/pages/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css" />
-			<link href="assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css" rel="stylesheet" type="text/css" />
-			<link href="assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
-			<link href="assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
-		<?php break;
+		case 'oeb_newReq':
+		case "oeb_editMetadata":
 		case 'oeb_manageReq':?>
 			<link href="assets/pages/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css" />
 			<link href="assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css" rel="stylesheet" type="text/css" />
 			<link href="assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
 			<link href="assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
 		<?php break;
+		
 		case 'input':
 		case 'output': ?>
 			<link href="assets/pages/css/customized-tools.css" rel="stylesheet" type="text/css" />
@@ -255,6 +252,7 @@
 		case "oeb_EUDATdataset":
 		case "oeb_newReq":
 		case "oeb_manageReq":
+		case "oeb_editMetadata":
 		case 'hdesk':
 		case 'related':
 		case 'refs':

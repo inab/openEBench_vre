@@ -79,22 +79,47 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                 <!-- END PAGE WARNING-->
 
                 <!-- BEGIN PAGE TITLE-->
-                <h1 class="page-title"> Publish data</h1>
-
-                <!-- END PAGE TITLE -->
+		<h1 class="page-title"> OEB Benchmarking Publication &ndash; New Submission
+		<i class="icon-question tooltips" data-container="body" data-html="true" data-placement="right" data-toggle="tooltip" data-trigger="click" data-original-title="<p align='left' style='margin:0'>Create here a request for publishing your benchmarking data to OpenEBench. <a target='_blank' href='https://openebench.readthedocs.io/en/latest/'> +Info</a>.</p>"></i>
+		</h1>
                 <!-- END PAGE TITLE-->
                 <!-- END PAGE HEADER-->
-                <div id="alert" style="position: absolute; top: 5px; right: 0;"></div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mt-element-step">
+                            <div class="row step-line">
+                                <div class="col-md-4 mt-step-col first active">
+                                    <div class="mt-step-number bg-white">1</div>
+                                    <div class="mt-step-title uppercase font-grey-cascade">Select files</div>
+                                </div>
+                                <div class="col-md-4 mt-step-col second">
+                                    <div class="mt-step-number bg-white">2</div>
+                                    <div class="mt-step-title uppercase font-grey-cascade">Edit metadata's file</div>
+                                </div>
+                                <div class="col-md-4 mt-step-col last">
+                                    <div class="mt-step-number bg-white">3</div>
+                                    <div class="mt-step-title uppercase font-grey-cascade">Summary</div>
+                                </div>
+                            </div>
+                        </div>
+					</div>
+			    </div>
+
+		<!-- DISPLAY ALERTS AND INFOS-->
+		<div id="alert" style="position: absolute; top: 20px; right: 0; z-index: 2" ></div>
+		<!--<div class="alert alert-warning" style="display:none"></div>-->
+		<div class="alert alert-info" style="display:none"></div>
 
                 <!-- BEGIN SELECT AND TABLE PORTLET -->
                 <div class="row">
                     <div class="col-md-12 col-sm-12">
                         <div class="portlet light bordered">
-                        <?php var_dump($_SESSION['User']['TokenInfo']['oeb:roles']); ?>
+                        <?php //var_dump($_SESSION['User']['TokenInfo']['oeb:roles']); ?>
                             <div class="portlet-title">
                                 <div class="caption">
                                     <i class="icon-share font-dark hide"></i>
-                                    <span class="caption-subject font-dark bold uppercase">Select File(s)</span> <small style="font-size:75%;">Please select the file or files you want to request to include into the challenge:</small>
+                                    <span class="caption-subject font-dark bold uppercase">File(s) for publication</span> <small style="font-size:75%;">List of elegible files to be published to OpenEBench. Select those you want to submit.</small>
                                 </div>
                             </div>
                             <!--only communities you are allowed to submit will be apperar-->
@@ -103,14 +128,22 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                                 <div class="input-group" style="margin-bottom:20px;">
 									<span class="input-group-addon" style="background:#5e738b;"><i class="fa fa-users font-white"></i></span>
 									<select id="communitySelector" class="form-control" style="width:100%;" onchange="loadCommunity(this)">
-										<option value="">Filter files by community</option>
+										
 										<?php foreach ($communityList as $cl) { ?>
 										    <option value="<?php echo $cl ?>" <?php if ($_REQUEST["community"] == $cl) echo 'selected'; ?>><?php echo getCommunities($cl, "name"); ?></option>
 										<?php } ?>
 									</select>
 								</div>
+                                <h5>Search by data type</h5>
+                                <div class="row" style="margin-top:20px;">
+                                    <div class="col-md-12" id="data_types">
+                                        <button id = "selectAll" type="button" class="btn green btn-outline" >All files</button>
+										<button id = "selectParticipant" type="button" class="btn green btn-outline ">Participant data</button>
+                                        <button id = "selectAssessment" type="button" class="btn green btn-outline">Assessment data</button>
+									</div>
+							    </div>
                                 
-                                <div id ="tableMyFiles" style="display:<?php if (!isset($_REQUEST["community"]) || empty($_REQUEST["community"])) echo 'none'; ?>;">
+                                <div id ="tableMyFiles" >
                                     <br>
                                     <br>
                                     <table id="communityTable" class="table table-striped table-hover table-bordered" width="100%"></table>
@@ -128,7 +161,7 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
 							<div class="portlet-title">
 								<div class="caption">
 									<i class="icon-share font-dark hide"></i>
-									<span class="caption-subject font-dark bold uppercase">Publishable Files</span>
+									<span class="caption-subject font-dark bold uppercase">Selected File(s)</span>
 								</div>
 
 								<div class="actions" style="display:none!important;" id="actions-files">
@@ -138,7 +171,12 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
 											<i class="fa fa-angle-down"></i>
 										</a>
 										<ul class="dropdown-menu pull-right" role="menu">
-											<li><a href="javascript:submit();" > Submit selected files </a></li>
+											<li>
+                                            <form id ="files-form" action="oeb_publish/oeb/oeb_editMetadata.php" method="post">
+                                                <input name = "files" id ="filesInput" value="" type="hidden">
+                                                <button type="button" onclick="submitFiles(event);return false;">Submit selected files</button>
+                                            </form>
+                                            </li>
 										</ul>
 									</div>
 									<div class="btn-group">
@@ -159,6 +197,7 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
 						</div>
 					</div>
 				</div>
+                
                 <!-- END LIST TO MANAGE FILES -->
                 <!-- Modal -->
                 <div class="modal fade" id="reqSubmitDialog" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -196,6 +235,10 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                     border-color: #dff0d8;
                     color: #3c763d;
                 }
+
+                ul.hidden :nth-child(n+2) {
+  display:none;
+}
             </style>
 
             <script>

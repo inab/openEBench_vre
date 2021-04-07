@@ -14,7 +14,18 @@ if (($F = fopen($GLOBALS['db_credentials'], "r")) !== FALSE) {
 // connect DB
 
 try {
-	$VREConn = new MongoClient("mongodb://".$conf[0].":".$conf[1]."@".$conf[2].":27017");
+	// old mongo driver - deprecated
+	#$VREConn = new MongoClient("mongodb://".$conf[0].":".$conf[1]."@".$conf[2].":27017");
+
+	// new mongo driver
+	$VREConn =  new MongoDB\Client("mongodb://".$conf[0].":".$conf[1]."@".$conf[2].":27017",
+                                        array(),
+                                        array('typeMap' => array ('root'     => 'array',
+                                                                  'document' => 'array',
+                                                                  'array'    => 'array')
+                                             )
+                                      );
+
 
 } catch (MongoConnectionException $e){
 	//die('Error Connecting Mongo DB: ' . $e->getMessage());
@@ -27,7 +38,9 @@ try {
 }
 
 // create handlers
-$GLOBALS['db']              = $VREConn->$GLOBALS['dbname_VRE'];
+$dbname =  $GLOBALS['dbname_VRE'];
+
+$GLOBALS['db']              = $VREConn->$dbname;
 $GLOBALS['usersCol']        = $GLOBALS['db']->users;
 $GLOBALS['countriesCol']    = $GLOBALS['db']->countries;
 $GLOBALS['filesCol']        = $GLOBALS['db']->files;

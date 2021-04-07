@@ -6,11 +6,13 @@
 
 function getTools_List($status = 1) {
    if ($_SESSION['User']['Type'] == 3){
-       $tools = $GLOBALS['toolsCol']->find(array('external' => true, 'status' => $status, 'owner.license' => array('$ne' => "free_for_academics")), array('name' => 1, 'title' => 1, 'short_description' => 1, 'keywords' => 1))->sort(array('title' => 1));
-	 } elseif($_SESSION['User']['Type'] == 0 || $_SESSION['User']['Type'] == 1) {
-		 $tools = $GLOBALS['toolsCol']->find(array('external' => true, 'status' => array('$ne' => 2)), array('name' => 1, 'title' => 1, 'short_description' => 1, 'keywords' => 1, 'status' => 1))->sort(array('title' => 1));
-	 } else {
-       $tools = $GLOBALS['toolsCol']->find(array('external' => true, 'status' => $status), array('name' => 1, 'title' => 1, 'short_description' => 1, 'keywords' => 1))->sort(array('title' => 1));
+       $tools = $GLOBALS['toolsCol']->find(array('external' => true, 'status' => $status, 'owner.license' => array('$ne' => "free_for_academics")), array('name' => 1, 'title' => 1, 'short_description' => 1, 'keywords' => 1),array('title' => 1));
+
+   } elseif($_SESSION['User']['Type'] == 0 || $_SESSION['User']['Type'] == 1) {
+      $tools = $GLOBALS['toolsCol']->find(array('external' => true, 'status' => $status), array('name' => 1, 'title' => 1, 'short_description' => 1, 'keywords' => 1, 'status' => 1),array('title' => 1));
+
+ } else {
+       $tools = $GLOBALS['toolsCol']->find(array('external' => true, 'status' => $status), array('name' => 1, 'title' => 1, 'short_description' => 1, 'keywords' => 1),array('title' => 1));
    }
 
 	 if($_SESSION['User']['Type'] == 1) {
@@ -37,11 +39,11 @@ function getTools_List($status = 1) {
 
 function getTools_ListComplete($status = 1) {
    if ($_SESSION['User']['Type'] == 3){
-       $tools = $GLOBALS['toolsCol']->find(array('external' => true, 'status' => $status, 'owner.license' => array('$ne' => "free_for_academics")), array())->sort(array('title' => 1));
+       $tools = $GLOBALS['toolsCol']->find(array('external' => true, 'status' => $status, 'owner.license' => array('$ne' => "free_for_academics")), array(),array('title' => 1));
 	 }elseif($_SESSION['User']['Type'] == 0 || $_SESSION['User']['Type'] == 1) {
-	 		$tools = $GLOBALS['toolsCol']->find(array('external' => true, 'status' => array('$ne' => 2)), array())->sort(array('title' => 1));
+	 		$tools = $GLOBALS['toolsCol']->find(array('external' => true, 'status' => array('$ne' => 2)), array(),array('title' => 1));
 	 }else{
-       $tools = $GLOBALS['toolsCol']->find(array('external' => true, 'status' => $status), array())->sort(array('title' => 1));
+       $tools = $GLOBALS['toolsCol']->find(array('external' => true, 'status' => $status), array(),array('title' => 1));
    }
 
 	if($_SESSION['User']['Type'] == 1) {
@@ -362,11 +364,11 @@ function parse_submissionFile_SGE_OBSOLETE($rfn){
                         $cmdsParsed[$n]['prgName']  = $executable;
                 
                         // parse cmd params
-                        foreach (split("--",$paramsStr) as $p){
+                        foreach (explode("--",$paramsStr) as $p){
                                 trim($p);
                                 if (!$p)
                                         continue;
-                                list($k,$v) = split(" ",$p);
+                                list($k,$v) = explode(" ",$p);
                                 if (strlen($k)==0 && strlen($v)==0)
                                         continue;
                                 if (!$v)
@@ -391,7 +393,7 @@ function parse_submissionFile_SGE_OBSOLETE($rfn){
 
 function getVisualizers_List($status = 1) {
 	
-	$visualizers = $GLOBALS['visualizersCol']->find(array('external' => true, 'status' => $status), array('name' => 1, 'title' => 1, 'short_description' => 1, 'keywords' => 1))->sort(array('title' => 1));
+	$visualizers = $GLOBALS['visualizersCol']->find(array('external' => true, 'status' => $status), array('name' => 1, 'title' => 1, 'short_description' => 1, 'keywords' => 1),array('title' => 1));
 
 	return iterator_to_array($visualizers);	
 	
@@ -401,7 +403,7 @@ function getVisualizers_List($status = 1) {
 
 function getVisualizers_ListComplete($status = 1) {
 	
-	$visualizers = $GLOBALS['visualizersCol']->find(array('external' => true, 'status' => $status), array())->sort(array('title' => 1));
+	$visualizers = $GLOBALS['visualizersCol']->find(array('external' => true, 'status' => $status),array('title' => 1));
 
 	return iterator_to_array($visualizers);	
 	
@@ -411,7 +413,7 @@ function getVisualizers_ListComplete($status = 1) {
 
 function getFileTypes_List() {
 	
-	$tls = $GLOBALS['toolsCol']->find(array('external' => true), array('name' => 1, 'input_files' => 1))->sort(array('name' => 1));
+	$tls = $GLOBALS['toolsCol']->find(array('external' => true), array('name' => 1, 'input_files' => 1),array('name' => 1));
 
 	$tools = iterator_to_array($tls);
 

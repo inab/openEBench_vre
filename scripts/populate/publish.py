@@ -18,35 +18,24 @@ import sys
 import requests
 import json
 
-#module created by txelfe with functions to validate json docs 
-#import validation
-
-#training env
-#host = "trng-b2share.eudat.eu"
-#token = "CcPEWY59ylwOFZCIAyI0wyHRlgldSR8dFtPzshbFKnC6A2L1umi7IFP3uO6v"
 
 #test env
 token = "ixQFTHFCUIPTjaBRps6ixPjLAo40M8fCE6AR6lEsttokUuS7q8xP2pLnD7Is"
 host = "eudat-b2share-test.csc.fi"
 
-#schemaFileName = "openSchema.json"
-#EUDAT community ID:e9b9792e-79fb-4b07-b6b4-b9c2bd06d095
 #OpenEBench community ID:b3b2f331-7cf8-44c5-a15a-1dae9dca48f6
 #Prod enviroment host: b2share.eudat.eu
 
 
 
 def main():
-    #global token
 
     if len(sys.argv) > 1:
         #token 
-        #token = sys.argv[1]
+        token = sys.argv[1]
 
         #json to upload
-        #x = sys.argv[2]
-        #metadata = json.loads(x)
-        x = sys.argv[1]
+        x = sys.argv[2]
         metadata = json.loads(x)
 
         #create draft record from json
@@ -56,44 +45,48 @@ def main():
             ID = recordID(getResult)
             
             #DOI with files to add
-            if len(sys.argv) > 2:
-                files = len(sys.argv)-2
-                print(str(files) + " files to add") 
-    
-                for i in range(2, len(sys.argv)):
+            if len(sys.argv) > 3:
+                files = len(sys.argv)-3
+                count = 0
+                for i in range(3, len(sys.argv)):
                     fileToAddOnDOI = sys.argv[i]
                     #add files to record
-                    addFileToRecord(bucketID, fileToAddOnDOI)
+                    r = addFileToRecord(bucketID, fileToAddOnDOI)
+                    if (r):
+                        count += 1
+                if (files != count):
+                    print("Not all files correctly upload")
             
             #to publish
-            #if (validateJson (metadata)):
             published, DOI = updateMetadata(ID)
             if(published):
-                print("Record correcltly published")
-                print("\n"+DOI)
+                #print("Record correcltly published")
+                print (DOI)
             else:
-                print("Record NOT correcltly published")
+                #print("Record NOT correcltly published")
+                print ("0")
             
         else:
-            print("Error creating DOI")
-            #return false
+            #print("Error creating DOI")
+            print ("0")
         
         
     else:
-        print("Error - Not correctly introduce arguments")
-        #return false
+        #print("Error - Not correctly introduce arguments")
+        print ("0")
 
     
 
 def createDraftRecord (jsonMetadata):
     """
-    Creates a draft reacord to B2SHARE test enviroment on EUDAT community
+    Creates a draft reacord on B2SHARE 
 
     Returns
     -------
-    response : TYPE
-        DESCRIPTION. answer of the post request
-
+    created : TYPE boolean
+        DESCRIPTION. true if correcltly created, false otherwise
+    response : TYPE string
+        DESCRIPTIONS: answer of the petition
     """
     created = False
         
@@ -106,8 +99,8 @@ def createDraftRecord (jsonMetadata):
         created = True
              
     elif (response.status_code == 401):
-        print("Permision denied")
         sys.exit()
+
     return response, created
     
     
@@ -119,12 +112,13 @@ def fileBucketID(responseUpload):
 
     Parameters
     ----------
-    responseUpload : TYPE
+    responseUpload : TYPE 
         DESCRIPTION.The answer of the upload file (draft)
 
     Returns
     -------
-    None.
+    bucket: TYPE string
+        DESCRIPTION the identifier of a set of files
 
     """
     
@@ -144,7 +138,8 @@ def recordID(responseUpload):
 
     Returns
     -------
-    ID
+    ID : TYPE string
+        DESCRIPTION: the id of the register to publish
 
     """
     
@@ -155,8 +150,6 @@ def recordID(responseUpload):
 
 
 
-
-
 def addFileToRecord(fileBucketID, fileToAdd):
     """
     Links a given file to the draft record
@@ -164,13 +157,13 @@ def addFileToRecord(fileBucketID, fileToAdd):
     Parameters
     ----------
     fileBucketID : TYPE string
-        DESCRIPTION.
+        DESCRIPTION. Id of the set of files 
     fileToAdd : TYPE string
-        DESCRIPTION.
+        DESCRIPTION. file to be added
 
     Returns
     -------
-    None.
+    true if file correctly added or false otherwise
 
     """
     filename = fileToAdd.split("/")[-1]
@@ -188,12 +181,12 @@ def addFileToRecord(fileBucketID, fileToAdd):
         response = requests.request("PUT", url, headers=headers, data = payload)
         #saveToFile(path, response)
         if (response):
-            print("Added file(s) with success")
+            return True
         else:
-            print("error to upload")
+            return False
             
     except IOError:
-        print("File "+fileToAdd+" not found")
+        return False
 
     
     
@@ -209,7 +202,10 @@ def updateMetadata(draftID):
 
     Returns
     -------
-    None.
+    DOI: TYPE string
+        DESCRIPTION. Record's DOI 
+    published: TYPE boolean
+        DESCRIPTION. true if correctly published or false otherwise
 
     """
 
@@ -225,15 +221,11 @@ def updateMetadata(draftID):
     response = requests.request("PATCH", url, headers=headers, data = payload)
     #saveToFile(path, response)
     if (response.status_code == 200):
-        print(response.text.encode('utf8'))
         published = True
         #get doi
         result = json.loads(response.text)
         DOI = result["metadata"]["$future_doi"]
 
-         
-
-    
     return published, DOI
     
 
@@ -264,26 +256,6 @@ def saveToFile (filepath, data):
         print ("Error to save to file")
         return False
 
-
-def validateJson (file):
-    valid = False
-    #schemaFileName = "eudatSchema.json"
-    # Convert json to python object.
-    jsonData = validation.get_schema(file)
-    # validate it
-    is_valid, msg = validation.validate_json(jsonData, schemaFileName)
-    print(msg)
-    if (is_valid):
-        valid = True
-    return valid
-
-
-def timestamp():
-    from datetime import datetime
-    # current date and time
-    now = datetime.now()
-    date_time = now.strftime("%d-%m-%Y,%H:%M:%S")
-    return str(date_time)
 
 
 

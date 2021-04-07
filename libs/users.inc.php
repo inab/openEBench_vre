@@ -390,7 +390,7 @@ function logoutAnon() {
 }
 
 function saveNewUser($userObj) {
-    $r = $GLOBALS['usersCol']->insert($userObj);
+    $r = $GLOBALS['usersCol']->insertOne($userObj);
     if (!$r)
         return false;
 
@@ -400,13 +400,13 @@ function saveNewUser($userObj) {
 // update user document in  Mongo
 
 function updateUser($f) {
-    $GLOBALS['usersCol']->update(array('_id' => $f['_id']), $f, array('upsert=>1'));
+    $GLOBALS['usersCol']->updateOne(array('_id' => $f['_id']), array('$set'=>$f), array('upsert=>1'));
 }
 
 // update attribute user document in Mongo
 
 function modifyUser($login,$attribute,$value) {
-    $GLOBALS['usersCol']->update(array('_id'   => $login ),
+    $GLOBALS['usersCol']->updateOne(array('_id'   => $login ),
                                  array('$set'  => array($attribute => $value)),
                                  array('upsert' => 1)
                              );
@@ -506,13 +506,13 @@ function getUser_diskQuota($login) {
 }
 
 function saveUserJobs($login,$jobInfo) {
-    $GLOBALS['usersCol']->update(array('_id' => $login),
+    $GLOBALS['usersCol']->updateOne(array('_id' => $login),
                                  array('$set'   => array('lastjobs' => $jobInfo)),
-                                 array('upsert' => 1));
+                                 array('upsert' => true));
 }
 
 function delUserJob($login,$pid) {
-    $GLOBALS['usersCol']->update(array('_id' => $login),
+    $GLOBALS['usersCol']->updateOne(array('_id' => $login),
                                  array('$unset' => array("lastjobs.$pid" => 1 ))
                                 );
                                  //array('$pull' => array("lastjobs" => $pid ))
@@ -526,10 +526,10 @@ function addUserJob($login,$data,$pid) {
 
     $lastjobs[$pid] = $data;
 
-    $GLOBALS['usersCol']->update(array('_id' => $login),
+    $GLOBALS['usersCol']->updateOne(array('_id' => $login),
                                  //array('$set'  => array("lastjobs.$pid" => $data )),
                                  array('$set'   => array('lastjobs' => $lastjobs)),
-                                array('upsert' => 1)
+                                array('upsert' => true)
                                 );
 }
 

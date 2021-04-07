@@ -176,20 +176,21 @@ function InputTool_getDefExName() {
 	// default execution name
 	$dirNum="000";
 	$dataDirPath = getAttr_fromGSFileId($_SESSION['User']['dataDir'],"path");
-	$reObj = new MongoRegex("/^".$dataDirPath."\\/run\d\d\d$/i");
-	$prevs  = $GLOBALS['filesCol']->find(array('path' => $reObj, 'owner' => $_SESSION['User']['id']));
-	if ($prevs->count() > 0){
-					$prevs->sort(array('path' => -1));
-					$prevs->next();
-					$previous = $prevs->current();
-					if (preg_match('/(\d+)$/',$previous["path"],$m) ){
-							$dirNum= sprintf("%03d",$m[1]+1);
-					}
-	}
+	$reObj = new \MongoDB\BSON\Regex("^".$dataDirPath."\\/run\d\d\d$");
+	$prevs  = $GLOBALS['filesCol']->find(array('path' => $reObj, 'owner' => $_SESSION['User']['id']), array('sort' => array('path' => -1)))->toArray();
+        if ($prevs) {
+           foreach ($prevs as $p){
+                $previous = $p;
+                if (preg_match('/(\d+)$/',$previous["path"],$m) ){
+                        $dirNum= sprintf("%03d",$m[1]+1);
+                        break;
+                }
+           }
+        }
 	$dirName="run".$dirNum;
 	$prevs  = $GLOBALS['filesCol']->find(array('path' => $dataDirPath."/$dirName", 'owner' => $_SESSION['User']['id']));
-	if ($prevs->count() > 0){
-			$dirName="run".rand(100, 999);
+        if ($prevs) {
+		$dirName="run".rand(100, 999);
 	}
 
 	return $dirName;

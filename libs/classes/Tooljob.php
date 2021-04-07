@@ -175,8 +175,8 @@ class Tooljob {
     	$wd     = $GLOBALS['dataDir']."/$wdFN";
 	
     	if (!$overwrite){
-    		$prevs = $GLOBALS['filesCol']->find(array('path' => $wdFN, 'owner' => $_SESSION['User']['id']) );
-    		if ($prevs->count() > 0){
+		$prevs = $GLOBALS['filesCol']->findOne(array('path' => $wdFN, 'owner' => $_SESSION['User']['id']));
+                if ($prevs){
     		    for ($n=1;$n<99;$n++){
                 	$executionN= $execution. "_$n";
         			$wdFN    = "$dataDirPath/$executionN";
@@ -1211,7 +1211,7 @@ class Tooljob {
         if (isset($file['mtime']))
             $mugfile['creation_time'] = $file['mtime'];
         else
-            $mugfile['creation_time'] = new \MongoDate();
+            $mugfile['creation_time'] = new \MongoDB\BSON\UTCDateTime();
 
 		// taxon_id -> taxon_id
         if (isset($file['taxon_id'])){

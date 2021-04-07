@@ -7,10 +7,12 @@ $tls = getTools_List(1);
 $tlsProv = getTools_List(0);
 $vslzrs = getVisualizers_List(1);
 $vslzrsProv = getVisualizers_List(0);
+var_dump(count(array_keys($tls)));
+var_dump(count(array_keys($tlsProv)));
+$appList = array_merge($tls, $tlsProv, $vslzrs, $vslzrsProv);
+$vslzrList = array_merge($vslzrs, $vslzrsProv);
 
-$toolList = array_merge($tls, $tlsProv, $vslzrs, $vslzrsProv);
-
-sort($toolList);
+sort($appList);
 
 ?>
 
@@ -50,17 +52,17 @@ sort($toolList);
           <input type="hidden" id="base-url" value="<?php echo $GLOBALS['BASEURL']; ?>" />
 
           <?php
-
+	  // create list of keywords
           $kw = array();
-          foreach ($toolList as $t) {
+          foreach ($appList as $t) {
             foreach ($t['keywords'] as $tk) {
-              if ($tk == "next gen seq") $tk = "next_gen_seq";
               $kw[] = $tk;
             }
           }
-
           $kw = array_unique($kw);
           sort($kw);
+          // create list of tool ids 
+          $vslzrIds = array_column(array_values($vslzrList),"_id");
 
           ?>
 
@@ -76,34 +78,14 @@ sort($toolList);
             </div>
           </div>
           <div id="js-grid-lightbox-gallery" class="cbp">
-            <div class="cbp-item">
-                <!-- REMOVE cbp-singlePageInline to go to new page -->
-                <a class="cbp-caption cbp-singlePageInline" data-title="aa" rel="nofollow">
-                  <div class="cbp-caption-defaultWrap">
-                    <img src="tools/DREAM/assets/home/logo.png" alt="">
-                  </div>
-                  <div class="cbp-caption-activeWrap">
-                    <div class="cbp-l-caption-alignLeft">
-                      <div class="cbp-l-caption-body">
-                        <div class="cbp-l-caption-title">aaddds</div>
-                        <div class="cbp-l-caption-desc">dsdfr</div>
-                      </div>
-                    </div>
-                  </div>
-                </a>
-              </div>
-              
+
             <?php
 
-            foreach ($toolList as $t) {
+            foreach ($appList as $t) {
 
-              $kw = implode(" ", $t['keywords']);
+              $kw = (isset($t['keywords'])?implode(" ", $t['keywords']):"");
 
-              if (strpos($kw, 'visualization') === false) $type = 'tools';
-              else $type = 'visualizers';
-
-              $kw = str_replace("next gen seq", "next_gen_seq", $kw);
-
+              $type= (in_array($t['_id'],$vslzrIds)? "visualizers" : "tools");
 
               ?>
 

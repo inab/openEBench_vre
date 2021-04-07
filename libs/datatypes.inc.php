@@ -6,7 +6,7 @@
 
 function getFileTypesList() {
 
-	$ft = $GLOBALS['fileTypesCol']->find()->sort(array('_id' => 1));
+	$ft = $GLOBALS['fileTypesCol']->find(array(),array('_id' => 1));
 
 	return iterator_to_array($ft);
 
@@ -14,7 +14,8 @@ function getFileTypesList() {
 
 function getDataTypesList() {
 
-	$dt = $GLOBALS['dataTypesCol']->find()->sort(array('_id' => 1));
+	$dt = $GLOBALS['dataTypesCol']->find(array(),array('_id' => 1));
+
 
 	return iterator_to_array($dt);
 
@@ -22,16 +23,14 @@ function getDataTypesList() {
 
 function getDataTypeFromFileType($filetype) {
 
-	$dt = $GLOBALS['dataTypesCol']->find(array('file_types' => array('$in' => array($filetype))))->sort(array('_id' => 1));
-
+	$dt = $GLOBALS['dataTypesCol']->find(array('file_types' => array('$in' => array($filetype))),array('_id' => 1));
 	return iterator_to_array($dt);
 
 }
 
 function getFileTypeFromExtension($fileExtension) {
 
-	$dt = $GLOBALS['fileTypesCol']->find(array('extension' => array('$in' => array($fileExtension))))->sort(array('_id' => 1));
-
+	$dt = $GLOBALS['fileTypesCol']->find(array('extension' => array('$in' => array($fileExtension))),array('_id' => 1));
 	return iterator_to_array($dt);
 
 }

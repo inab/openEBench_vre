@@ -8,7 +8,7 @@ $avatarColors = array('#0f7e8c', '#a3d86d', '#9113ff', '#edc642', '#2ac5a3', '#f
 $bgColorAvatar = array_rand($avatarColors, 1);
 
 $filename = glob('../assets/avatars/' . $_SESSION['User']['id'] . '.*');
-$avatarImg = $filename[0];
+$avatarImg = (count($filename)?$filename[0]:"");
 if (file_exists($avatarImg)) {
     $avatarExists = 1;
     $dispClassAv1 = '';
@@ -28,8 +28,10 @@ if (file_exists($avatarImg)) {
         <!-- BEGIN LOGO -->
         <div class="page-logo">
             <a href="workspace/">
-                <!-- <img src="assets/layouts/layout/img/logo.png" alt="logo" class="logo-default" style="width:35%"/> -->
-                <img src="assets/layouts/layout/img/logoplusvre.png" alt="logo" class="logo-default" />
+                <!--<img src="assets/layouts/layout/img/logoplusvre.png" alt="logo" class="logo-default" />-->
+                <img src="assets/layouts/layout/img/logo.png" alt="logo" class="logo-default" style="width:35%"/>
+                <img src="assets/layouts/layout/img/VRE_white.svg" alt="logo" class="logo-default" style="width:40%"/>
+
             </a>
             <div class="menu-toggler sidebar-toggler">
                 <span></span>

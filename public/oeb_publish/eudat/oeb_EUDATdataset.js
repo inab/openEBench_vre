@@ -151,27 +151,28 @@ $(document).ready(function() {
         $("#closeModal").trigger("click");
         $("#formMetadata").hide();
         $("#loading-datatable").show();
+
         $.ajax({
           type: 'POST',
           url: "applib/oeb_publishAPI.php?action=publish",
-          data: {"metadata" : json, "fileId": fn},
-          success : function(data) {
+          data: {"metadata" : json, "fileId": fn}
+        }).done (function(data) {
             console.log(data);
-            doi = (data.split("\n").splice(-1)).toString();
-            $("#loading-datatable").hide();
+              if (data != 0) {
+                $("#loading-datatable").hide();
+  
+                $("#result").html("<h4>Data successfully published!</h4><p style=\"font-size:1.1em;\">Registered D.O.I.: <b>"+data+"</b><br/>"+timeStamp()+"</p><br><a href=\"https://eudat-b2share-test.csc.fi/records/"+(data.split(".").splice(-1)).toString()+"\" target=\"_blank\" class=\"btn green\"> EUDAT record</a>");
+                $("#result").show();
+    
+                //button back display
+                $("#back").show();
 
-	          $("#result").html("<h4>Data successfully published!</h4><p style=\"font-size:1.1em;\">Registered D.O.I.: <b>"+doi+"</b><br/>"+timeStamp()+"</p><br><a href=\"https://eudat-b2share-test.csc.fi/records/"+(doi.split(".").splice(-1)).toString()+"\" target=\"_blank\" class=\"btn green\"> EUDAT record</a>");
-
-            //$("#result").append("<br>"+timeStamp())
-            $("#result").show();
-
-            //button back display
-            $("#back").show();
-
-          },error : function(xhr, status) {
-            alert("error");
-          }
-      });
+              } else {
+                $("#loading-datatable").hide();
+                $("#result").html("Fail: data not correctly published :("); 
+                $("#result").show();
+              } 
+          });
       })
     }
   });

@@ -9,9 +9,10 @@ require __DIR__."/../../config/bootstrap.php";
 // COUNTRIES VAR
 $countries = array();
 $countries[''] = 'Country';
-foreach (array_values(iterator_to_array($GLOBALS['countriesCol']->find(array(),array('country'=>1))->sort(array('country'=>1)))) as $v){
-	$countries[$v['_id']] = $v['country'];
+foreach (array_values(iterator_to_array($GLOBALS['countriesCol']->find(array(),array('country'=>1),array('country'=>1)) )) as $v){
+        $countries[$v['_id']] = $v['country'];
 }
+
 
 echo 'var countriesSelect = \'<select style="width: 100%!important;" class="selector form-control input-sm input-xsmall input-inline" id="select-countries">';
 foreach($countries as $key => $value){

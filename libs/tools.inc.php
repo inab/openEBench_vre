@@ -236,12 +236,11 @@ function getExecutionInfo_fromResultId($result_id){
 
         // check given file is a result file
         $result = getGSFile_fromId($result_id);
-	
         if (!$result){
             $_SESSION['errorData']['Error'][]="Internal error. Given result file (ID $result_id) not found.";
             return $executionInfo;
 	}
-        if (!isset($file['tool'])){
+        if (!isset($result['tool'])){
             $_SESSION['errorData']['Error'][]="Compulsory metadata attribute missing: 'tool'. Make sure the given file/folder (ID $result_id) has been generated during a job execution.";
             return $executionInfo;
 	}
@@ -251,25 +250,24 @@ function getExecutionInfo_fromResultId($result_id){
 	$execution    = array();
 
 	// given id corresponds to a run folder
-	if ($file['type'] == "dir"){
+	if ($result['type'] == "dir"){
 		$execution_id = $result_id;
 		$execution    = $result;
 	// given id corresponds to a result file
 	}else{
-        	$execution_id = $file['parentDir'];
+        	$execution_id = $result['parentDir'];
         	$execution    = getGSFile_fromId($execution_id);
         	if (!$execution){
             		$_SESSION['errorData']['Error'][]="Internal error. Cannot find the associated execution for the given result file (ID $result_id).";
             		return $executionInfo;
         	}
 	}
-
         // build executionInfo
-        $executionInfo['arguments']   = (isset($execution['arguments'])? $executionInfo['arguments']: array());
-        $executionInfo['input_files'] = (isset($execution['input_files'])? $executionInfo['input_files']: array());
-        $executionInfo['tool']        = (isset($execution['tool'])? $executionInfo['tool']: null);
-        $executionInfo['submission_file'] = (isset($execution['submission_file'])? $executionInfo['submission_file']: null);
-        $executionInfo['log_file'] = (isset($execution['log_file'])? $executionInfo['log_file']: null);
+        $executionInfo['arguments']   = (isset($execution['arguments'])? $execution['arguments']: array());
+        $executionInfo['input_files'] = (isset($execution['input_files'])? $execution['input_files']: array());
+        $executionInfo['tool']        = (isset($execution['tool'])? $executio['tool']: null);
+        $executionInfo['submission_file'] = (isset($execution['submission_file'])? $execution['submission_file']: null);
+        $executionInfo['log_file'] = (isset($execution['log_file'])? $execution['log_file']: null);
 
         return $executionInfo;
 }

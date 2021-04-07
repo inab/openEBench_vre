@@ -21,7 +21,7 @@ function log_addSubmission($pid,$toolId,$cloudName,$launcher,$cpus,$memory,$wd,$
     // set main log info for a submitted job
     $log_exec = array(
         "log_type"  => "Submission",
-        "date"      => new MongoDate(strtotime("now")),
+	"date"      => new MongoDB\BSON\UTCDateTime(strtotime("now")*1000*1000),
         "user"      => $_SESSION['User']['id'],
         "job_id"    => $pid,
         "work_dir"  => $wd,
@@ -34,7 +34,7 @@ function log_addSubmission($pid,$toolId,$cloudName,$launcher,$cpus,$memory,$wd,$
     );
 
     // register to mongo
-    $r = $GLOBALS['logExecutionsCol']->insert($log_exec);
+    $r = $GLOBALS['logExecutionsCol']->insertOne($log_exec);
     if (!$r)
         return false;
 
@@ -59,7 +59,7 @@ function log_addError($pid,$msg,$errCode=0, $toolId=FALSE,$cloudName=FALSE,$laun
     // set main log info for an error
     $log_exec = array(
         "log_type"  => "Error",
-        "date"      => new MongoDate(strtotime("now")),
+        "date"      => new MongoDB\BSON\UTCDateTime(strtotime("now")*1000),
         "user"      => $_SESSION['User']['id'],
         "job_id"    => $pid,
         "msg"       => $msg,
@@ -71,7 +71,7 @@ function log_addError($pid,$msg,$errCode=0, $toolId=FALSE,$cloudName=FALSE,$laun
         $log_exec = $log_exec + $log_exec_extra;
     }
     // register to mongo
-    $r = $GLOBALS['logExecutionsCol']->insert($log_exec);
+    $r = $GLOBALS['logExecutionsCol']->insertOne($log_exec);
     if (!$r)
         return false;
 
@@ -89,7 +89,7 @@ function log_addOutregister($pid,$msg="",$success=NULL,$test=FALSE){
     // set main log info
     $log_exec = array(
         "log_type"  => "Outfile register",
-        "date"      => new MongoDate(strtotime("now")),
+        "date"      => new MongoDB\BSON\UTCDateTime(strtotime("now")*1000),
         "user"      => $_SESSION['User']['id'],
         "job_id"    => $pid,
         "test"      => $test
@@ -100,7 +100,7 @@ function log_addOutregister($pid,$msg="",$success=NULL,$test=FALSE){
     if ($msg){$log_exec["msg"]=$msg;}
 
     // register to mongo
-    $r = $GLOBALS['logExecutionsCol']->insert($log_exec);
+    $r = $GLOBALS['logExecutionsCol']->insertOne($log_exec);
     if (!$r)
         return false;
     return 1;
@@ -117,16 +117,17 @@ function log_addFinish($pid,$msg="",$test=FALSE){
     // set main log info
     $log_exec = array(
         "log_type"  => "Finished",
-        "date"      => new MongoDate(strtotime("now")),
+        "date"      => new MongoDB\BSON\UTCDateTime(strtotime("now")*1000),
         "user"      => $_SESSION['User']['id'],
-        "job_id"    => $pid,
+	"job_id"    => $pid,
+	"accounting" => "",
         "test"      => $test
     );
     // add msg if available
     if ($msg){$log_exec["msg"]=$msg;}
 
     // register to mongo
-    $r = $GLOBALS['logExecutionsCol']->insert($log_exec);
+    $r = $GLOBALS['logExecutionsCol']->insertOne($log_exec);
     if (!$r)
         return false;
     return 1;
@@ -143,7 +144,7 @@ function log_addInfo($pid,$msg="",$test=FALSE){
     // set main log info
     $log_exec = array(
         "log_type"  => "Info",
-        "date"      => new MongoDate(strtotime("now")),
+        "date"      => new MongoDB\BSON\UTCDateTime(strtotime("now")*1000),
         "user"      => $_SESSION['User']['id'],
         "job_id"    => $pid,
         "test"      => $test
@@ -152,7 +153,7 @@ function log_addInfo($pid,$msg="",$test=FALSE){
     if ($msg){$log_exec["msg"]=$msg;}
 
     // register to mongo
-    $r = $GLOBALS['logExecutionsCol']->insert($log_exec);
+    $r = $GLOBALS['logExecutionsCol']->insertOne($log_exec);
     if (!$r)
         return false;
     return 1;
@@ -192,8 +193,8 @@ function aggregateJobLogs($filters=array()){
 
     // do aggregate
     if ($GLOBALS['logExecutionsCol']){
-	$result = $GLOBALS['logExecutionsCol']->aggregateCursor($aggregate,$options);
-	//$result = $GLOBALS['logExecutionsCol']->aggregate($aggregate,$options);
+	//$result = $GLOBALS['logExecutionsCol']->aggregateCursor($aggregate,$options);
+	$result = $GLOBALS['logExecutionsCol']->aggregate($aggregate,$options);
 	//$result = $result['cursor']['firstBatch']; // default batchsize used. Version do not allow to set it up
     }
     // format aggregate result
@@ -211,8 +212,8 @@ function aggregateJobLogs($filters=array()){
                 unset($jobs[$pid]["log_type"]);
                 unset($jobs[$pid]["date"]);
 
-                $jobs[$pid]["date_start"] = strftime('%d/%m/%Y %H:%M', $logEvent['date']->sec);
-                $jobs[$pid]["timestamp_start"] = $logEvent['date']->sec;
+		$jobs[$pid]["date_start"] = strftime('%d/%m/%Y %H:%M', $logEvent['date']->toDateTime()->format('U'));
+		$jobs[$pid]["timestamp_start"] = $logEvent['date']->toDateTime()->format('U');
                 $jobs[$pid]["work_dir"] = fromAbsPath_toPath($logEvent['work_dir']);
 
             // from 'outfile register'
@@ -220,14 +221,14 @@ function aggregateJobLogs($filters=array()){
                 $jobs[$pid]["success"] = ($logEvent['success']? "TRUE" : "ERR" );
     
             // from 'finished'
-            }elseif ($logEvent['log_type'] == "Finished"){
-                $jobs[$pid]["date_end"] = strftime('%d/%m/%Y %H:%M', $logEvent['date']->sec);
-                $jobs[$pid]["timestamp_end"] = $logEvent['date']->sec;
+	    }elseif ($logEvent['log_type'] == "Finished"){
+	    	$jobs[$pid]["date_end"] = strftime('%d/%m/%Y %H:%M', $logEvent['date']->toDateTime()->format('U'));
+		$jobs[$pid]["timestamp_end"] = $logEvent['date']->toDateTime()->format('U');
             }
         }
 
-        // extract and internally sort jobLog events
-        usort($j['jobLog'], function ($a, $b){ return ($a['date']->sec - $b['date']->sec); });
+	// extract and internally sort jobLog events
+	usort($j['jobLog'], function ($a, $b){ return ($a['date']->toDateTime()->format('U') - $b['date']->toDateTime()->format('U')); });
         $jobs[$pid]["logs"]     = $j['jobLog'];
 
         //ensure success is there

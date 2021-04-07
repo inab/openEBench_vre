@@ -108,6 +108,13 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 		<script src="assets/global/scripts/jquery.dataTables.min.js" type="text/javascript"></script>
 		<script src="assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
 	<?php break;
+	case 'oeb_editMetadata':?>
+		<script src="assets/global/scripts/datatable.js" type="text/javascript"></script>
+		<script src="assets/global/plugins/datatables/datatables.min.js" type="text/javascript"></script>
+		<script src="assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
+		<script src="assets/global/scripts/jquery.dataTables.min.js" type="text/javascript"></script>
+		<script src="assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
+	<?php break;
 	case 'usrProfile': ?>
 		<script src="assets/global/plugins/jquery-validation/js/jquery.validate.min.js" type="text/javascript"></script>
 		<script src="assets/global/plugins/jquery-validation/js/additional-methods.min.js" type="text/javascript"></script>
@@ -398,6 +405,10 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 	case 'oeb_newReq':?>
 		<script src="oeb_publish/oeb/oeb_newReq.js" type="text/javascript"></script>
 	<?php break;
+	case 'oeb_editMetadata':?>
+		<script src="oeb_publish/oeb/oeb_editMetadata.js" type="text/javascript"></script>
+		<script src="https://cdn.jsdelivr.net/npm/@json-editor/json-editor@latest/dist/jsoneditor.min.js"></script>
+	<?php break;
 	case 'oeb_manageReq':?>
 		<script src="oeb_publish/oeb/oeb_manageReq.js" type="text/javascript"></script>
 	<?php break;
@@ -487,6 +498,7 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 	case 'launch':
 	case 'oeb_newReq':
 	case 'oeb_manageReq':	
+	case 'oeb_editMetadata':
 
 	case 'hdesk':
 	case 'related':

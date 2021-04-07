@@ -230,6 +230,7 @@ $proj_name_active   = getAttr_fromGSFileId($_SESSION['User']['dataDir'], "name")
 												</select>
 											</div>
 
+
 											<div id="loading-datatable">
 												<div id="loading-spinner">LOADING</div>
 											</div>

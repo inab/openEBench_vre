@@ -1,11 +1,13 @@
 var table2;
 $(document).ready(function() {
+    getRoles().done(function(r) {
+        var roles = JSON.parse(r)
 
-    createTableRegisters();
-    $(function () {   
-        $('[data-toggle="popover"]').popover() 
-    });
-    
+        createTableRegisters();
+        $(function () {   
+            $('[data-toggle="popover"]').popover() 
+        });
+    })
 })
 
 /********************************FUNCTIONS****************************** */
@@ -35,6 +37,7 @@ function createTableRegisters(){
                 "targets": 1,
                 "title": '<th>File Name </th>',
                 render: function ( data, type, row ) {
+                    //return data;
                     return "<b>"+data.split("/").reverse()[1]+"</b>/"+data.split("/").pop();
                 }
             },

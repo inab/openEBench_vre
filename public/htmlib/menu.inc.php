@@ -316,7 +316,7 @@ sort($visualizers);
 
 							<ul class="sub-menu">
 								<?php foreach ($tools as $t) {
-									$s = $GLOBALS['helpsCol']->find(array('tool' => $t["_id"]))->sort(array('_id' => 1));
+									$s = $GLOBALS['helpsCol']->find(array('tool' => $t["_id"]),array('_id' => 1));
 									$sections = iterator_to_array($s);
 									$sections2 = array_column($sections, 'help');
 									$arrSect = array();
