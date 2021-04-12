@@ -99,7 +99,7 @@ $(document).ready(function() {
 function createTable(){
     table1 = $('#communityTable').DataTable( {
         "ajax": {
-            url: 'applib/oeb_publishAPI.php?action=getAllFiles&type[]=participant&type[]=assessment',
+            url: 'applib/oeb_publishAPI.php?action=getAllFiles&type[]=participant&type[]=OEB_data_model',
             dataSrc: ''
         },
         
@@ -349,7 +349,7 @@ function createAlert ($fileName, $action) {
 }
 /***********************FILTERS******************************** */
 $("#selectAll").click(function () {
-    $("#selectAssessment").removeClass('active');
+    $("#selectConsolidated").removeClass('active');
     $("#selectParticipant").removeClass('active');
     $("#selectAll").addClass('active');
     $("#communityTable").find("tbody").find("tr").show();
@@ -357,18 +357,18 @@ $("#selectAll").click(function () {
 
 $("#selectParticipant").click(function () {
     $("#selectAll").removeClass('active');
-    $("#selectAssessment").removeClass('active');
+    $("#selectConsolidated").removeClass('active');
     $("#selectParticipant").addClass('active');
     var rows = $("#communityTable").find("tbody").find("tr").hide();
     rows.filter(":contains('Input: data to evalute')").show();
 });
 
-$("#selectAssessment").click(function () {
+$("#selectConsolidated").click(function () {
     $("#selectAll").removeClass('active');
     $("#selectParticipant").removeClass('active');
-    $("#selectAssessment").addClass("active");
+    $("#selectConsolidated").addClass("active");
     var rows = $("#communityTable").find("tbody").find("tr").hide();
-    rows.filter(":contains('Output: consolidated assessment')").show();
+    rows.filter(":contains('Output: OEB data')").show();
 });
 
 

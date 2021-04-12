@@ -23,6 +23,7 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
 
 
 ?>
+
 <body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white page-container-bg-solid page-sidebar-fixed">
     <div class="page-wrapper">
         <input type="hidden" id="base-url" value="<?php echo $GLOBALS['BASEURL']; ?>" />
@@ -183,4 +184,70 @@ require "../../htmlib/js.inc.php";
     .invalid-feedback {
         color: red;
     }
+
+
+
+.tt-query {
+	-webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+	-moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+	box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+}
+
+.tt-hint {
+	color: #999;
+}
+
+.tt-menu {
+	width: 100%;
+	min-width: 200px;
+	/* margin-top: 4px;*/
+	padding: 4px 0;
+	background-color: #fff;
+	border: 1px solid #ccc;
+	border: 1px solid rgba(0, 0, 0, 0.2);
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	-webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+	-moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+	box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+}
+
+.tt-suggestion {
+	padding: 3px 20px;
+	line-height: 24px;
+}
+
+.tt-suggestion.tt-cursor,
+.tt-suggestion:hover {
+	color: #fff;
+	background-color: #0097cf;
+}
+
+.tt-suggestion p {
+	margin: 0;
+}
+
+.input-loading {
+}
+.input-loading:after {
+	position: absolute;
+	top: 8px;
+	right: 8px;
+	content: "\e030";
+	font-family: "Glyphicons Halflings";
+	color: #0097cf;
+	font-size: 20px;
+	font-weight: 400;
+	line-height: 1;
+	transform: rotate(0deg);
+	animation: spinner 1s linear infinite;
+}
+
+@keyframes spinner {
+	100% {
+		transform: rotate(359deg);
+	}
+}
+
 </style>

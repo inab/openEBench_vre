@@ -406,8 +406,11 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 		<script src="oeb_publish/oeb/oeb_newReq.js" type="text/javascript"></script>
 	<?php break;
 	case 'oeb_editMetadata':?>
-		<script src="oeb_publish/oeb/oeb_editMetadata.js" type="text/javascript"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.12/handlebars.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/corejs-typeahead/1.2.1/bloodhound.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
 		<script src="https://cdn.jsdelivr.net/npm/@json-editor/json-editor@latest/dist/jsoneditor.min.js"></script>
+		<script src="oeb_publish/oeb/oeb_editMetadata.js" type="text/javascript"></script>
 	<?php break;
 	case 'oeb_manageReq':?>
 		<script src="oeb_publish/oeb/oeb_manageReq.js" type="text/javascript"></script>

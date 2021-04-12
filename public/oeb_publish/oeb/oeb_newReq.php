@@ -139,7 +139,7 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                                     <div class="col-md-12" id="data_types">
                                         <button id = "selectAll" type="button" class="btn green btn-outline" >All files</button>
 										<button id = "selectParticipant" type="button" class="btn green btn-outline ">Participant data</button>
-                                        <button id = "selectAssessment" type="button" class="btn green btn-outline">Assessment data</button>
+                                        <button id = "selectConsolidated" type="button" class="btn green btn-outline">Consolidated data</button>
 									</div>
 							    </div>
                                 

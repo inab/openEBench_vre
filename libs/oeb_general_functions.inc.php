@@ -360,104 +360,63 @@ function getContactEmail ($contacts_ids) {
 }
 
 
-//TODO getTools - grapghQL
 
+/**
+ * Gets all contacts id's given a community
+ * @param community to search
+ * @return array with contacts ids
+ */
+function getAllContactsOfCommunity ($community_id){
 
-//get all communitites info: id, name...
-//GraphQL
-/*
-function getCommunities(){
+  $curl = curl_init();
+  $data_query =
+    '{"query":" 
+        query getContacts($community_id: String!){
+          getContacts(contactFilters: {community_id: $community_id}) {
+            _id    
+          } 
+        }",
+        "variables":{"community_id": "'.$community_id.'"}}';
 
-  $res = array();
-  $data_string =
-    '{ "query" : 
-            "{ 
-                getCommunities {
-                    _id
-                    acronym
-                    status
-                    name
-                }
-            }"
-        }';
-
-  $headers = array(
-    'Content-Type: application/json',
-    'Content-Length: ' . strlen($data_string)
-  );
-
-  list($r, $info) = post($data_string, $GLOBALS["OEB_sciapi"], $headers);
-
-
-  if ($r == "0") {
-    if ($_SESSION['errorData']['Error']) {
-      $err = array_pop($_SESSION['errorData']['Error']);
-      logger("ERROR:" . $err);
-    }
-    if ($info['http_code'] != 200) {
-      logger("ERROR: Unexpected http code. HTTP code: " . $info['http_code']);
-      logger("ERROR: calling PMES. POST_RESPONSE = '" . strip_tags($r) . "'");
-    }
-  }
-
-  $response = json_decode($r)->data->getCommunities;
-  if ($response) {
-    foreach ($response as $object) {
-      $res[$object->_id] =  (array)$object;
-    }
-  }
-
-  return $res;
-}
-
-
-function getDatasets(){
-  $data_string =
-    '{ "query" : 
-  "{ 
-    getDatasets(datasetFilters:{visibility:\"public\"}){ 
-      _id 
-      community_ids 
-      visibility 
-      name 
-      version 
-      description 
-      type
-      datalink {
-        uri
-        inline_data
-      } 
-    } 
-  }"
-}';
-
-
-
-
-  $headers = array(
-    'Content-Type: application/json',
-    'Content-Length: ' . strlen($data_string)
-  );
-
-  list($r, $info) = post($data_string, $GLOBALS["OEB_sciapi"], $headers);
-
-
-  if ($r == "0") {
-    if ($_SESSION['errorData']['Error']) {
-      $err = array_pop($_SESSION['errorData']['Error']);
-      logger("ERROR:" . $err);
-    }
-    if ($info['http_code'] != 200) {
-      logger("ERROR: Unexpected http code. HTTP code: " . $info['http_code']);
-      logger("ERROR: calling PMES. POST_RESPONSE = '" . strip_tags($r) . "'");
-    }
-  }
-
-  //var_dump($r);
-
-
-  return json_decode($r)->data->getDatasets;
+  curl_setopt_array($curl, array(
+    CURLOPT_URL => 'https://dev-openebench.bsc.es/sciapi/graphql/',
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_ENCODING => '',
+    CURLOPT_MAXREDIRS => 10,
+    CURLOPT_TIMEOUT => 0,
+    CURLOPT_FOLLOWLOCATION => true,
+    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+    CURLOPT_CUSTOMREQUEST => 'POST',
+    CURLOPT_POSTFIELDS =>$data_query,
+    CURLOPT_HTTPHEADER => array(
+      'Content-Type: application/json'
+    ),
+  ));
   
+
+  $response = curl_exec($curl);
+  $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+
+  if ($status!= 200) {
+    $_SESSION['errorData']['Warning'][]="Error getting contacts. Http code= ".$status;
+    return false;
+  } else {
+     return json_decode($response)->data->getContacts;
+     
+  }
+
+  curl_close($curl);
+
+
 }
 
-*/
+
+/**
+ * Gets participant tools ids given a benchmarking event
+ * @param benchamrkingEvent_id the id of the benchmark to search
+ * @return array with tools ids
+ */
+function getParticipantTools ($benchmarkingEvent_id) {
+  //TODO
+
+}
