@@ -97,11 +97,13 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                                     <ul class="feeds" id="list-files-run-tools">
                                         <?php 
                                         if (isset($_REQUEST['files']) ){
+                                           
                                             $fns = json_decode($_REQUEST['files']);
                                             foreach($fns as $file){
                                                 $fnPath    = getAttr_fromGSFileId($file->id,'path');
                                                 $filename  = $file->filename;
                                                 $filedir   = basename(dirname($fnPath));
+                                                $be_id     = $file->benchmarkingEvent_id;
 
                                         ?>	
                                         <li>
@@ -115,7 +117,7 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                                                     <div class="cont-col2">
                                                         <div class="desc">
                                                             <span class="text-info"><b>
-                                                            <?php echo $filedir; ?>  /</b></span><a href="javascript:openForm('<?php echo $file->id?>','<?php echo $filename?>'); "> <?php echo $filename; ?></a>
+                                                            <?php echo $filedir; ?>  /</b></span><a href="javascript:openForm('<?php echo $file->id?>','<?php echo $filename?>', '<?php echo $be_id?>'); "> <?php echo $filename; ?></a>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -149,11 +151,12 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                                 </div>
                                  -->
                                 <div id ="formMetadata">
-                                    <div id ="editor_holder" style="display: none;"></div>
+                                    <div id ="editor_holder"></div>
                                     <br>
                                     <button id="saveForm" class="btn btn-primary" disabled>Save</button><span id='valid_indicator'></span>
                                     <br>
                                     <p class="errorClass" id="idP" style="display:none;"></p>
+                                    
                                     
                                 </div>
  				                <div id="result" style="display:none; margin-top:20px;" class="alert alert-info"></div>

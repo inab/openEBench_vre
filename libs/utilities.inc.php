@@ -768,26 +768,31 @@ function post($data,$url,$headers=array(),$auth_basic=array()){
 // HTTP get
 function get($url,$headers=array(),$auth_basic=array()){
 
-		$c = curl_init();
+	$c = curl_init();
         curl_setopt($c, CURLOPT_URL, $url);
         curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
-        if (isset($_SERVER['HTTP_USER_AGENT'])){                      curl_setopt($c, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']);}
-        if (count($headers)){                                         curl_setopt($c, CURLOPT_HTTPHEADER, $headers);}
-        if (isset($auth_basic['user']) && isset($auth_basic['pass'])){curl_setopt($c, CURLOPT_USERPWD, $auth_basic['user'].":".$auth_basic['pass']);}
-            
-		$r = curl_exec ($c);
-		$info = curl_getinfo($c);
+	if (isset($_SERVER['HTTP_USER_AGENT'])){
+		curl_setopt($c, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']);
+	}
+	if (count($headers)){
+		curl_setopt($c, CURLOPT_HTTPHEADER, $headers);
+	}
+	if (isset($auth_basic['user']) && isset($auth_basic['pass'])){
+		curl_setopt($c, CURLOPT_USERPWD, $auth_basic['user'].":".$auth_basic['pass']);
+	}
+	$r = curl_exec ($c);
+	$info = curl_getinfo($c);
 
-		if ($r === false){
-			$errno = curl_errno($c);
-			$msg = curl_strerror($errno);
-            $err = "GET call failed. Curl says: [$errno] $msg";
-		    $_SESSION['errorData']['Error'][]=$err;	
+	if ($r === false){
+		$errno = curl_errno($c);
+		$msg = curl_strerror($errno);
+  		$err = "GET call failed. Curl says: [$errno] $msg";
+			 $_SESSION['errorData']['Error'][]=$err;	
 			return array(0,$info);
-		}
-		curl_close($c);
+	}
+	curl_close($c);
 
-		return array($r,$info);
+	return array($r,$info);
 }
 
 // HTTP put

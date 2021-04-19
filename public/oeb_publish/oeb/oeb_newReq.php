@@ -125,15 +125,18 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                             <!--only communities you are allowed to submit will be apperar-->
                             <div class="portlet-body">
                             <!--<button type="submit"><a href="javascript:submit2();"> Submit selected files </a></button>-->
+                            
                                 <div class="input-group" style="margin-bottom:20px;">
 									<span class="input-group-addon" style="background:#5e738b;"><i class="fa fa-users font-white"></i></span>
 									<select id="communitySelector" class="form-control" style="width:100%;" onchange="loadCommunity(this)">
 										
-										<?php foreach ($communityList as $cl) { ?>
+										<?php 
+                                        foreach ($communityList as $cl) { ?>
 										    <option value="<?php echo $cl ?>" <?php if ($_REQUEST["community"] == $cl) echo 'selected'; ?>><?php echo getCommunities($cl, "name"); ?></option>
 										<?php } ?>
 									</select>
 								</div>
+                                <!--
                                 <h5>Search by data type</h5>
                                 <div class="row" style="margin-top:20px;">
                                     <div class="col-md-12" id="data_types">
@@ -142,13 +145,15 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                                         <button id = "selectConsolidated" type="button" class="btn green btn-outline">Consolidated data</button>
 									</div>
 							    </div>
+                                -->
                                 
                                 <div id ="tableMyFiles" >
                                     <br>
                                     <br>
                                     <table id="communityTable" class="table table-striped table-hover table-bordered" width="100%"></table>
                                 </div>
-                                    
+                                <button type="button" class=" btn green" id="btn-selected-files" onclick="submitFiles(event);return false;" style="margin-top:20px;">Next</button>
+
                             </div>
                         </div>
                     </div>
@@ -238,6 +243,9 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
 
                 ul.hidden :nth-child(n+2) {
   display:none;
+}
+#ul-challenges li:nth-child(n+4) {
+    display:none;
 }
             </style>
 

@@ -27,67 +27,11 @@ $(document).ready(function() {
 
 /**********FUNCTIONS ************** */
 /*
-function openForm(fileId, filename) {
-
-    $('#editor_holder').show();
-    $('.je-object__title label').html("<b>Edit metadata for file " +filename +"</b>")
-
-    $.ajax({
-        type: 'POST',
-        url: "applib/oeb_publishAPI.php?action=getFileInfo",
-        data: {"files" : fileId}
-
-    }).done(function(data) {
-        var fileinfo = JSON.parse(data);
-        console.log(fileinfo);
 
 
-        //set values 
-        editor.getEditor("root.consolidated_oeb_data").setValue(fileinfo['path']);
-        if (fileinfo['data_type'] == "OEB_data_model") {
-            editor.getEditor("root.type").setValue("workflow_results"); //type of dataset
-        } else editor.getEditor("root.type").setValue(fileinfo['data_type']);
-        editor.getEditor("root.benchmarking_event_id").setValue(""); //API request
-        editor.getEditor("root.participant_file").setValue(fileinfo['fileSource_path']); //Path participant file
-        editor.getEditor("root.community_id").setValue("");
-        editor.getEditor("root.tool_id").setValue(fileinfo['tool']); //participant tool id
-
-        //css
-        $('label[class="required"]').append('<span style="color:red;"> *</span>')
-
-    });
-    editor.on('change',function() {
-         // Validate the editor's current value against the schema
-        var errors = editor.validate();
-
-        if(errors.length) {
-        // errors is an array of objects, each with a `path`, `property`, and `message` parameter
-        // `property` is the schema keyword that triggered the validation error (e.g. "minLength")
-        // `path` is a dot separated path into the JSON object (e.g. "root.path.to.field")
-        console.log(errors);
-        }
-        else {
-        // It's valid!, enable de button
-        $('#saveForm').prop('disabled', false);
-
-
-        }
-    })
-
-}
-$('#saveForm').on("click",function() {
-    var formData = editor.getValue()
-    dataForms.push(formData); 
-    console.log(dataForms);
-})
-
-function submitForms(){
-}
 
 
 */
-
-
 
 
 /*
@@ -98,13 +42,19 @@ Also adds support for setting "placeholder" through options.
 
 */
 
+
+
 var roadEngine = new Bloodhound({
 	datumTokenizer: Bloodhound.tokenizers.obj.whitespace("_id"),
 	queryTokenizer: Bloodhound.tokenizers.whitespace,
 	remote: {
-		url: "https://openebench.bsc.es/api/scientific/access/Community?q=%QUERY",
+		type: 'POST',
+		url: "https://dev-openebench.bsc.es/api/scientific/access/Community?q=%QUERY",
 		wildcard: "%QUERY"
+
 	}
+		
+	
 });
 roadEngine.clearRemoteCache();
 roadEngine.initialize();
@@ -170,8 +120,8 @@ var options = {
 	"title": "Schema that defines the set of fields to be filled for a submission to OpenEBench database",
 	"type": "object",
 		options: {
-			disable_edit_json: false,
-			disable_properties: false
+			disable_edit_json: true,
+			disable_properties: true
 		},
 		"properties": {
 		
@@ -204,6 +154,40 @@ var options = {
 			"title": "Participant file associated",
 			"description": "Path to the participant file associated with the consolidated results",
 			"type": "string"
+		},
+		"community_id": {
+			"title": "OEB community",
+			"description": "The unique id of the community where the data should be uploaded. Should come from VRE workflow",
+			"type": "string",
+			"pattern": "^OEBC[0-9]{3}$"
+		},
+		"tool_id": {
+			"title": "Participant Tool",
+			"description": "The id of the tool used to generate the dataset. Should be selected by uploader, using API",
+			"type": "string",
+			"pattern": "^OEBT[0-9]{3}[A-Z0-9]{7}$"
+		},
+		"data_version": {
+			"title": "Version",
+			"description": "Version (or release date) of the dataset",
+			"minLength": 1,
+			"type": "string"
+		},
+		"workflow_oeb_id": {
+			"title": "OEB Workflow",
+			"description": "The id of the workflow (as a tool) used to compute the assessment metrics. Should be associated to VRE tool",
+			"type": "string",
+			"pattern": "^OEBT[0-9]{3}[A-Z0-9]{7}$"
+		},
+		"data_contacts": {
+			"title": "Contacts",
+			"description": "Emails of the dataset contact(s). Should be registered in Mongo and OIDC",
+			"type": "array",
+			"minItems": 1,
+			"uniqueItems": true,
+			"items": {
+				"type": "string"
+			}
 		},
 			test1: {
 				type: "object",
@@ -238,7 +222,22 @@ var options = {
 					}
 				}
 			}
-		}
+
+		},
+		"required": [
+			"consolidated_oeb_data",
+			"visibility",
+			"type",
+			"benchmarking_event_id",
+			"participant_file",
+			"community_id",
+			"tool_id",
+			"data_version",
+			"workflow_oeb_id",
+			"data_contacts"
+		],
+		"additionalProperties": false,
+		"show_errors": "interaction"
 	}
 };
 
@@ -247,7 +246,68 @@ var editor = new JSONEditor(element, options);
 
 
 
-function openForm(fileId, filename) {
+function openForm(fileId, filename, benchmarking_event) {
 
     $('#editor_holder').show();
+	$('.je-object__title label').html("<b>Edit metadata for file " +filename +"</b>")
+
+    $.ajax({
+        type: 'POST',
+        url: "applib/oeb_publishAPI.php?action=getFileInfo",
+        data: {"files" : fileId}
+
+    }).done(function(data) {
+		var fileinfo = JSON.parse(data);
+		$.ajax({
+			type: 'POST',
+			url: "applib/oeb_publishAPI.php?action=getOEBdata",
+			data: {"benchmarkingEvent" : benchmarking_event}
+	
+		}).done(function(data) {
+			var OEBinfo = JSON.parse(data);
+			console.log(OEBinfo)
+
+
+        //set values 
+        editor.getEditor("root.consolidated_oeb_data").setValue(fileinfo['path']);
+        if (fileinfo['data_type'] == "OEB_data_model") {
+            editor.getEditor("root.type").setValue("workflow_results"); //type of dataset
+        } else editor.getEditor("root.type").setValue(fileinfo['data_type']);
+        editor.getEditor("root.benchmarking_event_id").setValue(benchmarking_event); 
+        editor.getEditor("root.participant_file").setValue(fileinfo['fileSource_path']); //Path participant file
+        editor.getEditor("root.community_id").setValue(OEBinfo['community_id']);
+        editor.getEditor("root.tool_id").setValue(fileinfo['tool']); //participant tool id
+		editor.getEditor("root.workflow_oeb_id").setValue(OEBinfo['oeb_workflow']);
+
+        //css
+        $('label[class="required"]').append('<span style="color:red;"> *</span>')
+
+    });
+    editor.on('change',function() {
+         // Validate the editor's current value against the schema
+        var errors = editor.validate();
+
+        if(errors.length) {
+        // errors is an array of objects, each with a `path`, `property`, and `message` parameter
+        // `property` is the schema keyword that triggered the validation error (e.g. "minLength")
+        // `path` is a dot separated path into the JSON object (e.g. "root.path.to.field")
+        console.log(errors);
+        }
+        else {
+        // It's valid!, enable de button
+        $('#saveForm').prop('disabled', false);
+
+
+        }
+    })
+})
+}
+
+$('#saveForm').on("click",function() {
+    var formData = editor.getValue()
+    dataForms.push(formData); 
+    console.log(dataForms);
+})
+
+function submitForms(){
 }

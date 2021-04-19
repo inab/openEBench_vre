@@ -114,11 +114,33 @@ if($_REQUEST) {
 			echo getChallengesFromACommunity($_REQUEST['community_id']);
 			exit;
 		}
+	//https://dev-openebench.bsc.es/vre/applib/oeb_publishAPI.php?action=getOEBdata
+	} elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == "getOEBdata") {
+		if (isset($_REQUEST['benchmarkingEvent'])) {
+			echo getOEBdataFromBenchmarkingEvent($_REQUEST['benchmarkingEvent']);
+			exit;
+		}
+	//https://dev-openebench.bsc.es/vre/applib/oeb_publishAPI.php?action=getTools
+	}elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == "getTools") {
+		echo getTools();
+		exit; 
 		
-	
 	}
 } else {
     echo '{}';
     exit;
 }
 
+function getOEBdataFromBenchmarkingEvent ($BE_id) {
+	$block_json = '{}';
+	$result = array();
+	$result["community_id"] = getBenchmarkingEventFromId($BE_id, "community_id");
+
+	//TODO workflow oeb
+	$result["oeb_workflow"] = "OEBT0001234567";
+	$block_json = json_encode($result, JSON_PRETTY_PRINT);
+
+	return $block_json;
+
+
+}

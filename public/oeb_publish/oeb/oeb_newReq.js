@@ -11,7 +11,6 @@ $(document).ready(function() {
         
         //TODO: get number of communities
         var communities = new Array("Quest for Orthologs", "TCGA", "CIBERER"); 
-        var files = new Array("");
 
         createTable();
         
@@ -29,67 +28,23 @@ $(document).ready(function() {
         //refresh list each time table is clicked
         $("#tableMyFiles" ).on( "click", function() {
             arrayOfFiles = [];
-
-            $("#list-files-submit").empty();
             
             $.each($('tbody tr '), function() {
-                //check if inputcheckbox is checked
-                if($('td:first-child input[type="checkbox"]', this).prop('checked')) {
-                    //get id
+                //check if input radio is checked
+                if($('td:first-child input[type="radio"]', this).prop('checked')) {
                     var obj = {};
-                    var id = "id";
-                    var val0 = $('td:first-child input', this).prop('value');
-                    var filename = "filename";
-                    var val1 = $('td:nth-child(2) b', this).prop('id').split("/").pop();
+                    obj['id'] = $('td:first-child input', this).prop('value');
+                    obj['benchmarkingEvent_id'] = $('td:nth-child(4) p', this).prop('id');
 
-                    obj[id] = val0;
-                    obj[filename] = val1;
-                    
                     //arrayOfFiles.push($('td:first-child input', this).prop('value'));
-                    arrayOfFiles.push(obj);
+                    arrayOfFiles.push( obj);
                 }
             });
-
-            var li;
-            if (arrayOfFiles.length === 0 ) {
-                $("#actions-files").hide();
-                $("#desc-files-submit").show();
-
-            } else {
-                //create list of files to submit
-                $.each( arrayOfFiles, function( index, value ){
-                    li = '<li > \
-                                <div class="col1"> \
-                                    <div class="cont"> \
-                                        <div class="cont-col1">\
-                                            <div class="label label-sm label-info">\
-                                                <i class="fa fa-file"></i>\
-                                            </div>\
-                                        </div>\
-                                        <div class="cont-col2">\
-                                            <div class="desc">\
-                                                <span class="text-info" style="font-weight:bold;">' +
-                                                value['filename'] + 
-                                            '</div>\
-                                        </div>\
-                                    </div>\
-                                </div>\
-                                <div class="col2"> \
-                                    <div class="label label-sm label-danger" style="float: right;padding:0">\
-                                        <a href="javascript:removeFromList(\''+value['id']+'\');" title="Clear file from list" class="btn btn-icon-only red" style="width: 25px;height: 25px;padding-top: 1px;"><i class="fa fa-times-circle"></i></a>' +
-                                    '</div>\
-                                </div>\
-                            </li>'
-                    
-                    $('#list-files-submit').append(li);
-                    $("#actions-files").show();
-                    $("#desc-files-submit").hide();
-                });
-            }
+            console.log(arrayOfFiles);
         })
     
     })
-
+    
 
 })
 
@@ -99,20 +54,20 @@ $(document).ready(function() {
 function createTable(){
     table1 = $('#communityTable').DataTable( {
         "ajax": {
-            url: 'applib/oeb_publishAPI.php?action=getAllFiles&type[]=participant&type[]=OEB_data_model',
+            url: 'applib/oeb_publishAPI.php?action=getAllFiles&type[]=OEB_data_model',
             dataSrc: ''
         },
         
         "columns" : [
             {"data" : "_id"}, //0
+            { "data" : "files" }, //1
             { "data" : "path" }, //1
-            { "data" : "datatype_name" }, //2
-            { "data" : "oeb_event" }, //3
-            { "data" : "oeb_challenges" }, //4
-            { "data" : "mtime" }, //5
-            { "data" : "current_status" }, //6 --> to hide
-            { "data" : "challenge_status" }, //7
-            { "data" : "oeb_id" } //8
+            { "data" : "benchmarking_event" }, //2
+            { "data" : "oeb_challenges" }, //3
+            { "data" : "mtime" }, //4
+            { "data" : "current_status" }, //5 --> to hide
+            { "data" : "challenge_status" }, //6
+            { "data" : "oeb_id" } //7
 
 
         ],
@@ -120,42 +75,48 @@ function createTable(){
             {
                 'targets': 0,
                 "className": "dt-center",
-                'title': '<th><input name="select_all" value="1" id="example-select-all" type="checkbox" /></th>',
                 'searchable': false,
                 'orderable': false,
                 render: function ( data, type, row ) {
-                    if(row['current_status'] == 'approved' || row['current_status'] == 'pending approval'){
-                        return '<input type="checkbox" name = "check" value="'+ data + '" disabled>';
-                    }
-                    return '<input type="checkbox" name = "check" value="'+ data + '">';
+                    r = '<input type="radio" name = "'+data+'" value="'+row.files['participant']['id']+'"></br></br>\
+                    <input type="radio" name = "'+data+'" value="'+row.files['consolidated']['id']+'">'
+                    return r;
                 }
             },
             {
                 "targets": 1,
-                "title": '<th>Filenamee <i class="icon-question" data-toggle="tooltip" data-placement="top" title="Execution and file name"></i></th>',
-                render: function ( data, type, row ) {
-                    
-                    if(row['current_status'] == 'pending approval'){
-                        return "<b id ="+data+">"+data.split("/").reverse()[1]+"</b>/"+data.split("/").pop() +" <i class=\"fa fa-exclamation-triangle\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"File already submitted\" style='color: #F4D03F'></i>";
-                    }
-                    return "<b id ="+data+">"+data.split("/").reverse()[1]+"</b>/"+data.split("/").pop();
+                "title": '<th>Files <i class="icon-question" data-toggle="tooltip" data-placement="top" title="Type of data file"></i></th>',
+                render:function ( data, type, row ) {
+                    r = data['participant']['path']+'</br></br>';
+                    r += data['consolidated']['path'].split("/").reverse()[0];
+
+                    return r;
                 }
             },
             {
                 "targets": 2,
-                "title": '<th>Data type <i class="icon-question" data-toggle="tooltip" data-placement="top" title="Type of data file"></i></th>'
+                "title": '<th>Execution workflow <i class="icon-question" data-toggle="tooltip" data-placement="top" title="Execution and file name"></i></th>',
+                render: function ( data, type, row ) {
+                    
+                    if(row['current_status'] == 'pending approval'){
+                        return "<b id ="+data+">"+data.split("/").reverse()[1]+"</b>/" +" <i class=\"fa fa-exclamation-triangle\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"File already submitted\" style='color: #F4D03F'></i>";
+                    }
+                    return "<b id ="+data+">"+data.split("/").reverse()[1]+"</b>/";
+                }
             },
+            
             {
                 "targets": 3,
-                "title": '<th>Benchmarking Event <i class="icon-question" data-toggle="tooltip" data-placement="top" title="OpenEBench benchmarking event in which the dataset was used or the metrics produced"></i></th>'
-                
+                "title": '<th>Benchmarking Event <i class="icon-question" data-toggle="tooltip" data-placement="top" title="OpenEBench benchmarking event in which the dataset was used or the metrics produced"></i></th>',
+                render:function ( data, type, row ) {
+                    return '<p id ="'+data['be_id']+'">'+data['be_name']+'</p>';
+                }
 
             },
             {
                 "targets": 4,
                 "title": '<th>Benchmarking Challenges<i class="icon-question" data-toggle="tooltip" data-placement="top" title="OpenEBench benchmarking challenges included in the metrics"></i></th>',
                 render: function ( data, type, row ) {
-                    console.log (data);
                     if (data != undefined && data.length != 0){
                         
                         listChallenges = '<ul id = "ul-challenges">';
@@ -164,13 +125,11 @@ function createTable(){
                            
                        }
                        listChallenges += '</ul>';
+                       listChallenges += '<div id ="plusShow" style="text-align: center;"><span>...</span><i class="fa fa-plus" style="color: green;float: right;" onclick="showChallenges()"></i></div>';
                        
                        return listChallenges;
                     } else return '';
                     
-                    
-                   
-
                 }
 
             },
@@ -178,7 +137,6 @@ function createTable(){
                 "targets": 5,
                 "title": '<th>Date <i class="icon-question" data-toggle="tooltip" data-placement="top" title="Identifier of EUDAT/B2SHARE"></i></th>',
                 render: function ( data, type, row ) {
-                    console.log(data)
                     return convertTimestamp(data['$date']['$numberLong']);
                         //return data['sec'].toLocalTime();
                     
@@ -198,7 +156,7 @@ function createTable(){
                 
             },
             {
-                "targets": 7,
+                "targets":7,
                 "title": '<th>Benchmark event status  <i class="icon-question" data-toggle="tooltip" data-placement="top" title="Identifier of EUDAT/B2SHARE"></i></th>',
                 render: function ( data, type, row ) {
                         return "Open"
@@ -221,33 +179,21 @@ function createTable(){
     
 }
 
+function showChallenges() {
+
+        //$('#ul-challenges li:hidden').slice(0, 2).show();
+        $('#ul-challenges li:hidden').show();
+        /*
+        if ($('#ul-challenges li').length == $('#ul-challenges li:visible').length) {
+            $('#plusShow').hide();
+        }
+        */
+       $('#plusShow').hide();
+};
 
 
-// remove files from the list
-function removeFromList (option) {
-
-    if (option == "all"){
-        //remove all files
-        $.each($('tbody tr '), function() {
-            $('input', this).prop('checked', false); 
-            $( "#tableMyFiles" ).click();
-        })  
 
 
-    }else {
-        // remove file
-        $.each($('tbody tr '), function() {
-            if($('input[value="'+option+'"]', this)) {
-                
-                $('input[value="'+option+'"]', this).prop('checked', false); 
-                $( "#tableMyFiles" ).click();
-                
-            }
-
-        })
-
-    }
-}
 
 function submitFiles() {
     var myForm = $('#files-form');

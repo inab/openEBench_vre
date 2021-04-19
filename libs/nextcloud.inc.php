@@ -1,8 +1,10 @@
 <?php 
-//functions to manage nextcloud with webdav
+//functions to manage nextcloud 
+
+
+/*************** SABREDAV ************** */
 
 use Sabre\DAV\Client;
-
 /*
 Per defecte ja tindre un comportamnet, pillant tot d globals, pero les propietats nomes serveixen per modificar el comportament
 per defecte.
@@ -11,6 +13,9 @@ per defecte.
 //password
 
 */
+
+
+
 
 /**
  * Constructs the HTTP client
@@ -35,12 +40,14 @@ function constructClient($nc_username){
  * @param fileName - the file to remove
  * @return true if correctly done, false otherwise
  */
+//var_dump(ncDeleteFile("", "test.txt"));
 function ncDeleteFile($username ="", $fileName){
     $client = constructClient($username);
 
     //check if file exists
     $response = $client->request('GET', $fileName);
     if ($response['statusCode'] == 200) {
+        //delete
         $client->request('DELETE', $fileName);
         return true;
     } else return false;
@@ -51,10 +58,12 @@ function ncDeleteFile($username ="", $fileName){
 /**
  * Uploads a file to nextcloud
  * @param fileId- file to upload
- * @param 
- * @return davFile array if correctly done, davfile with response, not file part
+ * @param targetDir
+ * @return true if correctly done, false otherwise
  */
-function ncUploadFile($username ="", $fileId, $targetDir, $additionalProperties){
+//var_dump(ncUploadFile("","OpEBUSER5e301d61da6f8_5e5fc0fa342003.92608382", "uploads"));
+
+function ncUploadFile($username ="", $fileId, $targetDir){
     $davfile = "";
     $client = constructClient($username);
 
@@ -64,39 +73,29 @@ function ncUploadFile($username ="", $fileId, $targetDir, $additionalProperties)
     if (file_get_contents($file_path)) {
         $response = $client->request('PUT', $targetDir."/".$file_name, file_get_contents($file_path));
         if ($response['statusCode'] == 201) {
-            //add property file VRE id
-            if (addProperties($targetDir."/".$file_name, $additionalProperties)) {
-                //list properties
-                $returnedProperties = getProperties($targetDir."/".$file_name, array('{http://owncloud.org/ns}fileid', 
-                '{DAV:}getetag','{http://owncloud.org/ns}oeb_id','{http://owncloud.org/ns}owner-id','{DAV:}getlastmodified', 
-                '{DAV:}resourcetype', '{http://owncloud.org/ns}checksums','{http://owncloud.org/ns}size'));
 
-                $returnedProperties["local_url"] = 'https://dev-openebench.bsc.es/nextcloud/remote.php/dav/files/root/'.$targetDir."/".$file_name; 
-
-                $davfile = array('response'=>$response, 'file'=>$returnedProperties); //treure els headers del response
-                return $davfile;
-
-            }
+            return true;
             
         } else return false;
       
     } else return false; //return jsonresponse -> msg indicant el problem (file (path) not found or empty)- bad request -code
 }
 
-//var_dump(ncUploadFile("", "OpEBUSER5e301d61da6f8_5e5fc0faa39716.11893046", "Drop", array('{http://owncloud.org/ns}oeb_id' => "bla")));
+
 
 
 /**
  * Downloads a file from nextcloud
  * @param fileName - the file to download
+ * @param targetName - path where to save file
  * @return true if correctly done, false otherwise
  */
+//var_dump(ncDownlowFile("", "uploads/test.tre", "./prova.txt"));
 function ncDownlowFile($username ="", $fileName, $targetName){
     $client = constructClient($username);
 
     //check if file exists
     $response = $client->request('GET', $fileName);
-    var_dump($response);
     if ($response['statusCode'] == 200) {
         if (file_put_contents($targetName, $response['body'])){
             return true;
@@ -112,9 +111,10 @@ function ncDownlowFile($username ="", $fileName, $targetName){
  * @param folderName - name/path of the folder to create
  * @return true if correctly done, false otherwise
  */
+//var_dump(ncCreateFolder("https://dev-openebench.bsc.es/nextcloud/remote.php/dav/files/root/uploads2"));
 function ncCreateFolder($folderName) {
     $client = constructClient($username);
-    $response = $client->request('MKCOL','https://dev-openebench.bsc.es/nextcloud/remote.php/dav/files/root/'.$folderName);
+    $response = $client->request('MKCOL',$folderName);
     if ($response['statusCode'] == 201) {
         return true;
     } else return false;
@@ -131,14 +131,13 @@ function ncCreateFolder($folderName) {
  * @param properties - array of properties: https://docs.nextcloud.com/server/12.0/developer_manual/client_apis/WebDAV/index.html
  * @return
  */
+//var_dump(getProperties("https://dev-openebench.bsc.es/nextcloud/remote.php/dav/files/root/uploads/test.tre", array('{http://owncloud.org/ns}vre_id')));
 function getProperties($filePath, $properties){
     //per defecte que retorni totes, si hi ha algo (array) que retorni les del parametre
 
     $client = constructClient($username);
-    $response = $client->propfind("https://dev-openebench.bsc.es/nextcloud/remote.php/dav/files/root/".$filePath, $properties);
+    $response = $client->propfind($filePath, $properties);
     return $response;
-
-
 }
 
 
@@ -148,15 +147,18 @@ function getProperties($filePath, $properties){
  * @param propertiesToAdd - associative array with property-value: https://docs.nextcloud.com/server/12.0/developer_manual/client_apis/WebDAV/index.html
  * @return true if correctly done, false otherwise
  */
+//var_dump(addProperties("https://dev-openebench.bsc.es/nextcloud/remote.php/dav/files/root/uploads/test.tre", array('{http://owncloud.org/ns}vre_id' => "testId")));
 function addProperties($filePath, $propertiesToAdd  ) {
-    //validar que el namescpace sigui correcte
+    //validar que el namescpace sigui correcte - TODO
 
     $client = constructClient($username);
     
-    if ($client->proppatch("https://dev-openebench.bsc.es/nextcloud/remote.php/dav/files/root/".$filePath, $propertiesToAdd)) {
+    if ($client->proppatch($filePath, $propertiesToAdd)) {
         return true;
     }else return false;
 }
+
+
 
 
 /*
@@ -182,6 +184,17 @@ curl --silent -u root:***REMOVED*** -X PROPFIND -H "Content-Type: text/xml" --da
 //TODO: move file/folder?
 
 
+$r = $client->proppatch("https://dev-openebench.bsc.es/nextcloud/remote.php/dav/files/root/mozilla.pdf", array(
+        '{http://owncloud.org/ns}favorite' => 1,
+    ));
+
+
+
+
+
+
+
+
 
 
 
@@ -195,9 +208,7 @@ var_dump(getProperties("mozilla.pdf", ""));
 
 
   /*
-    $r = $client->proppatch("https://dev-openebench.bsc.es/nextcloud/remote.php/dav/files/root/mozilla.pdf", array(
-        '{http://owncloud.org/ns}favorite' => 1,
-    ));
+    
 
       /*
     $r = $client->proppatch("https://dev-openebench.bsc.es/nextcloud/remote.php/dav/files/root/mozilla.pdf", array(

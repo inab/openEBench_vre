@@ -65,14 +65,18 @@ function getPublishableFiles($datatype) {
         $block_json="{}";
         $files = array();
 
-        //get data from DB
+	//
+	// Find user files with the given allowed datatype/s
+
+	//get path of the user workspace
 	$proj_name_active   = basename(getAttr_fromGSFileId($_SESSION['User']['dataDir'], "path"));
 
-	// validate given datatype. 
+	// TODO 
+	// validate given parameter is a valid datatype 
 	//  -- Accepted datatpes: getDataTypesList()
 	//  -- Exemples of JSON HTTP standard responses: libs/oeb_management.inc.php
-	// TODO 
 
+	// get list of user files with the allowed datatypes
 	if (is_array($datatype)){
         	$file_filter = array(
             	"data_type" => array('$in' => $datatype),
@@ -86,28 +90,44 @@ function getPublishableFiles($datatype) {
 	}
         $filteredFiles = getGSFiles_filteredBy($file_filter);
 
-        foreach ($filteredFiles as $key => $value) {
-                //get data type name for each file
-                $value['datatype_name'] = getDataTypeName($value['data_type']);
+	// apply further filters to the files based on OEB metadata
+	foreach ($filteredFiles as $key => $value) {
 
-                //get if file is already request to publish
+                //check if file is already requested to be published
                 $found = $GLOBALS['pubRegistersCol']->findOne(array("fileId" => $value['_id']));
                 if(count($found) !== 0 || !is_null($found)) {
                         $value['current_status'] = $found['current_status'];
-                }
+		}
 
-                //get challenge status
+                //get both files: consolidated and participant
+                $value['files']['participant']['id'] = $value['input_files'][0];
+                $value['files']['participant']['path'] = $value['sources'][0];
+                $value['files']['consolidated']['id'] = $value['_id'];
+                $value['files']['consolidated']['path'] = $value['path'];
+
+                //get challenge names
 		if ($value['data_type'] != "participant"){
+			// if "consolidated" or "metrics", fetch run metadata
 			$value['oeb_challenges'] = getChallenges_associated_to_outfile($value['_id']);
 		}else{
+			// if "participant", fetch all associated runs¿?
 			$value['oeb_challenges_AA'] = getChallenges_associated_to_infile($value['_id']);
 		}
 		// TODO
 
-                //get benchmarking event name from tool 
-                $value['oeb_event'] = $value['tool'];
-		// TODO
-
+		//get benchmarking event id from tool
+		if (isset($value['tool'])){
+			$tool = getTool_fromId($value['tool'],1);
+			if (isset($tool['community-specific_metadata']['benchmarking_event_id'])){
+				$value['benchmarking_event']['be_id'] = $tool['community-specific_metadata']['benchmarking_event_id'];
+				$value['benchmarking_event']['be_name'] = getBenchmarkingEventFromId($value['benchmarking_event']['be_id'],"name");
+			}else{
+				$value['benchmarking_event']=$value['tool'];
+			}
+		}else{
+			// file is not the result of a VRE run. No 'tool'/event associated
+			$value['benchmarking_event']="NA";
+		}
                 array_push($files, $value);
 
         }

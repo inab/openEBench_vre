@@ -52,6 +52,7 @@ function getCommunities($community_id = null, $filter_field = null ){
 
 }
 
+
 /**
  * Gets all datasets with their info or an specific dataset filtered or not
  * @param $dataset_id, the id of the dataset to find
@@ -170,7 +171,57 @@ function getCommunityFromChallenge($challenge_id){
   curl_close($c);
 }
 
+/**
+ * Get benchmarking event from ID
+ * @param benchmarking_event_id, OEB Identifier
+ * @param $filter_field, a single attribute of benchmarking_event to be returned
+ * @return the full benchmarking event document, or the particular attribute specified by 'filter_field'
+ */
 
+function getBenchmarkingEventFromId($benchmarking_event_id,$filter_field = null){
+
+    // build URL	
+    $URL = $GLOBALS['OEB_scirestapi'].'/BenchmarkingEvent/'.$benchmarking_event_id;
+    if (isset($filter_field) && is_string($filter_field)){
+	    $URL.="/$filter_field";
+    }
+    // do HTTP Request
+    $c = curl_init();
+    curl_setopt_array($c, array(
+      CURLOPT_URL => $URL,
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_ENCODING => '',
+      CURLOPT_MAXREDIRS => 10,
+      CURLOPT_TIMEOUT => 0,
+      CURLOPT_FOLLOWLOCATION => true,
+      CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+      CURLOPT_CUSTOMREQUEST => 'GET',
+      CURLOPT_HTTPHEADER => array(
+        'Accept: application/json'
+      ),
+    ));
+    
+    $r = curl_exec($c);
+    $s = curl_getinfo($c, CURLINFO_HTTP_CODE);
+
+    // convert from JSON response to PHP HASH/ARRAY/STRING
+    $r = json_decode($r,true);
+
+    if ($s!= 200) {
+      $_SESSION['errorData']['Warning'][]="Error retrieving benchmarking event for id='$benchmarking_event_id' from OEB. Http code= ".$status;
+      return false;
+    } else {
+      return $r;
+    }
+    curl_close($c);
+}
+
+
+/**
+ * Get the communities the user have permisions to submit files
+ * @param roles array of user roles
+ * @return array of communitites id's
+ */
 
 /**
  * Get the communities the user have permisions to submit files
@@ -412,11 +463,48 @@ function getAllContactsOfCommunity ($community_id){
 
 
 /**
- * Gets participant tools ids given a benchmarking event
- * @param benchamrkingEvent_id the id of the benchmark to search
- * @return array with tools ids
+ * Gets participant tools ids given a community_id
+ * @return json with tools ids and names
  */
-function getParticipantTools ($benchmarkingEvent_id) {
-  //TODO
-
+function getTools () {
+ 
+    $curl = curl_init();
+    $data_query = 
+      '{"query":"{ 
+        getTools {
+          _id
+          name
+        }
+      }"}';
+    curl_setopt_array($curl, array(
+      CURLOPT_URL => 'https://dev-openebench.bsc.es/sciapi/graphql/',
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_ENCODING => '',
+      CURLOPT_MAXREDIRS => 10,
+      CURLOPT_TIMEOUT => 0,
+      CURLOPT_FOLLOWLOCATION => true,
+      CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+      CURLOPT_CUSTOMREQUEST => 'POST',
+      CURLOPT_POSTFIELDS =>$data_query,
+      CURLOPT_HTTPHEADER => array(
+        'Content-Type: application/json'
+      ),
+    ));
+    
+  
+    $response = curl_exec($curl);
+    $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+  
+    if ($status!= 200) {
+      $_SESSION['errorData']['Warning'][]="Error getting contacts. Http code= ".$status;
+      return false;
+    } else {
+      $items = json_decode($response)->data->getTools;
+      return json_encode($items);
+       
+    }
+  
+    curl_close($curl);
+  
+    
 }

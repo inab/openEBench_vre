@@ -4,11 +4,12 @@ require __DIR__ . "/../../config/bootstrap.php";
 redirectOutside();
 
 $tls = getTools_List(1);
+//var_dump($tls);
 $tlsProv = getTools_List(0);
 $vslzrs = getVisualizers_List(1);
 $vslzrsProv = getVisualizers_List(0);
-var_dump(count(array_keys($tls)));
-var_dump(count(array_keys($tlsProv)));
+//var_dump(count(array_keys($tls)));
+//var_dump(count(array_keys($tlsProv)));
 $appList = array_merge($tls, $tlsProv, $vslzrs, $vslzrsProv);
 $vslzrList = array_merge($vslzrs, $vslzrsProv);
 

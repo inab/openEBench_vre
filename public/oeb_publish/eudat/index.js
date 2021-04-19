@@ -20,7 +20,7 @@ $(document).ready(function() {
                 {"data" : null}, //0
                 { "data" : "_id" }, //1
                 { "data" : "path" }, //2
-                { "data" : "datatype_name" }, //3
+                { "data" : "data_type" }, //3
                 { "data" : "oeb_id" }, //4
                 { "data" : "oeb_eudatDOI" } //5
             ],
