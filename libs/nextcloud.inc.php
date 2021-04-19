@@ -2,7 +2,7 @@
 //functions to manage nextcloud 
 
 
-/*************** SABREDAV ************** */
+/*************** SABREDAV *************** */
 
 use Sabre\DAV\Client;
 /*
