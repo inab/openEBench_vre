@@ -174,22 +174,34 @@ function submitedRegisters($filters) {
 
         //get data from DB
         try {
+                //get user submited requests
                 $regData = $GLOBALS['pubRegistersCol']->find($filters);
-
-                foreach ($regData as $r) {
-                        $user = $GLOBALS['usersCol']->findOne(array('id' => $r['requester']));
-                        $file = $GLOBALS['filesCol']->findOne(array('_id' => $r['fileId']));
+ 
+                foreach ($regData as $v) {
+                        $r['id'] = $v['_id'];
+                        $user = $GLOBALS['usersCol']->findOne(array('id' => $v['requester']));
                         $r['requester_name'] = $user['Name'];
-                        $r['file_path'] = $file['path'];
+                        $r['files'] = array();
+                        foreach ($v['fileIds'] as $value) {
+                                $file_path  = $GLOBALS['dataDir'].getAttr_fromGSFileId($value,'path');
+                                $file_name  = basename($file_path);
+                                $f = ["id" => $value, "name" => $file_name, "nc_url" => getAttr_fromGSFileId($value, "nc_url")];
+                                array_push($r['files'], $f);
+                               
+                        }
+                        $r['approvers'] = $v['approvers'];
+                        $r['history_actions'] = $v['history_actions'];
+                        $r['status'] = $v['current_status'];
+                        //$r['exec_folder'] =
                         array_push($reg, $r) ;
                 }
 
-                $block_json = json_encode($reg, JSON_PRETTY_PRINT);
+                $block_json = json_encode($reg);
 
         } catch (MongoCursorException $e) {
                 $_SESSION['errorMongo'] = "Error message: ".$e->getMessage()."Error code: ".$e->getCode();
         }
-
+        
         return $block_json;
 
 }

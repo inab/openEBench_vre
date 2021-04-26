@@ -29,18 +29,21 @@ $(document).ready(function() {
         $("#tableMyFiles" ).on( "click", function() {
             arrayOfFiles = [];
             
-            $.each($('tbody tr '), function() {
-                //check if input radio is checked
-                if($('td:first-child input[type="radio"]', this).prop('checked')) {
-                    var obj = {};
-                    obj['id'] = $('td:first-child input', this).prop('value');
-                    obj['benchmarkingEvent_id'] = $('td:nth-child(4) p', this).prop('id');
-
-                    //arrayOfFiles.push($('td:first-child input', this).prop('value'));
-                    arrayOfFiles.push( obj);
-                }
+            $.each($('tbody tr td:first-child input[type="radio"]:checked', this), function() {
+                var obj = {};
+                obj['id'] = $(this).val();
+                obj['benchmarkingEvent_id'] = $(this).parents('tr').first().children(":nth-child(4)").children("p").prop("id");
+    
+                //arrayOfFiles.push($('td:first-child input', this).prop('value'));
+                arrayOfFiles.push( obj);
+       
             });
             console.log(arrayOfFiles);
+            if (arrayOfFiles.length >0) {
+                $('#btn-selected-files').prop("disabled", false)
+            } else {
+                $('#btn-selected-files').prop("disabled", true)
+            }
         })
     
     })

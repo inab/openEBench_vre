@@ -1244,17 +1244,11 @@ function uploadGSFile($col,$fn,$fsFile) {
 
 //create a new submision register
 function uploadReqRegister($fn, $metadata){
+	$id =0;
 	$collection = $GLOBALS['pubRegistersCol']; 
-	/*
-	if (empty($collection->findOne(array('_id' => $fn))) ){
-		//File not in the repository
-		
-	}
-	*/
-
-	//not finished TODO      
-	$collection->insertOne($metadata);
-	return 1;
+	$insertResult = $collection->insertOne($metadata);
+	$id = $insertResult->getInsertedId();
+	return $id ;
 }
 
 //update a submision register given a submision id
@@ -1265,7 +1259,10 @@ function updateReqRegister ($id, $metadata){
 		return 0;
 	}
 	foreach ($metadata as $k=>$v){
-		$GLOBALS['pubRegistersCol']->updateOne(array('_id'=> $id),array('$set'=> array($k => $v)),array('upsert'=> true));
+		$GLOBALS['pubRegistersCol']->updateOne(
+			array('_id'=> $id),
+			array('$set' => $metadata),
+			array('upsert'=> true));
 		
 	}
 	return 1;
@@ -1284,4 +1281,3 @@ function insertAttrInReqRegister ($id, $metadata){
 	return 1;
 
 }
-

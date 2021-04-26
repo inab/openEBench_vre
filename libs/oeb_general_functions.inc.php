@@ -333,6 +333,7 @@ function getChallengesFromACommunity ($community_id) {
  * @param community_id to look for contacts
  * @return array of contacts ids. If an error ocurs it return false.
  */
+//var_dump(getBenchmarkingContactsIds("OEBC002"));
 function getBenchmarkingContactsIds ($community_id) {
   //1. Get benchmarking contacts ids of a community
 
@@ -371,12 +372,12 @@ function getBenchmarkingContactsIds ($community_id) {
  * @param array of contacts ids
  * @return associative array of each contacts id and their emails. If an error ocurs it return false.
  */
+//var_dump(getContactEmail(array("Javier.Garrayo")));
 function getContactEmail ($contacts_ids) {
 
   $contacts_emails = array();
 
   foreach ($contacts_ids as $value) {
-
     $curl = curl_init();
 
     curl_setopt_array($curl, array(
@@ -395,12 +396,12 @@ function getContactEmail ($contacts_ids) {
 
     $response = curl_exec($curl);
     $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-
     if ($status!= 200) {
       $_SESSION['errorData']['Warning'][]="Error getting email of ".$value.". Http code= ".$status;
       $contacts_emails[$value] = 0;
 
     } else {
+      var_dump("hola");
       $contacts_emails[$value] = $response;
 
     }

@@ -74,7 +74,7 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                                     <div class="mt-step-number bg-white">2</div>
                                     <div class="mt-step-title uppercase font-grey-cascade">Edit metadata's file</div>
                                 </div>
-                                <div class="col-md-4 mt-step-col last">
+                                <div id ="step3" class="col-md-4 mt-step-col last">
                                     <div class="mt-step-number bg-white">3</div>
                                     <div class="mt-step-title uppercase font-grey-cascade">Summary</div>
                                 </div>
@@ -101,7 +101,7 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                                             $fns = json_decode($_REQUEST['files']);
                                             foreach($fns as $file){
                                                 $fnPath    = getAttr_fromGSFileId($file->id,'path');
-                                                $filename  = $file->filename;
+                                                $filename  = basename($fnPath);
                                                 $filedir   = basename(dirname($fnPath));
                                                 $be_id     = $file->benchmarkingEvent_id;
 
@@ -116,24 +116,20 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                                                     </div>
                                                     <div class="cont-col2">
                                                         <div class="desc">
-                                                            <span class="text-info"><b>
-                                                            <?php echo $filedir; ?>  /</b></span><a href="javascript:openForm('<?php echo $file->id?>','<?php echo $filename?>', '<?php echo $be_id?>'); "> <?php echo $filename; ?></a>
+                                                            <span class="text-info">
+                                                                <b><?php echo $filedir; ?>/</b><?php echo $filename;?>
+                                                            </span>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col2" >
-                                                <i id ="file_correct" style= "color: Green; display: none" class="fa fa-check-circle fa-lg"></i>
-                                                <span style= "color: Tomato;">Pending..</span>
-                                            </div>
+                                            
 
                                         <?php }}?>
 
                                         </li>
                                     </ul>
-                                    <div class="scroller-footer">
-                                        <a class="btn btn-sm green pull-right" id="btn-submit-all" href="javascript:submitForms(); return false;">Submit</a>
-                                    </div>
+                                   
                                 </div>
 			                </div>
                         </div>
@@ -144,16 +140,16 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                     <div class="col-md-12">
                         <div class="portlet light portlet-fit bordered">
                             <div id="blocks" class="portlet-body">
-                                <!-- LOADING SPINNER
+                                <!-- LOADING SPINNER-->
                                 <div id="loading-datatable" class="loadingForm">
                                     <div id="loading-spinner">LOADING</div>
                                     <div id="loading-text">It could take a few minutes</div>
                                 </div>
-                                 -->
+                                
                                 <div id ="formMetadata">
                                     <div id ="editor_holder"></div>
                                     <br>
-                                    <button id="saveForm" class="btn btn-primary" disabled>Save</button><span id='valid_indicator'></span>
+                                    <button id="sendForm" class="btn btn-primary" disabled>Send</button><span id='valid_indicator'></span>
                                     <br>
                                     <p class="errorClass" id="idP" style="display:none;"></p>
                                     
@@ -254,3 +250,11 @@ require "../../htmlib/js.inc.php";
 }
 
 </style>
+
+<?php
+   $files = $_REQUEST['files'];
+?>
+
+<script type="text/javascript">
+    var files = '<?php echo $files;?>'
+</script>

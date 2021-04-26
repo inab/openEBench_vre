@@ -1,3 +1,136 @@
+var valid = false;
+
+
+
+$(document).ready(function() {
+	//files
+	var filesObj =  JSON.parse(files)[0]
+
+	//get schema
+    $.getJSON(oeb_submission_schema, function(data) {
+        schema = data;
+    }).done(function() {
+
+		//create jsonEditor obj
+        editor = new JSONEditor(document.getElementById("editor_holder"),{
+            theme: 'bootstrap4',
+            ajax: true,
+            schema: schema,
+  
+            //do not have collapse, edit and properties options in the editor (are specific things of the web-based tool - JSONEditor)
+            disable_collapse: true,
+            disable_edit_json: true,
+            disable_properties: true
+        });
+
+
+		$.ajax({
+			type: 'POST',
+			url: "applib/oeb_publishAPI.php?action=getFileInfo",
+			data: {"files" : filesObj["id"]}
+
+		}).done(function(data) {
+			var fileinfo = JSON.parse(data)
+			console.log(fileinfo);
+			
+			$.ajax({
+				type: 'POST',
+				url: "applib/oeb_publishAPI.php?action=getOEBdata",
+				data: {"benchmarkingEvent" : filesObj["benchmarkingEvent_id"]}
+	
+			}).done(function(data) {
+				var OEBinfo = JSON.parse(data);
+
+
+			//set values 
+			$('.je-object__title label').html("<b>Edit metadata for file " +fileinfo["path"].split("/").pop() +"</b>");
+			
+			editor.getEditor("root.consolidated_oeb_data").setValue(fileinfo['path']);
+			if (fileinfo['data_type'] == "OEB_data_model") {
+				editor.getEditor("root.type").setValue("workflow_results"); //type of dataset
+			} else editor.getEditor("root.type").setValue(fileinfo['data_type']);
+			editor.getEditor("root.benchmarking_event_id").setValue(filesObj["benchmarkingEvent_id"]); 
+			editor.getEditor("root.participant_file").setValue(fileinfo['fileSource_path']); //Path participant file
+			editor.getEditor("root.community_id").setValue(OEBinfo['community_id']);
+			editor.getEditor("root.tool_id").setValue(fileinfo['tool']); //participant tool id
+			editor.getEditor("root.workflow_oeb_id").setValue(OEBinfo['oeb_workflow']);
+
+			//css
+			$('label[class="required"]').append('<span style="color:red;"> *</span>')
+
+		});
+		$("#loading-datatable").hide();
+		editor.on('change',function() {
+			// Validate the editor's current value against the schema
+			var errors = editor.validate();
+
+			if(errors.length) {
+			// errors is an array of objects, each with a `path`, `property`, and `message` parameter
+			// `property` is the schema keyword that triggered the validation error (e.g. "minLength")
+			// `path` is a dot separated path into the JSON object (e.g. "root.path.to.field")
+			console.log(errors);
+			}
+			else {
+			// It's valid!, enable de button
+			valid = true;
+			$('#sendForm').prop('disabled', false);
+
+
+        	}
+    	})
+
+    });
+	});
+
+
+	$('#sendForm').on("click",function() {
+		if(valid){
+			var formData = JSON.stringify(editor.getValue());
+			$("#formMetadata").hide();
+			$("#loading-datatable").show();
+			$.ajax({
+				type: 'POST',
+				url: "applib/oeb_publishAPI.php?action=requestPublish",
+				data: {"fileId" : filesObj["id"], "metadata": formData}
+			}).done (function(data) {
+				$("#loading-datatable").hide();
+				$("#step3").addClass("active");
+				$("#result").html("<h4><b>Data successfully request!</b></h4>\
+				<p style=\"font-size:1.1em;\">Nexcloud URLs: <br><pre>"+data+"</pre><br/>"+timeStamp()+"</p><br>");
+                $("#result").show();
+				console.log(data);
+
+			})
+
+		}
+	})
+})
+
+
+
+/**
+ * timeStamp function. Gets the current day and time with readeable format
+ * @listens none
+ * @param none
+ * @return {string} - the timestamp
+ */
+function timeStamp() {
+	var currentdate = new Date(); 
+	return datetime = "Time: " + currentdate.getDate() + "/"
+				+ (currentdate.getMonth()+1)  + "/" 
+				+ currentdate.getFullYear() + " @ "  
+				+ currentdate.getHours() + ":"  
+				+ currentdate.getMinutes() + ":" 
+				+ currentdate.getSeconds();
+  };
+  
+  
+  
+
+
+
+
+
 /*
 //save form data: array of objects forms
 var dataForms = new Array();
@@ -43,7 +176,7 @@ Also adds support for setting "placeholder" through options.
 */
 
 
-
+/*
 var roadEngine = new Bloodhound({
 	datumTokenizer: Bloodhound.tokenizers.obj.whitespace("_id"),
 	queryTokenizer: Bloodhound.tokenizers.whitespace,
@@ -302,12 +435,4 @@ function openForm(fileId, filename, benchmarking_event) {
     })
 })
 }
-
-$('#saveForm').on("click",function() {
-    var formData = editor.getValue()
-    dataForms.push(formData); 
-    console.log(dataForms);
-})
-
-function submitForms(){
-}
+*/

@@ -152,7 +152,7 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                                     <br>
                                     <table id="communityTable" class="table table-striped table-hover table-bordered" width="100%"></table>
                                 </div>
-                                <button type="button" class=" btn green" id="btn-selected-files" onclick="submitFiles(event);return false;" style="margin-top:20px;">Next</button>
+                                <button  disabled type="button" class=" btn green" id="btn-selected-files" onclick="submitFiles(event);return false;" style="margin-top:20px;">Next</button>
 
                             </div>
                         </div>
