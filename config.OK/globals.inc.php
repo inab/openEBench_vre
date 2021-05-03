@@ -18,9 +18,6 @@ $GLOBALS['mail_credentials'] = __DIR__."/mail.conf"; // SMTP credentials
 $GLOBALS['FROMNAME']  = "OpEB VRE Dev"; // 'From' for VRE tickets and notifications
 $GLOBALS['ADMINMAIL'] = "openebench@bsc.es"; // BBC address for VRE ticket emails
 
-//OEB-API
-$GLOBALS['OEBapi_credentials'] = __DIR__."/oeb_api.conf"; 
-
 // SGE
 $GLOBALS['queueTask']  = "local.q"; //default queue
 

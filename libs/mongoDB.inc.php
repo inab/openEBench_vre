@@ -1281,3 +1281,16 @@ function insertAttrInReqRegister ($id, $metadata){
 	return 1;
 
 }
+
+//find a register 
+function getPubRegister_fromId ($rgId) {
+	$col = $GLOBALS['pubRegistersCol']; 
+	$pub_register = $col->findOne(array('_id' => $rgId));
+	
+	if (empty($pub_register)){
+		return 0;
+	}else{
+		return $pub_register;
+	}
+}
+

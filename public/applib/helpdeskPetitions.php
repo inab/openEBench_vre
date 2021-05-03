@@ -15,7 +15,7 @@ if($_REQUEST) {
         if (isset($_REQUEST['communityId'])) {
             $community_id = $_REQUEST['communityId'];
             //associative array of all approvers (id - email):
-            $approversContacts = getContactEmail (getBenchmarkingContactsIds('OEBC004'));
+            $approversContacts = getContactEmail (getCommunities('OEBC004', 'community_contact_ids'));
             foreach ($approversContacts as $key => $value) {
                 sendRequestToApprover("meritxell.ferret@bsc.es", $_SESSION['User']['id'], $fn);
             }

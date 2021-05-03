@@ -46,9 +46,7 @@ $(document).ready(function() {
 			$('.je-object__title label').html("<b>Edit metadata for file " +fileinfo["path"].split("/").pop() +"</b>");
 			
 			editor.getEditor("root.consolidated_oeb_data").setValue(fileinfo['path']);
-			if (fileinfo['data_type'] == "OEB_data_model") {
-				editor.getEditor("root.type").setValue("workflow_results"); //type of dataset
-			} else editor.getEditor("root.type").setValue(fileinfo['data_type']);
+
 			editor.getEditor("root.benchmarking_event_id").setValue(filesObj["benchmarkingEvent_id"]); 
 			editor.getEditor("root.participant_file").setValue(fileinfo['fileSource_path']); //Path participant file
 			editor.getEditor("root.community_id").setValue(OEBinfo['community_id']);

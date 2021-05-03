@@ -19,7 +19,7 @@ function createTableRegisters(){
             dataSrc: ''
         },
         "columns" : [
-            {"data" : "id" }, //0
+            { "data" : "id" }, //0
             { "data" : "files" }, //1
             { "data" : "requester_name" }, //2
             { "data" : "status" }, //3
@@ -78,9 +78,9 @@ function createTableRegisters(){
                                 <i class="fa fa-angle-down"></i>\
                             </button>\
                             <ul class="dropdown-menu pull-right" role="menu">\
-                                <li><a href="javascript:actionTable2(\''+row['_id']+'\',\'approve\');"><i class="fa fa-check-circle" style = "color:#74b72e;"></i> Approve request</a></li>\
-                                <li><a href="javascript:actionTable2(\''+row['_id']+'\',\'deny\');"><i class="fa fa-times-circle" style = "color:#E00909;"></i> Deny request</a></li>\
-                                <li><a href="javascript:actionTable2(\''+row['_id']+'\',\'cancel\');"><i class="fa fa-times-circle" style = "color:#c0c0c0;"></i> Cancel request</a></li>\
+                                <li><a href="javascript:actionTable2(\''+row['id']+'\',\'approve\');"><i class="fa fa-check-circle" style = "color:#74b72e;"></i> Approve request</a></li>\
+                                <li><a href="javascript:actionTable2(\''+row['id']+'\',\'deny\');"><i class="fa fa-times-circle" style = "color:#E00909;"></i> Deny request</a></li>\
+                                <li><a href="javascript:actionTable2(\''+row['id']+'\',\'cancel\');"><i class="fa fa-times-circle" style = "color:#c0c0c0;"></i> Cancel request</a></li>\
                             </ul>\
                             </div>\
                             <div class="btn-group" style="float:left; position:absolute;margin-left:38px;">\

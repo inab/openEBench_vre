@@ -120,7 +120,7 @@ function getPublishableFiles($datatype) {
 			$tool = getTool_fromId($value['tool'],1);
 			if (isset($tool['community-specific_metadata']['benchmarking_event_id'])){
 				$value['benchmarking_event']['be_id'] = $tool['community-specific_metadata']['benchmarking_event_id'];
-				$value['benchmarking_event']['be_name'] = getBenchmarkingEventFromId($value['benchmarking_event']['be_id'],"name");
+				$value['benchmarking_event']['be_name'] = getBenchmarkingEvents($value['benchmarking_event']['be_id'],"name");
 			}else{
 				$value['benchmarking_event']=$value['tool'];
 			}
@@ -208,14 +208,40 @@ function submitedRegisters($filters) {
 
 /**
  * Manages user action of a submited request
- * @param id the file id 
+ * @param id the req id 
  * @param action the action to make
  * @return 1 if correctly updated in mongo, 0 otherwise. (updateReqRegister)
  */
 function actionRequest($id, $action, $msg){
         //approve
         if($action == 'approve'){
-                //TODO: upload to OEB and get oeb_id
+           //0. Input files
+           //create consolidated json in temp folder
+           $oeb_form = getPubRegister_fromId($id)['oeb_metadata'];
+           // build temporal directories
+	   $wd  = $GLOBALS['dataDir'].$_SESSION['User']['id']."/".$_SESSION['User']['activeProject']."/".$GLOBALS['tmpUser_dir']."oeb_form";
+           if (!is_dir($wd)){
+                mkdir($wd);
+	   }
+           
+           $r = file_put_contents($wd."/".$id.".json", json_encode($oeb_form));
+           if (!$r) {
+                $_SESSION['errorData']['Error'][]="Cannot write data form.";
+                //redirect($GLOBALS['BASEURL'].'workspace/'); 
+           }
+           var_dump( $wd);
+           //get token 
+           $tk = $_SESSION['User']['Token']['access_token'];
+           var_dump($tk);
+           //1. Execute script to buffer
+           //system("python ../../scripts/populate/publish.py)
+           //2. Execute migration to oeb database
+           //3. Get file from migration
+           //4. update VRE mongo: oeb-publication-registers and metadata files
+
+
+/*
+
                 //new action
                 $new_action = array(
                         "action" => "approve",
@@ -228,6 +254,7 @@ function actionRequest($id, $action, $msg){
                                 return 1;
                         }
                 }
+                */
 
         }
 

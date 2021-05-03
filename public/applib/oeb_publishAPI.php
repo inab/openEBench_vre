@@ -91,7 +91,7 @@ if($_REQUEST) {
 function getOEBdataFromBenchmarkingEvent ($BE_id) {
 	$block_json = '{}';
 	$result = array();
-	$result["community_id"] = getBenchmarkingEventFromId($BE_id, "community_id");
+	$result["community_id"] = getBenchmarkingEvents($BE_id, "community_id");
 
 	//TODO workflow oeb
 	$result["oeb_workflow"] = "OEBT0001234567";
@@ -129,7 +129,7 @@ function proceedRequest_register_NC($fileId, $metaForm, $type) {
 	
 	//2. Gets APPROVERS
 	//gets associative array with key: contact_id and value: email
-	$approversContacts = getContactEmail (getBenchmarkingContactsIds($community));
+	$approversContacts = getContactEmail (getCommunities($community, "community_contact_ids"));
 	$approversContactsIds = array();
 	foreach ($approversContacts as $key => $value) {
 		//sendRequestToApprover("meritxell.ferret@bsc.es", $_SESSION['User']['id'], $fn);
@@ -165,7 +165,7 @@ function proceedRequest_register_NC($fileId, $metaForm, $type) {
 		
 
 	//5. EDIT metadata: to paricipant (in case url is needed) and consolidated file in mongo
-	addMetadataBNS($fileId, array("nc_url" => $url_consolidated));
+	addMetadataBNS($fileId, array("nc_url" => $url_consolidated."/download"));
 	addMetadataBNS($participantFile_id, array("nc_url" => $url_participant));
 
 	//EDIT metadata form: add url nc to participant (in case not url) and consolidated

@@ -2,6 +2,7 @@
 //functions to manage nextcloud 
 
 
+
 /*************** SABREDAV *************** */
 
 use Sabre\DAV\Client;
@@ -55,15 +56,6 @@ function constructClient($nc_server){
     $baseUrl = "$nc_server/remote.php/dav/files/$username/";
 
     $settings = array('baseUri' => $baseUrl , 'userName' => $username , 'password' => $password);
-
-    /*
-    $settings = array(
-        'baseUri' => 'https://dev-openebench.bsc.es/nextcloud/remote.php/dav/files/oeb-9540f6e8-7abc-4a0e-8de4-402c1d0eadb8/',
-        'userName' => 'oeb-9540f6e8-7abc-4a0e-8de4-402c1d0eadb8',
-        'password' => 'oeb-vredev2021'
-    );
-    */
-
     $client = new Client($settings);
     
     return $client;
@@ -220,35 +212,43 @@ function addProperties($nc_server, $filePath, $propertiesToAdd ) {
         return true;
     }else return false;
 }
-
+//ini_set('display_errors', 1);
+//ini_set('display_startup_errors', 1);
+//error_reporting(E_ALL);
 /**
  * Shares a file
  * @param pathFile - path of the file to share
  * @return url of the shared file.
  */
-function getPublicLinkFile ($pathFile){  
+//var_dump(getPublicLinkFile("https://dev-openebench.bsc.es/nextcloud/", "test.md"));
+function getPublicLinkFile ($nc_server, $pathFile){  
+    $data = array('path' => $pathFile,'shareType' => '3');
+    $url = $nc_server."ocs/v1.php/apps/files_sharing/api/v1/shares";
 
-    $curl = curl_init();
+    //get credentials
+    $confFile = $GLOBALS['repositories']['nc'][$nc_server]['credentials']['conf_file'];
 
-    curl_setopt_array($curl, array(
-    CURLOPT_URL => 'https://dev-openebench.bsc.es/nextcloud/ocs/v1.php/apps/files_sharing/api/v1/shares',
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_ENCODING => '',
-    CURLOPT_MAXREDIRS => 10,
-    CURLOPT_TIMEOUT => 0,
-    CURLOPT_FOLLOWLOCATION => true,
-    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-    CURLOPT_CUSTOMREQUEST => 'POST',
-    CURLOPT_POSTFIELDS => array('path' => $pathFile,'shareType' => '3'),
-    CURLOPT_HTTPHEADER => array(
-        'OCS-APIRequest: true',
-        'Authorization: Basic b2ViLTk1NDBmNmU4LTdhYmMtNGEwZS04ZGU0LTQwMmMxZDBlYWRiODpvZWItdnJlZGV2MjAyMQ==',
-        'Cookie: cookie_test=test; nc_sameSiteCookielax=true; nc_sameSiteCookiestrict=true; oc_sessionPassphrase=ATHSgWgeiN4RyUQ9Da%2Fh58WyuNYYX8syQanY3z2MzDTIaGDttBZpnwwuTOLz0WKkzuwYTJwt8gHI%2BSfoEeoXmNsZZLGPNZWZ2JsuS3dHgvV0IjiHE8QIf2E2K0qhf2u6; ocb24avbi3lw=a1b64e69874ec93a121379d5842413ac'
-    ),
-    ));
+    // fetch nextcloud API credentials
+    $credentials = array();
+    if (($F = fopen($confFile, "r")) !== FALSE) {
+        while (($d = fgetcsv($F, 1000, ";")) !== FALSE) {
+            foreach ($d as $a){
+                //$r = explode(":",$a);
+                $r = preg_replace('/^.:/', "", $a);
+                if (isset($r)){array_push($credentials,$r);}
+            }
+        }
+        fclose($F);
+    }
+    $username = $credentials[0];
+    $password = $credentials[1];
 
-    $response = curl_exec($curl);
-    $result = new SimpleXMLElement($response);
+    $auth_basic["user"] = $username;
+    $auth_basic["pass"] = $password;
+    $headers= array("OCS-APIRequest: true");
+
+    $r = post($data, $url, $headers, $auth_basic);
+    $result = new SimpleXMLElement($r[0]);
 
     if ($result->meta->statuscode == 100){
         return $result->data->url->__toString();
@@ -256,9 +256,9 @@ function getPublicLinkFile ($pathFile){
         return false;
     }
    
-    curl_close($curl);
-
 }
+
+
 
 /*
 

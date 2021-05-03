@@ -8,11 +8,23 @@ $(document).ready(function() {
     //get user roles
     getRoles().done(function(r) {
         var roles = JSON.parse(r)
+        var be_selected = $("#beSelector").val();
         
-        //TODO: get number of communities
-        var communities = new Array("Quest for Orthologs", "TCGA", "CIBERER"); 
+        $('.titleBE').append(be_selected)
+        var dataSet = [];
 
-        createTable();
+        $('#publishedFiles').DataTable( {
+            data: dataSet,
+            "bFilter": false, 
+            "bPaginate": false,
+            "bInfo": false,
+            columns: [
+                { title: "Req_id" },
+                { title: "Files" },
+            ]
+        } );
+
+        createSelectableTable();
         
         //permisions depending on the role
         if (roles === null) {
@@ -54,12 +66,17 @@ $(document).ready(function() {
 
 /****FUNCTIONS****/
 
-function createTable(){
+function createSelectableTable(){
     table1 = $('#communityTable').DataTable( {
         "ajax": {
             url: 'applib/oeb_publishAPI.php?action=getAllFiles&type[]=OEB_data_model',
             dataSrc: ''
         },
+        "bFilter": false, 
+        "bPaginate": false,
+        //"bInfo": false,
+        "bLengthChange": false,
+        "bAutoWidth": true,
         
         "columns" : [
             {"data" : "_id"}, //0
@@ -168,9 +185,9 @@ function createTable(){
             },
             {
                 "targets": 8,
-                "title": '<th>OEB id  <i class="icon-question" data-toggle="tooltip" data-placement="top" title="Identifier of EUDAT/B2SHARE"></i></th>',
+                "title": '<th>Published on OEB <i class="icon-question" data-toggle="tooltip" data-placement="top" title="Identifier of EUDAT/B2SHARE"></i></th>',
                 render: function ( data, type, row ) {
-                        return ""
+                        return false
                     
                 }
             }
@@ -179,7 +196,6 @@ function createTable(){
         'order': [[1, 'asc']]
 
     });
-    
 }
 
 function showChallenges() {

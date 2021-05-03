@@ -1,4 +1,64 @@
 <?php
+// HTTP post
+function npost($data,$url,$headers=array(),$auth_basic=array()){
+
+  $c = curl_init();
+  curl_setopt($c, CURLOPT_URL, $url);
+  curl_setopt($c, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']);
+  curl_setopt($c, CURLOPT_POST, 1);
+  #curl_setopt($c, CURLOPT_TIMEOUT, 7);
+  curl_setopt($c, CURLOPT_CUSTOMREQUEST, "POST");
+  curl_setopt($c, CURLOPT_POSTFIELDS, $data);
+      curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
+      if (count($headers))
+          curl_setopt($c, CURLOPT_HTTPHEADER, $headers);
+      if ($auth_basic['user'] && $auth_basic['pass'])
+          curl_setopt($c, CURLOPT_USERPWD, $auth_basic['user'].":".$auth_basic['pass']);
+          
+  $r = curl_exec ($c);
+      $info = curl_getinfo($c);
+
+  if ($r === false){
+    $errno = curl_errno($c);
+    $msg = curl_strerror($errno);
+          $err = "POST call failed. Curl says: [$errno] $msg";
+      $_SESSION['errorData']['Error'][]=$err;	
+    return array(0,$info);
+  }
+  curl_close($c);
+
+  return array($r,$info);
+}
+
+// HTTP get
+function nget($url,$headers=array(),$auth_basic=array()){
+
+$c = curl_init();
+      curl_setopt($c, CURLOPT_URL, $url);
+      curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
+if (isset($_SERVER['HTTP_USER_AGENT'])){
+  curl_setopt($c, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']);
+}
+if (count($headers)){
+  curl_setopt($c, CURLOPT_HTTPHEADER, $headers);
+}
+if (isset($auth_basic['user']) && isset($auth_basic['pass'])){
+  curl_setopt($c, CURLOPT_USERPWD, $auth_basic['user'].":".$auth_basic['pass']);
+}
+$r = curl_exec ($c);
+$info = curl_getinfo($c);
+
+if ($r === false){
+  $errno = curl_errno($c);
+  $msg = curl_strerror($errno);
+    $err = "GET call failed. Curl says: [$errno] $msg";
+     $_SESSION['errorData']['Error'][]=$err;	
+    return array(0,$info);
+}
+curl_close($c);
+
+return array($r,$info);
+}
 
 
 /**
@@ -8,48 +68,26 @@
  * @return community/ies (json format). If an error ocurs it return false.
  */
 function getCommunities($community_id = null, $filter_field = null ){
-  
 
   if ($community_id == null) {
-    $url = $GLOBALS['OEB_scirestapi']."/Community";
-
+      $url = $GLOBALS['OEB_scirestapi']."/Community";
   } else {
     if ($filter_field == null) {
       $url = $GLOBALS['OEB_scirestapi']."/Community/".$community_id;
     } else {
       $url = $GLOBALS['OEB_scirestapi']."/Community/".$community_id."/".$filter_field;
     }
-    
   }
 
-  $curl = curl_init();
+  $headers= array('Accept: aplication/json');
 
-  curl_setopt_array($curl, array(
-    CURLOPT_URL => $url,
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_ENCODING => '',
-    CURLOPT_MAXREDIRS => 10,
-    CURLOPT_TIMEOUT => 0,
-    CURLOPT_FOLLOWLOCATION => true,
-    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-    CURLOPT_CUSTOMREQUEST => 'GET',
-    CURLOPT_HTTPHEADER => array(
-      'Accept: aplication/json'
-    ),
-  ));
-
-  $response = curl_exec($curl);
-  $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-
-  if ($status!= 200) {
+  $r = nget($url, $headers);
+  if ($r[1]['http_code'] != 200){
     $_SESSION['errorData']['Warning'][]="Error getting datasets. Http code= ".$status;
     return false;
   } else {
-     return json_decode($response, true);
+    return json_decode($r[0], true);
   }
-
-  curl_close($curl);
-
 }
 
 
@@ -59,6 +97,7 @@ function getCommunities($community_id = null, $filter_field = null ){
  * @param $filter_field, the attribute of the given dataset
  * @return dataset/s (json format). If an error ocurs it return false.
  */
+//var_dump(getDatasets("OEBD0010000003"));
 function getDatasets($dataset_id = null, $filter_field = null ){
   //$GLOBALS['OEB_scirestapi'] = 'https://openebench.bsc.es/api/scientific/access';
   if ($dataset_id == null) {
@@ -69,153 +108,93 @@ function getDatasets($dataset_id = null, $filter_field = null ){
       $url = $GLOBALS['OEB_scirestapi']."/Dataset/".$dataset_id;
     } else {
       $url = $GLOBALS['OEB_scirestapi']."/Dataset/".$dataset_id."/".$filter_field;
-    }
-    
+    } 
   }
 
-  
-  $curl = curl_init();
+  $headers= array('Accept: aplication/json');
 
-  curl_setopt_array($curl, array(
-    CURLOPT_URL => $url,
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_ENCODING => '',
-    CURLOPT_MAXREDIRS => 10,
-    CURLOPT_TIMEOUT => 0,
-    CURLOPT_FOLLOWLOCATION => true,
-    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-    CURLOPT_CUSTOMREQUEST => 'GET',
-    CURLOPT_HTTPHEADER => array(
-      'Accept: application/json'
-    ),
-  ));
-
-  $response = curl_exec($curl);
-  $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-
-  if ($status!= 200) {
+  $r = nget($url, $headers);
+  if ($r[1]['http_code'] != 200){
     $_SESSION['errorData']['Warning'][]="Error getting datasets. Http code= ".$status;
     return false;
   } else {
-     return json_decode($response, true);
-     
+    return json_decode($r[0], true);
+  }
+}
+/** 
+ * Gets all challenges with their info or an specific challenge filtered or not
+ * @param $challenge_id, the id of the challenge to find
+ * @param $filter_field, the attribute of the given challenge
+ * @return challenge/s (json format). If an error ocurs it return false.
+ */
+//var_dump(getChallenges("OEBX0010000001", "benchmarking_event_id"));
+function getChallenges ($challenge_id = null, $filter_field = null ){
+  if ($challenge_id == null) {
+    $url = $GLOBALS['OEB_scirestapi']."/Challenge";
+
+  } else {
+    if ($filter_field == null) {
+      $url = $GLOBALS['OEB_scirestapi']."/Challenge/".$challenge_id;
+    } else {
+      $url = $GLOBALS['OEB_scirestapi']."/Challenge/".$challenge_id."/".$filter_field;
+    } 
+  }
+  $headers= array('Accept: aplication/json');
+
+  $r = nget($url, $headers);
+  if ($r[1]['http_code'] != 200){
+    $_SESSION['errorData']['Warning'][]="Error getting challenges. Http code= ".$status;
+    return false;
+  } else {
+    return json_decode($r[0], true);
   }
 
-  curl_close($curl);
+}
+/** 
+ * Gets all benchmarking events with their info or an specific benchmark filtered or not
+ * @param $benchmarkingEvent_id, the id of the benchmark to find
+ * @param $filter_field, the attribute of the given challenge
+ * @return benchmark/s (json format). If an error ocurs it return false.
+ */
+//var_dump(getBenchmarkingEvents("OEBE0010000000", "community_id"));
+function getBenchmarkingEvents ($benchmarkingEvent_id = null, $filter_field = null ){
+
+  if ($benchmarkingEvent_id == null) {
+    $url = $GLOBALS['OEB_scirestapi']."/BenchmarkingEvent";
+
+  } else {
+    if ($filter_field == null) {
+      $url = $GLOBALS['OEB_scirestapi']."/BenchmarkingEvent/".$benchmarkingEvent_id;
+    } else {
+      $url = $GLOBALS['OEB_scirestapi']."/BenchmarkingEvent/".$benchmarkingEvent_id."/".$filter_field;
+    } 
+  }
+  $headers= array('Accept: aplication/json');
+
+  $r = nget($url, $headers);
+  if ($r[1]['http_code'] != 200){
+    $_SESSION['errorData']['Warning'][]="Error getting benchmarkings events. Http code= ".$status;
+    return false;
+  } else {
+    return json_decode($r[0], true);
+  }
 
 }
-
-
 
 /**
  * Get community id
  * @param challenge_id
  * @return the community id from the given challenge or false if an error occur.
  */
+//var_dump(getCommunityFromChallenge("OEBX0010000001"));
 function getCommunityFromChallenge($challenge_id){
 
   //1. Get benchmarking event id from challenge collection
+  $be = getChallenges($challenge_id, "benchmarking_event_id");
 
-  $curl = curl_init();
-
-  curl_setopt_array($curl, array(
-    CURLOPT_URL => $GLOBALS['OEB_scirestapi'].'/Challenge/'.$challenge_id.'/benchmarking_event_id',
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_ENCODING => '',
-    CURLOPT_MAXREDIRS => 10,
-    CURLOPT_TIMEOUT => 0,
-    CURLOPT_FOLLOWLOCATION => true,
-    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-    CURLOPT_CUSTOMREQUEST => 'GET'
-  ));
-
-  $response = curl_exec($curl);
-  $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-
-  if ($status!= 200) {
-    $_SESSION['errorData']['Warning'][]="Error getting benchmnarking id. Http code= ".$status;
-    return false;
-  } else {
-    $response = substr($response,1,-1);
-    
-    //2. Get community id from the benchmarking event id
-    $c = curl_init();
-
-    curl_setopt_array($c, array(
-      CURLOPT_URL => $GLOBALS['OEB_scirestapi'].'/BenchmarkingEvent/'.$response.'/community_id',
-      CURLOPT_RETURNTRANSFER => true,
-      CURLOPT_ENCODING => '',
-      CURLOPT_MAXREDIRS => 10,
-      CURLOPT_TIMEOUT => 0,
-      CURLOPT_FOLLOWLOCATION => true,
-      CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-      CURLOPT_CUSTOMREQUEST => 'GET',
-      CURLOPT_HTTPHEADER => array(
-        'Accept: application/json'
-      ),
-    ));
-    
-    $r = curl_exec($c);
-    $s = curl_getinfo($c, CURLINFO_HTTP_CODE);
-
-    if ($s!= 200) {
-      $_SESSION['errorData']['Warning'][]="Error getting community id. Http code= ".$status;
-      return false;
-    } else {
-      $r= substr($r,1,-1);
-      return $r;
-    }
-  }
-
-  curl_close($curl);
-  curl_close($c);
+  //2. Get community id from the benchmarking event id
+  return getBenchmarkingEvents($be,"community_id");
 }
-
-/**
- * Get benchmarking event from ID
- * @param benchmarking_event_id, OEB Identifier
- * @param $filter_field, a single attribute of benchmarking_event to be returned
- * @return the full benchmarking event document, or the particular attribute specified by 'filter_field'
- */
-
-function getBenchmarkingEventFromId($benchmarking_event_id,$filter_field = null){
-
-    // build URL	
-    $URL = $GLOBALS['OEB_scirestapi'].'/BenchmarkingEvent/'.$benchmarking_event_id;
-    if (isset($filter_field) && is_string($filter_field)){
-	    $URL.="/$filter_field";
-    }
-    // do HTTP Request
-    $c = curl_init();
-    curl_setopt_array($c, array(
-      CURLOPT_URL => $URL,
-      CURLOPT_RETURNTRANSFER => true,
-      CURLOPT_ENCODING => '',
-      CURLOPT_MAXREDIRS => 10,
-      CURLOPT_TIMEOUT => 0,
-      CURLOPT_FOLLOWLOCATION => true,
-      CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-      CURLOPT_CUSTOMREQUEST => 'GET',
-      CURLOPT_HTTPHEADER => array(
-        'Accept: application/json'
-      ),
-    ));
-    
-    $r = curl_exec($c);
-    $s = curl_getinfo($c, CURLINFO_HTTP_CODE);
-
-    // convert from JSON response to PHP HASH/ARRAY/STRING
-    $r = json_decode($r,true);
-
-    if ($s!= 200) {
-      $_SESSION['errorData']['Warning'][]="Error retrieving benchmarking event for id='$benchmarking_event_id' from OEB. Http code= ".$status;
-      return false;
-    } else {
-      return $r;
-    }
-    curl_close($c);
-}
-
 
 /**
  * Get the communities the user have permisions to submit files
@@ -251,163 +230,77 @@ function getCommunitiesFromRoles (array $roles) {
  * @param community id to search
  * @return array of challege/s obj. If an error ocurs it return false.
  */
+//var_dump(getChallengesFromACommunity("OEBC002"));
 function getChallengesFromACommunity ($community_id) {
   //1. Get benchmarking event collection
+  $response = getBenchmarkingEvents();
+  $benchmarkId = array();
+  foreach ($response as $e) {
+    if ($e["community_id"] == $community_id){
+      array_push($benchmarkId, $e['_id']);
+    }
+  }
 
-  $curl = curl_init();
-
-  curl_setopt_array($curl, array(
-    CURLOPT_URL => $GLOBALS['OEB_scirestapi'].'/BenchmarkingEvent',
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_ENCODING => '',
-    CURLOPT_MAXREDIRS => 10,
-    CURLOPT_TIMEOUT => 0,
-    CURLOPT_FOLLOWLOCATION => true,
-    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-    CURLOPT_CUSTOMREQUEST => 'GET',
-    CURLOPT_HTTPHEADER => array(
-      'Accept: application/json'
-    ),
-  ));
-  $response = curl_exec($curl);
-  $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-
-  if ($status!= 200) {
-    $_SESSION['errorData']['Warning'][]="Error getting benchmnarking event collection. Http code= ".$status;
-    return false;
-  } else {
-    $response = json_decode($response, true);
-    $benchmarkId = array();
-    foreach ($response as $e) {
-      if ($e["community_id"] == $community_id){
-        array_push($benchmarkId, $e['_id']);
+  //2. Get challenge collection
+  $r = getChallenges();
+  $challengeList = array();
+  foreach ($r as $c) {
+    for ($i=0; $i < count($benchmarkId) ; $i++) { 
+      if ($c["benchmarking_event_id"] == $benchmarkId[$i]){
+        array_push($challengeList, $c);
       }
     }
-
-    //2. Get challenge collection
-    $c = curl_init();
-
-    curl_setopt_array($c, array(
-      CURLOPT_URL => $GLOBALS['OEB_scirestapi'].'/Challenge',
-      CURLOPT_RETURNTRANSFER => true,
-      CURLOPT_ENCODING => '',
-      CURLOPT_MAXREDIRS => 10,
-      CURLOPT_TIMEOUT => 0,
-      CURLOPT_FOLLOWLOCATION => true,
-      CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-      CURLOPT_CUSTOMREQUEST => 'GET',
-      CURLOPT_HTTPHEADER => array(
-        'Accept: application/json'
-      ),
-    ));
-
-    $r = curl_exec($c);
-    $s = curl_getinfo($c, CURLINFO_HTTP_CODE);
-
-    if ($s!= 200) {
-      $_SESSION['errorData']['Warning'][]="Error getting challenge collection. Http code= ".$status;
-      return false;
-    } else {
-      $r= json_decode($r, true);
-      $challengeList = array();
-      foreach ($r as $c) {
-        for ($i=0; $i < count($benchmarkId) ; $i++) { 
-          if ($c["benchmarking_event_id"] == $benchmarkId[$i]){
-            array_push($challengeList, $c);
-          }
-        }
-        
-      }
-      return json_encode($challengeList);
-
-    } 
   }
-  curl_close($curl);
-  curl_close($c);
+  return json_encode($challengeList);
 
 }
 
 
 /**
- * Gets benchmarking events manager contacts ids
- * @param community_id to look for contacts
- * @return array of contacts ids. If an error ocurs it return false.
- */
-//var_dump(getBenchmarkingContactsIds("OEBC002"));
-function getBenchmarkingContactsIds ($community_id) {
-  //1. Get benchmarking contacts ids of a community
-
-  $curl = curl_init();
-
-  curl_setopt_array($curl, array(
-    CURLOPT_URL => 'https://openebench.bsc.es/api/scientific/access/Community/'.$community_id.'/community_contact_ids',
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_ENCODING => '',
-    CURLOPT_MAXREDIRS => 10,
-    CURLOPT_TIMEOUT => 0,
-    CURLOPT_FOLLOWLOCATION => true,
-    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-    CURLOPT_CUSTOMREQUEST => 'GET',
-    CURLOPT_HTTPHEADER => array(
-      'Accept: application/json'
-    ),
-  ));
-
-  $response = curl_exec($curl);
-  $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-
-  if ($status!= 200) {
-    $_SESSION['errorData']['Warning'][]="Error getting benchmnarking contacts. Http code= ".$status;
-    return false;
-  } else {
-    return json_decode($response, true);
-  }
-
-  curl_close($curl);
-
-}
-
-/**
- * Gets the email of the contacts
+ * Gets the email of the contacts (NEED authentification!!!)
  * @param array of contacts ids
  * @return associative array of each contacts id and their emails. If an error ocurs it return false.
  */
-//var_dump(getContactEmail(array("Javier.Garrayo")));
+//var_dump(getContactEmail(array("Meritxell.Ferret")));
 function getContactEmail ($contacts_ids) {
+  //get credentials
+  $confFile = $GLOBALS['OEBapi_credentials'];
+
+  // fetch nextcloud API credentials
+  $credentials = array();
+  if (($F = fopen($confFile, "r")) !== FALSE) {
+      while (($d = fgetcsv($F, 1000, ";")) !== FALSE) {
+          foreach ($d as $a){
+              //$r = explode(":",$a);
+              $r = preg_replace('/^.:/', "", $a);
+              if (isset($r)){array_push($credentials,$r);}
+          }
+      }
+      fclose($F);
+  }
+  $username = $credentials[0];
+  $password = $credentials[1];
+
+  $auth_basic["user"] = $username;
+  $auth_basic["pass"] = $password;
+  $headers= array('Accept: aplication/json');
 
   $contacts_emails = array();
 
   foreach ($contacts_ids as $value) {
-    $curl = curl_init();
+    $url = $GLOBALS['OEB_scirestapi']."/Contact/".$value.'/email';
 
-    curl_setopt_array($curl, array(
-      CURLOPT_URL => 'https://openebench.bsc.es/api/scientific/access/Contact/'.$value.'/email',
-      CURLOPT_RETURNTRANSFER => true,
-      CURLOPT_ENCODING => '',
-      CURLOPT_MAXREDIRS => 10,
-      CURLOPT_TIMEOUT => 0,
-      CURLOPT_FOLLOWLOCATION => true,
-      CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-      CURLOPT_CUSTOMREQUEST => 'GET',
-      CURLOPT_HTTPHEADER => array(
-        'Accept: application/json'
-      ),
-    ));
+    $r = nget($url, $headers, $auth_basic);
 
-    $response = curl_exec($curl);
-    $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-    if ($status!= 200) {
-      $_SESSION['errorData']['Warning'][]="Error getting email of ".$value.". Http code= ".$status;
+    if ($r[1]['http_code'] != 200){
+      $_SESSION['errorData']['Warning'][]="Error getting contacts emails. Http code= ".$status;
       $contacts_emails[$value] = 0;
-
     } else {
-      var_dump("hola");
-      $contacts_emails[$value] = $response;
-
+      $contacts_emails[$value] = json_decode($r[0], true);
     }
-    curl_close($curl);
   }
   return $contacts_emails;
+   
 
 }
 
@@ -418,6 +311,7 @@ function getContactEmail ($contacts_ids) {
  * @param community to search
  * @return array with contacts ids
  */
+//var_dump(getAllContactsOfCommunity("OEBC002"));
 function getAllContactsOfCommunity ($community_id){
 
   $curl = curl_init();
@@ -467,6 +361,7 @@ function getAllContactsOfCommunity ($community_id){
  * Gets participant tools ids given a community_id
  * @return json with tools ids and names
  */
+//var_dump(getTools());
 function getTools () {
  
     $curl = curl_init();

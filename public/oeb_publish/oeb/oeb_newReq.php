@@ -21,9 +21,18 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
     $communityList = array("Filter files by community");
 }
 
+$benchmarkingEvents_participated = array();
+$outputExe_files = json_decode(getPublishableFiles("OEB_data_model"), true);
+array_push($benchmarkingEvents_participated, $outputExe_files[0]['benchmarking_event']);
 
-
-
+foreach ($outputExe_files as $key => $value) {
+    //not include if already exists
+    for ($i=0; $i < count($benchmarkingEvents_participated); $i++) { 
+        if($benchmarkingEvents_participated[$i]['be_id'] != $value['benchmarking_event']["be_id"]){
+            array_push($benchmarkingEvents_participated, $value['benchmarking_event']);
+        }
+    }
+}
 ?>
 
 <body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white page-container-bg-solid page-sidebar-fixed">
@@ -124,7 +133,7 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                             </div>
                             <!--only communities you are allowed to submit will be apperar-->
                             <div class="portlet-body">
-                            <!--<button type="submit"><a href="javascript:submit2();"> Submit selected files </a></button>-->
+                            <!--<button type="submit"><a href="javascript:submit2();"> Submit selected files </a></button>
                             
                                 <div class="input-group" style="margin-bottom:20px;">
 									<span class="input-group-addon" style="background:#5e738b;"><i class="fa fa-users font-white"></i></span>
@@ -133,6 +142,16 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
 										<?php 
                                         foreach ($communityList as $cl) { ?>
 										    <option value="<?php echo $cl ?>" <?php if ($_REQUEST["community"] == $cl) echo 'selected'; ?>><?php echo getCommunities($cl, "name"); ?></option>
+										<?php } ?>
+									</select>
+								</div>-->
+                                <div class="input-group" style="margin-bottom:20px;">
+									<span class="input-group-addon" style="background:#5e738b;"><i class="fa fa-users font-white"></i></span>
+									<select id="beSelector" class="form-control" style="width:100%;" >
+										
+										<?php 
+                                        foreach ($benchmarkingEvents_participated as $k => $v) { ?>
+										    <option value="<?php echo $v['be_id'] ?>"><?php echo $v['be_name'] ?></option>
 										<?php } ?>
 									</select>
 								</div>
@@ -146,10 +165,18 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
 									</div>
 							    </div>
                                 -->
+                                <br>
+                                <br>
+                                <h3 class="titleBE">PUBLISHED FILES ON OPENEBENCH FOR BENCHMARKING </h3>
+                                <div id = "tablePublishedFiles">
                                 
+                                    <table id="publishedFiles" class="table table-striped table-hover table-bordered" width="100%"></table>
+                                </div>
+                                <br>
+                                <br>
+                                <h3>FILES AVAILABLE TO BE PUBLISHED</h3>
                                 <div id ="tableMyFiles" >
-                                    <br>
-                                    <br>
+                                   
                                     <table id="communityTable" class="table table-striped table-hover table-bordered" width="100%"></table>
                                 </div>
                                 <button  disabled type="button" class=" btn green" id="btn-selected-files" onclick="submitFiles(event);return false;" style="margin-top:20px;">Next</button>
@@ -160,6 +187,7 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                 </div>
                 <!-- END SELECT AND TABLE  PORTLET -->
                 <!-- BEGIN LIST TO MANAGE FILES -->
+                
                 <div class="row">
 					<div class="col-md-12 col-sm-12">
 						<div class="portlet light bordered">
@@ -202,6 +230,7 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
 						</div>
 					</div>
 				</div>
+                
                 
                 <!-- END LIST TO MANAGE FILES -->
                 <!-- Modal -->
