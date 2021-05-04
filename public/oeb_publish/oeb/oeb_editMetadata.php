@@ -24,6 +24,9 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
 
 ?>
 
+
+<script src="https://unpkg.com/@trevoreyre/autocomplete-js"></script>
+<link rel="stylesheet" href="https://unpkg.com/@trevoreyre/autocomplete-js/dist/style.css"/>
 <body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white page-container-bg-solid page-sidebar-fixed">
     <div class="page-wrapper">
         <input type="hidden" id="base-url" value="<?php echo $GLOBALS['BASEURL']; ?>" />
@@ -155,6 +158,7 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                                     
                                     
                                 </div>
+                            
  				                <div id="result" style="display:none; margin-top:20px;" class="alert alert-info"></div>
                             </div>
                         </div>  

@@ -81,6 +81,13 @@ if($_REQUEST) {
 	}elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == "getTools") {
 		echo getTools();
 		exit; 
+	//https://dev-openebench.bsc.es/vre/applib/oeb_publishAPI.php?action=getContacts&community_id=id	
+	}elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == "getContacts") {
+		if (isset($_REQUEST['community_id'])) {
+			echo getAllContactsOfCommunity($_REQUEST['community_id']);
+			exit;
+		}
+		
 		
 	}
 } else {

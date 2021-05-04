@@ -1,15 +1,29 @@
 var valid = false;
 
-
-
 $(document).ready(function() {
 	//files
 	var filesObj =  JSON.parse(files)[0]
+
+	$.ajax({
+		type: 'POST',
+		url: "applib/oeb_publishAPI.php?action=getFileInfo",
+		data: {"files" : filesObj["id"]}
+
+	}).done(function(data) {
+		var fileinfo = JSON.parse(data);
+		$.ajax({
+			type: 'POST',
+			url: "applib/oeb_publishAPI.php?action=getOEBdata",
+			data: {"benchmarkingEvent" : filesObj["benchmarkingEvent_id"]}
+
+		}).done(function(data) {
+			var OEBinfo = JSON.parse(data);
 
 	//get schema
     $.getJSON(oeb_submission_schema, function(data) {
         schema = data;
     }).done(function() {
+
 
 		//create jsonEditor obj
         editor = new JSONEditor(document.getElementById("editor_holder"),{
@@ -22,24 +36,92 @@ $(document).ready(function() {
             disable_edit_json: true,
             disable_properties: true
         });
-
-
-		$.ajax({
-			type: 'POST',
-			url: "applib/oeb_publishAPI.php?action=getFileInfo",
-			data: {"files" : filesObj["id"]}
-
-		}).done(function(data) {
-			var fileinfo = JSON.parse(data)
-			console.log(fileinfo);
-			
-			$.ajax({
-				type: 'POST',
-				url: "applib/oeb_publishAPI.php?action=getOEBdata",
-				data: {"benchmarkingEvent" : filesObj["benchmarkingEvent_id"]}
+		window.JSONEditor.defaults.callbacks = {
+			"autocomplete": {
+				// This is callback functions for the "autocomplete" editor
+				// In the schema you refer to the callback function by key
+				// Note: 1st parameter in callback is ALWAYS a reference to the current editor.
+				// So you need to add a variable to the callback to hold this (like the
+				// "jseditor_editor" variable in the examples below.)
+		
+				// Setup API calls
+				//1. Tools list
+				"search_za": function search(jseditor_editor, input) {
+					var url = 'https://dev-openebench.bsc.es/vre/applib/oeb_publishAPI.php?action=getTools';
+		
+					return new Promise(function (resolve) {
+						if (input.length < 1) {
+							return resolve([]);
+						}
+		
+						fetch(url).then(function (response) {
+							return response.json();
+						}).then(function (data) {
+							var r = data.filter(tool => {
+								let nameValid = false;
 	
-			}).done(function(data) {
-				var OEBinfo = JSON.parse(data);
+								if(input && input!=""){
+									if(tool.name.toLowerCase().indexOf(input.toLowerCase())!=-1){
+									  nameValid=true;
+									}
+								  }else{
+									nameValid=true;
+								  }
+								  return nameValid
+								})
+								
+							resolve(r);
+						});
+					});
+				},
+				"renderResult_za": function(jseditor_editor, result, props) {
+					return ['<li ' + props + '>',
+						'<div class="eiao-object-snippet">' +result.name + ' <small>' + result._id + '<small></div>',
+						'</li>'].join('');
+				},
+				"getResultValue_za": function getResultValue(jseditor_editor, result) {
+					return result._id;
+				},
+
+				//2. Contacts list
+				"search_zza": function search(contacts_editor, input) {
+					var url = 'https://dev-openebench.bsc.es/vre/applib/oeb_publishAPI.php?action=getContacts&community_id='+OEBinfo['community_id'];
+		
+					return new Promise(function (resolve) {
+						if (input.length < 1) {
+							return resolve([]);
+						}
+		
+						fetch(url).then(function (response) {
+							return response.json();
+						}).then(function (data) {
+							var c = data.filter(contact => {
+								let contactValid = false;
+	
+								if(input && input!=""){
+									if(contact._id.toLowerCase().indexOf(input.toLowerCase())!=-1){
+										contactValid=true;
+									}
+								  }else{
+									contactValid=true;
+								  }
+								  return contactValid
+								})
+								
+							resolve(c);
+						});
+					});
+				},
+				"renderResult_zza": function(contacts_editor, result, props) {
+					return ['<li ' + props + '>',
+						'<div class="eiao-object-snippet">' +result._id,
+						'</li>'].join('');
+				},
+				"getResultValue_zza": function getResultValue(contacts_editor, result) {
+					return result._id;
+				}
+			}
+		}
 
 
 			//set values 
@@ -50,13 +132,12 @@ $(document).ready(function() {
 			editor.getEditor("root.benchmarking_event_id").setValue(filesObj["benchmarkingEvent_id"]); 
 			editor.getEditor("root.participant_file").setValue(fileinfo['fileSource_path']); //Path participant file
 			editor.getEditor("root.community_id").setValue(OEBinfo['community_id']);
-			editor.getEditor("root.tool_id").setValue(fileinfo['tool']); //participant tool id
 			editor.getEditor("root.workflow_oeb_id").setValue(OEBinfo['oeb_workflow']);
 
 			//css
 			$('label[class="required"]').append('<span style="color:red;"> *</span>')
 
-		});
+		
 		$("#loading-datatable").hide();
 		editor.on('change',function() {
 			// Validate the editor's current value against the schema
@@ -76,6 +157,7 @@ $(document).ready(function() {
 
         	}
     	})
+	});
 
     });
 	});

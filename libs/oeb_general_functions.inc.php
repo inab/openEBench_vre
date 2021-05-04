@@ -347,7 +347,8 @@ function getAllContactsOfCommunity ($community_id){
     $_SESSION['errorData']['Warning'][]="Error getting contacts. Http code= ".$status;
     return false;
   } else {
-     return json_decode($response)->data->getContacts;
+     $items = json_decode($response)->data->getContacts;
+    return json_encode($items);
      
   }
 
