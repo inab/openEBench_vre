@@ -81,7 +81,7 @@ function getCommunities($community_id = null, $filter_field = null ){
 
   $headers= array('Accept: aplication/json');
 
-  $r = nget($url, $headers);
+  $r = get($url, $headers);
   if ($r[1]['http_code'] != 200){
     $_SESSION['errorData']['Warning'][]="Error getting datasets. Http code= ".$status;
     return false;
@@ -113,7 +113,7 @@ function getDatasets($dataset_id = null, $filter_field = null ){
 
   $headers= array('Accept: aplication/json');
 
-  $r = nget($url, $headers);
+  $r = get($url, $headers);
   if ($r[1]['http_code'] != 200){
     $_SESSION['errorData']['Warning'][]="Error getting datasets. Http code= ".$status;
     return false;
@@ -141,7 +141,7 @@ function getChallenges ($challenge_id = null, $filter_field = null ){
   }
   $headers= array('Accept: aplication/json');
 
-  $r = nget($url, $headers);
+  $r = get($url, $headers);
   if ($r[1]['http_code'] != 200){
     $_SESSION['errorData']['Warning'][]="Error getting challenges. Http code= ".$status;
     return false;
@@ -171,7 +171,7 @@ function getBenchmarkingEvents ($benchmarkingEvent_id = null, $filter_field = nu
   }
   $headers= array('Accept: aplication/json');
 
-  $r = nget($url, $headers);
+  $r = get($url, $headers);
   if ($r[1]['http_code'] != 200){
     $_SESSION['errorData']['Warning'][]="Error getting benchmarkings events. Http code= ".$status;
     return false;
@@ -290,7 +290,7 @@ function getContactEmail ($contacts_ids) {
   foreach ($contacts_ids as $value) {
     $url = $GLOBALS['OEB_scirestapi']."/Contact/".$value.'/email';
 
-    $r = nget($url, $headers, $auth_basic);
+    $r = get($url, $headers, $auth_basic);
 
     if ($r[1]['http_code'] != 200){
       $_SESSION['errorData']['Warning'][]="Error getting contacts emails. Http code= ".$status;
@@ -309,52 +309,30 @@ function getContactEmail ($contacts_ids) {
 /**
  * Gets all contacts id's given a community
  * @param community to search
- * @return array with contacts ids
+ * @return json with contacts ids
  */
 //var_dump(getAllContactsOfCommunity("OEBC002"));
 function getAllContactsOfCommunity ($community_id){
 
-  $curl = curl_init();
   $data_query =
-    '{"query":" 
-        query getContacts($community_id: String!){
-          getContacts(contactFilters: {community_id: $community_id}) {
-            _id    
-          } 
-        }",
-        "variables":{"community_id": "'.$community_id.'"}}';
+  '{"query":" 
+      query getContacts($community_id: String!){
+        getContacts(contactFilters: {community_id: $community_id}) {
+          _id    
+        } 
+      }",
+      "variables":{"community_id": "'.$community_id.'"}}';
+  $url ='https://dev-openebench.bsc.es/sciapi/graphql/'; //dev, in prod is closed
+  $headers= array('Content-Type: application/json');
 
-  curl_setopt_array($curl, array(
-    CURLOPT_URL => 'https://dev-openebench.bsc.es/sciapi/graphql/',
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_ENCODING => '',
-    CURLOPT_MAXREDIRS => 10,
-    CURLOPT_TIMEOUT => 0,
-    CURLOPT_FOLLOWLOCATION => true,
-    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-    CURLOPT_CUSTOMREQUEST => 'POST',
-    CURLOPT_POSTFIELDS =>$data_query,
-    CURLOPT_HTTPHEADER => array(
-      'Content-Type: application/json'
-    ),
-  ));
-  
-
-  $response = curl_exec($curl);
-  $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-
-  if ($status!= 200) {
+  $r = post($data_query, $url, $headers);
+  if ($r[1]['http_code'] != 200){
     $_SESSION['errorData']['Warning'][]="Error getting contacts. Http code= ".$status;
     return false;
   } else {
-     $items = json_decode($response)->data->getContacts;
+    $items = json_decode($r[0])->data->getContacts;
     return json_encode($items);
-     
   }
-
-  curl_close($curl);
-
-
 }
 
 
@@ -364,44 +342,23 @@ function getAllContactsOfCommunity ($community_id){
  */
 //var_dump(getTools());
 function getTools () {
- 
-    $curl = curl_init();
-    $data_query = 
-      '{"query":"{ 
-        getTools {
-          _id
-          name
-        }
-      }"}';
-    curl_setopt_array($curl, array(
-      CURLOPT_URL => 'https://dev-openebench.bsc.es/sciapi/graphql/',
-      CURLOPT_RETURNTRANSFER => true,
-      CURLOPT_ENCODING => '',
-      CURLOPT_MAXREDIRS => 10,
-      CURLOPT_TIMEOUT => 0,
-      CURLOPT_FOLLOWLOCATION => true,
-      CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-      CURLOPT_CUSTOMREQUEST => 'POST',
-      CURLOPT_POSTFIELDS =>$data_query,
-      CURLOPT_HTTPHEADER => array(
-        'Content-Type: application/json'
-      ),
-    ));
-    
-  
-    $response = curl_exec($curl);
-    $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-  
-    if ($status!= 200) {
-      $_SESSION['errorData']['Warning'][]="Error getting contacts. Http code= ".$status;
-      return false;
-    } else {
-      $items = json_decode($response)->data->getTools;
-      return json_encode($items);
-       
+  $data_query = 
+  '{"query":"{ 
+    getTools {
+      _id
+      name
     }
-  
-    curl_close($curl);
-  
-    
+  }"}';
+  $url = $GLOBALS['OEB_sciapi'];
+  $headers= array('Content-Type: application/json');
+
+  $r = post($data_query, $url, $headers);
+  if ($r[1]['http_code'] != 200){
+    $_SESSION['errorData']['Warning'][]="Error getting tools. Http code= ".$status;
+    return false;
+  } else {
+    $items = json_decode($r[0])->data->getTools;
+    return json_encode($items);
+  }
+
 }
