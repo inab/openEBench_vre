@@ -135,10 +135,6 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                                 </li>
                             </ul>
                             <br>
-                            <div class="form-group">
-                                <label for="messageAction">Introduce your message: </label>
-                                <textarea class="form-control" id="messageAction" rows="3"></textarea>
-                            </div>
                             
                         </div>
                         <div class="modal-footer">

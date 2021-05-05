@@ -59,10 +59,10 @@ if($_REQUEST) {
 		$filters = array ('requester' => $_SESSION['User']['id']);
 		echo submitedRegisters($filters);
 		exit;
-	//https://dev-openebench.bsc.es/vre/applib/oeb_publishAPI.php?action=proceedReq&actionReq=deny&reqId=id&msg=message
+	//https://dev-openebench.bsc.es/vre/applib/oeb_publishAPI.php?action=proceedReq&actionReq=deny&reqId=id
 	}elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == "proceedReq") {
-		if (isset($_REQUEST['actionReq']) && isset($_REQUEST['reqId']) && isset($_REQUEST['msg'])) {
-			echo actionRequest($_REQUEST['reqId'], $_REQUEST['actionReq'], $_REQUEST['msg']);
+		if (isset($_REQUEST['actionReq']) && isset($_REQUEST['reqId'])) {
+			echo actionRequest($_REQUEST['reqId'], $_REQUEST['actionReq']);
 			exit;
 		}
 	//https://dev-openebench.bsc.es/vre/applib/oeb_publishAPI.php?action=listOfChallenge&community_id=id
@@ -101,7 +101,7 @@ function getOEBdataFromBenchmarkingEvent ($BE_id) {
 	$result["community_id"] = getBenchmarkingEvents($BE_id, "community_id");
 
 	//TODO workflow oeb
-	$result["oeb_workflow"] = "OEBT0001234567";
+	$result["oeb_workflow"] = "OEBT0020000002";
 	$block_json = json_encode($result, JSON_PRETTY_PRINT);
 
 	return $block_json;
@@ -155,9 +155,8 @@ function proceedRequest_register_NC($fileId, $metaForm, $type) {
 		$url_consolidated =ncUploadFile("https://dev-openebench.bsc.es/nextcloud/", $fileId, $community."/".$benchmarkingEvent_id );
 
 		//UPLOAD participant file (in case url is needed)
-		$url_participant =ncUploadFile("https://dev-openebench.bsc.es/nextcloud/", $participantFile_id, $community."/".$benchmarkingEvent_id );
+		$url_participant = ncUploadFile("https://dev-openebench.bsc.es/nextcloud/", $participantFile_id, $community."/".$benchmarkingEvent_id );
 
-	
 		//UPLOAD tar file
 		$filter =  array("data_type" => "tool_statistics" , "parentDir"   => $executionfolder_id);
 		$files_list = getGSFiles_filteredBy($filter);
@@ -177,7 +176,7 @@ function proceedRequest_register_NC($fileId, $metaForm, $type) {
 
 	//EDIT metadata form: add url nc to participant (in case not url) and consolidated
 	$form['participant_file']  = $url_participant;
-	$form['consolidated_oeb_data']  = $url_consolidated;
+	$form['consolidated_oeb_data']  = $url_consolidated."/download";
 	updateReqRegister($req_id,array("oeb_metadata" => $form));
 
 	//EDIT metadata for petition: add attr visualitzation_file: uri and 

@@ -110,9 +110,10 @@ function ncUploadFile($nc_server, $fileId, $targetDir){
     
     if (file_get_contents($file_path)) {
         $response = $client->request('PUT', $targetDir."/".$file_name, file_get_contents($file_path));
+
         if ($response['statusCode'] == 201) {
-            //4. Get link of tar file(s) and return it
-            $url = getPublicLinkFile($targetDir."/".$file_name);
+            //4. Get public link of file and return it
+            $url = getPublicLinkFile("https://dev-openebench.bsc.es/nextcloud/", $targetDir."/".$file_name);
             return $url;
 
         }
@@ -220,7 +221,7 @@ function addProperties($nc_server, $filePath, $propertiesToAdd ) {
  * @param pathFile - path of the file to share
  * @return url of the shared file.
  */
-//var_dump(getPublicLinkFile("https://dev-openebench.bsc.es/nextcloud/", "test.md"));
+//var_dump(getPublicLinkFile("https://dev-openebench.bsc.es/nextcloud/", "test.md" ));
 function getPublicLinkFile ($nc_server, $pathFile){  
     $data = array('path' => $pathFile,'shareType' => '3');
     $url = $nc_server."ocs/v1.php/apps/files_sharing/api/v1/shares";

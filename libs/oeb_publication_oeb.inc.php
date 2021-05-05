@@ -212,7 +212,7 @@ function submitedRegisters($filters) {
  * @param action the action to make
  * @return 1 if correctly updated in mongo, 0 otherwise. (updateReqRegister)
  */
-function actionRequest($id, $action, $msg){
+function actionRequest($id, $action){
         //approve
         if($action == 'approve'){
            //0. Input files
@@ -229,14 +229,19 @@ function actionRequest($id, $action, $msg){
                 $_SESSION['errorData']['Error'][]="Cannot write data form.";
                 //redirect($GLOBALS['BASEURL'].'workspace/'); 
            }
-           var_dump( $wd);
+           $config_json = $wd."/".$id.".json";
+           var_dump($config_json);
            //get token 
            $tk = $_SESSION['User']['Token']['access_token'];
-           var_dump($tk);
-           //1. Execute script to buffer
-           //system("python ../../scripts/populate/publish.py)
-           //2. Execute migration to oeb database
-           //3. Get file from migration
+
+           //1. Execute script to buffer: push_data_to_oeb.py -i oeb_form.json -cr oeb_token.json -tk
+           //TODO: create configuration in globals for execute script, mirar que existeixen al config i al disk
+           $result_upload = system("/home/user/OEB_level2_new/APP/.py3env/bin/python /home/user/OEB_level2_new/APP/push_data_to_oeb.py -i '".$config_json."' -cr /home/user/OEB_level2_new/APP/dev-oeb_token.json -tk '".$tk."'", $retvalue);
+var_dump($result_upload);
+var_dump($retvalue);
+           //2. Execute migration to oeb database: curl
+           
+           //3. Json response from migration
            //4. update VRE mongo: oeb-publication-registers and metadata files
 
 
@@ -246,8 +251,7 @@ function actionRequest($id, $action, $msg){
                 $new_action = array(
                         "action" => "approve",
                         "user" => $_SESSION['User']['id'],
-                        "timestamp" => date('H:i:s Y-m-d'),
-                        "observations" => $msg
+                        "timestamp" => date('H:i:s Y-m-d')
                   );
                 if (updateReqRegister ($id, array('current_status' => 'approved'))) {
                         if(insertAttrInReqRegister($id, $new_action)){
@@ -264,8 +268,7 @@ function actionRequest($id, $action, $msg){
                 $new_action = array(
                         "action" => "deny",
                         "user" => $_SESSION['User']['id'],
-                        "timestamp" => date('H:i:s Y-m-d'),
-                        "observations" => $msg
+                        "timestamp" => date('H:i:s Y-m-d')
                   );
                 if (updateReqRegister ($id, array('current_status' => 'denied'))) {
                         if(insertAttrInReqRegister($id, $new_action)){
@@ -283,8 +286,7 @@ function actionRequest($id, $action, $msg){
                 $new_action = array(
                         "action" => "cancel",
                         "user" => $_SESSION['User']['id'],
-                        "timestamp" => date('H:i:s Y-m-d'),
-                        "observations" => $msg
+                        "timestamp" => date('H:i:s Y-m-d')
                   );
                 if (updateReqRegister ($id, array('current_status' => 'cancelled'))) {
                         if(insertAttrInReqRegister($id, $new_action)){

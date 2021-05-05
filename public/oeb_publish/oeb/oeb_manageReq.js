@@ -116,7 +116,7 @@ function actionTable2(id, action) {
         $.ajax({
             type: "POST",
             url: baseURL + "/applib/oeb_publishAPI.php?action=proceedReq",
-            data: "actionReq=" + action+"&reqId="+id+"&msg="+$('#messageAction').val(),
+            data: "actionReq=" + action+"&reqId="+id,
             success: function(data) {
                 if (data == '1') {
                     setTimeout(function() { 
