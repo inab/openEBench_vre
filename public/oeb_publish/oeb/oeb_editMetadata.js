@@ -3,6 +3,7 @@ var valid = false;
 $(document).ready(function () {
 	//files
 	var filesObj = JSON.parse(files)[0]
+	console.log(filesObj);
 
 	$.ajax({
 		type: 'POST',
@@ -127,7 +128,8 @@ $(document).ready(function () {
 				editor.getEditor("root.benchmarking_event_id").setValue(filesObj["benchmarkingEvent_id"]);
 				editor.getEditor("root.participant_file").setValue(fileinfo['fileSource_path']); //Path participant file
 				editor.getEditor("root.community_id").setValue(OEBinfo['community_id']);
-				editor.getEditor("root.workflow_oeb_id").setValue(OEBinfo['oeb_workflow']);
+				editor.getEditor("root.workflow_oeb_id").setValue(filesObj['tool']);
+				editor.getEditor("root.data_version").setValue("1");
 
 				//css
 				$('label[class="required"]').append('<span style="color:red;"> *</span>')
@@ -167,15 +169,39 @@ $(document).ready(function () {
 				type: 'POST',
 				url: "applib/oeb_publishAPI.php?action=requestPublish",
 				data: { "fileId": filesObj["id"], "metadata": formData }
-			}).done(function (data) {
+			}).done(function(data) {
+				//no errors
+				if(data["code"]=="200"){
+					$("#loading-datatable").hide();
+					$("#step3").addClass("active");
+					$("#myError").removeClass("alert alert-danger");
+					$("#myError").addClass("alert alert-info");
+					$("#myError").append("<h4><b>New request successfully created: </b></h4><a href='vre/oeb_publish/oeb/oeb_manageReq.php'>"+data['message']['petition']+"</a></br></br>");
+					$("#myError").show();
+					console.log(data);
+					//errors
+				} else {
+					$("#loading-datatable").hide();
+					$("#step3").addClass("active");
+					$("#myError").removeClass("alert alert-info");
+					$("#myError").addClass("alert alert-danger");
+					$("#myError").text(data["message"]);
+					$("#myError").show();
+				}
+				
+			//more errors
+			}). fail(function(data) {
 				$("#loading-datatable").hide();
 				$("#step3").addClass("active");
-				$("#result").html("<h4><b>Data successfully request!</b></h4>\
-				<p style=\"font-size:1.1em;\">Nexcloud URLs: <br><pre>"+ data + "</pre><br/>" + timeStamp() + "</p><br>");
-				$("#result").show();
-				console.log(data);
+				$("#myError").removeClass("alert alert-info");
+				$("#myError").addClass("alert alert-danger");
+				$("#myError").text(data["responseJSON"]["message"]);
+				$("#myError").show();
+				
+			});
+				
 
-			})
+		
 
 		}
 	})

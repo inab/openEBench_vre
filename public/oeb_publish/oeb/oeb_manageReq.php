@@ -93,6 +93,11 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                             </div>
                             <div class="portlet-body">
                                 <br>
+                                <!-- LOADING SPINNER-->
+                                <div id="loading-datatable" class="loadingForm">
+                                    <div id="loading-spinner">LOADING</div>
+                                    <div id="loading-text">It could take a few minutes</div>
+                                </div>
                                 <div id="files">
                                     <table id="tableAllFiles" class="table table-striped table-hover table-bordered" width="100%"></table>
                                 </div>

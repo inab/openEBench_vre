@@ -80,7 +80,7 @@ foreach ($outputExe_files as $key => $value) {
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </h4>
-                        <p>You don't have the properly permisions to request to publish datafiles. Only owners, managers and challanege contributors are allowed.</p>
+                        <p>You don't have the proper permissions for publishing benchmarking datasets to OpenEBench. Only owners, managers and challanege contributors are allowed.</p>
                         
                         <p class="mb-0">You can request that permision sending a ticket to helpdesk: <a href="/vre/helpdesk/?sel=roleUpgrade">click here!</a></p>
                     </div>
@@ -88,8 +88,8 @@ foreach ($outputExe_files as $key => $value) {
                 <!-- END PAGE WARNING-->
 
                 <!-- BEGIN PAGE TITLE-->
-		<h1 class="page-title"> OEB Benchmarking Publication &ndash; New Submission
-		<i class="icon-question tooltips" data-container="body" data-html="true" data-placement="right" data-toggle="tooltip" data-trigger="click" data-original-title="<p align='left' style='margin:0'>Create here a request for publishing your benchmarking data to OpenEBench. <a target='_blank' href='https://openebench.readthedocs.io/en/latest/'> +Info</a>.</p>"></i>
+		<h1 class="page-title"> Benchmarking data Publication &ndash; New Submission
+		<i class="icon-question tooltips" data-container="body" data-html="true" data-placement="right" data-toggle="tooltip" data-trigger="click" data-original-title="<p align='left' style='margin:0'>Create here a request for publishing your benchmarking data to OpenEBench. <a target='_blank' href='https://openebench.readthedocs.io/en/dev/how_to/participate/publish_oeb.html'> +Info</a>.</p>"></i>
 		</h1>
                 <!-- END PAGE TITLE-->
                 <!-- END PAGE HEADER-->
@@ -100,7 +100,7 @@ foreach ($outputExe_files as $key => $value) {
                             <div class="row step-line">
                                 <div class="col-md-4 mt-step-col first active">
                                     <div class="mt-step-number bg-white">1</div>
-                                    <div class="mt-step-title uppercase font-grey-cascade">Select files</div>
+                                    <div class="mt-step-title uppercase font-grey-cascade">Select datasets</div>
                                 </div>
                                 <div class="col-md-4 mt-step-col second">
                                     <div class="mt-step-number bg-white">2</div>
@@ -165,15 +165,13 @@ foreach ($outputExe_files as $key => $value) {
 									</div>
 							    </div>
                                 -->
-                                <br>
-                                <br>
                                 <h3 class="titleBE">PUBLISHED FILES ON OPENEBENCH FOR BENCHMARKING </h3>
                                 <div id = "tablePublishedFiles">
-                                
                                     <table id="publishedFiles" class="table table-striped table-hover table-bordered" width="100%"></table>
                                 </div>
                                 <br>
                                 <br>
+                              
                                 <h3>FILES AVAILABLE TO BE PUBLISHED</h3>
                                 <div id ="tableMyFiles" >
                                    
@@ -188,7 +186,7 @@ foreach ($outputExe_files as $key => $value) {
                 <!-- END SELECT AND TABLE  PORTLET -->
                 <!-- BEGIN LIST TO MANAGE FILES -->
                 
-                <div class="row">
+                <div class="row" style="display:none;">
 					<div class="col-md-12 col-sm-12">
 						<div class="portlet light bordered">
 							<div class="portlet-title">
@@ -273,7 +271,7 @@ foreach ($outputExe_files as $key => $value) {
                 ul.hidden :nth-child(n+2) {
   display:none;
 }
-#ul-challenges li:nth-child(n+4) {
+.ul-challenges li:nth-child(n+4) {
     display:none;
 }
             </style>

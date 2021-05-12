@@ -8,21 +8,68 @@ $(document).ready(function() {
     //get user roles
     getRoles().done(function(r) {
         var roles = JSON.parse(r)
-        var be_selected = $("#beSelector").val();
+
+        var be_selected = $("#beSelector").val();//selected benchmarking event
         
         $('.titleBE').append(be_selected)
-        var dataSet = [];
 
-        $('#publishedFiles').DataTable( {
-            data: dataSet,
+        var table0 = $('#publishedFiles').DataTable( {
+            "ajax": {
+                url: 'applib/oeb_publishAPI.php?action=getSubmitRegisters',
+                dataSrc: ''
+            },
             "bFilter": false, 
             "bPaginate": false,
             "bInfo": false,
             columns: [
-                { title: "Req_id" },
-                { title: "Files" },
+                { 
+                    "data" : "tool",
+                    title: "Participant tool",
+                }, //0
+                { 
+                    "data" : "files",
+                    title: "Files",
+                }, //1
+                { 
+                    "data" : "id",
+                    title: "Request id"
+                }, //2
+                { 
+                    "data" : "bench_event",
+                    title: "Benchmarking event",
+                }, //3
+                { 
+                    "data" : "status",
+                    title: "status",
+                } //4
+
+            ],
+            'columnDefs': [
+                {
+                    'targets': 1,
+                    "className": "dt-center",
+                    render: function ( data, type, row ) {
+                        result = "<ul>";
+                        for (let index = 0; index < data.length; index++) {
+                            result += "<li><a href='"+data[index]['nc_url']+"'target='_blank'>"+ data[index]['name']+"</a></li>";   
+                            
+                        }
+                        result += "</ul>";
+                        return result
+                    }
+                },
+                {
+                    'targets': 4,
+                    "className": "dt-center",
+                    render: function ( data, type, row ) {
+                        return data
+                    } 
+                }
             ]
         } );
+        //filter for published registers and accordig to BE selected
+        table0.columns( [4] ).search("published").draw();
+        table0.columns( [3] ).search(be_selected).draw();
 
         createSelectableTable();
         
@@ -45,7 +92,8 @@ $(document).ready(function() {
                 var obj = {};
                 obj['id'] = $(this).val();
                 obj['benchmarkingEvent_id'] = $(this).parents('tr').first().children(":nth-child(4)").children("p").prop("id");
-    
+                obj['tool'] = $(this).parents('tr').first().children(":nth-child(4)").children("input").prop("id");
+
                 //arrayOfFiles.push($('td:first-child input', this).prop('value'));
                 arrayOfFiles.push( obj);
        
@@ -81,13 +129,13 @@ function createSelectableTable(){
         "columns" : [
             {"data" : "_id"}, //0
             { "data" : "files" }, //1
-            { "data" : "path" }, //1
-            { "data" : "benchmarking_event" }, //2
-            { "data" : "oeb_challenges" }, //3
-            { "data" : "mtime" }, //4
-            { "data" : "current_status" }, //5 --> to hide
-            { "data" : "challenge_status" }, //6
-            { "data" : "oeb_id" } //7
+            { "data" : "path" }, //2
+            { "data" : "benchmarking_event" }, //3
+            { "data" : "oeb_challenges" }, //4
+            { "data" : "mtime" }, //5
+            { "data" : "current_status" }, //6 --> to hide
+            { "data" : "challenge_status" }, //7
+            { "data" : "oeb_id" } //8
 
 
         ],
@@ -129,23 +177,26 @@ function createSelectableTable(){
                 "targets": 3,
                 "title": '<th>Benchmarking Event <i class="icon-question" data-toggle="tooltip" data-placement="top" title="OpenEBench benchmarking event in which the dataset was used or the metrics produced"></i></th>',
                 render:function ( data, type, row ) {
-                    return '<p id ="'+data['be_id']+'">'+data['be_name']+'</p>';
+                    return '<p id ="'+data['be_id']+'">'+data['be_name']+'</p><input id="'+data['workflow_id']+'" type="hidden">';
                 }
 
             },
             {
                 "targets": 4,
                 "title": '<th>Benchmarking Challenges<i class="icon-question" data-toggle="tooltip" data-placement="top" title="OpenEBench benchmarking challenges included in the metrics"></i></th>',
-                render: function ( data, type, row ) {
+                render: function ( data, type, row, meta ) {
                     if (data != undefined && data.length != 0){
                         
-                        listChallenges = '<ul id = "ul-challenges">';
+                        listChallenges = '<ul class = "ul-challenges" id = "ul-challenges'+meta.row+'">';
                        for (let index = 0; index < data.length; index++) {
                         listChallenges += '<li>'+data[index]+'</li>';
                            
                        }
                        listChallenges += '</ul>';
-                       listChallenges += '<div id ="plusShow" style="text-align: center;"><span>...</span><i class="fa fa-plus" style="color: green;float: right;" onclick="showChallenges()"></i></div>';
+                       if (data.length >3 ){
+                        listChallenges += '<div id ="plusShow" style="text-align: center;"><span>...</span><i class="fa fa-plus" style="color: green;float: right;" onclick="showChallenges('+meta.row+')"></i></div>';
+                        listChallenges += '<div id ="minusShow" style="display:none"><i class="fa fa-minus" style="color: red;float: right;" onclick="hideChallenges('+meta.row+')"></i></div>';
+                       }
                        
                        return listChallenges;
                     } else return '';
@@ -180,7 +231,7 @@ function createSelectableTable(){
                 "title": '<th>Benchmark event status  <i class="icon-question" data-toggle="tooltip" data-placement="top" title="Identifier of EUDAT/B2SHARE"></i></th>',
                 render: function ( data, type, row ) {
                         return "Open"
-                    
+                    //TODO
                 }
             },
             {
@@ -188,7 +239,7 @@ function createSelectableTable(){
                 "title": '<th>Published on OEB <i class="icon-question" data-toggle="tooltip" data-placement="top" title="Identifier of EUDAT/B2SHARE"></i></th>',
                 render: function ( data, type, row ) {
                         return false
-                    
+                    //TODO
                 }
             }
 
@@ -198,19 +249,19 @@ function createSelectableTable(){
     });
 }
 
-function showChallenges() {
-
-        //$('#ul-challenges li:hidden').slice(0, 2).show();
-        $('#ul-challenges li:hidden').show();
-        /*
-        if ($('#ul-challenges li').length == $('#ul-challenges li:visible').length) {
+function showChallenges(numRow) {
+        $('#ul-challenges'+numRow+' li:hidden').show();
+        if ($('#ul-challenges'+numRow+' li').length == $('#ul-challenges'+numRow+' li:visible').length) {
             $('#plusShow').hide();
+            $('#minusShow').show();
         }
-        */
-       $('#plusShow').hide();
-};
+}
+function hideChallenges(numRow){
+    $('#ul-challenges'+numRow+' li:nth-child(n+4)').hide();
+    $('#plusShow').show();
+    $('#minusShow').hide();
 
-
+}
 
 
 
@@ -369,7 +420,3 @@ function convertTimestamp(timestamp) {
       return time;
   }
 
-  $('#button-challe').click(function () {
-      alert("hola")
-    $('#ul-challenges').classList.toggle('hidden');
-  });

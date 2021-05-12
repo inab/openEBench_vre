@@ -4,6 +4,7 @@ $(document).ready(function() {
         var roles = JSON.parse(r)
 
         createTableRegisters();
+        $("#loading-datatable").hide();
         $(function () {   
             $('[data-toggle="popover"]').popover() 
         });
@@ -23,8 +24,9 @@ function createTableRegisters(){
             { "data" : "files" }, //1
             { "data" : "requester_name" }, //2
             { "data" : "status" }, //3
-            { "data" : "history_actions" }, //4
-            { "data" : null} //5
+            { "data" : "oeb_id"}, //4
+            { "data" : "history_actions" }, //5
+            { "data" : null} //6
 
         ],
         'columnDefs': [
@@ -50,26 +52,39 @@ function createTableRegisters(){
             },
             {
                 "targets": 2,
-                "title": '<th>Requester</th>'
+                "title": '<th>Requester</th>',
+                "className": "dt-center"
                 
             },
             {
                 "targets": 3,
-                "title": '<th>Status </th>' 
+                "title": '<th>Status </th>' ,
+                "className": "dt-center"
             },
             {
                 "targets": 4,
+                "title": '<th>OEB dataset id </th>',
+                "className": "dt-center",
+                render: function ( data, type, row ) {
+                    if (data == null) {
+                        return "-"
+                    }else return data;
+                }
+
+            },
+            {
+                "targets": 5,
                 "title": '<th>Timestamp request </th>',
                 render: function ( data, type, row ) {
                     return data[0]["timestamp"] ;
                 }
             },
             {
-                "targets": 5,
+                "targets": 6,
                 "title": '<th>Actions </th>',
                 render: function ( data, type, row ) {
                     
-                    if(row['current_status'] == 'approved'){
+                    if(row['status'] != 'pending approval'){
                         return ""
                     }
                     return '<div class="btn-group" style="float:left; position:absolute;">\
@@ -113,26 +128,20 @@ function actionTable2(id, action) {
 
     $("#acceptModal").click(function (){
         $("#actionDialog").modal('hide');
+        $("#loading-datatable").show();
+        $("#files").hide();
         $.ajax({
             type: "POST",
             url: baseURL + "/applib/oeb_publishAPI.php?action=proceedReq",
             data: "actionReq=" + action+"&reqId="+id,
             success: function(data) {
-                if (data == '1') {
-                    setTimeout(function() { 
-                        table2.ajax.reload();
-                        //refresh table1
-                        table1.ajax.reload();
-                        
-                    }, 500);
+                    $("#loading-datatable").hide();
+                    console.log(data);
+                    $("#files").show();
+                    table2.ajax.reload();
+                    alert("Data successfully published");
                     
-                } else if (data == '0') {
-                    setTimeout(function() {
-                        location.href = 'workspace/';
-                        alert("files not correctly submited");
-                    }, 500);
-                    
-                }
+                
             }
         });
     })

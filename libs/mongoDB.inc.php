@@ -1293,4 +1293,3 @@ function getPubRegister_fromId ($rgId) {
 		return $pub_register;
 	}
 }
-

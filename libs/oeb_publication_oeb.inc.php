@@ -116,14 +116,23 @@ function getPublishableFiles($datatype) {
 		// TODO
 
 		//get benchmarking event id from tool
+                //get workflow id
+
 		if (isset($value['tool'])){
 			$tool = getTool_fromId($value['tool'],1);
-			if (isset($tool['community-specific_metadata']['benchmarking_event_id'])){
-				$value['benchmarking_event']['be_id'] = $tool['community-specific_metadata']['benchmarking_event_id'];
-				$value['benchmarking_event']['be_name'] = getBenchmarkingEvents($value['benchmarking_event']['be_id'],"name");
-			}else{
-				$value['benchmarking_event']=$value['tool'];
-			}
+                        if (isset($tool['community-specific_metadata'])){
+                                if (isset($tool['community-specific_metadata']['benchmarking_event_id'])){
+                                        $value['benchmarking_event']['be_id'] = $tool['community-specific_metadata']['benchmarking_event_id'];
+                                        $value['benchmarking_event']['be_name'] = getBenchmarkingEvents($value['benchmarking_event']['be_id'],"name");
+                                }else{
+                                        $value['benchmarking_event']=$value['tool'];
+                                }
+                                $value['benchmarking_event']['workflow_id'] = $tool['community-specific_metadata']['workflow_id'];
+
+
+                        }
+			
+
 		}else{
 			// file is not the result of a VRE run. No 'tool'/event associated
 			$value['benchmarking_event']="NA";
@@ -190,9 +199,11 @@ function submitedRegisters($filters) {
                                
                         }
                         $r['approvers'] = $v['approvers'];
+                        $r['bench_event'] = $v['oeb_metadata']['benchmarking_event_id'];
+                        $r['tool'] = $v['oeb_metadata']['tool_id'];
                         $r['history_actions'] = $v['history_actions'];
                         $r['status'] = $v['current_status'];
-                        //$r['exec_folder'] =
+                        $r['oeb_id'] = $v['dataset_OEBid'];
                         array_push($reg, $r) ;
                 }
 
@@ -230,7 +241,7 @@ function actionRequest($id, $action){
                 //redirect($GLOBALS['BASEURL'].'workspace/'); 
            }
            $config_json = $wd."/".$id.".json";
-           var_dump($config_json);
+var_dump($config_json);
            //get token 
            $tk = $_SESSION['User']['Token']['access_token'];
 
@@ -240,26 +251,51 @@ function actionRequest($id, $action){
 var_dump($result_upload);
 var_dump($retvalue);
            //2. Execute migration to oeb database: curl
-           
-           //3. Json response from migration
-           //4. update VRE mongo: oeb-publication-registers and metadata files
-
-
-/*
-
-                //new action
-                $new_action = array(
-                        "action" => "approve",
-                        "user" => $_SESSION['User']['id'],
-                        "timestamp" => date('H:i:s Y-m-d')
-                  );
-                if (updateReqRegister ($id, array('current_status' => 'approved'))) {
-                        if(insertAttrInReqRegister($id, $new_action)){
-                                return 1;
+           if ($retvalue == 0){
+                $response = migrateToOEB($tk);
+        var_dump($response);
+                $OEB_id = null;
+                foreach ($response as $value) {
+                   if ($value['orig_id'] == $id){
+                     $OEB_id = $value['_id'];
+                        var_dump($OEB_id);
                         }
                 }
-                */
 
+           
+
+           //3. update VRE mongo: //hisotry actions, new attr oeb_id, status published. 
+           //Other registers (same user?, BE and tool), passed to obsolete
+                if (!is_null($OEB_id)) {
+                        //get all registers with same BE and same tool
+                        $filters = array( 'oeb_metadata.benchmarking_event_id' => $oeb_form['benchmarking_event_id'], 
+                        'oeb_metadata.tool_id' => $oeb_form['tool_id'] );
+                        $regData = $GLOBALS['pubRegistersCol']->find($filters);
+             
+                        foreach ($regData as $doc) {
+                           updateReqRegister ($doc['_id'], array('current_status' => 'obsolete'));
+                        }
+                       
+                        $new_action = array(
+                                "action" => "approve",
+                                "user" => $_SESSION['User']['id'],
+                                "timestamp" => date('H:i:s Y-m-d')
+                        );
+             
+                        //
+                             if (updateReqRegister ($id, array('current_status' => 'published', "dataset_OEBid" => $OEB_id))) {
+                                     if(insertAttrInReqRegister($id, $new_action)){
+                                             return 0;
+                                     }
+                             }
+                             
+                         }
+
+                }
+           
+          
+            
+           
         }
 
         //deny
@@ -272,7 +308,7 @@ var_dump($retvalue);
                   );
                 if (updateReqRegister ($id, array('current_status' => 'denied'))) {
                         if(insertAttrInReqRegister($id, $new_action)){
-                                return 1;
+                                return 0;
                         }
                 }
 
@@ -290,7 +326,7 @@ var_dump($retvalue);
                   );
                 if (updateReqRegister ($id, array('current_status' => 'cancelled'))) {
                         if(insertAttrInReqRegister($id, $new_action)){
-                                return 1;
+                                return 0;
                         }
                 }
 

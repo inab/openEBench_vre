@@ -92,19 +92,30 @@ function ncDeleteFile($nc_server, $fileName){
 
 function ncUploadFile($nc_server, $fileId, $targetDir){
     $client = constructClient($nc_server);
-
-    //1.Check if exitsts community folder 
-    if (!checkFileExists("https://dev-openebench.bsc.es/nextcloud/", explode("/",$targetDir))[0]) {
-        ncCreateFolder("https://dev-openebench.bsc.es/nextcloud/", explode("/",$targetDir)[0]);
+    $url = null;
+    //Check folders are created
+    //Check if exitsts community folder 
+    if (!checkFileExists("https://dev-openebench.bsc.es/nextcloud/", dirname($targetDir, 3))) {
+        ncCreateFolder("https://dev-openebench.bsc.es/nextcloud/", dirname($targetDir, 3));
     }
 
-    //2. Create benchmarking folder in case not created
+    //Check if exitsts benchmarking folder 
+    if (!checkFileExists("https://dev-openebench.bsc.es/nextcloud/", dirname($targetDir, 2))) {
+        ncCreateFolder("https://dev-openebench.bsc.es/nextcloud/", dirname($targetDir, 2));
+    }
+
+    //Check if exitsts requester folder
+    if (!checkFileExists("https://dev-openebench.bsc.es/nextcloud/", dirname($targetDir, 1))) {
+        ncCreateFolder("https://dev-openebench.bsc.es/nextcloud/", dirname($targetDir, 1));
+    }
+
+    //Check if exitsts execution folder
     if (!checkFileExists("https://dev-openebench.bsc.es/nextcloud/", $targetDir)) {
         ncCreateFolder("https://dev-openebench.bsc.es/nextcloud/", $targetDir);
     }
 
     
-    //3. Upload File: consolidated/participant + tar
+    //Upload File
     $file_path  = $GLOBALS['dataDir'].getAttr_fromGSFileId($fileId,'path');
     $file_name  = basename($file_path);
     
@@ -112,12 +123,11 @@ function ncUploadFile($nc_server, $fileId, $targetDir){
         $response = $client->request('PUT', $targetDir."/".$file_name, file_get_contents($file_path));
 
         if ($response['statusCode'] == 201) {
-            //4. Get public link of file and return it
+            //Get public link of file and return it
             $url = getPublicLinkFile("https://dev-openebench.bsc.es/nextcloud/", $targetDir."/".$file_name);
-            return $url;
-
         }
     }
+    return $url;
 }
 
 

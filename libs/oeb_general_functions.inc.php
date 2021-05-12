@@ -112,7 +112,7 @@ function getBenchmarkingEvents ($benchmarkingEvent_id = null, $filter_field = nu
 
   $r = get($url, $headers);
   if ($r[1]['http_code'] != 200){
-    $_SESSION['errorData']['Warning'][]="Error getting benchmarkings events. Http code= ".$status;
+    $_SESSION['errorData']['Warning'][]="Error getting benchmarkings events. Http code= ".$r[1]['http_code'];
     return false;
   } else {
     return json_decode($r[0], true);
@@ -266,7 +266,7 @@ function getAllContactsOfCommunity ($community_id){
 
   $r = post($data_query, $url, $headers);
   if ($r[1]['http_code'] != 200){
-    $_SESSION['errorData']['Warning'][]="Error getting contacts. Http code= ".$status;
+    $_SESSION['errorData']['Warning'][]="Error getting contacts. Http code= ".$r[1]['http_code'];
     return false;
   } else {
     $items = json_decode($r[0])->data->getContacts;
@@ -293,11 +293,29 @@ function getTools () {
 
   $r = post($data_query, $url, $headers);
   if ($r[1]['http_code'] != 200){
-    $_SESSION['errorData']['Warning'][]="Error getting tools. Http code= ".$status;
+    $_SESSION['errorData']['Warning'][]="Error getting tools. Http code= ".$r[1]['http_code'];
     return false;
   } else {
     $items = json_decode($r[0])->data->getTools;
     return json_encode($items);
   }
 
+}
+//var_dump(migrateToOEB("eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJCakliSkM2WlpBQ2Qxb2VmTC1uMXhoVjJQdDhMWmNZSGM4d2FnZWNiMk40In0.eyJleHAiOjE2MjA3NDU0NDksImlhdCI6MTYyMDc0MTg0OSwiYXV0aF90aW1lIjoxNjIwNzQxODQ5LCJqdGkiOiI0ZmU5MzBkMi0wZjA4LTQ3NTEtODRmMC1lN2E4NWQ1ZWRjMzkiLCJpc3MiOiJodHRwczovL2luYi5ic2MuZXMvYXV0aC9yZWFsbXMvb3BlbmViZW5jaCIsImF1ZCI6ImFjY291bnQiLCJzdWIiOiJiMjU5MWZkOS01OTRjLTRjMDctOGQ5Yi1kOGQxNDEwYTE5MjkiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJvZWItdnJlLWRldiIsInNlc3Npb25fc3RhdGUiOiIzY2YwNTJiZC0xNzhiLTRkMjAtYTMyMC00YTY1OWIwNTc4MDgiLCJhY3IiOiIxIiwiYWxsb3dlZC1vcmlnaW5zIjpbImh0dHBzOi8vZGV2LW9wZW5lYmVuY2guYnNjLmVzIl0sInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJvZmZsaW5lX2FjY2VzcyIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJlbWFpbCBwcm9maWxlIiwiY29tbXVuaXR5X2lkIjpbIk9FQkMwMDIiXSwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm9lYjpyb2xlcyI6WyJvd25lcjpPRUJDMDAyIl0sIm5hbWUiOiJ0ZXN0IHRlc3QiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJ0ZXN0IiwiZ2l2ZW5fbmFtZSI6InRlc3QiLCJmYW1pbHlfbmFtZSI6InRlc3QiLCJlbWFpbCI6InRlc3RAYnNjLmVzIn0.WycSnWoG4WenCotf27nHQY08Jt_l7HwuBleRviU8DIukBiK_uNuO_O1tLNS5cpJFTQk4mcyoBycokYhhp0Ira388-OYaIrYSQ63LDM0DdxM2lqNd5kH7x5d5EDlNzXfhi4u6PEodXpoHekJoCnjjjfjjkHhsgh6dCeh5yg8-b-LlAa2C4pCgzBILLIMS5NfOPkG5Bsztk-2PZ4_P8gUpGss_IbtRUhCYbCCvnnqOoQ-UPhQ5Ymim2W-_uV75A-12fcPaNq0t3Tjwye0A0_xF4_4fddQ5GJLy5kiVP9AOlA_iQhWRN9lK8eUZRnwHq3zYzaIgHoM89070hwDf7NPB_g", false));
+function migrateToOEB ($token, $dryrun=false) {
+
+  $url= $GLOBALS['OEB_migrate'].'?dryrun=false';
+  if ($dryrun) {
+    $url= $GLOBALS['OEB_migrate'].'?dryrun=true';
+  }
+
+  $headers= array('Accept: aplication/json', 'Authorization: Bearer '.$token);
+
+  $r = get($url, $headers);
+  if ($r[1]['http_code'] != 200){
+    $_SESSION['errorData']['Warning'][]="Error uploading files. Http code= ".$r[1]['http_code'];
+    return false;
+  } else {
+    return json_decode($r[0], true);
+  }
 }
