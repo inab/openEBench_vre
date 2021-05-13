@@ -24,23 +24,23 @@ $(document).ready(function() {
             columns: [
                 { 
                     "data" : "tool",
-                    title: "Participant tool",
+                    title: '<th>Participant Tool <i class="icon-question" data-toggle="tooltip" data-placement="top" title="Tool used to make input predictions"></i></th>'
                 }, //0
                 { 
                     "data" : "files",
-                    title: "Files",
+                    title: '<th>Files <i class="icon-question" data-toggle="tooltip" data-placement="top" title="Published files in OpenEBench"></i></th>'
                 }, //1
                 { 
                     "data" : "id",
-                    title: "Request id"
+                    title: '<th>Request ID <i class="icon-question" data-toggle="tooltip" data-placement="top" title="ID of the petition to publish files"></i></th>'
                 }, //2
                 { 
                     "data" : "bench_event",
-                    title: "Benchmarking event",
+                    title: '<th>Benchmarking event <i class="icon-question" data-toggle="tooltip" data-placement="top" title="Benchmarking event which files are published."></i></th>'
                 }, //3
                 { 
                     "data" : "status",
-                    title: "status",
+                    title: '<th>Status <i class="icon-question" data-toggle="tooltip" data-placement="top" title="Status of the petition. If it is publised, datasets are publicly in OpenEBench"></i></th>'
                 } //4
 
             ],
@@ -57,6 +57,17 @@ $(document).ready(function() {
                         result += "</ul>";
                         return result
                     }
+                },
+                {
+                    'targets': 2,
+                    render: function ( data, type, row ) {
+                        return '<a href="vre/oeb_publish/oeb/oeb_manageReq.php">'+data+"</a>";
+                    }
+                },
+                {
+                    'targets': 3,
+                    className: "hide_column"
+
                 },
                 {
                     'targets': 4,

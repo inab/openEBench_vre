@@ -128,7 +128,7 @@ foreach ($outputExe_files as $key => $value) {
                             <div class="portlet-title">
                                 <div class="caption">
                                     <i class="icon-share font-dark hide"></i>
-                                    <span class="caption-subject font-dark bold uppercase">File(s) for publication</span> <small style="font-size:75%;">List of elegible files to be published to OpenEBench. Select those you want to submit.</small>
+                                    <span class="caption-subject font-dark bold uppercase">Select Benchmarking Event</span> <small style="font-size:75%;">Choose the event where you want to contribute with your benchmarking datasets. Notice you'll be asked to associate your results to a registered participant tool or workfow.</small>
                                 </div>
                             </div>
                             <!--only communities you are allowed to submit will be apperar-->
@@ -165,14 +165,14 @@ foreach ($outputExe_files as $key => $value) {
 									</div>
 							    </div>
                                 -->
-                                <h3 class="titleBE">PUBLISHED FILES ON OPENEBENCH FOR BENCHMARKING </h3>
+                                <span class="caption-subject font-dark bold uppercase titleBE">PUBLISHED FILES ON OPENEBENCH FOR BENCHMARKING </span>
                                 <div id = "tablePublishedFiles">
                                     <table id="publishedFiles" class="table table-striped table-hover table-bordered" width="100%"></table>
                                 </div>
                                 <br>
                                 <br>
                               
-                                <h3>FILES AVAILABLE TO BE PUBLISHED</h3>
+                                <span class="caption-subject font-dark bold uppercase">FILES AVAILABLE TO BE PUBLISHED </span> <small style="font-size:85%;">Choose the datasets you want to request to publish in OpenEBench web page.</small>
                                 <div id ="tableMyFiles" >
                                    
                                     <table id="communityTable" class="table table-striped table-hover table-bordered" width="100%"></table>

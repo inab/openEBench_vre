@@ -4,7 +4,7 @@
 //require_once('classes/class.phpmailer.php');
 //require_once('classes/Email.php');
 
-function sendEmail($recipient, $subject, $body, $reply = null, $bcc = null){
+function sendEmail($recipient, $subject, $body, $reply = null, $bcc = null, $debug =0){
 
 	$confFile = $GLOBALS['mail_credentials'];
 	$conf = array();
@@ -20,7 +20,7 @@ function sendEmail($recipient, $subject, $body, $reply = null, $bcc = null){
 	
 	$mail = new PHPMailer(); // create a new object
 	$mail->IsSMTP(); // enable SMTP
-	$mail->SMTPDebug = 1; // debugging: 0 = no messages, 1 = errors and messages, 2 = messages only
+	$mail->SMTPDebug = $debug; // debugging: 0 = no messages, 1 = errors and messages, 2 = messages only
 	$mail->SMTPAuth = true; // authentication enabled
 	$mail->SMTPSecure = 'ssl'; // secure transfer enabled REQUIRED for Gmail
 	$mail->Host = $conf[2];
@@ -150,6 +150,7 @@ function sendPasswordToNewUser($login, $name, $surname, $password){
  * @param requester of the petition
  * @param fileId to be approved
  */
+
 function sendRequestToApprover ($approver, $requester, $fileId){
 
 	$subject = $GLOBALS['NAME']." New request for OpenEBench data publication. Action required";
@@ -165,6 +166,6 @@ function sendRequestToApprover ($approver, $requester, $fileId){
 	
 	OpenEBench team';
 
-	sendEmail($approver,$subject,$message);
+	return sendEmail($approver,$subject,$message);
 
 }

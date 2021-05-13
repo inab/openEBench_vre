@@ -177,6 +177,7 @@ $(document).ready(function () {
 					$("#myError").removeClass("alert alert-danger");
 					$("#myError").addClass("alert alert-info");
 					$("#myError").append("<h4><b>New request successfully created: </b></h4><a href='vre/oeb_publish/oeb/oeb_manageReq.php'>"+data['message']['petition']+"</a></br></br>");
+					$("#myError").append(data['message']["email"]+"<br><br>"+timeStamp());
 					$("#myError").show();
 					console.log(data);
 					//errors

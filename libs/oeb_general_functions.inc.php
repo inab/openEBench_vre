@@ -276,7 +276,7 @@ function getAllContactsOfCommunity ($community_id){
 
 
 /**
- * Gets participant tools ids given a community_id
+ * Gets participant tools 
  * @return json with tools ids and names
  */
 //var_dump(getTools());

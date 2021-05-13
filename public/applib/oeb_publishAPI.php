@@ -207,13 +207,19 @@ function proceedRequest_register_NC($fileId, $metaForm, $type) {
 		updateReqRegister($req_id,array("visualitzation_url" => $url_tar));
 
 		//6.Notify approvers
-		//sendRequestToApprover("txellfe@gmail.com", $_SESSION['User']['id'], $fileId);
+		if (!sendRequestToApprover("txellfe@hotmail.com", $_SESSION['User']['id'], $fileId)){
+			// return error msg via BlockResponse
+			$response_json->setCode(500);
+			$response_json->setMessage("Error sending email to approvers.");
+			//updateReqRegister ($req_id, array('current_status' => 'error', 'log' => $response_json->getResponse()));
+
+			return $response_json->getResponse();
+		}
 
 		//7.return JSON RESULT with all url files
-		//TODO: show approvers to user
 
 		$response = array("files" => array($fileId => $url_consolidated, $participantFile_id => $url_participant,
-			$id_tar => $url_tar), "petition"=>$req_id);
+			$id_tar => $url_tar), "petition"=>$req_id, "email" => "Approvers correctly notified.");
 		$response_json->setCode(200);
 		$response_json->setMessage($response);
 
