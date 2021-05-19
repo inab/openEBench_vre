@@ -162,46 +162,54 @@ $(document).ready(function () {
 
 	$('#sendForm').on("click", function () {
 		if (valid) {
-			var formData = JSON.stringify(editor.getValue());
-			$("#formMetadata").hide();
-			$("#loading-datatable").show();
-			$.ajax({
-				type: 'POST',
-				url: "applib/oeb_publishAPI.php?action=requestPublish",
-				data: { "fileId": filesObj["id"], "metadata": formData }
-			}).done(function(data) {
-				//no errors
-				if(data["code"]=="200"){
-					$("#loading-datatable").hide();
-					$("#step3").addClass("active");
-					$("#myError").removeClass("alert alert-danger");
-					$("#myError").addClass("alert alert-info");
-					$("#myError").append("<h4><b>New request successfully created: </b></h4><a href='vre/oeb_publish/oeb/oeb_manageReq.php'>"+data['message']['petition']+"</a></br></br>");
-					$("#myError").append(data['message']["email"]+"<br><br>"+timeStamp());
-					$("#myError").show();
-					console.log(data);
-					//errors
-				} else {
+			//var json = JSON.stringify(editor.getValue(),null,4);
+			var formData = JSON.stringify(editor.getValue(),null,4);
+			$("#myModal").modal();
+			$("#summaryContent").html("<pre>"+formData+"</pre>")
+
+			//when submit on modal is clicked
+			$('#submitModal').on("click",function() {
+				$("#closeModal").trigger("click");
+				$("#formMetadata").hide();
+				$("#loading-datatable").show();
+		
+				$.ajax({
+					type: 'POST',
+					url: "applib/oeb_publishAPI.php?action=requestPublish",
+					data: { "fileId": filesObj["id"], "metadata": formData }
+				}).done(function(data) {
+					//no errors
+					if(data["code"]=="200"){
+						$("#loading-datatable").hide();
+						$("#step3").addClass("active");
+						$("#myError").removeClass("alert alert-danger");
+						$("#myError").addClass("alert alert-info");
+						$("#myError").append("<h4><b>New request successfully created: </b></h4><a href='vre/oeb_publish/oeb/oeb_manageReq.php'>"+data['message']['petition']+"</a></br></br>");
+						$("#myError").append(data['message']["email"]+"<br><br>"+timeStamp());
+						$("#myError").show();
+						console.log(data);
+						//errors
+					} else {
+						$("#loading-datatable").hide();
+						$("#step3").addClass("active");
+						$("#myError").removeClass("alert alert-info");
+						$("#myError").addClass("alert alert-danger");
+						$("#myError").text(data["message"]);
+						$("#myError").show();
+					}
+				
+				//more errors
+				}). fail(function(data) {
 					$("#loading-datatable").hide();
 					$("#step3").addClass("active");
 					$("#myError").removeClass("alert alert-info");
 					$("#myError").addClass("alert alert-danger");
-					$("#myError").text(data["message"]);
+					$("#myError").text(data["responseJSON"]["message"]);
 					$("#myError").show();
-				}
-				
-			//more errors
-			}). fail(function(data) {
-				$("#loading-datatable").hide();
-				$("#step3").addClass("active");
-				$("#myError").removeClass("alert alert-info");
-				$("#myError").addClass("alert alert-danger");
-				$("#myError").text(data["responseJSON"]["message"]);
-				$("#myError").show();
+					
+				});
 				
 			});
-				
-
 		
 
 		}

@@ -144,46 +144,46 @@ require "../../htmlib/js.inc.php";
                                                 <h4 class="text-info" style="font-weight:bold;" >Datasets: </h4>
 
 
-						   <div class="portlet-body">
+						                    <div class="portlet-body">
                 		                      <div class="" data-always-visible="1" data-rail-visible="0">
                                 		        <ul class="feeds" id="list-files-run-tools">
-					 	  <?php 
-						   if (isset($_REQUEST['files']) ){
-							$fns =(is_array($_REQUEST['files'])? $_REQUEST['files'] : array($_REQUEST['files']));
+                                            <?php 
+                                            if (isset($_REQUEST['files']) ){
+                                                $fns =(is_array($_REQUEST['files'])? $_REQUEST['files'] : array($_REQUEST['files']));
 
-							foreach($fns as $fn){
-							   $fnPath    = getAttr_fromGSFileId($fn,'path');
-							   $filename  = basename($fnPath);
-						 	  $filedir   = basename(dirname($fnPath));
+                                                foreach($fns as $fn){
+                                                $fnPath    = getAttr_fromGSFileId($fn,'path');
+                                                $filename  = basename($fnPath);
+                                                $filedir   = basename(dirname($fnPath));
 
-					   	  	  ?>	
-					   	  	  <li>
-						     	 <div class="col1"><div class="cont">
-						        	 <div class="cont-col1"><div class="label label-sm label-info"><i class="fa fa-file"></i></div></div>
-						        	 <div class="cont-col2"><div class="desc"><span class="text-info" style="font-weight:bold;"><?php echo $filedir; ?>  /</span> <?php echo $filename; ?></div></div>
-						      	</div></div>
-					   	  	 </li>
-					   		<?php
-							}
-					   	}
-					   	?> 
-						    </ul>
-                                     		 </div>
-                                  	 	</div>
-				  	 	<br/>
-						
-                                                <h4 class="text-info" style="font-weight:bold;" >Metadata: </h4>
+                                                ?>	
+                                            <li>
+                                                <div class="col1"><div class="cont">
+                                                    <div class="cont-col1"><div class="label label-sm label-info"><i class="fa fa-file"></i></div></div>
+                                                    <div class="cont-col2"><div class="desc"><span class="text-info" style="font-weight:bold;"><?php echo $filedir; ?>  /</span> <?php echo $filename; ?></div></div>
+                                                </div></div>
+                                            </li>
+                                            <?php
+                                            }
+                                        }
+                                        ?> 
+                                            </ul>
+                                                            </div>
+                                                        </div>
+                                        <br/>
+                                        
+                                            <h4 class="text-info" style="font-weight:bold;" >Metadata: </h4>
                                                 <div style="max-height:400px;" id ="summaryContent"></div>
-					    </div>
-                                            <div class="modal-body table-responsive">
-                                                <h4 class="text-info" style="font-weight:bold;" >EUDAT Access: </h4>
-				   		<div class="portlet-body">
-						    <p>
-							Service: B2SHARE</br>
-							Server: <a href="https://eudat-b2share-test.csc.fi/">https://eudat-b2share-test.csc.fi</a></br>
-							Username: openEBench-generic 
-						    </p>
-						</div>
+                                            </div>
+                                                                <div class="modal-body table-responsive">
+                                                                    <h4 class="text-info" style="font-weight:bold;" >EUDAT Access: </h4>
+                                            <div class="portlet-body">
+                                                <p>
+                                                Service: B2SHARE</br>
+                                                Server: <a href="https://eudat-b2share-test.csc.fi/">https://eudat-b2share-test.csc.fi</a></br>
+                                                Username: openEBench-generic 
+                                                </p>
+                                            </div>
                                             
                                             </div>
                                             <div class="modal-footer">

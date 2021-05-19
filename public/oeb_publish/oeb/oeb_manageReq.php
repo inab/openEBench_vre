@@ -86,13 +86,15 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                 <div class="row">
 					<div class="col-md-12 col-sm-12">
 						<div class="portlet light bordered">
+                        <?php var_dump ($_SESSION['User']['TokenInfo']['oeb:roles']);?>
 							<div class="portlet-title">
 								<div class="caption">
-									<span class="caption-subject font-dark bold uppercase">Publication requests registers</span>
+									<span class="caption-subject font-dark bold uppercase">Your Publication requests registers</span>
 								</div>
                             </div>
                             <div class="portlet-body">
-                                <br>
+                                <!-- Show errors from frontend-->
+                	            <div id="myError"style="display:none;"></div>
                                 <!-- LOADING SPINNER-->
                                 <div id="loading-datatable" class="loadingForm">
                                     <div id="loading-spinner">LOADING</div>
@@ -101,16 +103,27 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                                 <div id="files">
                                     <table id="tableAllFiles" class="table table-striped table-hover table-bordered" width="100%"></table>
                                 </div>
-                            </div>   
-
-                            
-
+                            </div>
+                        </div>
+                        <div id ="approvalSection" class="portlet light bordered">
+                            <div  class="portlet-title">
+                                <div class="caption">
+                                    <span class="caption-subject font-dark bold uppercase">Pending approval Publication requests</span>
+                                </div>
+                            </div>
+                            <div class="portlet-body">
+                                <div id="pendingReq">
+                                    <table id="tableApprovals" class="table table-striped table-hover table-bordered" width="100%"></table>
+                                </div>
+                            </div>
+                        </div>
+                               
                         </div>
                     </div>
                 </div>
             </div>
             <!-- END LIST OF ALL FILES -->
-            <!-- Modal -->
+            <!-- Modal Action Confirmation -->
             <div class="modal fade" id="actionDialog" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
@@ -140,11 +153,34 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                                 </li>
                             </ul>
                             <br>
-                            
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                             <button id = "acceptModal" type="button" class="btn btn-primary">Accept</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Modal Log -->
+            <div class="modal fade" id="modalLog" role="dialog">
+                <div class="modal-dialog modal-lg">"
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" onclick="closeModal()" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                            <h3 class="modal-title">
+                                <span>
+                                    <i class="fa fa-list"></i>
+                                </span>
+                                <b>Log error </b>
+                            </h3>
+                        </div>
+                        <div class="modal-body table-responsive">
+                            <h4 class="text-info" style="font-weight:bold;" >Log: </h4>
+                            <div style="max-height:400px;" id ="modalContent"></div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" id="closeModal" class="btn btn-default" data-dismiss="modal">Close</button>
                         </div>
                     </div>
                 </div>

@@ -10,7 +10,6 @@
  * @return array of OEB benchmarking challenge identifiers
  */
 function getChallenges_associated_to_outfile($file_id){
-
         $challenges_ids=array();
 
 	//fetch execution run that generated the given file or folder
@@ -94,7 +93,7 @@ function getPublishableFiles($datatype) {
 	foreach ($filteredFiles as $key => $value) {
 
                 //check if file is already requested to be published
-                $found = $GLOBALS['pubRegistersCol']->findOne(array("fileId" => $value['_id']));
+                $found = $GLOBALS['pubRegistersCol']->findOne(array("fileIds" => array('$in'=> array($value['_id']))));
                 if(count($found) !== 0 || !is_null($found)) {
                         $value['current_status'] = $found['current_status'];
 		}
@@ -200,7 +199,7 @@ function submitedRegisters($filters) {
                         }
                         $r['approvers'] = $v['approvers'];
                         $r['bench_event'] = $v['oeb_metadata']['benchmarking_event_id'];
-                        $r['tool'] = $v['oeb_metadata']['tool_id'];
+                        $r['tool'] = array("tool_id" =>$v['oeb_metadata']['tool_id'], "tool_name" =>  getToolss($v['oeb_metadata']['tool_id'], "name"));
                         $r['history_actions'] = $v['history_actions'];
                         $r['status'] = $v['current_status'];
                         $r['oeb_id'] = $v['dataset_OEBid'];
@@ -224,6 +223,9 @@ function submitedRegisters($filters) {
  * @return 1 if correctly updated in mongo, 0 otherwise. (updateReqRegister)
  */
 function actionRequest($id, $action){
+        //jsonResponse class (errors or successfully)
+	$response_json = new JsonResponse();
+
         //approve
         if($action == 'approve'){
            //0. Input files
@@ -237,122 +239,255 @@ function actionRequest($id, $action){
            
            $r = file_put_contents($wd."/".$id.".json", json_encode($oeb_form));
            if (!$r) {
-                $_SESSION['errorData']['Error'][]="Cannot write data form.";
-                //redirect($GLOBALS['BASEURL'].'workspace/'); 
+                // return error msg via BlockResponse
+		$response_json->setCode(404);
+		$response_json->setMessage("Cannnot access temporary dir or write content");
+
+		return $response_json->getResponse();    
+                
            }
            $config_json = $wd."/".$id.".json";
-var_dump($config_json);
+
            //get token 
            $tk = $_SESSION['User']['Token']['access_token'];
 
            //1. Execute script to buffer: push_data_to_oeb.py -i oeb_form.json -cr oeb_token.json -tk
-           //TODO: create configuration in globals for execute script, mirar que existeixen al config i al disk
-           $result_upload = system("/home/user/OEB_level2_new/APP/.py3env/bin/python /home/user/OEB_level2_new/APP/push_data_to_oeb.py -i '".$config_json."' -cr /home/user/OEB_level2_new/APP/dev-oeb_token.json -tk '".$tk."'", $retvalue);
-var_dump($result_upload);
-var_dump($retvalue);
+	   $cmd = $_GLOBALS['OEB_submission_repository']."/APP/.py3env/bin/python ".$_GLOBALS['OEB_submission_repository']."/APP/push_data_to_oeb.py -i '".$config_json."' -cr ".$_GLOBALS['OEB_submission_repository']."/APP/dev-oeb_token.json -tk '".$tk."'";
+           $retvalue = my_exec($cmd);
+
            //2. Execute migration to oeb database: curl
-           if ($retvalue == 0){
-                $response = migrateToOEB($tk);
-        var_dump($response);
+           if ($retvalue['return'] != 0){
+                updateReqRegister ($id, array('current_status' => 'error', "log" =>array("cmd"=> $cmd, "error" => $retvalue['stderr'])));
+                $response_json->setCode(400);
+                $response_json->setMessage("<b>ERROR</b> pushing datasets to OpenEBench for Request ID:<b>".$id."</b>. Cannot upload data to buffer.");
+
+		return $response_json->getResponse();    
+           }
+        $response = migrateToOEB($tk);
+
+          if (!$response) {
+                updateReqRegister ($id, array('current_status' => 'error', "log" =>array("cmd"=> $cmd, "error" => $retvalue['stderr'])));
+                $response_json->setCode(400);
+                $response_json->setMessage("<b>ERROR</b> migration to database");
+
+		return $response_json->getResponse();  
+
+          }
+                //get dataset umbrella
                 $OEB_id = null;
                 foreach ($response as $value) {
                    if ($value['orig_id'] == $id){
                      $OEB_id = $value['_id'];
-                        var_dump($OEB_id);
-                        }
+                   }
                 }
 
-           
-
-           //3. update VRE mongo: //hisotry actions, new attr oeb_id, status published. 
+           //3. update VRE mongo: hisotry actions, new attr oeb_id, status published. 
            //Other registers (same user?, BE and tool), passed to obsolete
                 if (!is_null($OEB_id)) {
-                        //get all registers with same BE and same tool
-                        $filters = array( 'oeb_metadata.benchmarking_event_id' => $oeb_form['benchmarking_event_id'], 
-                        'oeb_metadata.tool_id' => $oeb_form['tool_id'] );
-                        $regData = $GLOBALS['pubRegistersCol']->find($filters);
-             
-                        foreach ($regData as $doc) {
-                           updateReqRegister ($doc['_id'], array('current_status' => 'obsolete'));
-                        }
-                       
-                        $new_action = array(
-                                "action" => "approve",
-                                "user" => $_SESSION['User']['id'],
-                                "timestamp" => date('H:i:s Y-m-d')
-                        );
-             
-                        //
-                             if (updateReqRegister ($id, array('current_status' => 'published', "dataset_OEBid" => $OEB_id))) {
-                                     if(insertAttrInReqRegister($id, $new_action)){
-                                             return 0;
-                                     }
-                             }
-                             
-                         }
+                        try {
+                                //get all registers with same BE and same tool
+                                $filters = array( 'oeb_metadata.benchmarking_event_id' => $oeb_form['benchmarking_event_id'], 
+                                'oeb_metadata.tool_id' => $oeb_form['tool_id'] );
+                                $regData = $GLOBALS['pubRegistersCol']->find($filters);
+                
+                                foreach ($regData as $doc) {
+                                        updateReqRegister ($doc['_id'], array('current_status' => 'obsolete'));
+                                }
+                        
+                                $new_action = array(
+                                        "action" => "approve",
+                                        "user" => $_SESSION['User']['id'],
+                                        "timestamp" => date('H:i:s Y-m-d')
+                                );
+                                if (updateReqRegister ($id, array('current_status' => 'published', "dataset_OEBid" => $OEB_id))) {
+                                        if(insertAttrInReqRegister($id, $new_action)){
+                                                $response_json->setCode(200);
+			                        $response_json->setMessage("Successfully");
+                                        }
+                                }
+                
 
+                        } catch (MongoCursorException $e) {
+
+                                $response_json->setCode(500);
+                                $response_json->setMessage("Cannot update data in Mongo. Mongo Error(".$e->getCode()."): ".$e->getMessage());
+                                return $response_json->getResponse();
+                        }
                 }
-           
-          
-            
-           
         }
 
         //deny
-        elseif ($action == 'deny'){
-                //new action
-                $new_action = array(
-                        "action" => "deny",
-                        "user" => $_SESSION['User']['id'],
-                        "timestamp" => date('H:i:s Y-m-d')
-                  );
-                if (updateReqRegister ($id, array('current_status' => 'denied'))) {
-                        if(insertAttrInReqRegister($id, $new_action)){
-                                return 0;
+        else{
+                try {
+                         //new action
+                        $new_action = array(
+                                "action" => $action,
+                                "user" => $_SESSION['User']['id'],
+                                "timestamp" => date('H:i:s Y-m-d')
+                        );
+                        if ($action == 'deny'){
+                                updateReqRegister ($id, array('current_status' => 'denied'));
+                        } elseif ($action == 'cancel'){
+                                updateReqRegister ($id, array('current_status' => 'cancelled'));
                         }
+                        if (insertAttrInReqRegister($id, $new_action)){
+                                $response_json->setCode(200);
+			        $response_json->setMessage("Successfully");
+                        }
+                        
+
+               
+                } catch (MongoCursorException $e) {
+
+                        $response_json->setCode(500);
+                        $response_json->setMessage("Cannot update data in Mongo. Mongo Error(".$e->getCode()."): ".$e->getMessage());
+                        return $response_json->getResponse();
                 }
-
-
-
+               
         }
 
-        //cancel
-        elseif($action == 'cancel'){
-                //new action
-                $new_action = array(
-                        "action" => "cancel",
-                        "user" => $_SESSION['User']['id'],
-                        "timestamp" => date('H:i:s Y-m-d')
-                  );
-                if (updateReqRegister ($id, array('current_status' => 'cancelled'))) {
-                        if(insertAttrInReqRegister($id, $new_action)){
-                                return 0;
-                        }
-                }
-
-
-        }
-        return 0;
+        
+        return $response_json->getResponse();
 }
+
 
 /**
- * Gets possible approvers
- * @param fileId the file to approve (get the challenge first)
- * @return array of possible approvers
+ * Push data to OEB
+ * @param fileId - id of the file
+ * @param metaForm - form data
+ * @param type - participant or consolidated
  */
-function getApprovers($fileId) {
-        $result = null;
+function proceedRequest_register_NC($fileId, $metaForm, $type) {
+
+	//jsonResponse class (errors or successfully)
+	$response_json = new JsonResponse();
+
+	//GET data: from meta Form
+	$form = json_decode($metaForm, true);
+	$community = $form['community_id'];
+	$benchmarkingEvent_id = $form['benchmarking_event_id'];
+
+	$executionfolder_id = getAttr_fromGSFileId($fileId, "parentDir");
+	$executionfolder_name = basename(getAttr_fromGSFileId($executionfolder_id, "path"));
+	$participantFile_id = getAttr_fromGSFileId($fileId, "input_files")[0];
+
+	//1. check if associated participant has nc_url in mongo VRE
+	/*
+	if ($n = getAttr_fromGSFileId($participantFile_id, "nc_url")){
+		//update form: participant_source from nc_url
+		$form['participant_file']  = $n;
+	}
+	*/
+	
+	//2. Gets APPROVERS
+	//gets associative array with key: contact_id and value: email
+	$approversContacts = getContactEmail (getCommunities($community, "community_contact_ids"));
+	$approversContactsIds = array();
+	foreach ($approversContacts as $key => $value) {
+		array_push($approversContactsIds, $key);
+	}
+
+	//3. REGISTER the petition in mongo
+
+	$metadata = array('_id' => createLabel('vre-oebreq', 'pubRegistersCol'), 'fileIds'=>array($fileId,$participantFile_id), "requester" => 
+		$_SESSION['User']['id'], "approvers" => $approversContactsIds,"current_status" =>"pending approval", 
+		"history_actions" => array(array("action" => 'request', "user" => $_SESSION['User']['id'], "timestamp" =>date('H:i:s Y-m-d'))),
+		"oeb_metadata" => $form);           
+	$req_id = uploadReqRegister($fileId, $metadata);
+	
+	if ($req_id === 0) {
+		// return error msg via BlockResponse
+		$response_json->setCode(400);
+		$response_json->setMessage("Error creating request.");
+
+		return $response_json->getResponse();
+	}
 
 
+	//4. UPLOAD to nextcloud and get url share link
+	// UPLOAD consolidated file
+	$url_consolidated =ncUploadFile("https://dev-openebench.bsc.es/nextcloud/", $fileId, $community."/".$benchmarkingEvent_id."/".$_SESSION['User']['id']."/".$executionfolder_name);
 
+	//UPLOAD participant file (in case url is needed)
+	$url_participant = ncUploadFile("https://dev-openebench.bsc.es/nextcloud/", $participantFile_id, $community."/".$benchmarkingEvent_id."/".$_SESSION['User']['id']."/".$executionfolder_name);
 
+	//UPLOAD tar file
+	$filter =  array("data_type" => "tool_statistics" , "parentDir"   => $executionfolder_id);
+	$files_list = getGSFiles_filteredBy($filter);
 
-        return $result;
+	$simpleArray = array();
+	foreach ($files_list as $value){
+		$simpleArray = $value;
+	}
+	$id_tar = $simpleArray['_id'];
+	$url_tar =ncUploadFile("https://dev-openebench.bsc.es/nextcloud/", $id_tar, $community."/".$benchmarkingEvent_id."/".$_SESSION['User']['id']."/".$executionfolder_name);
+		
+	if (is_null($url_consolidated) || is_null($url_participant) || is_null($url_tar)) {
+		// return error msg via BlockResponse
+		$response_json->setCode(500);
+		$response_json->setMessage("Error uploading file to nextcloud.");
+		//updateReqRegister ($req_id, array('current_status' => 'error', 'log' => $response_json->getResponse()));
 
+		return $response_json->getResponse();
+	}	
+
+	//5. EDIT metadata: to paricipant (in case url is needed) and consolidated file in mongo
+	try{
+		addMetadataBNS($fileId, array("nc_url" => $url_consolidated."/download"));
+		addMetadataBNS($participantFile_id, array("nc_url" => $url_participant));
+
+		//EDIT metadata form: add url nc to participant (in case not url) and consolidated
+		$form['participant_file']  = $url_participant;
+		$form['consolidated_oeb_data']  = $url_consolidated."/download";
+		$form['dataset_submission_id'] = $req_id;
+		updateReqRegister($req_id,array("oeb_metadata" => $form));
+
+		//EDIT metadata for petition: add attr visualitzation_file: uri and 
+		updateReqRegister($req_id,array("visualitzation_url" => $url_tar));
+
+		//6.Notify approvers
+		if (!sendRequestToApprover("txellfe@hotmail.com", $_SESSION['User']['id'], $fileId)){
+			// return error msg via BlockResponse
+			$response_json->setCode(500);
+			$response_json->setMessage("Error sending email to approvers.");
+			//updateReqRegister ($req_id, array('current_status' => 'error', 'log' => $response_json->getResponse()));
+
+			return $response_json->getResponse();
+		}
+
+		//7.return JSON RESULT with all url files
+
+		$response = array("files" => array($fileId => $url_consolidated, $participantFile_id => $url_participant,
+			$id_tar => $url_tar), "petition"=>$req_id, "email" => "Approvers correctly notified.");
+		$response_json->setCode(200);
+		$response_json->setMessage($response);
+
+	} catch (MongoCursorException $e) {
+
+		$response_json->setCode(500);
+		$response_json->setMessage("Cannot update data in Mongo. Mongo Error(".$e->getCode()."): ".$e->getMessage());
+		return $response_json->getResponse();
+	}
+	
+	return $response_json->getResponse();
 }
 
 
-/*
-Function to know the minimal role.
-*/ 
+function my_exec($cmd, $input=''){
+        $proc=proc_open($cmd, array(0=>array('pipe', 'r'), 1=>array('pipe', 'w'), 2=>array('pipe', 'w')), $pipes);
+        fwrite($pipes[0], $input);
+        fclose($pipes[0]);
+
+        $stdout=stream_get_contents($pipes[1]);
+        fclose($pipes[1]);
+          
+        $stderr=stream_get_contents($pipes[2]);
+        fclose($pipes[2]);
+        $rtn=proc_close($proc);
+        return array('stdout'=>$stdout,
+                       'stderr'=>$stderr,
+                       'return'=>$rtn
+                      );
+}
+
 

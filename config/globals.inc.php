@@ -64,6 +64,8 @@ $GLOBALS['urlLogout']              = $GLOBALS['authServer'].'/realms/'.$GLOBALS[
 $GLOBALS['adminToken']             = $GLOBALS['authServer']."/realms/master/protocol/openid-connect/token"; // get Admin token
 $GLOBALS['adminRealm']             = $GLOBALS['authServer']."/admin/realms/".$GLOBALS['authRealm']; // admin keycloak users
 
+//OEB submission
+$_GLOBALS['OEB_submission_repository'] = "/home/user/OEB_level2_new";
 
 // Respository and storage configuration
 

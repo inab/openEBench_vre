@@ -21,6 +21,13 @@ $(document).ready(function() {
             "bFilter": false, 
             "bPaginate": false,
             "bInfo": false,
+            "bAutoWidth": true,
+            //filter for published registers and accordig to BE selected.
+            rowCallback: function( row, data, index ) {
+                if (data['status'] != "published" || data['bench_event'] != be_selected) {
+                    $(row).hide();
+                }
+            },
             columns: [
                 { 
                     "data" : "tool",
@@ -45,6 +52,13 @@ $(document).ready(function() {
 
             ],
             'columnDefs': [
+                {
+                    'targets': 0,
+                    render: function ( data, type, row ) {
+                        return data['tool_name'];
+                    }
+
+                },
                 {
                     'targets': 1,
                     "className": "dt-center",
@@ -72,14 +86,11 @@ $(document).ready(function() {
                 {
                     'targets': 4,
                     "className": "dt-center",
-                    render: function ( data, type, row ) {
-                        return data
-                    } 
+                    
+                    
                 }
             ]
         } );
-        //filter for published registers and accordig to BE selected
-        table0.columns( [4] ).search("published").draw();
         table0.columns( [3] ).search(be_selected).draw();
 
         createSelectableTable();
@@ -157,23 +168,36 @@ function createSelectableTable(){
                 'searchable': false,
                 'orderable': false,
                 render: function ( data, type, row ) {
-                    r = '<input type="radio" name = "'+data+'" value="'+row.files['participant']['id']+'"></br></br>\
-                    <input type="radio" name = "'+data+'" value="'+row.files['consolidated']['id']+'">'
+                    console.log(row['current_status']);
+                    if(row['current_status'] == 'pending approval' || row['current_status'] == 'published'){
+                        r = '</br></br><input disabled type="radio" name = "'+data+'" value="'+row.files['participant']['id']+'"></br></br>\
+                        <input disabled type="radio" name = "'+data+'" value="'+row.files['consolidated']['id']+'">'
+                       
+                    } else {
+                        r = '</br></br><input  type="radio" name = "'+data+'" value="'+row.files['participant']['id']+'"></br></br>\
+                        <input  type="radio" name = "'+data+'" value="'+row.files['consolidated']['id']+'">'
+                    }
+                    
                     return r;
                 }
             },
             {
                 "targets": 1,
-                "title": '<th>Files <i class="icon-question" data-toggle="tooltip" data-placement="top" title="Type of data file"></i></th>',
+                "title": '<th>Execution files <i class="icon-question" data-toggle="tooltip" data-placement="top" title="Files in execution folder"></i></th>',
                 render:function ( data, type, row ) {
-                    r = data['participant']['path']+'</br></br>';
-                    r += data['consolidated']['path'].split("/").reverse()[0];
+                    if(row['current_status'] == 'pending approval' || row['current_status'] == 'published'){
+                        r = "<div class='disabled-dataset'><b>"+row['path'].split("/").reverse()[1]+"/</b><i class=\"fa fa-exclamation-triangle\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"File already submitted\" style='color: #F4D03F'></i></br></br>";
+                    }else r = "<div><b>"+row['path'].split("/").reverse()[1]+"/</b></br></br>";  
+                    r += data['participant']['path']+'</br></br>';
+                    r += data['consolidated']['path'].split("/").reverse()[0]+"</div>";
+                    
 
                     return r;
                 }
             },
             {
                 "targets": 2,
+                className: "hide_column",
                 "title": '<th>Execution workflow <i class="icon-question" data-toggle="tooltip" data-placement="top" title="Execution and file name"></i></th>',
                 render: function ( data, type, row ) {
                     
@@ -194,7 +218,7 @@ function createSelectableTable(){
             },
             {
                 "targets": 4,
-                "title": '<th>Benchmarking Challenges<i class="icon-question" data-toggle="tooltip" data-placement="top" title="OpenEBench benchmarking challenges included in the metrics"></i></th>',
+                "title": '<th>Benchmarking Challenges <i class="icon-question" data-toggle="tooltip" data-placement="top" title="OpenEBench benchmarking challenges evaluated in the execution"></i></th>',
                 render: function ( data, type, row, meta ) {
                     if (data != undefined && data.length != 0){
                         
@@ -217,7 +241,7 @@ function createSelectableTable(){
             },
             {
                 "targets": 5,
-                "title": '<th>Date <i class="icon-question" data-toggle="tooltip" data-placement="top" title="Identifier of EUDAT/B2SHARE"></i></th>',
+                "title": '<th>Date <i class="icon-question" data-toggle="tooltip" data-placement="top" title="Execution date"></i></th>',
                 render: function ( data, type, row ) {
                     return convertTimestamp(data['$date']['$numberLong']);
                         //return data['sec'].toLocalTime();
@@ -227,7 +251,7 @@ function createSelectableTable(){
             {
                 "targets": 6,
                 className: "hide_column",
-                "title": '<th>Status petition  <i class="icon-question" data-toggle="tooltip" data-placement="top" title="Identifier of EUDAT/B2SHARE"></i></th>',
+                "title": '<th>Status petition  <i class="icon-question" data-toggle="tooltip" data-placement="top" title=""></i></th>',
                 render: function ( data, type, row ) {
                     if (!data) {
                         return "not submited"
@@ -239,7 +263,7 @@ function createSelectableTable(){
             },
             {
                 "targets":7,
-                "title": '<th>Benchmark event status  <i class="icon-question" data-toggle="tooltip" data-placement="top" title="Identifier of EUDAT/B2SHARE"></i></th>',
+                "title": '<th>Event status  <i class="icon-question" data-toggle="tooltip" data-placement="top" title="Benchmarking event status, if it is still open to submit datasets or not"></i></th>',
                 render: function ( data, type, row ) {
                         return "Open"
                     //TODO
@@ -247,7 +271,7 @@ function createSelectableTable(){
             },
             {
                 "targets": 8,
-                "title": '<th>Published on OEB <i class="icon-question" data-toggle="tooltip" data-placement="top" title="Identifier of EUDAT/B2SHARE"></i></th>',
+                "title": '<th>Published on OEB <i class="icon-question" data-toggle="tooltip" data-placement="top" title="If datasets are already published in OpenEBench"></i></th>',
                 render: function ( data, type, row ) {
                         return false
                     //TODO
@@ -258,6 +282,7 @@ function createSelectableTable(){
         'order': [[1, 'asc']]
 
     });
+    table1.columns.adjust().draw();
 }
 
 function showChallenges(numRow) {

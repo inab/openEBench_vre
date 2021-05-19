@@ -166,6 +166,68 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                     </div>
 
                 </div>
+                <!-- Modal -->
+                <div class="modal fade" id="myModal" role="dialog">
+                    <div class="modal-dialog modal-lg">"
+                        <!-- Modal content-->
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" onclick="closeModal()" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                                <h3 class="modal-title">
+                                    <span>
+                                        <i class="fa fa-list"></i>
+                                    </span>
+                                    <b>Summary </b>
+                                </h3>
+                            </div>
+                            <div style="margin: 15px ;"><h4>Are you sure you want to request to publish the following data?</h4></div>
+                                <div class="modal-body table-responsive">
+                                    <h4 class="text-info" style="font-weight:bold;" >Datasets: </h4>
+                                    <div class="portlet-body">
+                		                <div class="" data-always-visible="1" data-rail-visible="0">
+                                		    <ul class="feeds" id="list-files-run-tools">
+                                                <li>
+                                                    <div class="col1">
+                                                        <div class="cont">
+                                                            <div class="cont-col1">
+                                                                <div class="label label-sm label-info">
+                                                                    <i class="fa fa-file"></i>
+                                                                </div>
+                                                            </div>
+                                                            <div class="cont-col2">
+                                                                <div class="desc">
+                                                                    <span class="text-info" style="font-weight:bold;">  /</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <br/>
+                                    <h4 class="text-info" style="font-weight:bold;" >Metadata: </h4>
+                                    <div style="max-height:400px;" id ="summaryContent"></div>
+                                </div>
+                                <div class="modal-body table-responsive">
+                                    <h4 class="text-info" style="font-weight:bold;" >EUDAT Access: </h4>
+                                    <div class="portlet-body">
+                                            <p>
+                                                Service: B2SHARE</br>
+                                                Server: <a href="https://eudat-b2share-test.csc.fi/">https://eudat-b2share-test.csc.fi</a></br>
+                                                Username: openEBench-generic 
+                                            </p>
+                                    </div>
+                                            
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" id="submitModal" class="btn btn-primary">Submit</button>
+                                    <button type="button" id="closeModal" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                                </div>
+                            </div>
+                        </div> 
+                    </div>          
+                </div>
 
             </div>
         </div> 

@@ -274,6 +274,9 @@ foreach ($outputExe_files as $key => $value) {
 .ul-challenges li:nth-child(n+4) {
     display:none;
 }
+.disabled-dataset {
+    color:silver;
+}
             </style>
 
             <script>
