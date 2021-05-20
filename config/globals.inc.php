@@ -67,6 +67,9 @@ $GLOBALS['adminRealm']             = $GLOBALS['authServer']."/admin/realms/".$GL
 //OEB submission
 $_GLOBALS['OEB_submission_repository'] = "/home/user/OEB_level2_new";
 
+//B2share submission 
+$_GLOBALS['B2SHARE_submission_repository'] = "/home/user/b2share";
+
 // Respository and storage configuration
 
 $GLOBALS['repositories'] = array(
@@ -331,7 +334,10 @@ $GLOBALS['oeb_workflow_validator'] = 'oeb_workflow_validator.json';
 $GLOBALS['oeb_script_validator'] = "oeb_validatorScript.sh";
 
 //schema from EUDAT
+$GLOBALS['eudat_host']="https://trng-b2share.eudat.eu/";
+#$GLOBALS['eudat_pusher']=""; // Root directory of the pusher local installation
 $GLOBALS['oeb_eudat_schema'] = "https://raw.githubusercontent.com/inab/EUDAT-OEB-schemas/main/eudatSchema.json";
 
 //schema from oeb (submission)
+#$GLOBALS['oeb_submission_pusher']=""; // Root directory of the pusher local installation
 $GLOBALS['oeb_submission_schema'] = "https://raw.githubusercontent.com/inab/OEB_level2_data_migration/master/submission_form_schema.json";

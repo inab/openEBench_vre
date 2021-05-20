@@ -27,19 +27,8 @@ if($_REQUEST) {
 		if (isset($_REQUEST['metadata']) && isset($_REQUEST['fileId'])) {
 			$metadata = $_REQUEST['metadata'];
 			$fn = $_REQUEST['fileId'];
-			
-			//inlcude token parameter
-			$doi = oeb_publish_file_eudat($fn,$metadata, "");
-
-			//check regex in prod enviroment!!!
-			if (preg_match("/b2share.\w{32}/",$doi)){
-				registerDOIToVRE ($fn, $doi);
-				exit;
-			
-			}
-			
+			echo oeb_publish_file_eudat($fn,$metadata, "ixQFTHFCUIPTjaBRps6ixPjLAo40M8fCE6AR6lEsttokUuS7q8xP2pLnD7Is");
 			exit;
-			
 		}
 	//https://dev-openebench.bsc.es/vre/applib/oeb_publishAPI.php?action=getRole
 	}elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == "getRole") {
@@ -53,8 +42,6 @@ if($_REQUEST) {
 			$metadataForm = $_REQUEST['metadata'];
 			echo proceedRequest_register_NC($fn, $metadataForm, "");
 			exit; 
-		}else {
-			echo "{}";
 		}
 	//https://dev-openebench.bsc.es/vre/applib/oeb_publishAPI.php?action=getSubmitRegisters
 	}elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == "getSubmitRegisters") {
@@ -96,8 +83,6 @@ if($_REQUEST) {
 			echo submitedRegisters($filters);
 			exit;
 		}
-		echo '{}';
-		
 	//https://dev-openebench.bsc.es/vre/applib/oeb_publishAPI.php?action=getLog&reqId=id
 	}elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == "getLog") {
 		if (isset($_REQUEST['reqId'])) {
@@ -110,17 +95,5 @@ if($_REQUEST) {
     exit;
 }
 
-function getOEBdataFromBenchmarkingEvent ($BE_id) {
-	$block_json = '{}';
-	$result = array();
-	$result["community_id"] = getBenchmarkingEvents($BE_id, "community_id");
 
-	$tool = getTool_fromId($value['tool'],1);
-	$result["oeb_workflow"] = $tool["workflow_id"];
-	$block_json = json_encode($result, JSON_PRETTY_PRINT);
-
-	return $block_json;
-
-
-}
 

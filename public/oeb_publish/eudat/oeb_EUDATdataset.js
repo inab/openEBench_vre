@@ -2,10 +2,8 @@ $(document).ready(function() {
   var valid = false;
   var currentURL = window.location["href"];
 
-
   //get schema
   $.getJSON(oeb_eudat_schema, function(data) {
-
       schema = data;
     }).done(function() {
       //user
@@ -35,7 +33,6 @@ $(document).ready(function() {
         data: {"files" : fn}
       }).done(function(data) {
         var fileinfo = JSON.parse(data);
-        console.log(fileinfo);
 
         //user info
         $.ajax({
@@ -45,9 +42,7 @@ $(document).ready(function() {
         }).done(function(data) {
           
           var userinfo = JSON.parse(data);
-          console.log(userinfo);
 
-          
           //set the values internally in the form
           editor.getEditor("root.titles.0.title").setValue(fileinfo["path"].split("/").pop());
           editor.getEditor("root.contact_email").setValue(userinfo["Email"]);
@@ -85,10 +80,6 @@ $(document).ready(function() {
             } else editor.getEditor("root.license.license_uri").setValue("http://creativecommons.org/licenses/by/4.0/")
           });
           
-          
-          
-
-
           editor.on('change',function() {
 
             //custom validation fields
@@ -135,10 +126,9 @@ $(document).ready(function() {
           console.log(editor.getValue());
 
         });
-
       });
-
   });
+
   $('#submit').on("click",function() {
     if(valid){
       var json = JSON.stringify(editor.getValue(),null,4);
@@ -157,22 +147,34 @@ $(document).ready(function() {
           url: "applib/oeb_publishAPI.php?action=publish",
           data: {"metadata" : json, "fileId": fn}
         }).done (function(data) {
-            console.log(data);
-              if (data != 0) {
-                $("#loading-datatable").hide();
-  
-                $("#result").html("<h4>Data successfully published!</h4><p style=\"font-size:1.1em;\">Registered D.O.I.: <b>"+data+"</b><br/>"+timeStamp()+"</p><br><a href=\"https://eudat-b2share-test.csc.fi/records/"+(data.split(".").splice(-1)).toString()+"\" target=\"_blank\" class=\"btn green\"> EUDAT record</a>");
-                $("#result").show();
-    
-                //button back display
-                $("#back").show();
+            //no errors
+            if(data["code"]=="200"){
+              $("#loading-datatable").hide();
+              $("#result").removeClass("alert alert-danger");
+              $("#result").addClass("alert alert-info");
+              
+              $("#result").append("<h4>Data successfully published!</h4><p style=\"font-size:1.1em;\">Registered D.O.I.: <b>"+data["message"]+"</b><br/>"+timeStamp()+"</p><br><a href=\"https://eudat-b2share-test.csc.fi/records/"+data["message"]+"\" target=\"_blank\" class=\"btn green\"> EUDAT record</a>");
+              $("#result").show();
+              //button back display
+              $("#back").show();
 
-              } else {
-                $("#loading-datatable").hide();
-                $("#result").html("Fail: data not correctly published :("); 
-                $("#result").show();
-              } 
-          });
+            } else {
+              $("#loading-datatable").hide();
+              $("#result").removeClass("alert alert-info");
+              $("#result").addClass("alert alert-danger");
+              $("#result").text(data["message"]);
+              $("#result").show();
+
+            }
+        //more errors
+		    }). fail(function(data) {
+            $("#loading-datatable").hide();
+            $("#result").removeClass("alert alert-info");
+            $("#result").addClass("alert alert-danger");
+            $("#result").append(data["responseJSON"]["message"]);
+            $("#result").append("</br>Please, try it later or report this message <a href='mailto:openebench-support@bsc.es'>openebench-support@bsc.es</a>.");
+            $("#result").show();
+        }); 
       })
     }
   });
@@ -180,7 +182,6 @@ $(document).ready(function() {
   $('#back').on("click",function() {
     location.href = 'vre/oeb_publish/eudat/';
   });
-
   
 });
 
