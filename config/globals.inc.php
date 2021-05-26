@@ -334,7 +334,7 @@ $GLOBALS['oeb_workflow_validator'] = 'oeb_workflow_validator.json';
 $GLOBALS['oeb_script_validator'] = "oeb_validatorScript.sh";
 
 //schema from EUDAT
-$GLOBALS['eudat_host']="https://trng-b2share.eudat.eu/";
+$GLOBALS['b2share_host']="https://eudat-b2share-test.csc.fi";  // URL of EUDAT B2SHARE server
 #$GLOBALS['eudat_pusher']=""; // Root directory of the pusher local installation
 $GLOBALS['oeb_eudat_schema'] = "https://raw.githubusercontent.com/inab/EUDAT-OEB-schemas/main/eudatSchema.json";
 

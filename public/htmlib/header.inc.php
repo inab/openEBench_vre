@@ -211,6 +211,7 @@
 		case 'index':
 		case 'home':
 		case 'usrProfile':
+		case 'linkedAccount':
 		case 'uploadForm':
 		case 'uploadForm2':
 		case 'editFile':

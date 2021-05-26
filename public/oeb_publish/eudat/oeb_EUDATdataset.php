@@ -5,11 +5,8 @@ redirectOutside();
 
 //files
 // check if execution is given
-
 if(isset($_REQUEST['files'])){
     $files = explode(",",$_REQUEST['files']);
-    
-
 }else redirect($GLOBALS['BASEURL'].'workspace/');
 
 require "../../htmlib/header.inc.php";
@@ -27,7 +24,6 @@ require "../../htmlib/js.inc.php";
         <div class="page-content-wrapper">
             <!-- BEGIN CONTENT BODY -->
             <div class="page-content">
-
                 <!-- BEGIN PAGE HEADER-->
                 <!-- BEGIN PAGE BAR -->
                 <div class="page-bar">
@@ -59,7 +55,6 @@ require "../../htmlib/js.inc.php";
                         <div class="portlet light portlet-fit bordered">
                             <div class="portlet-body">
 				                <h3 style="font-weight: bold; color: #666;">List of datasets</h3>
-
                                 <div data-always-visible="1" data-rail-visible="0">
                                     <div>List of datasets to be published.</div><br/>
                                     <ul class="feeds" id="list-files-run-tools">
@@ -123,8 +118,7 @@ require "../../htmlib/js.inc.php";
                                     <p class="errorClass" id="idP" style="display:none;"></p>
                                     
                                 </div>
- 				<div id="result" style="display:none; margin-top:20px;" class="alert alert-info"></div>
-				<!-- </div> -->
+ 				                <div id="result" style="display:none; margin-top:20px;" class="alert alert-info"></div>
                                 <!-- Modal -->
                                 <div class="modal fade" id="myModal" role="dialog">
                                     <div class="modal-dialog modal-lg">"
@@ -143,58 +137,62 @@ require "../../htmlib/js.inc.php";
                                             <div class="modal-body table-responsive">
                                                 <h4 class="text-info" style="font-weight:bold;" >Datasets: </h4>
 
-
 						                    <div class="portlet-body">
                 		                      <div class="" data-always-visible="1" data-rail-visible="0">
                                 		        <ul class="feeds" id="list-files-run-tools">
-                                            <?php 
-                                            if (isset($_REQUEST['files']) ){
-                                                $fns =(is_array($_REQUEST['files'])? $_REQUEST['files'] : array($_REQUEST['files']));
+                                                <?php 
+                                                if (isset($_REQUEST['files']) ){
+                                                    $fns =(is_array($_REQUEST['files'])? $_REQUEST['files'] : array($_REQUEST['files']));
 
-                                                foreach($fns as $fn){
-                                                $fnPath    = getAttr_fromGSFileId($fn,'path');
-                                                $filename  = basename($fnPath);
-                                                $filedir   = basename(dirname($fnPath));
-
-                                                ?>	
-                                            <li>
-                                                <div class="col1"><div class="cont">
-                                                    <div class="cont-col1"><div class="label label-sm label-info"><i class="fa fa-file"></i></div></div>
-                                                    <div class="cont-col2"><div class="desc"><span class="text-info" style="font-weight:bold;"><?php echo $filedir; ?>  /</span> <?php echo $filename; ?></div></div>
-                                                </div></div>
-                                            </li>
-                                            <?php
-                                            }
-                                        }
-                                        ?> 
-                                            </ul>
+                                                    foreach($fns as $fn){
+                                                        $fnPath    = getAttr_fromGSFileId($fn,'path');
+                                                        $filename  = basename($fnPath);
+                                                        $filedir   = basename(dirname($fnPath));
+                                                    ?>	
+                                                    <li>
+                                                        <div class="col1"><div class="cont">
+                                                            <div class="cont-col1">
+                                                                <div class="label label-sm label-info">
+                                                                    <i class="fa fa-file"></i>
+                                                                </div>
+                                                            </div>
+                                                            <div class="cont-col2">
+                                                                <div class="desc">
+                                                                    <span class="text-info" style="font-weight:bold;"><?php echo $filedir; ?>  /</span> <?php echo $filename; ?>
+                                                                </div>
                                                             </div>
                                                         </div>
-                                        <br/>
-                                        
-                                            <h4 class="text-info" style="font-weight:bold;" >Metadata: </h4>
-                                                <div style="max-height:400px;" id ="summaryContent"></div>
+                                                    </div>
+                                                    </li>
+                                                    <?php
+                                                    }
+                                                }
+                                                ?> 
+                                                </ul>
                                             </div>
-                                                                <div class="modal-body table-responsive">
-                                                                    <h4 class="text-info" style="font-weight:bold;" >EUDAT Access: </h4>
-                                            <div class="portlet-body">
-                                                <p>
+                                        </div>
+                                        <br/>
+                                        <h4 class="text-info" style="font-weight:bold;" >Metadata: </h4>
+                                        <div style="max-height:400px;" id ="summaryContent"></div>
+                                    </div>
+                                    <div class="modal-body table-responsive">
+                                        <h4 class="text-info" style="font-weight:bold;" >EUDAT Access: </h4>
+                                        <div class="portlet-body">
+                                            <p>
                                                 Service: B2SHARE</br>
                                                 Server: <a href="https://eudat-b2share-test.csc.fi/">https://eudat-b2share-test.csc.fi</a></br>
                                                 Username: openEBench-generic 
-                                                </p>
-                                            </div>
-                                            
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" id="submitModal" class="btn btn-primary">Submit</button>
-                                                <button type="button" id="closeModal" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                                            </div>
+                                            </p>
                                         </div>
-                                    
+                                            
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" id="submitModal" class="btn btn-primary">Submit</button>
+                                        <button type="button" id="closeModal" class="btn btn-default" data-dismiss="modal">Cancel</button>
                                     </div>
                                 </div>
-                                
+                                    </div>
+                                </div>
                                 <br>
                                 <button id="back" class="btn btn-default" style="display:none;">Back</button>
                             </div>
@@ -205,39 +203,37 @@ require "../../htmlib/js.inc.php";
             </div>
             <!-- END CONTENT BODY -->
             
-                <style type="text/css">
-                    
-                    
-                    .invalid-feedback {
-                        color: red;
-                    }
+ <style type="text/css">
+    .invalid-feedback {
+        color: red;
+    }
 
-                    button {
-                        margin: 3px;
-                    }
+    button {
+        margin: 3px;
+    }
 
-                    label {
-                        font-weight: bold;
-                    }
+    label {
+        font-weight: bold;
+    }
 
-                    #idP {
-                        margin-top: 20px;
-                    }
-                    
-                    /* Encapsulate some fields */
-                    .form-group, .btn-group,
-                    div[data-schemapath="root.nextflow_files.files"] {
-                        margin-left: 20px;
-                    }
+    #idP {
+        margin-top: 20px;
+    }
+    
+    /* Encapsulate some fields */
+    .form-group, .btn-group,
+    div[data-schemapath="root.nextflow_files.files"] {
+        margin-left: 20px;
+    }
 
-                    .form-group .required {
-                        font-size: 14px;
-                        color: #333;
-                    }
+    .form-group .required {
+        font-size: 14px;
+        color: #333;
+    }
 
-                </style>
-                <!-- Footer-->
-                <?php
-                require "../../htmlib/footer.inc.php";
-                ?>
+</style>             
+<!-- Footer-->
+<?php
+require "../../htmlib/footer.inc.php";
+?>
 

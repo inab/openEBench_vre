@@ -86,7 +86,7 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                 <div class="row">
 					<div class="col-md-12 col-sm-12">
 						<div class="portlet light bordered">
-                        <?php var_dump ($_SESSION['User']['TokenInfo']['oeb:roles']);?>
+                        <?php //var_dump ($_SESSION['User']['TokenInfo']['oeb:roles']);?>
 							<div class="portlet-title">
 								<div class="caption">
 									<span class="caption-subject font-dark bold uppercase">Your Publication requests registers</span>
@@ -95,23 +95,24 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                             <div class="portlet-body">
                                 <!-- Show errors from frontend-->
                 	            <div id="myError"style="display:none;"></div>
-                                <!-- LOADING SPINNER-->
-                                <div id="loading-datatable" class="loadingForm">
-                                    <div id="loading-spinner">LOADING</div>
-                                    <div id="loading-text">It could take a few minutes</div>
-                                </div>
                                 <div id="files">
                                     <table id="tableAllFiles" class="table table-striped table-hover table-bordered" width="100%"></table>
                                 </div>
                             </div>
                         </div>
-                        <div id ="approvalSection" class="portlet light bordered">
+                        <div id ="approvalSection" class="portlet light bordered" 
+                        style="display:<?php if (str_contains($_SESSION['User']['TokenInfo']['oeb:roles'][0], 'owner') || str_contains($_SESSION['User']['TokenInfo']['oeb:roles'][0], 'supervisor')) echo "block"; else echo "none"?>;" >
                             <div  class="portlet-title">
                                 <div class="caption">
                                     <span class="caption-subject font-dark bold uppercase">Pending approval Publication requests</span>
                                 </div>
                             </div>
                             <div class="portlet-body">
+                            <!-- LOADING SPINNER-->
+                                <div id="loading-datatable" class="loadingForm">
+                                    <div id="loading-spinner">LOADING</div>
+                                    <div id="loading-text">It could take a few minutes</div>
+                                </div>
                                 <div id="pendingReq">
                                     <table id="tableApprovals" class="table table-striped table-hover table-bordered" width="100%"></table>
                                 </div>

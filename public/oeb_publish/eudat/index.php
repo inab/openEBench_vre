@@ -9,8 +9,6 @@ require "../../htmlib/header.inc.php";
 
 //project list of the user
 $projects = getProjects_byOwner();
-
-
 ?>
 
 <body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white page-container-bg-solid page-sidebar-fixed">
@@ -68,9 +66,7 @@ $projects = getProjects_byOwner();
 
                 <div class="row">
                     <div class="col-md-12 col-sm-12">
-
                         <div class="portlet light bordered">
-
                             <div class="portlet-title">
                                 <div class="caption">
                                     <i class="icon-share font-dark hide"></i>
@@ -80,11 +76,9 @@ $projects = getProjects_byOwner();
                                     <a href="<?php echo $GLOBALS['BASEURL']; ?>oeb_publish/eudat/index.php" class="btn green"> Reload Workspace </a>
                                 </div>
                             </div>
-
                             <div class="portlet-body">
                                 <!--table with files-->
                                 <table id="filesTable" class="table table-striped table-hover table-bordered" width="100%">
-                                
                                     <thead>
                                         <tr> 
                                             <th><input name="select_all" value="1" id="example-select-all" type="checkbox" /></th>
@@ -96,7 +90,6 @@ $projects = getProjects_byOwner();
                                         </tr>
                                     </thead>
                                 </table>
-                                
                                 <button class=" btn green"  id="btn-run-files" style="margin-top:20px;">Submit file(s)</button> <p id="message"></p>
                             </div>
                         </div>
@@ -104,26 +97,24 @@ $projects = getProjects_byOwner();
                 </div>
             </div>
             
-        
             <!-- END EXAMPLE TABLE PORTLET-->
 
             <!-- Footer-->
             <?php require "../../htmlib/footer.inc.php"; 
             require "../../htmlib/js.inc.php";
             ?>                                    
-            <style>
-                .hide_column {
-                    display : none;
-                }
-            </style>
+<style>
+    .hide_column {
+        display : none;
+    }
+</style>
 
-            <script>
-                var redirect_url = "oeb_publish/eudat/";
+<script>
+    var redirect_url = "oeb_publish/eudat/";
 
-                function loadProjectWS(id) {
-                    var baseURL = $('#base-url').val();
-                    console.log(id);
-                    location.href = baseURL + 'applib/oeb_manageProjects.php?op=reload&pr_id=' + id.value + '&redirect_url=' + redirect_url;
-                };  
+    function loadProjectWS(id) {
+        var baseURL = $('#base-url').val();
+            location.href = baseURL + 'applib/oeb_manageProjects.php?op=reload&pr_id=' + id.value + '&redirect_url=' + redirect_url;
+        };  
                     
-            </script>
+</script>

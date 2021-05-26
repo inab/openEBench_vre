@@ -99,6 +99,8 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                                     <div>List of files to request to publish.</div><br/>
                                     <ul class="feeds" id="list-files-run-tools">
                                         <?php 
+                                        $filename ="";
+                                        $filedir ="";
                                         if (isset($_REQUEST['files']) ){
                                            
                                             $fns = json_decode($_REQUEST['files']);
@@ -196,7 +198,7 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                                                             </div>
                                                             <div class="cont-col2">
                                                                 <div class="desc">
-                                                                    <span class="text-info" style="font-weight:bold;">  /</span>
+                                                                    <span class="text-info" style="font-weight:bold;"><?php echo $filedir?>  /</span><?php echo $filename?>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -208,17 +210,6 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                                     <br/>
                                     <h4 class="text-info" style="font-weight:bold;" >Metadata: </h4>
                                     <div style="max-height:400px;" id ="summaryContent"></div>
-                                </div>
-                                <div class="modal-body table-responsive">
-                                    <h4 class="text-info" style="font-weight:bold;" >EUDAT Access: </h4>
-                                    <div class="portlet-body">
-                                            <p>
-                                                Service: B2SHARE</br>
-                                                Server: <a href="https://eudat-b2share-test.csc.fi/">https://eudat-b2share-test.csc.fi</a></br>
-                                                Username: openEBench-generic 
-                                            </p>
-                                    </div>
-                                            
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" id="submitModal" class="btn btn-primary">Submit</button>

@@ -141,13 +141,69 @@ function createTableApprover(){
         "bLengthChange": false,
         "bAutoWidth": true,
         "columns" : [
-            { "data" : "id" }, //0
-            { "data" : "files" }, //1
-            { "data" : "requester_name" }, //2
-            { "data" : "status" }, //3
-            { "data" : "oeb_id"}, //4
-            { "data" : "history_actions" }, //5
-            { "data" : null} //6
+            { "data" : "id", "title": '<th>Request id </th>' }, //0
+            { "data" : "files", "title": '<th>File name </th>' }, //1
+            { "data" : "requester_name", "title": '<th>Requester</th>' }, //2
+            { "data" : "status",  "title": '<th>Status</th>' }, //3
+            { "data" : "oeb_id", "title": '<th>OEB dataset id</th>'}, //4
+            { "data" : null, "title": '<th>Actions</th>' }, //5
+
+        ],
+        'columnDefs': [
+            {
+                "targets": 1,
+                "title": '<th>File Name </th>',
+                render: function ( data, type, row ) {
+                    result = "<ul>";
+                    for (let index = 0; index < data.length; index++) {
+                        result += "<li><a href='"+data[index]['nc_url']+"'target='_blank'>"+ data[index]['name']+"</a></li>";   
+                        
+                    }
+                    result += "</ul>";
+                    return result
+                    //return "<b>"+data.split("/").reverse()[1]+"</b>/"+data.split("/").pop();
+                }
+                
+            },
+            {
+                "targets": 3,
+                render: function ( data, type, row ) {
+                    if (data == "error") {
+                        return '<a href="javascript:viewLog(\''+row['id']+'\');">'+data+"</a>"
+                    }else return data;
+                }
+            },
+            {
+                "targets": 5,
+                "title": '<th>Actions </th>',
+                render: function ( data, type, row ) {
+                    result = "";
+                    if (row['status'] == 'pending approval') {
+                        result += '<div class="btn-group" style="float:left; position:absolute;">\
+                        <button class="btn btn-xs blue-madison dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">\
+                            <i class="fa fa-cogs"></i>\
+                            <i class="fa fa-angle-down"></i>\
+                        </button>\
+                        <ul class="dropdown-menu pull-right" role="menu">\
+                            <li><a href="javascript:actionTable2(\''+row['id']+'\',\'approve\');"><i class="fa fa-check-circle" style = "color:#74b72e;"></i> Approve request</a></li>\
+                            <li><a href="javascript:actionTable2(\''+row['id']+'\',\'deny\');"><i class="fa fa-times-circle" style = "color:#E00909;"></i> Deny request</a></li>\
+                        </ul>\
+                        </div>';
+                    }
+                     
+                    result += '<div class="btn-group" style="float:left; position:absolute;margin-left:38px;">\
+                            <button class="btn btn-xs purple-intense dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">\
+						        <i class="fa fa-eye"></i>\
+						        <i class="fa fa-angle-down"></i>\
+		                    </button>\
+                            <ul class="dropdown-menu pull-right" role="menu">\
+						        <li><a href="javascript:showResultsPage(\'OpEBUSER5e301d61da6f8_5e5fc0fab53483.99018780\',\'QFO_6\');"><i class="fa fa-file-text"></i> View Results</a></li>\
+	                        </ul>\
+                        </div>'
+                   return result;
+                }
+                
+            }
 
         ],
         'order': [[1, 'asc']]
@@ -170,7 +226,7 @@ function actionTable2(id, action) {
     $("#acceptModal").click(function (){
         $("#actionDialog").modal('hide');
         $("#loading-datatable").show();
-        $("#files").hide();
+        $("#pendingReq").hide();
         $.ajax({
             type: "POST",
             url: baseURL + "/applib/oeb_publishAPI.php?action=proceedReq",

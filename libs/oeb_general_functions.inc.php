@@ -1,4 +1,7 @@
 <?php
+/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////FUNCTIONS TO CONNECT OPENEBENCH APIs/////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
 
 /**
  * Gets all communitites with their info or an specific community filtered or not
@@ -38,7 +41,6 @@ function getCommunities($community_id = null, $filter_field = null ){
  */
 //var_dump(getDatasets("OEBD0010000003"));
 function getDatasets($dataset_id = null, $filter_field = null ){
-  //$GLOBALS['OEB_scirestapi'] = 'https://openebench.bsc.es/api/scientific/access';
   if ($dataset_id == null) {
     $url = $GLOBALS['OEB_scirestapi']."/Dataset";
 
@@ -191,23 +193,17 @@ function getCommunityFromChallenge($challenge_id){
  * @param roles array of user roles
  * @return array of communitites id's
  */
-
-/**
- * Get the communities the user have permisions to submit files
- * @param roles array of user roles
- * @return array of communitites id's
- */
 function getCommunitiesFromRoles (array $roles) {
 	$communitites_ids = array();
   
 	foreach ($roles as $elem) {
 	  $r = explode(":", $elem);
 	  if($r[0] == "owner") {
-		array_push($communitites_ids, $r[1] );
+		  array_push($communitites_ids, $r[1] );
 	  }else {
-		if($r[0] == "manager" || $r[0] == "contributor") {
-		  array_push($communitites_ids, getCommunityFromChallenge($r[1]) );
-		}
+		  if($r[0] == "manager" || $r[0] == "contributor") {
+		    array_push($communitites_ids, getCommunityFromChallenge($r[1]) );
+		  }
 	  }
   
 	}
@@ -261,7 +257,6 @@ function getContactEmail ($contacts_ids) {
   if (($F = fopen($confFile, "r")) !== FALSE) {
       while (($d = fgetcsv($F, 1000, ";")) !== FALSE) {
           foreach ($d as $a){
-              //$r = explode(":",$a);
               $r = preg_replace('/^.:/', "", $a);
               if (isset($r)){array_push($credentials,$r);}
           }
@@ -324,36 +319,7 @@ function getAllContactsOfCommunity ($community_id){
     return json_encode($items);
   }
 }
-// HTTP post
-function npost($data,$url,$headers=array(),$auth_basic=array()){
 
-  $c = curl_init();
-  curl_setopt($c, CURLOPT_URL, $url);
-  curl_setopt($c, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']);
-  curl_setopt($c, CURLOPT_POST, 1);
-  #curl_setopt($c, CURLOPT_TIMEOUT, 7);
-  curl_setopt($c, CURLOPT_CUSTOMREQUEST, "POST");
-  curl_setopt($c, CURLOPT_POSTFIELDS, $data);
-      curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
-      if (count($headers))
-          curl_setopt($c, CURLOPT_HTTPHEADER, $headers);
-      if ($auth_basic['user'] && $auth_basic['pass'])
-          curl_setopt($c, CURLOPT_USERPWD, $auth_basic['user'].":".$auth_basic['pass']);
-          
-  $r = curl_exec ($c);
-      $info = curl_getinfo($c);
-
-  if ($r === false){
-    $errno = curl_errno($c);
-    $msg = curl_strerror($errno);
-          $err = "POST call failed. Curl says: [$errno] $msg";
-      $_SESSION['errorData']['Error'][]=$err;	
-    return array(0,$info);
-  }
-  curl_close($c);
-
-  return array($r,$info);
-}
 
 /**
  * Gets participant tools 
@@ -388,7 +354,6 @@ function getTools () {
 * @param token - to take provenance from token
 * @return json response or false if error ocurred
 */
-//var_dump(migrateToOEB("eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJCakliSkM2WlpBQ2Qxb2VmTC1uMXhoVjJQdDhMWmNZSGM4d2FnZWNiMk40In0.eyJleHAiOjE2MjA3NDU0NDksImlhdCI6MTYyMDc0MTg0OSwiYXV0aF90aW1lIjoxNjIwNzQxODQ5LCJqdGkiOiI0ZmU5MzBkMi0wZjA4LTQ3NTEtODRmMC1lN2E4NWQ1ZWRjMzkiLCJpc3MiOiJodHRwczovL2luYi5ic2MuZXMvYXV0aC9yZWFsbXMvb3BlbmViZW5jaCIsImF1ZCI6ImFjY291bnQiLCJzdWIiOiJiMjU5MWZkOS01OTRjLTRjMDctOGQ5Yi1kOGQxNDEwYTE5MjkiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJvZWItdnJlLWRldiIsInNlc3Npb25fc3RhdGUiOiIzY2YwNTJiZC0xNzhiLTRkMjAtYTMyMC00YTY1OWIwNTc4MDgiLCJhY3IiOiIxIiwiYWxsb3dlZC1vcmlnaW5zIjpbImh0dHBzOi8vZGV2LW9wZW5lYmVuY2guYnNjLmVzIl0sInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJvZmZsaW5lX2FjY2VzcyIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJlbWFpbCBwcm9maWxlIiwiY29tbXVuaXR5X2lkIjpbIk9FQkMwMDIiXSwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm9lYjpyb2xlcyI6WyJvd25lcjpPRUJDMDAyIl0sIm5hbWUiOiJ0ZXN0IHRlc3QiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJ0ZXN0IiwiZ2l2ZW5fbmFtZSI6InRlc3QiLCJmYW1pbHlfbmFtZSI6InRlc3QiLCJlbWFpbCI6InRlc3RAYnNjLmVzIn0.WycSnWoG4WenCotf27nHQY08Jt_l7HwuBleRviU8DIukBiK_uNuO_O1tLNS5cpJFTQk4mcyoBycokYhhp0Ira388-OYaIrYSQ63LDM0DdxM2lqNd5kH7x5d5EDlNzXfhi4u6PEodXpoHekJoCnjjjfjjkHhsgh6dCeh5yg8-b-LlAa2C4pCgzBILLIMS5NfOPkG5Bsztk-2PZ4_P8gUpGss_IbtRUhCYbCCvnnqOoQ-UPhQ5Ymim2W-_uV75A-12fcPaNq0t3Tjwye0A0_xF4_4fddQ5GJLy5kiVP9AOlA_iQhWRN9lK8eUZRnwHq3zYzaIgHoM89070hwDf7NPB_g", false));
 function migrateToOEB ($token, $dryrun=false) {
 
   $url= $GLOBALS['OEB_migrate'].'?dryrun=false';
@@ -400,14 +365,14 @@ function migrateToOEB ($token, $dryrun=false) {
 
   $r = get($url, $headers);
   if ($r[1]['http_code'] != 200){
-    //$_SESSION['errorData']['Warning'][]="Error uploading files. Http code= ".$r[1]['http_code'];
+    $_SESSION['errorData']['Warning'][]="Error uploading files. Http code= ".$r[1]['http_code'];
     return false;
   } else {
     return json_decode($r[0], true);
   }
 }
 
-var_dump(getContactsIds("redmitry@list.ru"));
+//var_dump(getContactsIds("meritxell.ferret@bsc.es"));
 /**
  * Gets the contact id from OEB
  * @param email - from vRE
@@ -441,7 +406,7 @@ function getContactsIds($email){
 
   $headers= array('Content-Type: application/json');
 
-  $r = npost($data_query, $url, $headers, $auth_basic);
+  $r = post($data_query, $url, $headers, $auth_basic);
   if ($r[1]['http_code'] != 200){
     $_SESSION['errorData']['Warning'][]="Error getting contacts. Http code= ".$r[1]['http_code'];
     return false;
@@ -450,3 +415,4 @@ function getContactsIds($email){
     return $items;
   }
 }
+

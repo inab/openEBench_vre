@@ -63,8 +63,6 @@ function getPublishableFiles($datatype) {
         //initiallize variables
         $block_json="{}";
         $files = array();
-
-	//
 	// Find user files with the given allowed datatype/s
 
 	//get path of the user workspace
@@ -179,21 +177,20 @@ function submitedRegisters($filters) {
         //initiallize variables
         $block_json="{}";
         $reg = array();
-
         //get data from DB
         try {
                 //get user submited requests
                 $regData = $GLOBALS['pubRegistersCol']->find($filters);
- 
                 foreach ($regData as $v) {
                         $r['id'] = $v['_id'];
                         $user = $GLOBALS['usersCol']->findOne(array('id' => $v['requester']));
                         $r['requester_name'] = $user['Name'];
                         $r['files'] = array();
                         foreach ($v['fileIds'] as $value) {
-                                $file_path  = $GLOBALS['dataDir'].getAttr_fromGSFileId($value,'path');
+                                $file_path  = $GLOBALS['dataDir'].getAttr_fromGSFileId($value,'path', 1);
+                               
                                 $file_name  = basename($file_path);
-                                $f = ["id" => $value, "name" => $file_name, "nc_url" => getAttr_fromGSFileId($value, "nc_url")];
+                                $f = ["id" => $value, "name" => $file_name, "nc_url" => getAttr_fromGSFileId($value, "nc_url", 1)];
                                 array_push($r['files'], $f);
                                
                         }
@@ -210,6 +207,7 @@ function submitedRegisters($filters) {
 
         } catch (MongoCursorException $e) {
                 $_SESSION['errorMongo'] = "Error message: ".$e->getMessage()."Error code: ".$e->getCode();
+                var_dump("ss");
         }
         
         return $block_json;
@@ -250,7 +248,7 @@ function actionRequest($id, $action){
 
            //get token 
            $tk = $_SESSION['User']['Token']['access_token'];
-
+           $_GLOBALS['OEB_submission_repository'] = "/home/user/OEB_level2_new";
            //1. Execute script to buffer: push_data_to_oeb.py -i oeb_form.json -cr oeb_token.json -tk
 	   $cmd = $_GLOBALS['OEB_submission_repository']."/APP/.py3env/bin/python ".$_GLOBALS['OEB_submission_repository']."/APP/push_data_to_oeb.py -i '".$config_json."' -cr ".$_GLOBALS['OEB_submission_repository']."/APP/dev-oeb_token.json -tk '".$tk."'";
            $retvalue = my_exec($cmd);
@@ -386,6 +384,8 @@ function proceedRequest_register_NC($fileId, $metaForm, $type) {
 	foreach ($approversContacts as $key => $value) {
 		array_push($approversContactsIds, $key);
 	}
+        //delete for prod:
+        array_push($approversContactsIds,"Meritxell.Ferret");
 
 	//3. REGISTER the petition in mongo
 
@@ -426,7 +426,7 @@ function proceedRequest_register_NC($fileId, $metaForm, $type) {
 		// return error msg via BlockResponse
 		$response_json->setCode(500);
 		$response_json->setMessage("Error uploading file to nextcloud.");
-		//updateReqRegister ($req_id, array('current_status' => 'error', 'log' => $response_json->getResponse()));
+		updateReqRegister ($req_id, array('current_status' => 'error', 'log' => array("error" =>"Error uploading files to nextlcloud")));
 
 		return $response_json->getResponse();
 	}	
@@ -446,7 +446,7 @@ function proceedRequest_register_NC($fileId, $metaForm, $type) {
 		updateReqRegister($req_id,array("visualitzation_url" => $url_tar));
 
 		//6.Notify approvers
-		if (!sendRequestToApprover("txellfe@hotmail.com", $_SESSION['User']['id'], $fileId)){
+		if (!sendRequestToApprover("meritxell.ferret@bsc.es", $_SESSION['User']['Name'], $req_id)){
 			// return error msg via BlockResponse
 			$response_json->setCode(500);
 			$response_json->setMessage("Error sending email to approvers.");
@@ -490,4 +490,16 @@ function my_exec($cmd, $input=''){
                       );
 }
 
+function getOEBdataFromBenchmarkingEvent ($BE_id) {
+	$block_json = '{}';
+	$result = array();
+	$result["community_id"] = getBenchmarkingEvents($BE_id, "community_id");
 
+	$tool = getTool_fromId($value['tool'],1);
+	$result["oeb_workflow"] = $tool["workflow_id"];
+	$block_json = json_encode($result, JSON_PRETTY_PRINT);
+
+	return $block_json;
+
+
+}

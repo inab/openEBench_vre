@@ -99,7 +99,7 @@ $(document).ready(function() {
         if (roles === null) {
             $("#communitySelector").attr('disabled','disabled');
             $("#warning-notAllowed").show();
-        } else if (roles.find(a =>a.includes("contributor"))===undefined && roles.find(a =>a.includes("manager"))===undefined && roles.find(a =>a.includes("owner"))===undefined) {
+        } else if (roles.find(a =>a.includes("contributor"))===undefined && roles.find(a =>a.includes("manager"))===undefined && roles.find(a =>a.includes("supervisor"))===undefined && roles.find(a =>a.includes("owner"))===undefined) {
             $("#communitySelector").attr('disabled','disabled');
             $("#warning-notAllowed").show();
         }else {
@@ -168,7 +168,6 @@ function createSelectableTable(){
                 'searchable': false,
                 'orderable': false,
                 render: function ( data, type, row ) {
-                    console.log(row['current_status']);
                     if(row['current_status'] == 'pending approval' || row['current_status'] == 'published'){
                         r = '</br></br><input disabled type="radio" name = "'+data+'" value="'+row.files['participant']['id']+'"></br></br>\
                         <input disabled type="radio" name = "'+data+'" value="'+row.files['consolidated']['id']+'">'
@@ -308,74 +307,6 @@ function submitFiles() {
     return false;
 }
 
-
-
-/*
-
-// remove files from the list
-function submit() {
-    var list = "";
-    $("#filesAboutToSubmit tr").remove();
-    for (let index = 0; index < arrayOfFiles.length; index++) {
-        list += '<tr><td style="vertical-align: middle;"><div class="label label-sm label-info"><i class="fa fa-file"></i></div>&nbsp<span class="text-info" style="font-weight:bold;">'+arrayOfFiles[index]['filename']+'</span></td><td><input type="text" class="form-control" id = "msg'+index+'" placeholder="Enter your message..."></td></tr>'
-        
-        
-    }
-    
-    $("#filesAboutToSubmit").append(list);
-    $("#reqSubmitDialog").modal('show'); 
-
-   
-    
-
-    $("#submitModal").click(function (){
-        $("#reqSubmitDialog").modal('hide'); 
-        console.log(arrayOfFiles);
-        
-        //window.location.href = "oeb_publish/oeb/oeb_editMetadata.php?files="+arrayOfFiles;
-
-
-        /*
-        for (let index = 0; index < arrayOfFiles.length; index++) {
-            $.ajax({
-                type: "POST",
-                url: baseURL + "/applib/oeb_publishAPI.php?action=request",
-                data: {fileId: arrayOfFiles[index]['id'], msg:$('#msg'+index).val()},
-                success: function(data) {
-                    if (data == '1') {
-                        setTimeout(function() { 
-                            $("#alert").append(createAlert(arrayOfFiles[index]['filename'],"success"));
-                            //refresh table1
-                            table1.ajax.reload();
-                            $.each($('tbody tr '), function() {
-                                if($('td:first-child input[type="checkbox"]', this).prop('checked')) {
-                                    $('td:first-child input', this).removeAttr("checked");
-                                    
-                                }
-                            })
-                        }, 500);
-                        
-                    } else if (data == '0') {
-                        setTimeout(function() {
-                            alert("files not correctly submited");
-                            $("#alert").append(createAlert(arrayOfFiles[index]['filename'],"notComplete"));
-                        }, 500);
-                        return false;
-                        
-                        
-                    }
-                }
-            });
-        }
-        window.location.href = "oeb_publish/oeb/oeb_editMetadata.php";
-        
-        $("#tableMyFiles" ).click();
-        
-    });
-    
-}
-
-*/
 //get petition to get user roles
 function getRoles() {
     return $.ajax({

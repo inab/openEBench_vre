@@ -27,7 +27,7 @@ if($_REQUEST) {
 		if (isset($_REQUEST['metadata']) && isset($_REQUEST['fileId'])) {
 			$metadata = $_REQUEST['metadata'];
 			$fn = $_REQUEST['fileId'];
-			echo oeb_publish_file_eudat($fn,$metadata, "ixQFTHFCUIPTjaBRps6ixPjLAo40M8fCE6AR6lEsttokUuS7q8xP2pLnD7Is");
+			echo oeb_publish_file_eudat($fn,$metadata, $_SESSION['User']['linked_accounts']['b2share']['access_token']);
 			exit;
 		}
 	//https://dev-openebench.bsc.es/vre/applib/oeb_publishAPI.php?action=getRole
@@ -79,10 +79,10 @@ if($_REQUEST) {
 	//https://dev-openebench.bsc.es/vre/applib/oeb_publishAPI.php?action=getApprovalRequest
 	}elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == "getApprovalRequest") {
 		if (getContactsIds($_SESSION['User']['Email'])){
-			$filters = array ('approvers' => array('$in' => getContactsIds($_SESSION['User']['email'])));
+			$filters = array ('approvers' => array('$in' => array(getContactsIds($_SESSION['User']['Email']))));
 			echo submitedRegisters($filters);
 			exit;
-		}
+		}else echo '{}';exit;
 	//https://dev-openebench.bsc.es/vre/applib/oeb_publishAPI.php?action=getLog&reqId=id
 	}elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == "getLog") {
 		if (isset($_REQUEST['reqId'])) {

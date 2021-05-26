@@ -461,6 +461,7 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 	case 'home':
 	case 'datasets':
 	case 'usrProfile':
+	case 'linkedAccount':
 	case 'restoreLink':
 	case 'uploadForm':
 	case 'oeb_newBlock':

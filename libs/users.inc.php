@@ -10,7 +10,8 @@
 
 function checkLoggedIn(){
 
-	$user = $GLOBALS['usersCol']->findOne(array('_id' => $_SESSION['User']['_id']));
+	if (isset($_SESSION['User']) && isset($_SESSION['User']['_id']))
+		$user = $GLOBALS['usersCol']->findOne(array('_id' => $_SESSION['User']['_id']));
 	
 	if(isset($_SESSION['User']) && ($user['Status'] == 1)) return true;
 	else return false;
@@ -18,7 +19,7 @@ function checkLoggedIn(){
 
 function checkTermsOfUse() {
 
-	if($_SESSION['User']['terms'] == 1) return true;
+	if(isset($_SESSION['User']['terms']) and $_SESSION['User']['terms']== 1) return true;
 	else return false;
 }
 
@@ -112,13 +113,14 @@ function createUserFromToken($login,$token,$userinfo=array(),$anonID=false){
           );
         }
     }
-    if ($userinfo){
-        if ($userinfo['family_name'])
+    if (isset($userinfo) && $userinfo){
+        if (isset($userinfo['family_name']))
            $f['Surname'] = $userinfo['family_name'];
-        if ($userinfo['given_name'])
+        if (isset($userinfo['given_name']))
             $f['Name'] = $userinfo['given_name'];
-        if ($userinfo['provider'])
+        if (isset($userinfo['provider']))
             $f['AuthProvider'] = $userinfo['provider'];
+    	$f['TokenInfo'] = $userinfo;
     }
     $objUser = new User($f, True);
     if (!$objUser)
@@ -158,7 +160,7 @@ function createUserFromToken($login,$token,$userinfo=array(),$anonID=false){
     }
     if ($anonID){
     	// if replacing anon user, delete old anon from mongo
-//    	$GLOBALS['usersCol']->remove(array('_id'=> $anonID));    
+//    	$GLOBALS['usersCol']->deleteOne(array('_id'=> $anonID));    
     }
     
     //  inject user['id'] into auth server (keycloak) as 'vre_id' (so APIs will find it in /openid-connect/userinfo endpoint)
@@ -267,13 +269,12 @@ function createUserFromAdmin(&$f) {
 
 // load user to SESSION
 function setUser($f,$lastLogin=FALSE) {
-    $aux = (array)$f;
+	$aux = (array)$f;
 	unset($aux['crypPassword']);
-	//unset($aux['lastLogin']);
-    $_SESSION['User']   = $aux;
+    	$_SESSION['User']   = $aux;
 	$_SESSION['curDir'] = $_SESSION['User']['id'];
-
 	if(!isset($_SESSION['lastUserLogin']) && $lastLogin) $_SESSION['lastUserLogin'] = $lastLogin;
+
 }
 
 function delUser($id, $asRoot=1, $force=false){
@@ -314,7 +315,7 @@ function delUser($id, $asRoot=1, $force=false){
      */
 
     //delete user from mongo
-    $GLOBALS['usersCol']->remove(array('id'=> $id));
+    $GLOBALS['usersCol']->deleteOne(array('id'=> $id));
 
     return 1;
 }
@@ -335,13 +336,13 @@ function injectMugIdToKeycloak($login,$id){
             $r = update_keycloak_user($kc_user['id'],json_encode($data),$kc_token['access_token']);
 
             if (!$r){
-                $_SESSION['errorData']['Warning'][]="User not valid to be used outside VRE. Could not inject 'vre_id' into Auth Server. Cannot update ".$aux['_id']." in its registry";
+                $SESSION['errorData']['Warning'][]="User not valid to be used outside VRE. Could not inject 'vre_id' into Auth Server. Cannot update ".$kc_user['id']." at the central registry";
                 return false;
             }else{
                 return true;
             }
         }else{
-#            $_SESSION['errorData']['Warning'][]="User not valid to be used outside VRE. Could not inject 'vre_id' into Auth Server. Cannot get ".$aux['_id']." from its registry";
+            $_SESSION['errorData']['Warning'][]="User not valid to be used outside VRE. Could not inject 'vre_id' into Auth Server. Cannot retrieve $login user details from the central registry. Invalid token?";
             return false;
         }
     }else{
@@ -360,9 +361,8 @@ function resetPasswordViaKeycloak($login,$id){
 
             $r = update_keycloak_userPass($kc_user['id'],$kc_token['access_token']);
 
-            print "AQUI ESTA!!";
             var_dump($r);
-            die();
+            die("resetPasswordViaKeycloak()");
 
             if (!$r){
                 $_SESSION['errorData']['Warning'][]="User not valid to be used outside VRE. Could not inject 'vre_id' into Auth Server. Cannot update ".$aux['_id']." in its registry";
@@ -400,7 +400,7 @@ function saveNewUser($userObj) {
 // update user document in  Mongo
 
 function updateUser($f) {
-    $GLOBALS['usersCol']->updateOne(array('_id' => $f['_id']), array('$set'=>$f), array('upsert=>1'));
+    $GLOBALS['usersCol']->updateOne(array('_id' => $f['_id']), array('$set'=>$f), array('upsert=>true'));
 }
 
 // update attribute user document in Mongo
@@ -408,7 +408,7 @@ function updateUser($f) {
 function modifyUser($login,$attribute,$value) {
     $GLOBALS['usersCol']->updateOne(array('_id'   => $login ),
                                  array('$set'  => array($attribute => $value)),
-                                 array('upsert' => 1)
+                                 array('upsert' => true)
                              );
 }
 
@@ -471,10 +471,11 @@ function loadUser($login, $pass) {
 function loadUserWithToken($userinfo, $token){
     $login = $userinfo['email'];
     $user = $GLOBALS['usersCol']->findOne(array('_id' => $login));
+
     if (!$user['_id'] || $user['Status'] == 0)
         return False;
     
-	$auxlastlog = $user['lastLogin'];
+    $auxlastlog = $user['lastLogin'];
     $user['lastLogin'] = moment();
     $user['Token']     = $token;
     $user['TokenInfo'] = $userinfo;
@@ -576,6 +577,42 @@ function getUserJobPid($login,$pid) {
         return $r['lastjobs'];
     else
         return Array();
+}
+
+
+function addUserLinkedAccount($login,$account_type,$data){
+ 
+    $all_accounts=array();
+    $r = $GLOBALS['usersCol']->findOne(array('_id'  => $login,
+                                             'linked_accounts'=> array('$exists' => true)
+                                            ));
+    if (isset($r['linked_accounts'])){
+	$all_accounts= $r['linked_accounts'];
+    }
+    $all_accounts[$account_type] = $data;
+
+    try {
+    	$GLOBALS['usersCol']->updateOne(array('_id' => $login),
+                                 array('$set'   => array('linked_accounts' => $all_accounts)),
+                                 array('upsert' => true)
+			 );
+
+    }catch(MongoCursorException $e){
+	$_SESSION['errorData']['Error'][]="Cannot update database with new '$account_type' data. Error: ".$e ['err'];
+	return false;
+    }
+    return true;
+}
+function deleteUserLinkedAccount($login,$account_type){
+    try {
+	$GLOBALS['usersCol']->updateOne(array('_id' => $login),
+                                 array('$unset' => array("linked_accounts.$account_type" => 1 ))
+			 );
+    }catch(MongoCursorException $e){
+            $_SESSION['errorData']['Error'][]="Cannot delete linked_account '$account_type'. ".$e->getMessage();
+            return false;
+    }
+    return true;
 }
 
 ?>

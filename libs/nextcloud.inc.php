@@ -1,19 +1,8 @@
 <?php 
 //functions to manage nextcloud 
-
-
-
 /*************** SABREDAV *************** */
 
 use Sabre\DAV\Client;
-/*
-Per defecte ja tindre un comportamnet, pillant tot d globals, pero les propietats nomes serveixen per modificar el comportament
-per defecte.
-//username
-//server 
-//password
-
-*/
 
 /**
  * Constructs the HTTP client
