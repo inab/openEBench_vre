@@ -165,7 +165,7 @@ foreach ($outputExe_files as $key => $value) {
 									</div>
 							    </div>
                                 -->
-                                <span class="caption-subject font-dark bold uppercase titleBE">PUBLISHED FILES ON OPENEBENCH FOR BENCHMARKING </span>
+                                <span class="caption-subject font-dark bold uppercase titleBE">PUBLISHED FILES ON OPENEBENCH FOR THE SELECTED BENCHMARKING EVENT</span>
                                 <div id = "tablePublishedFiles">
                                     <table id="publishedFiles" class="table table-striped table-hover table-bordered" width="100%"></table>
                                 </div>

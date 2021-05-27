@@ -1,6 +1,7 @@
 var arrayOfFiles = [];
+var table0;
 var table1;
-
+var be_selected = $("#beSelector").val();//selected benchmarking event
 $(document).ready(function() {
 
     $("#selectAll").click();
@@ -9,11 +10,7 @@ $(document).ready(function() {
     getRoles().done(function(r) {
         var roles = JSON.parse(r)
 
-        var be_selected = $("#beSelector").val();//selected benchmarking event
-        
-        $('.titleBE').append(be_selected)
-
-        var table0 = $('#publishedFiles').DataTable( {
+        table0 = $('#publishedFiles').DataTable( {
             "ajax": {
                 url: 'applib/oeb_publishAPI.php?action=getSubmitRegisters',
                 dataSrc: ''
@@ -91,9 +88,8 @@ $(document).ready(function() {
                 }
             ]
         } );
-        table0.columns( [3] ).search(be_selected).draw();
 
-        createSelectableTable();
+        table1 = createSelectableTable();
         
         //permisions depending on the role
         if (roles === null) {
@@ -102,8 +98,6 @@ $(document).ready(function() {
         } else if (roles.find(a =>a.includes("contributor"))===undefined && roles.find(a =>a.includes("manager"))===undefined && roles.find(a =>a.includes("supervisor"))===undefined && roles.find(a =>a.includes("owner"))===undefined) {
             $("#communitySelector").attr('disabled','disabled');
             $("#warning-notAllowed").show();
-        }else {
-            
         }
         
         //refresh list each time table is clicked
@@ -128,6 +122,11 @@ $(document).ready(function() {
         })
     
     })
+    $("#beSelector").on('change', function() {
+        be_selected = $("#beSelector").val();
+        table0.ajax.reload();
+        table1.ajax.reload();
+    })
     
 
 })
@@ -136,7 +135,7 @@ $(document).ready(function() {
 /****FUNCTIONS****/
 
 function createSelectableTable(){
-    table1 = $('#communityTable').DataTable( {
+    return $('#communityTable').DataTable( {
         "ajax": {
             url: 'applib/oeb_publishAPI.php?action=getAllFiles&type[]=OEB_data_model',
             dataSrc: ''
@@ -146,6 +145,12 @@ function createSelectableTable(){
         //"bInfo": false,
         "bLengthChange": false,
         "bAutoWidth": true,
+        //filter for BE selected
+        rowCallback: function( row, data, index ) {
+            if (data['benchmarking_event']['be_id'] != be_selected) {
+                $(row).hide();
+            }
+        },
         
         "columns" : [
             {"data" : "_id"}, //0
@@ -186,7 +191,7 @@ function createSelectableTable(){
                     if(row['current_status'] == 'pending approval' || row['current_status'] == 'published'){
                         r = "<div class='disabled-dataset'><b>"+row['path'].split("/").reverse()[1]+"/</b><i class=\"fa fa-exclamation-triangle\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"File already submitted\" style='color: #F4D03F'></i></br></br>";
                     }else r = "<div><b>"+row['path'].split("/").reverse()[1]+"/</b></br></br>";  
-                    r += data['participant']['path']+'</br></br>';
+                    r += data['participant']['path'].split("/").reverse()[1]+"/"+data['participant']['path'].split("/").reverse()[0]+'</br></br>';
                     r += data['consolidated']['path'].split("/").reverse()[0]+"</div>";
                     
 
@@ -352,6 +357,7 @@ $("#selectConsolidated").click(function () {
     var rows = $("#communityTable").find("tbody").find("tr").hide();
     rows.filter(":contains('Output: OEB data')").show();
 });
+
 
 
 /**
