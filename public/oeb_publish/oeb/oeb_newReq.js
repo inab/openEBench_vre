@@ -269,15 +269,16 @@ function createSelectableTable(){
                 "title": '<th>Event status  <i class="icon-question" data-toggle="tooltip" data-placement="top" title="Benchmarking event status, if it is still open to submit datasets or not"></i></th>',
                 render: function ( data, type, row ) {
                         return "Open"
-                    //TODO
+                    //TODO (for now, events date are irrellevant)
                 }
             },
             {
                 "targets": 8,
                 "title": '<th>Published on OEB <i class="icon-question" data-toggle="tooltip" data-placement="top" title="If datasets are already published in OpenEBench"></i></th>',
                 render: function ( data, type, row ) {
-                        return false
-                    //TODO
+                    if (data) return data ;
+                    else return false;
+                    
                 }
             }
 
@@ -285,7 +286,6 @@ function createSelectableTable(){
         'order': [[1, 'asc']]
 
     });
-    table1.columns.adjust().draw();
 }
 
 function showChallenges(numRow) {

@@ -102,8 +102,6 @@ function createTableRegisters(){
                             <i class="fa fa-angle-down"></i>\
                         </button>\
                         <ul class="dropdown-menu pull-right" role="menu">\
-                            <li><a href="javascript:actionTable2(\''+row['id']+'\',\'approve\');"><i class="fa fa-check-circle" style = "color:#74b72e;"></i> Approve request</a></li>\
-                            <li><a href="javascript:actionTable2(\''+row['id']+'\',\'deny\');"><i class="fa fa-times-circle" style = "color:#E00909;"></i> Deny request</a></li>\
                             <li><a href="javascript:actionTable2(\''+row['id']+'\',\'cancel\');"><i class="fa fa-times-circle" style = "color:#c0c0c0;"></i> Cancel request</a></li>\
                         </ul>\
                         </div>';

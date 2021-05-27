@@ -62,8 +62,13 @@ function getPublishableFiles($datatype) {
 	foreach ($filteredFiles as $key => $value) {
                 //check if file is already requested to be published
                 $found = $GLOBALS['pubRegistersCol']->findOne(array("fileIds" => array('$in'=> array($value['_id']))));
+
                 if(count($found) !== 0 || !is_null($found)) {
                         $value['current_status'] = $found['current_status'];
+                        if (isset($found['dataset_OEBid'])){
+                                $value['oeb_id'] = $found['dataset_OEBid'];
+                        }
+
 		}
 
                 //get both files: consolidated and participant
@@ -89,6 +94,7 @@ function getPublishableFiles($datatype) {
                                 }
                                 $value['benchmarking_event']['workflow_id'] = $tool['community-specific_metadata']['workflow_id'];
                         }
+                        
 			
 
 		}else{
