@@ -177,7 +177,7 @@ function createSelectableTable(){
                         <input disabled type="radio" name = "'+data+'" value="'+row.files['consolidated']['id']+'">'
                        
                     } else {
-                        r = '</br></br><input  type="radio" name = "'+data+'" value="'+row.files['participant']['id']+'"></br></br>\
+                        r = '</br></br><input disabled type="radio" name = "'+data+'" value="'+row.files['participant']['id']+'"></br></br>\
                         <input  type="radio" name = "'+data+'" value="'+row.files['consolidated']['id']+'">'
                     }
                     
