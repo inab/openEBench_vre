@@ -334,31 +334,6 @@ function createAlert ($fileName, $action) {
 
     }
 }
-/***********************FILTERS******************************** */
-$("#selectAll").click(function () {
-    $("#selectConsolidated").removeClass('active');
-    $("#selectParticipant").removeClass('active');
-    $("#selectAll").addClass('active');
-    $("#communityTable").find("tbody").find("tr").show();
-});
-
-$("#selectParticipant").click(function () {
-    $("#selectAll").removeClass('active');
-    $("#selectConsolidated").removeClass('active');
-    $("#selectParticipant").addClass('active');
-    var rows = $("#communityTable").find("tbody").find("tr").hide();
-    rows.filter(":contains('Input: data to evalute')").show();
-});
-
-$("#selectConsolidated").click(function () {
-    $("#selectAll").removeClass('active');
-    $("#selectParticipant").removeClass('active');
-    $("#selectConsolidated").addClass("active");
-    var rows = $("#communityTable").find("tbody").find("tr").hide();
-    rows.filter(":contains('Output: OEB data')").show();
-});
-
-
 
 /**
  * Converts unix time in human format
