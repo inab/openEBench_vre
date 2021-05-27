@@ -243,7 +243,6 @@ function actionTable2(id, action) {
 				$("#myError").show()
 
             } else {
-                console.log("else");
                 $("#loading-datatable").hide();
                 table2.ajax.reload();
                 $("#files").show();
@@ -271,7 +270,6 @@ function showResultsPage(executionFolder, tool){
 }
 
 function viewLog(reqId) {
-    console.log("entra");
     
     $.ajax({
         type: "POST",

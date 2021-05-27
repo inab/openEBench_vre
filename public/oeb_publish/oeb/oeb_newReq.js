@@ -120,7 +120,6 @@ $(document).ready(function() {
                 arrayOfFiles.push( obj);
        
             });
-            console.log(arrayOfFiles);
             if (arrayOfFiles.length >0) {
                 $('#btn-selected-files').prop("disabled", false)
             } else {

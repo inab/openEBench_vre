@@ -21,38 +21,14 @@ function getChallenges_associated_to_outfile($file_id){
 	// look for the argument value of 'challenges_ids'
 	$args_challenges=(isset($execution_data['arguments']['challenges_ids'])? $execution_data['arguments']['challenges_ids'] : array());
 
-	// convert from challenge-name to challenge_id
-	// TODO
-	$challenges_ids = $args_challenges;	
-	 
+	// convert from challenge-name (GO, EC, SwissTrees...) to challenge_id -> TODO
+	$challenges_ids = $args_challenges;
 	return $challenges_ids;
 }
-
-/**
- * Get list of benchmarking challenges associated to an uploaded  file (i.e. OEB-metrics) or run folder
- * @param file_id  Identifier of file or folder in VRE
- * @return array of OEB benchmarking challenge identifiers
- */
-function getChallenges_associated_to_infile($file_id){
-
-	$challenges_ids=array();
-
-	// fetch all results generated from the given infile
-	$r = $GLOBALS['filesMetaCol']->find(array( "input_files" => array( '$eq' => $file_id)), array("_id"=>1) );
-	$outfile_ids=array_keys(iterator_to_array($r));
-	//var_dump($outfile_ids);
-	// fetch all executions that used as input the given file
-
-
-	#TODO
-	# $exections = getExecutionList_fromInputId($file_id);
-}
-
 
 ///////////////////////////////////////////////////////////////////
 // REGISTRY OF OEB DATASET PUBLICATIONS
 ///////////////////////////////////////////////////////////////////
-
 
 /**
  * Lists users files elegible for being  publicated according to the OEB publication rules
@@ -67,11 +43,6 @@ function getPublishableFiles($datatype) {
 
 	//get path of the user workspace
 	$proj_name_active   = basename(getAttr_fromGSFileId($_SESSION['User']['dataDir'], "path"));
-
-	// TODO 
-	// validate given parameter is a valid datatype 
-	//  -- Accepted datatpes: getDataTypesList()
-	//  -- Exemples of JSON HTTP standard responses: libs/oeb_management.inc.php
 
 	// get list of user files with the allowed datatypes
 	if (is_array($datatype)){
@@ -89,7 +60,6 @@ function getPublishableFiles($datatype) {
 
 	// apply further filters to the files based on OEB metadata
 	foreach ($filteredFiles as $key => $value) {
-
                 //check if file is already requested to be published
                 $found = $GLOBALS['pubRegistersCol']->findOne(array("fileIds" => array('$in'=> array($value['_id']))));
                 if(count($found) !== 0 || !is_null($found)) {
@@ -106,14 +76,7 @@ function getPublishableFiles($datatype) {
 		if ($value['data_type'] != "participant"){
 			// if "consolidated" or "metrics", fetch run metadata
 			$value['oeb_challenges'] = getChallenges_associated_to_outfile($value['_id']);
-		}else{
-			// if "participant", fetch all associated runs¿?
-			$value['oeb_challenges_AA'] = getChallenges_associated_to_infile($value['_id']);
 		}
-		// TODO
-
-		//get benchmarking event id from tool
-                //get workflow id
 
 		if (isset($value['tool'])){
 			$tool = getTool_fromId($value['tool'],1);
@@ -125,8 +88,6 @@ function getPublishableFiles($datatype) {
                                         $value['benchmarking_event']=$value['tool'];
                                 }
                                 $value['benchmarking_event']['workflow_id'] = $tool['community-specific_metadata']['workflow_id'];
-
-
                         }
 			
 
@@ -135,13 +96,11 @@ function getPublishableFiles($datatype) {
 			$value['benchmarking_event']="NA";
 		}
                 array_push($files, $value);
-
         }
 
         $block_json = json_encode($files, JSON_PRETTY_PRINT);
 
         return $block_json;
-
 }
 
 
@@ -155,10 +114,7 @@ function file_Info($fn){
         $block_json="{}";
         $fileData = getGSFile_fromId($fn, "");
         $challenges = array(getChallenges_associated_to_outfile($fn));
-        if (!empty($challenges)) {
-           //get benchmarking event id
-           
-        }
+
         //source
         $fileData += array("fileSource_path" =>$GLOBALS['dataDir'].getAttr_fromGSFileId($fileData['input_files'][0] ,'path'));
         
@@ -215,10 +171,10 @@ function submitedRegisters($filters) {
 }
 
 /**
- * Manages user action of a submited request
+ * Manages user action of a submited request, if approve push data to OEB 
  * @param id the req id 
  * @param action the action to make
- * @return 1 if correctly updated in mongo, 0 otherwise. (updateReqRegister)
+ * @return Json response object
  */
 function actionRequest($id, $action){
         //jsonResponse class (errors or successfully)
@@ -261,7 +217,7 @@ function actionRequest($id, $action){
 
 		return $response_json->getResponse();    
            }
-        $response = migrateToOEB($tk);
+          $response = migrateToOEB($tk);
 
           if (!$response) {
                 updateReqRegister ($id, array('current_status' => 'error', "log" =>array("cmd"=> $cmd, "error" => $retvalue['stderr'])));
@@ -343,19 +299,19 @@ function actionRequest($id, $action){
                 }
                
         }
-
-        
         return $response_json->getResponse();
 }
 
 
 /**
- * Push data to OEB
+ * MAnages petition: upload files to nextcloud, registers petitions in mongo, notify approvers.
  * @param fileId - id of the file
  * @param metaForm - form data
  * @param type - participant or consolidated
+ * @return Json response object
  */
 function proceedRequest_register_NC($fileId, $metaForm, $type) {
+        //type: TODO in future releases
 
 	//jsonResponse class (errors or successfully)
 	$response_json = new JsonResponse();
@@ -370,12 +326,14 @@ function proceedRequest_register_NC($fileId, $metaForm, $type) {
 	$participantFile_id = getAttr_fromGSFileId($fileId, "input_files")[0];
 
 	//1. check if associated participant has nc_url in mongo VRE
-	/*
-	if ($n = getAttr_fromGSFileId($participantFile_id, "nc_url")){
+        $upload_participant_nc = true;
+        $url_participant ="";
+	
+	if ($url_participant = getAttr_fromGSFileId($participantFile_id, "nc_url")){
 		//update form: participant_source from nc_url
 		$form['participant_file']  = $n;
+                $upload_participant_nc = false;
 	}
-	*/
 	
 	//2. Gets APPROVERS
 	//gets associative array with key: contact_id and value: email
@@ -409,7 +367,10 @@ function proceedRequest_register_NC($fileId, $metaForm, $type) {
 	$url_consolidated =ncUploadFile("https://dev-openebench.bsc.es/nextcloud/", $fileId, $community."/".$benchmarkingEvent_id."/".$_SESSION['User']['id']."/".$executionfolder_name);
 
 	//UPLOAD participant file (in case url is needed)
-	$url_participant = ncUploadFile("https://dev-openebench.bsc.es/nextcloud/", $participantFile_id, $community."/".$benchmarkingEvent_id."/".$_SESSION['User']['id']."/".$executionfolder_name);
+        if ($upload_participant_nc){
+                $url_participant = ncUploadFile("https://dev-openebench.bsc.es/nextcloud/", $participantFile_id, $community."/".$benchmarkingEvent_id."/".$_SESSION['User']['id']."/".$executionfolder_name);
+        }
+	
 
 	//UPLOAD tar file
 	$filter =  array("data_type" => "tool_statistics" , "parentDir"   => $executionfolder_id);
@@ -472,7 +433,12 @@ function proceedRequest_register_NC($fileId, $metaForm, $type) {
 	return $response_json->getResponse();
 }
 
-
+/**
+ * Executes an external script
+ * @param $cmd - entire comand to execute
+ * @param $input
+ * @return array with standard error, standard output, and return number execution
+ */
 function my_exec($cmd, $input=''){
         $proc=proc_open($cmd, array(0=>array('pipe', 'r'), 1=>array('pipe', 'w'), 2=>array('pipe', 'w')), $pipes);
         fwrite($pipes[0], $input);
@@ -489,7 +455,11 @@ function my_exec($cmd, $input=''){
                        'return'=>$rtn
                       );
 }
-
+/**
+ * GEts information from OEB api necessary to fill the form
+ * @param BE_id - benchamrking event id
+ * @return json with community_id and oeb_workflow attributes
+ */
 function getOEBdataFromBenchmarkingEvent ($BE_id) {
 	$block_json = '{}';
 	$result = array();

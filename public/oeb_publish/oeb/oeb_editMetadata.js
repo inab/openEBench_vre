@@ -3,7 +3,6 @@ var valid = false;
 $(document).ready(function () {
 	//files
 	var filesObj = JSON.parse(files)[0]
-	console.log(filesObj);
 
 	$.ajax({
 		type: 'POST',
@@ -144,7 +143,7 @@ $(document).ready(function () {
 						// errors is an array of objects, each with a `path`, `property`, and `message` parameter
 						// `property` is the schema keyword that triggered the validation error (e.g. "minLength")
 						// `path` is a dot separated path into the JSON object (e.g. "root.path.to.field")
-						console.log(errors);
+						
 					}
 					else {
 						// It's valid!, enable de button
@@ -187,7 +186,6 @@ $(document).ready(function () {
 						$("#myError").append("<h4><b>New request successfully created: </b></h4><a href='vre/oeb_publish/oeb/oeb_manageReq.php'>"+data['message']['petition']+"</a></br></br>");
 						$("#myError").append(data['message']["email"]+"<br><br>"+timeStamp());
 						$("#myError").show();
-						console.log(data);
 						//errors
 					} else {
 						$("#loading-datatable").hide();

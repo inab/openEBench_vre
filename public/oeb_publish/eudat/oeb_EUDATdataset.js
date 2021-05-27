@@ -11,7 +11,6 @@ $(document).ready(function() {
 
       //files
       fn = $("#files").val();
-      console.log(fn)
       var fileInfo = "applib/oeb_publishAPI.php?action=getFileInfo";
 
       //create jsonEditor obj
@@ -104,8 +103,6 @@ $(document).ready(function() {
             // Not valid
             if(errors.length || $("input[id*=title]").val()==""|| $("input[id*=description]").val()=="" || $("input[id*=creator_name]").val()=="") {
               editor.options.show_errors = "always";
-              console.log("ERRORS: ");
-              console.log(errors);
               $(".errorClass").text("There are errors in some fields of the form.");
               $(".errorClass").removeClass(" alert alert-info");
               $(".errorClass").addClass(" alert alert-danger");
@@ -123,7 +120,6 @@ $(document).ready(function() {
 
           //hide the spinner when are all working propertly
           $("#loading-datatable").hide();
-          console.log(editor.getValue());
 
         });
       });
@@ -190,8 +186,6 @@ function validateErr() {
   var errors = editor.validate();
 
   if(errors.length != 0) {
-    console.log("ERRORS: ");
-    console.log(errors);
     fileError = 0;
 
     editor.options.show_errors = "always";

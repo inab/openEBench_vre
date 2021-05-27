@@ -188,6 +188,7 @@
 		case 'oeb_newReq':
 		case "oeb_editMetadata":
 		case 'oeb_manageReq':?>
+			<link rel="stylesheet" href="https://unpkg.com/@trevoreyre/autocomplete-js/dist/style.css"/>
 			<link href="assets/pages/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css" />
 			<link href="assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css" rel="stylesheet" type="text/css" />
 			<link href="assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />

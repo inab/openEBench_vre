@@ -109,6 +109,7 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 		<script src="assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
 	<?php break;
 	case 'oeb_editMetadata':?>
+		<script src="https://unpkg.com/@trevoreyre/autocomplete-js"></script>
 		<script src="assets/global/scripts/datatable.js" type="text/javascript"></script>
 		<script src="assets/global/plugins/datatables/datatables.min.js" type="text/javascript"></script>
 		<script src="assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
