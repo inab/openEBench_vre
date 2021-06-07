@@ -9,6 +9,7 @@ if($_REQUEST) {
 	//https://dev-openebench.bsc.es/vre/applib/oeb_publishAPI.php?action=getAllFiles&type=
 	if(isset($_REQUEST['action']) && $_REQUEST['action'] == "getAllFiles" && isset($_REQUEST['type'])) {
 		echo(getPublishableFiles($_REQUEST['type']));
+		exit;
 
 	//https://dev-openebench.bsc.es/vre/applib/oeb_publishAPI.php?action=getUserInfo
 	} elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == "getUserInfo") {
@@ -27,12 +28,20 @@ if($_REQUEST) {
 		if (isset($_REQUEST['metadata']) && isset($_REQUEST['fileId'])) {
 			$metadata = $_REQUEST['metadata'];
 			$fn = $_REQUEST['fileId'];
-			echo oeb_publish_file_eudat($fn,$metadata, $_SESSION['User']['linked_accounts']['b2share']['access_token']);
+			if (isset($_SESSION['User']['linked_accounts']['b2share']['access_token'])){
+				echo oeb_publish_file_eudat($fn,$metadata, $_SESSION['User']['linked_accounts']['b2share']['access_token']);
+			}
 			exit;
 		}
 	//https://dev-openebench.bsc.es/vre/applib/oeb_publishAPI.php?action=getRole
 	}elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == "getRole") {
-		$block_json = json_encode($_SESSION['User']['TokenInfo']['oeb:roles'], JSON_PRETTY_PRINT);
+		$block_json ="{}";
+		$roles = array();
+		$roles["roles"] = getCommunitiesFromRoles($_SESSION['User']['TokenInfo']['oeb:roles']);
+		if (isset($_SESSION['User']['linked_accounts']['b2share']['access_token'])){
+			$roles["tokenEudat"]=true;
+		}
+		$block_json = json_encode($roles, JSON_PRETTY_PRINT);
 		echo $block_json;
 		exit; 
 	//https://dev-openebench.bsc.es/vre/applib/oeb_publishAPI.php?action=requestPublish&fileId=fn

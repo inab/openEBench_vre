@@ -49,7 +49,7 @@ if (file_exists($avatarImg)) {
 
             <?php if (allowedRoles($_SESSION['User']['Type'], $GLOBALS['NO_GUEST'])) { ?>
                 <ul class="nav navbar-nav pull-right">
-                <!--<li><a href=""><i class="fa fa-bell fa-lg" style="color:white;"></i><span class="badge badge-pill badge-danger" style="background-color:red; position: absolute;"><b>9</b></span></a><li/>-->
+
                     <!-- BEGIN USER LOGIN DROPDOWN -->
                     <!-- DOC: Apply "dropdown-dark" class after below "dropdown-extended" to change the dropdown styte -->
                     <li class="dropdown dropdown-user">

@@ -261,11 +261,13 @@ function actionRequest($id, $action){
                                 );
                                 if (updateReqRegister ($id, array('current_status' => 'published', "dataset_OEBid" => $OEB_id))) {
                                         if(insertAttrInReqRegister($id, $new_action)){
+                                                //notify requester
+                                                newNotification(array('_id' => createLabel('oeb-not', 'oebNotificationsCol'), "receiver" => getPubRegister_fromId($id)['requester'], 
+                                                "content" => "Your request has been approved: ".$id, "created_at"=>  new \MongoDB\BSON\UTCDateTime(),"is_seen" => 0));
                                                 $response_json->setCode(200);
 			                        $response_json->setMessage("Successfully");
                                         }
                                 }
-                
 
                         } catch (MongoCursorException $e) {
 
@@ -287,6 +289,10 @@ function actionRequest($id, $action){
                         );
                         if ($action == 'deny'){
                                 updateReqRegister ($id, array('current_status' => 'denied'));
+                                //notify requester
+                                newNotification(array('_id' => createLabel('oeb-not', 'oebNotificationsCol'), "receiver" => getPubRegister_fromId($id)['requester'], 
+                                "content" => "Your request has been denied: ".$id, "created_at"=> new \MongoDB\BSON\UTCDateTime(),"is_seen" => 0));
+
                         } elseif ($action == 'cancel'){
                                 updateReqRegister ($id, array('current_status' => 'cancelled'));
                         }
@@ -348,7 +354,7 @@ function proceedRequest_register_NC($fileId, $metaForm, $type) {
 	foreach ($approversContacts as $key => $value) {
 		array_push($approversContactsIds, $key);
 	}
-        //delete for prod:
+        //TODO: delete for prod:
         array_push($approversContactsIds,"Meritxell.Ferret");
 
 	//3. REGISTER the petition in mongo
@@ -358,14 +364,16 @@ function proceedRequest_register_NC($fileId, $metaForm, $type) {
 		"history_actions" => array(array("action" => 'request', "user" => $_SESSION['User']['id'], "timestamp" =>date('H:i:s Y-m-d'))),
 		"oeb_metadata" => $form);           
 	$req_id = uploadReqRegister($fileId, $metadata);
-	
+	$log ="";
 	if ($req_id === 0) {
 		// return error msg via BlockResponse
 		$response_json->setCode(400);
 		$response_json->setMessage("Error creating request.");
 
 		return $response_json->getResponse();
-	}
+	}else {
+                $log = "Petition successfully created with identifier: ".$req_id;
+        }
 
 
 	//4. UPLOAD to nextcloud and get url share link
@@ -393,7 +401,7 @@ function proceedRequest_register_NC($fileId, $metaForm, $type) {
 		// return error msg via BlockResponse
 		$response_json->setCode(500);
 		$response_json->setMessage("Error uploading file to nextcloud.");
-		updateReqRegister ($req_id, array('current_status' => 'error', 'log' => array("error" =>"Error uploading files to nextlcloud")));
+		updateReqRegister ($req_id, array('current_status' => 'error', 'log' => array("error" => "Error uploading files to nextlcloud")));
 
 		return $response_json->getResponse();
 	}	
@@ -412,7 +420,9 @@ function proceedRequest_register_NC($fileId, $metaForm, $type) {
 		//EDIT metadata for petition: add attr visualitzation_file: uri and 
 		updateReqRegister($req_id,array("visualitzation_url" => $url_tar));
 
-		//6.Notify approvers
+		//6.Notify approvers --> TODO: now approver: Meritxell. Get user id (VRE) from contact id to get notification
+                newNotification(array('_id' => createLabel('oeb-not', 'oebNotificationsCol'), "receiver" => 'OpEBUSER5fd78d4e6585e', 
+                "content" => "New pending approval request ".$req_id, "created_at"=> new \MongoDB\BSON\UTCDateTime(),"is_seen" => 0));
 		if (!sendRequestToApprover("meritxell.ferret@bsc.es", $_SESSION['User']['Name'], $req_id)){
 			// return error msg via BlockResponse
 			$response_json->setCode(500);

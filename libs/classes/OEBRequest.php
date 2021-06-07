@@ -1,6 +1,6 @@
 <?php
 class OEBRequest {
-
+/*
     private $_id; 
     private $filesIds;
     private $requester;
@@ -11,7 +11,7 @@ class OEBRequest {
     private $visualitzation_url;
     private dataset_OEBid;
 
-    
+    */
     
 
 

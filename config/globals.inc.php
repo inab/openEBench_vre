@@ -15,7 +15,7 @@ $GLOBALS['TIMEOUT']   = 3600; // session and cookies timeout
 
 // Email
 $GLOBALS['mail_credentials'] = __DIR__."/mail.conf"; // SMTP credentials
-$GLOBALS['FROMNAME']  = "OpEB VRE Dev"; // 'From' for VRE tickets and notifications
+$GLOBALS['FROMNAME']  = "OpenEBench VRE Dev"; // 'From' for VRE tickets and notifications
 $GLOBALS['ADMINMAIL'] = "openebench@bsc.es"; // BBC address for VRE ticket emails
 
 //OEB-API
