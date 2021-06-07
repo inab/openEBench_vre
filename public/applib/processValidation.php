@@ -112,9 +112,10 @@ switch ($_REQUEST['op']) {
     case 'BEDGRAPH';
 	case 'WIG':
 	case 'BED':
+	    next;
             if (!isset($_REQUEST['refGenome'])){
-                $resp['msg']="Missing compulsory fields. Please, specify reference genome.</br>";
-                $resp['state'] = 0;
+    	    	$resp['msg']   = "Metadata file is valid</br>";
+	        $resp['state'] = 1;
                 break;
             }
             //$resp['msg'] = "File will be converted to BW";

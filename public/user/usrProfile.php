@@ -382,6 +382,7 @@ foreach (array_values(iterator_to_array($GLOBALS['countriesCol']->find(array(), 
 						    <hr>
                                                     <img src="https://b2share.eudat.eu/img/logo.png" style="float: right; height: 60px; margin: 0 60px;">
                                                     <h4>B2SHARE (EUDAT) repository</h4>
+                                                    <a id="linkedEudat"></a>
 					
 				
 						<div style="padding-left: 15px;border-left: 2px solid lightgray;">
