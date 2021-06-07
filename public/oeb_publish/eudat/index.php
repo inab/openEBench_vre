@@ -42,6 +42,11 @@ $projects = getProjects_byOwner();
                     </ul>
                 </div>
                 <!-- END PAGE BAR -->
+                <!-- BEGIN PAGE WARNING-->
+                <!-- Show errors from frontend-->
+                <div id="myError"style="display:none;"></div>
+                
+                <!-- END PAGE WARNING-->
                 <!-- BEGIN PAGE TITLE-->
                 <!-- BEGIN PAGE TITLE-->
                 <h1 class="page-title"> Publish participant data
@@ -78,7 +83,7 @@ $projects = getProjects_byOwner();
                             </div>
                             <div class="portlet-body">
                                 <!--table with files-->
-                                <table id="filesTable" class="table table-striped table-hover table-bordered" width="100%">
+                                <table id="filesTable" class="table table-striped table-hover table-bordered" width="100%"> 
                                     <thead>
                                         <tr> 
                                             <th><input name="select_all" value="1" id="example-select-all" type="checkbox" /></th>
@@ -115,6 +120,7 @@ $projects = getProjects_byOwner();
     function loadProjectWS(id) {
         var baseURL = $('#base-url').val();
             location.href = baseURL + 'applib/oeb_manageProjects.php?op=reload&pr_id=' + id.value + '&redirect_url=' + redirect_url;
-        };  
-                    
+        };
+        
+              
 </script>

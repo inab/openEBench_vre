@@ -92,6 +92,7 @@ $(document).ready(function() {
         table1 = createSelectableTable();
         
         //permisions depending on the role
+        /*
         if (roles === null) {
             $("#communitySelector").attr('disabled','disabled');
             $("#warning-notAllowed").show();
@@ -99,7 +100,7 @@ $(document).ready(function() {
             $("#communitySelector").attr('disabled','disabled');
             $("#warning-notAllowed").show();
         }
-        
+        */
         //refresh list each time table is clicked
         $("#tableMyFiles" ).on( "click", function() {
             arrayOfFiles = [];
@@ -305,6 +306,7 @@ function hideChallenges(numRow){
 
 
 function submitFiles() {
+    console.log(arrayOfFiles)
     var myForm = $('#files-form');
     $('#filesInput').val(JSON.stringify(arrayOfFiles));
     myForm.submit();

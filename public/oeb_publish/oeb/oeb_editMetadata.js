@@ -130,6 +130,8 @@ $(document).ready(function () {
 				editor.getEditor("root.workflow_oeb_id").setValue(filesObj['tool']);
 				editor.getEditor("root.data_version").setValue("1");
 
+				$(".form-text:eq(5)" ).append(". <b>If your tool does not appear in list, contact with: </b><a href=\"mailto:openebench-support@bsc.es\">openebench-support@bsc.es</a>.");
+				//$("h3").next("p").append(". <b>If your contact id does not appear in list, contact with: </b><a href=\"mailto:openebench-support@bsc.es\">openebench-support@bsc.es</a>.");
 				//css
 				$('label[class="required"]').append('<span style="color:red;"> *</span>')
 

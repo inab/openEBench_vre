@@ -59,7 +59,6 @@ $(document).ready(function() {
           //css form
           $("[id*=contact_email]").next().next().append('<b> Warning: data is going to be public!</b>');
           $('label[class="required"]').append('<span style="color:red;"> *</span>')
-
           //hide resource type label
           $('.card-header li a[href="#Resource-Type"]').parent().hide();
           $('.card-header li a[href="#community_specific"]').parent().hide();

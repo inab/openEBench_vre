@@ -101,4 +101,35 @@ $(document).ready(function () {
       $("#message").text("No file selected");
     } else location.href = "oeb_publish/eudat/oeb_EUDATdataset.php?files=" + arrayOfFiles;
   });
+
+  $.ajax({
+    type: "POST",
+    url: baseURL + "/applib/oeb_publishAPI.php?action=getRole",
+    }).done(function(data) {
+      result = JSON.parse(data);
+      console.log(result)
+      if (result['roles'].length === 0){
+        $("#myError").addClass("alert alert-warning");
+        $("#myError").append("<h4><b>You are not allowed </b></h4>");
+        $("#myError").append("<p>You don't have the proper permissions for publishing benchmarking datasets to OpenEBench. Only owners, managers and challanege contributors are allowed.</p>")
+        $("#myError").append('You can request that permision sending a ticket to helpdesk: <a href="/vre/helpdesk/?sel=roleUpgrade">click here!</a></p>');
+        $("#myError").show();
+        $("input").attr('disabled','disabled');
+
+      } else if (!result.hasOwnProperty("tokenEudat")){
+				$("#myError").addClass("alert alert-warning");
+        $("#myError").append("<h4><b>No B2share token is set </b></h4>");
+        $("#myError").append("<p>You haven't set any token for B2share remote repository. A Eudat token is necessary to upload files in B2share.</p>")
+        $("#myError").append('<p>You can set it in your user profile on linked accounts section: <a href="/vre/user/usrProfile.php#tab_1_4#linkedEudat">User profile</a></p>');
+        $("#myError").show();
+        $("input").attr('disabled','disabled');
+      }
+
+
+
+  });
+
+
 });
+
+

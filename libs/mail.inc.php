@@ -156,12 +156,13 @@ function sendRequestToApprover ($approver, $requester, $reqId){
 	$approver_attr = $GLOBALS['usersCol']->findOne(array('Email' => $approver));
 	$subject = $GLOBALS['NAME']." New request for OpenEBench data publication. Action required";
 	$message = ' 
-	Hello '.utf8_decode($approver['Name']).' '.utf8_decode($approver['Surname']).',<br><br>
+	Hello OpenEBench community manager,<br><br>
 	
-	The user '.utf8_decode($requester).' has send you a new petition ('.utf8_decode($reqId).') for publishing a dataset associated to your OpenEBench benchmarking community. Please, login to the <a href="'.$GLOBALS['URL_login'].'">OpenEBench Virtual Research Environment</a> and evaluate it. <br><br> ----- '.$reqId.' ------ .<br><br>
+	The user '.utf8_decode($requester).' has send you a new petition for publishing a dataset associated to your OpenEBench benchmarking community. Please, login to the <a href="'.$GLOBALS['URL_login'].'">OpenEBench Virtual Research Environment</a> and evaluate it. 
+	<br><br> ----- '.$reqId.' ------ .<br><br>
 
-	
-	Learn more about the OEB publication process <a href="https://openebench.readthedocs.io/en/dev/how_to/participate/publish_oeb.html">here</a>. For further information or any other enquiry, please, email to <a href="mailto:'.$GLOBALS['ADMINMAIL'].'?Subject=Enquiry relate to ticket '.$GLOBALS['NAME'].'">'.$GLOBALS['ADMINMAIL'].'</a>.<br><br>
+	Notified approvers: contacts.ids<br>
+	Learn more about the OEB publication process <a href="https://openebench.readthedocs.io/en/dev/how_to/participate/publish_oeb.html">here</a>. For further information or any other enquiry, please, email to <a href="mailto:'.$GLOBALS['ADMINMAIL'].'?Subject=Enquiry related to data publication with id:'.$reqId.'">'.$GLOBALS['ADMINMAIL'].'</a>.<br><br>
 
 	Thank you,<br><br>
 	
