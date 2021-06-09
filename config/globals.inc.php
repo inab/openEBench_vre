@@ -28,6 +28,9 @@ $GLOBALS['queueTask']  = "local.q"; //default queue
 $GLOBALS['db_credentials'] = __DIR__."/mongo.conf"; // Mongo access 
 $GLOBALS['dbname_VRE']     = "oeb-vre-dev"; // Database name
 
+//Notifications configuration
+$GLOBALS['notifications_conf'] = __DIR__."/notifications.conf"; // notifications config 
+
 //VRE installation paths
 $GLOBALS['root']       = dirname(__DIR__); // VRE root directory
 $GLOBALS['logFile']    = $GLOBALS['root']."/logs/VRE.log"; // Log file path 
@@ -341,3 +344,8 @@ $GLOBALS['oeb_eudat_schema'] = "https://raw.githubusercontent.com/inab/EUDAT-OEB
 //schema from oeb (submission)
 #$GLOBALS['oeb_submission_pusher']=""; // Root directory of the pusher local installation
 $GLOBALS['oeb_submission_schema'] = "https://raw.githubusercontent.com/inab/OEB_level2_data_migration/master/submission_form_schema.json";
+
+
+/*****NOTIFICATIONS ******/
+$GLOBALS['notifications_active'] = true;
+$GLOBALS['notifications_refresh'] = 30000;

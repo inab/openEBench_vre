@@ -49,6 +49,11 @@ if (file_exists($avatarImg)) {
 
             <?php if (allowedRoles($_SESSION['User']['Type'], $GLOBALS['NO_GUEST'])) { ?>
                 <ul class="nav navbar-nav pull-right">
+                <!--<li><a href=""><i class="fa fa-bell fa-lg" style="color:white;"></i><span class="badge badge-pill badge-danger" style="background-color:red; position: absolute;"><b>9</b></span></a><li/>-->
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle-not" data-toggle="dropdown"><span class="label label-pill label-danger count-not" style="border-radius:10px;"></span> <span class="glyphicon glyphicon-bell" style="font-size:18px;"></span></a>
+                        <ul class="dropdown-menu dropdown-not"></ul>
+                    </li>
 
                     <!-- BEGIN USER LOGIN DROPDOWN -->
                     <!-- DOC: Apply "dropdown-dark" class after below "dropdown-extended" to change the dropdown styte -->
@@ -100,3 +105,34 @@ if (file_exists($avatarImg)) {
 <!--<div style="background-color: blanchedalmond; padding: 20px; text-align: center; border-left: 4px yellow solid; margin-top:40px;">
         <p><b>NOTICE : </b>This service will be unavailable from <b>Monday, 5th of August, 15.00 CEST</b> until <b>Thursday, 8th of August, 18.00 CEST</b> due to system maintenance. We apologize for the inconvenience.</p>
     </div> -->
+
+<script>
+    $(document).ready(function(){
+        function load_unseen_notification(view = '') {
+            $.ajax({
+                url:"applib/notifications.php?action=getNotifications",
+                method:"POST",
+                data:{view:view},
+                dataType:"json",
+                success:function(data){
+                    $('.dropdown-not').html(data.notification);
+                    if(data.unseen_notification > 0){
+                        $('.count-not').html(data.unseen_notification);
+                    }
+
+                }
+            });
+        };
+        load_unseen_notification();
+        
+        // load new notifications
+        $(document).on('click', '.dropdown-toggle-not', function(){
+            $('.count-not').html('');
+            load_unseen_notification('yes');
+        });
+        setInterval(function(){
+            load_unseen_notification();
+        }, notifications_refresh);
+
+    });
+</script>

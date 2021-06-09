@@ -128,4 +128,17 @@ foreach($GLOBALS as $k => $v) {
 	}
 }
 
+/*******************************************/
+/*          LOADING NOTIFICATIONS VARIABLES          */
+/*******************************************/
+echo "\n\n";
+foreach($GLOBALS as $k => $v) {
+	if(preg_match('/notifications_/', $k)) {
+		echo 'var ' . $k . '= ' . json_encode($v) . ';';
+		echo "\n";
+	}
+}
+
+
+
 ?>
