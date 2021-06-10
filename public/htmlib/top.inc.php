@@ -49,11 +49,12 @@ if (file_exists($avatarImg)) {
 
             <?php if (allowedRoles($_SESSION['User']['Type'], $GLOBALS['NO_GUEST'])) { ?>
                 <ul class="nav navbar-nav pull-right">
-                <!--<li><a href=""><i class="fa fa-bell fa-lg" style="color:white;"></i><span class="badge badge-pill badge-danger" style="background-color:red; position: absolute;"><b>9</b></span></a><li/>-->
+                <?php if ($GLOBALS['notifications_active']) {?>
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle-not" data-toggle="dropdown"><span class="label label-pill label-danger count-not" style="border-radius:10px;"></span> <span class="glyphicon glyphicon-bell" style="font-size:18px;"></span></a>
                         <ul class="dropdown-menu dropdown-not"></ul>
                     </li>
+                <?php }?>
 
                     <!-- BEGIN USER LOGIN DROPDOWN -->
                     <!-- DOC: Apply "dropdown-dark" class after below "dropdown-extended" to change the dropdown styte -->
@@ -108,6 +109,7 @@ if (file_exists($avatarImg)) {
 
 <script>
     $(document).ready(function(){
+        
         function load_unseen_notification(view = '') {
             $.ajax({
                 url:"applib/notifications.php?action=getNotifications",
@@ -123,16 +125,20 @@ if (file_exists($avatarImg)) {
                 }
             });
         };
-        load_unseen_notification();
-        
+        if (notifications_active) {
+            load_unseen_notification();
+            setInterval(function(){
+                load_unseen_notification();
+            }, notifications_refresh);
+
+        }
         // load new notifications
         $(document).on('click', '.dropdown-toggle-not', function(){
             $('.count-not').html('');
             load_unseen_notification('yes');
         });
-        setInterval(function(){
-            load_unseen_notification();
-        }, notifications_refresh);
+      
+        
 
     });
 </script>
