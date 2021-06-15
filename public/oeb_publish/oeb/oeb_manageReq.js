@@ -87,7 +87,8 @@ function createTableRegisters(){
                 "targets": 5,
                 "title": '<th>Timestamp request </th>',
                 render: function ( data, type, row ) {
-                    return data[0]["timestamp"] ;
+                    console.log(data[0]);
+                    return convertTimestamp(data[0]['timestamp']['$date']['$numberLong']);
                 }
             },
             {
@@ -232,24 +233,20 @@ function actionTable2(id, action) {
         }).done(function(data) {
             //no errors
             if(data["code"]=="200"){
-                $("#loading-datatable").hide();
                 $("#myError").removeClass("alert alert-danger");
 				$("#myError").addClass("alert alert-info");
-                table2.ajax.reload();
-                $("#files").show();
-                $("#myError").append("Data successfully "+action);
-				$("#myError").show()
-
             } else {
-                $("#loading-datatable").hide();
-                table2.ajax.reload();
-                $("#files").show();
 				$("#myError").removeClass("alert alert-info");
 				$("#myError").addClass("alert alert-danger");
 				$("#myError").text(data["message"]);
-				$("#myError").show();
-
             }
+            
+            $("#myError").append(data['message']);
+            $("#loading-datatable").hide();
+            table2.ajax.reload();
+            $("#files").show();
+            $("#myError").show();
+
         //more errors
 		}). fail(function(data) {
             $("#loading-datatable").hide();
@@ -291,4 +288,36 @@ function getRoles() {
         url: 'applib/oeb_publishAPI.php?action=getRole'
     })
 }
+
+/**
+ * Converts unix time in human format
+ * @param {*} timestamp 
+ * @return the time in human format
+ */
+ function convertTimestamp(timestamp) {
+    var d = new Date(timestamp * 1),	// Convert the passed timestamp to milliseconds
+          yyyy = d.getFullYear(),
+          mm = ('0' + (d.getMonth() + 1)).slice(-2),	// Months are zero based. Add leading 0.
+          dd = ('0' + d.getDate()).slice(-2),			// Add leading 0.
+          hh = d.getHours(),
+          h = hh,
+          min = ('0' + d.getMinutes()).slice(-2),		// Add leading 0.
+          ampm = 'AM',
+          time;
+              
+      if (hh > 12) {
+          h = hh - 12;
+          ampm = 'PM';
+      } else if (hh === 12) {
+          h = 12;
+          ampm = 'PM';
+      } else if (hh == 0) {
+          h = 12;
+      }
+      
+      // ie: 2013-02-18, 8:35 AM	
+      time = yyyy + '-' + mm + '-' + dd + ', ' + h + ':' + min + ' ' + ampm;
+          
+      return time;
+  }
 
