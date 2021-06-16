@@ -183,7 +183,7 @@ function getProperties($nc_server, $filePath, $properties){
  * @param path - path of file/folder to check
  * @return true if exists, false otherwise
  */
-//var_dump(checkFileExists("https://dev-openebench.bsc.es/nextcloud/", "uploads"));
+//var_dump(checkFileExists("https://dev-openebench.bsc.es/nextcloud/", "uploads/ei/e/o"));
 function checkFileExists($nc_server, $path) {
 
     $client = constructClient($nc_server);
@@ -272,7 +272,15 @@ curl -X POST -u root:***REMOVED*** https://dev-openebench.bsc.es/nextcloud/ocs/v
 
 //Share a file/folder with a user: https://docs.nextcloud.com/server/12/developer_manual/core/ocs-share-api.html#create-a-new-share
 curl -X POST -u oeb-9540f6e8-7abc-4a0e-8de4-402c1d0eadb8:oeb-vredev2021 https://dev-openebench.bsc.es/nextcloud/ocs/v1.php/apps/files_sharing/api/v1/shares
--d path=text.md -d shareType=3 -d password=hola "OCS-APIRequest: true"
+-d path=text.md -d shareType=3 -d password=hola -H "OCS-APIRequest: true"
+
+//Get share info (knowing share id)
+curl -X GET -u oeb-9540f6e8-7abc-4a0e-8de4-402c1d0eadb8:oeb-vredev2021 https://dev-openebench.bsc.es/nextcloud/ocs/v1.php/apps/files_sharing/api/v1/shares/476 -H "OCS-APIRequest: true"
+
+//Know share info from a file
+curl -X GET -u oeb-9540f6e8-7abc-4a0e-8de4-402c1d0eadb8:oeb-vredev2021 
+https://dev-openebench.bsc.es/nextcloud/ocs/v1.php/apps/files_sharing/api/v1/shares?path=/OEBC002/OEBE0020000001/OpEBUSER60118cb1d817a/result_randomSel/consolidated_results.json -H "OCS-APIRequest: true"
+
 
 ********** MANAGE TAGS ***********
 //create a true tag 
@@ -291,14 +299,6 @@ curl --silent -u root:***REMOVED*** -X PROPFIND -H "Content-Type: text/xml" --da
 $r = $client->proppatch("https://dev-openebench.bsc.es/nextcloud/remote.php/dav/files/root/mozilla.pdf", array(
         '{http://owncloud.org/ns}favorite' => 1,
     ));
-
-
-
-
-
-
-
-
 
 
 
@@ -375,60 +375,4 @@ function ncListAll(){
 }
 
 
-
-function ncGetFile(){
-
-}
-
-*/
-
-
-
-
-//0. explore if an alterinative way to log in with token
-//1. Install libraries to conect to VRE
-//2. URLs webdav to connect
-//3. Create and test functions
-
-/*
-function nc_getFile($nc_server="", $file_id_TOBEDEFINED=""){
-
-	use Sabre\DAV\Client;
-
-	if (!isset($GLOBALS['repositories']['nc'][$nc_server])){
-                $_SESSION['errorData']['Error'][]="Nextcloud storage '$nc_server' not declared on the VRE. Please, contact with the administrators";
-                return $file_url;
-    }
-    // Query Nextcloud API to get file-path of the given NC file Id
-    $nc_username = 0;
-    $nc_password = 0;
-    if (!isset($GLOBALS['repositories']['nc'][$nc_server]['credentials']['conf_file']) || !is_file($GLOBALS['repositories']['nc'][$nc_server]['credentials']['conf_file'])){
-            $_SESSION['errorData']['Error'][]="Credentials for VRE repository '$nc_server' not found or invalid. Please, contact with the administrators.";
-            return $file_url;
-    }
-    $confFile = $GLOBALS['repositories']['nc'][$nc_server]['credentials']['conf_file'];
-
-    // fetch nextcloud API credentials
-    $credentials = array();
-    if (($F = fopen($confFile, "r")) !== FALSE) {
-        while (($data = fgetcsv($F, 1000, ";")) !== FALSE) {
-            foreach ($data as $a){
-                $r = explode(":",$a);
-                if (isset($r[1])){array_push($credentials,$r[1]);}
-            }
-        }
-        fclose($F);
-    }
-    if ($credentials[2] != $nc_server){
-            $_SESSION['errorData']['Error'][]="Credentials for VRE nextcloud storage '$nc_server' are invalid. Please, contact with the administrators";
-            return $file_url;
-    }
-	$username = $credentials[0];
-	$password = $credentials[1];
-	$baseUrl = "https://$nc_server/remote.php/dav/$username/";
-
-	$setting = {'baseUri' => $baseUrl , 'userName' => $username , 'password' => $password}
-}
-
-//nc_getFile();
 */
