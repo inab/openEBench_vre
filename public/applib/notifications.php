@@ -8,13 +8,10 @@ redirectOutside();
 if($_REQUEST) { 
     //https://dev-openebench.bsc.es/vre/applib/notifications.php?action=getNotifications&view=
 	if (isset($_REQUEST['action']) && $_REQUEST['action'] == "getNotifications") {
-		
-		
 		if (isset($_REQUEST['view'])) {
 			if($_REQUEST["view"] != "") {
 				Notification::updateNotifications(array('receiver' => $_SESSION['User']['id'], "is_seen" => 0), array('$set' => array("is_seen" => 1)));
 			}
-
 			$options = ['sort' => ['created_at' => -1], 'limit' => 10];
 			$allUserNotifications = Notification::selectAllNotifications (array('receiver' => $_SESSION['User']['id']), $options);
 			$userNotificationsFound = count($allUserNotifications);
@@ -23,7 +20,7 @@ if($_REQUEST) {
 			$userNotificationsUnseen = 0;
 			if ($userNotificationsFound >0){
 				foreach ($allUserNotifications as $n) {
-					$output .= '<li><a href="oeb_publish/oeb/oeb_manageReq.php"><strong>'.$n["content"].'</strong><br /></a></li>';
+					$output .= sprintf("<li><a href='%s'><strong>%s</strong></br></a></li>",$n["redirectOnClick"], $n["content"]);
 				}
 			}else {
 				$output .= '<li><a href="#" class="text-bold text-italic">No notifications found</a></li>';

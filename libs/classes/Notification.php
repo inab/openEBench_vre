@@ -6,24 +6,26 @@ class Notification {
     private $content;
     private $created_at;
     private $is_seen;
+    private $redirectOnClick;
+    
+    //connection collections attributes
+    private static $COLLECTION_NAME = 'notifications';
+    private $dbConnect;
 
-    public function __construct($id, $receiver, $content){
-        
-        $this->id = createLabel('Not', 'notificationsCol');
+    public function __construct($receiver, $content, $redirectOnClick){ 
+        $this->dbConnect = new dbConnection();
+
+        $this->id = createLabel2('Not', $this->dbConnect->getConnection(self::$COLLECTION_NAME));
         $this->receiver = $receiver;
         $this->content = $content;
         $this->created_at = new MongoDB\BSON\UTCDateTime;
         $this->is_seen = 0;
+        $this->redirectOnClick = $redirectOnClick;
 
         //clean old notifications
-        $now = new DateTime();
-        //substract 60 days from now
-        $now->sub(new DateInterval('P60D'));
-        $now=$now->getTimestamp();
-        $limitToClean = new MongoDB\BSON\UTCDateTime($now*1000);
-        self::cleanNotifications(array('created_at' => array('$lt' => $limitToClean)));
-        
-
+        if($GLOBALS['notifications_clean_period'] !=-1){
+            self::cleanNotifications($GLOBALS['notifications_clean_period']);
+        }
         
     }
 
@@ -101,12 +103,26 @@ class Notification {
 
     /**
      * Set the value of is_seen
-     * @return  self
      */ 
     public function setIs_seen(int $is_seen){
         $this->is_seen = $is_seen;
-        return $this;
     }
+
+    /**
+     * Get the value of redirectOnClick
+     */
+    public function getRedirectOnClick(){
+        return $this->redirectOnClick;
+    }
+
+    /**
+     * Set the value of redirectOnClick
+     */
+    public function setRedirectOnClick($redirectOnClick){
+        $this->redirectOnClick = $redirectOnClick;
+    }
+
+
     /**
      * Converts obj properties to array
      */
@@ -116,7 +132,8 @@ class Notification {
             'receiver' => $this->receiver,
             'content' => $this->content,
             'created_at' => $this->created_at,
-            'is_seen' => $this->is_seen
+            'is_seen' => $this->is_seen,
+            'redirectOnClick' => $this->redirectOnClick
         );
     }
 
@@ -126,10 +143,13 @@ class Notification {
     * Saves notification object on mongodb
     */
     public function saveNotification() {
-        $save = false;
-	    $collection = $GLOBALS['notificationsCol'];
-	    $insertResult = $collection->insertOne($this->toArray());
-	    return $insertResult ;
+        try {
+            $connection = $this->dbConnect->getConnection(self::$COLLECTION_NAME); 
+            $insertResult = $connection->insertOne($this->toArray());
+            return $insertResult ;
+        } catch (\MongoDB\Driver\Exception\Exception $e) {
+            $_SESSION['errorData']['Error'][]="Error inserting notifications";
+        }
     }
 
     /**
@@ -139,8 +159,9 @@ class Notification {
      * @return array of notifications
      */
     public static function selectAllNotifications($filters, $options = []) {
-        $collection = $GLOBALS['notificationsCol'];
-        $cursor = $collection->find($filters, $options);
+        $c = new dbConnection();
+        $connection = $c->getConnection(self::$COLLECTION_NAME); 
+        $cursor = $connection->find($filters, $options);
         return $cursor->toArray();
     }
     
@@ -151,18 +172,29 @@ class Notification {
      * @return int of registers modified
      */
     public static function updateNotifications($filters, $updateCommand) {
-        $collection = $GLOBALS['notificationsCol'];
-        $cursor = $collection-> updateMany($filters, $updateCommand);
+        $c = new dbConnection();
+        $connection = $c->getConnection(self::$COLLECTION_NAME); 
+        $cursor = $connection-> updateMany($filters, $updateCommand);
         return $cursor->getModifiedCount();
     }
 
-    public static function cleanNotifications($filters, $options =[]) {
-        $collection = $GLOBALS['notificationsCol'];
-        $cursor = $collection-> deleteMany($filters, $options);
+    /**
+     * Deletes old notifications
+     * @param days from current day from which to delete notifications
+     */
+    public static function cleanNotifications($periodDays) {
+        $now = new DateTime();
+        $now->sub(new DateInterval('P'.$periodDays.'D'));
+        $now = $now->getTimestamp();
+        $limitToClean = new MongoDB\BSON\UTCDateTime($now*1000);
+
+        $filters = array('created_at' => array('$lt' => $limitToClean));
+        $c = new dbConnection();
+        $connection = $c->getConnection(self::$COLLECTION_NAME); 
+        $cursor = $connection-> deleteMany($filters);
         //return $cursor->getModifiedCount();
     }
 
-
-   
+    
 }
 ?>

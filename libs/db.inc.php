@@ -58,8 +58,4 @@ $GLOBALS['logExecutionsCol']= $GLOBALS['db']->log_executions;
 $GLOBALS['blocksCol']      = $GLOBALS['db']->oeb_blocks;
 $GLOBALS['workflowsCol']      = $GLOBALS['db']->oeb_workflows;
 $GLOBALS['pubRegistersCol'] = $GLOBALS['db']->oeb_publication_registers; 
-if ($GLOBALS['notifications_active']){
-	$GLOBALS['notificationsCol'] = $GLOBALS['db']->notifications; 
-}
-
 ?>
