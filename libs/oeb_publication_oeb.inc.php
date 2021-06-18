@@ -158,6 +158,7 @@ function submitedRegisters($filters) {
                         }
                         $r['approvers'] = $v['approvers'];
                         $r['bench_event'] = $v['oeb_metadata']['benchmarking_event_id'];
+                        $r['community'] = $v['oeb_metadata']['community_id'];
                         $r['tool'] = array("tool_id" =>$v['oeb_metadata']['tool_id'], "tool_name" =>  getToolss($v['oeb_metadata']['tool_id'], "name"));
                         $r['history_actions'] = $v['history_actions'];
                         $r['status'] = $v['current_status'];
@@ -274,7 +275,7 @@ function actionRequest($id, $action){
                            
                         
                                 //notify requester
-                                $n = new Notification(0, getPubRegister_fromId($id)['requester'], "Your request has been approved: ".$id );
+                                $n = new Notification(getPubRegister_fromId($id)['requester'], "Your request has been approved: ".$id, "oeb_publish/oeb/oeb_manageReq.php#".$id);
                                 $n->saveNotification();
 
                                 $response_json->setCode(200);
@@ -304,7 +305,7 @@ function actionRequest($id, $action){
                                 OEBDataPetition::updateOEBPetitions(array('_id' => $id), array('$set' => array("current_status" => "denied")));
                         
                                 //notify requester
-                                $n = new Notification(0, getPubRegister_fromId($id)['requester'], "Your request has been denied: ".$id);
+                                $n = new Notification(getPubRegister_fromId($id)['requester'], "Your request has been denied: ".$id, "oeb_publish/oeb/oeb_manageReq.php#".$id);
                                 $n->saveNotification();
                                 
                         } elseif ($action === 'cancel'){
@@ -382,12 +383,13 @@ function proceedRequest_register_NC($fileId, $metaForm, $type) {
         $req_id = $newRequest->getId();
 
 	//4. UPLOAD to nextcloud and get url share link
+        $conn = new nc_Connection();
         // UPLOAD consolidated file
-	$url_consolidated =ncUploadFile("https://dev-openebench.bsc.es/nextcloud/", $fileId, $community."/".$benchmarkingEvent_id."/".$_SESSION['User']['id']."/".$executionfolder_name);
+	$url_consolidated = $conn->ncUploadFile($fileId, $community."/".$benchmarkingEvent_id."/".$_SESSION['User']['id']."/".$executionfolder_name);
 
 	//UPLOAD participant file (in case url is needed)
         if ($upload_participant_nc){
-                $url_participant = ncUploadFile("https://dev-openebench.bsc.es/nextcloud/", $participantFile_id, $community."/".$benchmarkingEvent_id."/".$_SESSION['User']['id']."/".$executionfolder_name);
+                $url_participant = $conn->ncUploadFile($participantFile_id, $community."/".$benchmarkingEvent_id."/".$_SESSION['User']['id']."/".$executionfolder_name);
         }
 	
 	//UPLOAD tar file
@@ -398,10 +400,10 @@ function proceedRequest_register_NC($fileId, $metaForm, $type) {
 		$simpleArray = $value;
 	}
 	$id_tar = $simpleArray['_id'];
-	$url_tar =ncUploadFile("https://dev-openebench.bsc.es/nextcloud/", $id_tar, $community."/".$benchmarkingEvent_id."/".$_SESSION['User']['id']."/".$executionfolder_name);
+	$url_tar = $conn->ncUploadFile($id_tar, $community."/".$benchmarkingEvent_id."/".$_SESSION['User']['id']."/".$executionfolder_name);
 	
         //error uploading files
-	if (is_null($url_consolidated) || is_null($url_participant) || is_null($url_tar)) {
+	if (!$url_consolidated || !$url_participant || !$url_tar) {
                 array_push($log, "Petition created with identifier: ".$req_id);
                 array_push($log, "Error uploading file to nextcloud.");
 
@@ -429,7 +431,7 @@ function proceedRequest_register_NC($fileId, $metaForm, $type) {
                         $newRequest->setVisualitzationUrl($url_tar);
 
                         //6.Notify approvers --> TODO: now approver: Meritxell. Get user id (VRE) from contact id to get notification
-                        $n = new Notification(0, 'OpEBUSER5fd78d4e6585e', 'New request pending approval: '.$req_id);
+                        $n = new Notification('OpEBUSER5fd78d4e6585e', 'New request pending approval: '.$req_id, "oeb_publish/oeb/oeb_manageReq.php#".$req_id);
                         $n->saveNotification();
                         
                         if (!sendRequestToApprover("meritxell.ferret@bsc.es", $_SESSION['User']['Name'], $req_id)){

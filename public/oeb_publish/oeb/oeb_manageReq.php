@@ -75,8 +75,9 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                 <!-- END PAGE WARNING-->
 
                 <!-- BEGIN PAGE TITLE-->
-                <h1 class="page-title"> Publish data</h1>
-
+                <h1 class="page-title"> Publish your datasets
+		            <i class="icon-question tooltips" data-container="body" data-html="true" data-placement="right" data-toggle="tooltip" data-trigger="click" data-original-title="<p align='left' style='margin:0'>See your publication requests <a target='_blank' href='https://openebench.readthedocs.io/en/dev/how_to/participate/publish_oeb.html#publish-your-data-to-openebench'> +Info</a>.</p>"></i>
+		        </h1>
                 <!-- END PAGE TITLE -->
                 <!-- END PAGE TITLE-->
                 <!-- END PAGE HEADER-->
@@ -89,22 +90,33 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                         <?php //var_dump ($_SESSION['User']['TokenInfo']['oeb:roles']);?>
 							<div class="portlet-title">
 								<div class="caption">
-									<span class="caption-subject font-dark bold uppercase">Your Publication requests registers</span>
+									<span class="caption-subject font-dark bold uppercase">Your Publication requests</span>
 								</div>
                             </div>
                             <div class="portlet-body">
                                 <!-- Show errors from frontend-->
-                	            <div id="myError"style="display:none;"></div>
+                	            <div id="myError" class ="alert-dismissible" style="display:none;">
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
                                 <div id="files">
                                     <table id="tableAllFiles" class="table table-striped table-hover table-bordered" width="100%"></table>
                                 </div>
+                                <div class="form-group">
+                                    <button class="btn btn-primary float-right" onclick="location.href='oeb_publish/oeb/oeb_newReq.php'">New request</button>
+                                </div>
                             </div>
                         </div>
-                        <div id ="approvalSection" class="portlet light bordered" 
-                        style="display:<?php if (str_contains($_SESSION['User']['TokenInfo']['oeb:roles'][0], 'owner') || str_contains($_SESSION['User']['TokenInfo']['oeb:roles'][0], 'supervisor')) echo "block"; else echo "none"?>;" >
+                        
+                        <div id ="approvalSection" style="display:<?php if (str_contains($_SESSION['User']['TokenInfo']['oeb:roles'][0], 'owner') || str_contains($_SESSION['User']['TokenInfo']['oeb:roles'][0], 'supervisor')) echo "block"; else echo "none"?>;" >
+                            <h1 class="page-title"> Administration Panel
+		                        <i class="icon-question tooltips" data-container="body" data-html="true" data-placement="right" data-toggle="tooltip" data-trigger="click" data-original-title="<p align='left' style='margin:0'>Table to manage users publication requests. <a target='_blank' href='https://openebench.readthedocs.io/en/dev/how_to/participate/publish_oeb.html'> +Info</a>.</p>"></i>
+		                    </h1>
+                        <div class="portlet light bordered">
                             <div  class="portlet-title">
                                 <div class="caption">
-                                    <span class="caption-subject font-dark bold uppercase">Pending approval Publication requests</span>
+                                    <span class="caption-subject font-dark bold uppercase">Requests to be evaluated</span>
                                 </div>
                             </div>
                             <div class="portlet-body">
@@ -117,6 +129,7 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                                     <table id="tableApprovals" class="table table-striped table-hover table-bordered" width="100%"></table>
                                 </div>
                             </div>
+                        </div>
                         </div>
                                
                         </div>
@@ -198,9 +211,10 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                 }
             </style>
             <script>
-$(document).ready(function(){
-  $('[data-toggle="popover"]').popover();
-});
+
+$(function () {
+  $('[data-toggle="popover"]').popover()
+})
 </script>
 
            

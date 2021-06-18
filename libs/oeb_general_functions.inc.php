@@ -205,7 +205,6 @@ function getCommunitiesFromRoles (array $roles) {
 		    array_push($communitites_ids, getCommunityFromChallenge($r[1]) );
 		  }
 	  }
-  
 	}
 	return $communitites_ids;
   

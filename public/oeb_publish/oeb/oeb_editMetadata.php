@@ -158,7 +158,12 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                                     
                                 </div>
                                 <!-- Show errors from frontend-->
-                	            <div id="myError"style="display:none;"></div>
+                                <div id = "finalBanner" style="display:none;">
+                                    <div id="myError"></div>
+                                    <button class="btn btn-primary" onclick="location.href='oeb_publish/oeb/oeb_newReq.php'">New request</button>
+                                    <button id ="viewRequests" class="btn btn-primary float-right">View your requests</button>
+                                </div>
+                	            
                             
                             </div>
                         </div>  

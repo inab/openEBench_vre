@@ -92,11 +92,13 @@ $(document).ready(function() {
         table1 = createSelectableTable();
         
         //permisions depending on the role
-        /*
-        if (roles === null) {
+        console.log(roles)
+        if (roles['roles'].length == 0) {
             $("#communitySelector").attr('disabled','disabled');
             $("#warning-notAllowed").show();
-        } else if (roles.find(a =>a.includes("contributor"))===undefined && roles.find(a =>a.includes("manager"))===undefined && roles.find(a =>a.includes("supervisor"))===undefined && roles.find(a =>a.includes("owner"))===undefined) {
+        } 
+        /*
+        else if (roles.find(a =>a.includes("contributor"))===undefined && roles.find(a =>a.includes("manager"))===undefined && roles.find(a =>a.includes("supervisor"))===undefined && roles.find(a =>a.includes("owner"))===undefined) {
             $("#communitySelector").attr('disabled','disabled');
             $("#warning-notAllowed").show();
         }

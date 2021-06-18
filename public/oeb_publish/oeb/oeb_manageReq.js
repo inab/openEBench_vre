@@ -1,4 +1,6 @@
+var table1;
 var table2;
+
 $(document).ready(function() {
     getRoles().done(function(r) {
         var roles = JSON.parse(r)
@@ -6,43 +8,62 @@ $(document).ready(function() {
         createTableRegisters();
         createTableApprover();
         $("#loading-datatable").hide();
-        $(function () {   
-            $('[data-toggle="popover"]').popover() 
-        });
+
     })
 })
 
 /********************************FUNCTIONS****************************** */
 function createTableRegisters(){
-    table2 = $('#tableAllFiles').DataTable( {
+    table1 = $('#tableAllFiles').DataTable( {
         "autoWidth": false,
         "ajax": {
             url: 'applib/oeb_publishAPI.php?action=getSubmitRegisters',
             dataSrc: ''
-        },
-        "bFilter": false, 
+        }, 
         "bPaginate": false,
         //"bInfo": false,
         "bLengthChange": false,
         "bAutoWidth": true,
+        rowCallback: function( row, data, index ) {
+            if (window.location.href.indexOf(data['id']) > -1){
+                $(row).css('background-color', '#fcfce0');
+            }
+        },
         "columns" : [
             { "data" : "id" }, //0
-            { "data" : "files" }, //1
-            { "data" : "requester_name" }, //2
-            { "data" : "status" }, //3
-            { "data" : "oeb_id"}, //4
-            { "data" : "history_actions" }, //5
-            { "data" : null} //6
+            { "data" : "bench_event"},//1
+            { "data" : "tool"},//2
+            { "data" : "files" }, //3
+            { "data" : "status" }, //4
+            { "data" : "oeb_id"}, //5
+            { "data" : "history_actions" }, //6
+            { "data" : null} //7
 
         ],
         'columnDefs': [
             {
                 "targets": 0,
-                "title": '<th>Request id </th>'
+                "title": '<th>Request id </th>',
+                render: function ( data, type, row ) {
+                    return  '<a id="'+data+'"></a>'+data+' <a id ="example" data-toggle="popover" data-trigger="hover" \
+                    title="Title" container="body" data-content="And here"><i class="fa fa-info-circle"></i></a>'
+                }
                 
             },
             {
                 "targets": 1,
+                "title": '<th>Benchmarking event </th>'
+                
+            },
+            {
+                "targets": 2,
+                "title": '<th>Participant Tool </th>',
+                render: function ( data, type, row ) {
+                    return data['tool_name'];
+                }
+            },
+            {
+                "targets": 3,
                 "title": '<th>File Name </th>',
                 render: function ( data, type, row ) {
                     result = "<ul>";
@@ -57,42 +78,41 @@ function createTableRegisters(){
                 
             },
             {
-                "targets": 2,
-                "title": '<th>Requester</th>',
-                "className": "dt-center"
-                
-            },
-            {
-                "targets": 3,
+                "targets": 4,
                 "title": '<th>Status </th>' ,
                 "className": "dt-center",
                 render: function ( data, type, row ) {
                     if (data == "error") {
-                        return '<a href="javascript:viewLog(\''+row['id']+'\');">'+data+"</a>"
-                    }else return data;
+                        return '<span class="badge badge-danger"><b>'+data+'</b></span><a href="javascript:viewLog(\''+row['id']+'\');">'+data+"</a>"
+                    }else if (data == 'published'){
+                        return '<span class="badge badge-success"><b>'+data+'</b></span>';
+                    }else if (data == 'denied'){
+                        return '<span class="badge badge-warning"><b>'+data+'</b></span>';
+                    }else if (data == 'cancelled'){
+                        return '<span class="badge badge-secondary"><b>'+data+'</b></span>';
+                    }else return '<span class="badge badge-info"><b>'+data+'</b></span>';
                 }
             },
             {
-                "targets": 4,
+                "targets": 5,
                 "title": '<th>OEB dataset id </th>',
                 "className": "dt-center",
                 render: function ( data, type, row ) {
                     if (data == null) {
                         return "-"
-                    }else return data;
+                    }else return '<a href="https://dev-openebench.bsc.es/scientific/'+row['community']+'" target="_blank">'+data+'</a>';
                 }
 
             },
             {
-                "targets": 5,
-                "title": '<th>Timestamp request </th>',
+                "targets": 6,
+                "title": '<th>Creation date</th>',
                 render: function ( data, type, row ) {
-                    console.log(data[0]);
                     return convertTimestamp(data[0]['timestamp']['$date']['$numberLong']);
                 }
             },
             {
-                "targets": 6,
+                "targets": 7,
                 "title": '<th>Actions </th>',
                 render: function ( data, type, row ) {
                     result = "";
@@ -139,6 +159,11 @@ function createTableApprover(){
         //"bInfo": false,
         "bLengthChange": false,
         "bAutoWidth": true,
+        rowCallback: function( row, data, index ) {
+            if (window.location.href.indexOf(data['id']) > -1){
+                $(row).css('background-color', '#fcfce0');
+            }
+        },
         "columns" : [
             { "data" : "id", "title": '<th>Request id </th>' }, //0
             { "data" : "files", "title": '<th>File name </th>' }, //1
@@ -149,6 +174,13 @@ function createTableApprover(){
 
         ],
         'columnDefs': [
+            {
+                "targets": 0,
+                render: function ( data, type, row ) {
+                    return '<a id="'+data+'"></a>'+data+' <a id ="example" data-toggle="popover" data-trigger="hover" \
+                    title="Title" container="body" data-content="And here"><i class="fa fa-info-circle"></i></a>'
+                }
+            },
             {
                 "targets": 1,
                 "title": '<th>File Name </th>',
@@ -168,8 +200,14 @@ function createTableApprover(){
                 "targets": 3,
                 render: function ( data, type, row ) {
                     if (data == "error") {
-                        return '<a href="javascript:viewLog(\''+row['id']+'\');">'+data+"</a>"
-                    }else return data;
+                        return '<span class="badge badge-danger"><b>'+data+'</b></span></br><a href="javascript:viewLog(\''+row['id']+'\');">'+data+"</a>"
+                    }else if (data == 'published'){
+                        return '<span class="badge badge-success"><b>'+data+'</b></span>';
+                    }else if (data == 'denied'){
+                        return '<span class="badge badge-warning"><b>'+data+'</b></span>';
+                    }else if (data == 'cancelled'){
+                        return '<span class="badge badge-secondary"><b>'+data+'</b></span>';
+                    }else return '<span class="badge badge-info"><b>'+data+'</b></span>';
                 }
             },
             {
@@ -232,26 +270,23 @@ function actionTable2(id, action) {
             data: "actionReq=" + action+"&reqId="+id
         }).done(function(data) {
             //no errors
-            if(data["code"]=="200"){
-                $("#myError").removeClass("alert alert-danger");
-				$("#myError").addClass("alert alert-info");
-            } else {
-				$("#myError").removeClass("alert alert-info");
-				$("#myError").addClass("alert alert-danger");
-				$("#myError").text(data["message"]);
-            }
-            
+            $("#myError").removeClass("alert alert-danger");
+			$("#myError").addClass("alert alert-info ");
             $("#myError").append(data['message']);
             $("#loading-datatable").hide();
+            table1.ajax.reload();
             table2.ajax.reload();
             $("#files").show();
+            $("#pendingReq").show();
             $("#myError").show();
 
-        //more errors
+        // errors
 		}). fail(function(data) {
             $("#loading-datatable").hide();
+            table1.ajax.reload();
             table2.ajax.reload();
             $("#files").show();
+            $("#pendingReq").show();
             $("#myError").removeClass("alert alert-info");
 			$("#myError").addClass("alert alert-danger");
 			$("#myError").append(data["responseJSON"]["message"]);

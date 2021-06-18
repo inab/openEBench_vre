@@ -23,9 +23,6 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 		} elseif (dirname($_SERVER['PHP_SELF']) == '/oeb_publish/eudat') {
 			$currentSection = 'pb';
 			$currentSubSection = 'eudat';
-		} elseif (dirname($_SERVER['PHP_SELF']) == '/oeb_publish/oeb') {
-			$currentSection = 'pb';
-			$currentSubSection = 'oeb';
 		} else {
 			$currentSection = 'uw';
 		}
@@ -94,10 +91,17 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 		$currentSubSection = 'rp';
 		$currentSubSubSection = 'bs';
 		break;
-	case 'management':
+	case 'oeb_blocks':
 		$currentSection = 'mg';
-		$currentSubSection = 'ps';
-		$currentSubSubSection = 'vl';
+		$currentSubSection = 'mgb';
+		break;
+	case 'oeb_workflows':
+		$currentSection = 'mg';
+		$currentSubSection = 'mgw';
+		break;
+	case 'oeb_manuals':
+		$currentSection = 'mg';
+		$currentSubSection = 'mgm';
 		break;
 	case 'dataFromID':
 		$currentSection = 'dt';
@@ -132,6 +136,16 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 	case 'adminJobs':
 		$currentSection = 'ad';
 		$currentSubSection = 'aj';
+		break;
+	case 'oeb_newReq':
+		$currentSection = 'pb';
+		$currentSubSection = 'oeb';
+		$currentSubSubSection = 'nr';
+		break;
+	case 'oeb_manageReq':
+		$currentSection = 'pb';
+		$currentSubSection = 'oeb';
+		$currentSubSubSection = 'mr';
 		break;
 	case 'jsonTestValidator':
 	case 'jsonSpecValidator':
@@ -358,17 +372,17 @@ sort($visualizers);
 							<span class="arrow <?php if ($currentSection == 'mg') { ?>open<?php } ?>"></span>
 						</a>
 						<ul class="sub-menu">
-							<li class="nav-item  <?php if ($currentSubSection == 'ps') { ?>active open<?php } ?>">
+							<li class="nav-item  <?php if ($currentSubSection == 'mgb') { ?>active open<?php } ?>">
 								<a href="oeb_management/oeb_block/oeb_blocks.php" class="nav-link ">
 									<span class="title">Blocks</span>
 								</a>
 							</li>
-							<li class="nav-item  <?php if ($currentSubSection == 'ps') { ?>active open<?php } ?>">
+							<li class="nav-item  <?php if ($currentSubSection == 'mgw') { ?>active open<?php } ?>">
 								<a href="oeb_management/oeb_block/oeb_workflows.php" class="nav-link ">
 									<span class="title">Workflows</span>
 								</a>
 							</li>
-							<li class="nav-item  <?php if ($currentSubSection == 'ps') { ?>active open<?php } ?>">
+							<li class="nav-item  <?php if ($currentSubSection == 'mgm') { ?>active open<?php } ?>">
 								<a href="oeb_management/oeb_block/oeb_manuals.php" class="nav-link ">
 									<span class="title">Manuals</span>
 								</a>
@@ -410,22 +424,22 @@ sort($visualizers);
 						<a href="javascript:;" class="nav-link nav-toggle">
 							<i class="fa fa-upload" style="color: #B4B4B4;"></i>
 							<span class="title">Publish</span>
-							<?php if ($currentSection == 'pg') { ?><span class="selected"></span><?php } ?>
-							<span class="arrow <?php if ($currentSection == 'pg') { ?>open<?php } ?>"></span>
+							<?php if ($currentSection == 'pb') { ?><span class="selected"></span><?php } ?>
+							<span class="arrow <?php if ($currentSection == 'pb') { ?>open<?php } ?>"></span>
 						</a>
 						<ul class="sub-menu">
 							<li class="nav-item  <?php if ($currentSubSection == 'oeb') { ?>active open<?php } ?>">
 								<a href="javascript:;" class="nav-link nav-toggle">
 									<span class="title">to OpenEBench</span>
-									<span class="arrow"></span>
+									<span class="arrow <?php if ($currentSubSection == 'oeb') { ?>open<?php } ?>"></span>
 								</a>
 								<ul class="sub-menu">
-									<li class="nav-item  <?php if ($currentSubSection == 'req') { ?>active open<?php } ?>">
+									<li class="nav-item  <?php if ($currentSubSubSection == 'nr') { ?>active open<?php } ?>">
 										<a href="oeb_publish/oeb/oeb_newReq.php" class="nav-link ">
 											<span class="title">New request</span>
 										</a>
 									</li>
-									<li class="nav-item  <?php if ($currentSubSection == 'req') { ?>active open<?php } ?>">
+									<li class="nav-item  <?php if ($currentSubSubSection == 'mr') { ?>active open<?php } ?>">
 										<a href="oeb_publish/oeb/oeb_manageReq.php" class="nav-link ">
 											<span class="title">Manage requests</span>
 										</a>

@@ -33,6 +33,7 @@ foreach ($outputExe_files as $key => $value) {
         }
     }
 }
+
 ?>
 
 <body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white page-container-bg-solid page-sidebar-fixed">
@@ -43,8 +44,6 @@ foreach ($outputExe_files as $key => $value) {
         require "../../htmlib/top.inc.php"; 
         require "../../htmlib/menu.inc.php";
         ?>
-
-
         <!-- BEGIN CONTENT -->
         <div class="page-content-wrapper">
             <!-- BEGIN CONTENT BODY -->
@@ -66,11 +65,7 @@ foreach ($outputExe_files as $key => $value) {
                         </li>
                     </ul>
                 </div>
-               
-            
                 <!-- END PAGE BAR -->
-
-                
                 <!-- BEGIN PAGE WARNING-->
                 <div id= "warning-notAllowed" style="display:none;">
                     <br>
@@ -80,7 +75,7 @@ foreach ($outputExe_files as $key => $value) {
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </h4>
-                        <p>You don't have the proper permissions for publishing benchmarking datasets to OpenEBench. Only owners, managers and challanege contributors are allowed.</p>
+                        <p>You don't have the proper permissions for publishing benchmarking datasets to OpenEBench. Only owners, managers and challenge contributors are allowed.</p>
                         
                         <p class="mb-0">You can request that permision sending a ticket to helpdesk: <a href="/vre/helpdesk/?sel=roleUpgrade">click here!</a></p>
                     </div>
@@ -147,7 +142,7 @@ foreach ($outputExe_files as $key => $value) {
 								</div>-->
                                 <div class="input-group" style="margin-bottom:20px;">
 									<span class="input-group-addon" style="background:#5e738b;"><i class="fa fa-users font-white"></i></span>
-									<select id="beSelector" class="form-control" style="width:100%;" >
+									<select id="beSelector" class="form-control" style="width:100%;">
 										
 										<?php 
                                         foreach ($benchmarkingEvents_participated as $k => $v) { ?>
@@ -165,19 +160,21 @@ foreach ($outputExe_files as $key => $value) {
 									</div>
 							    </div>
                                 -->
-                                <span class="caption-subject font-dark bold uppercase titleBE">PUBLISHED FILES ON OPENEBENCH FOR THE SELECTED BENCHMARKING EVENT</span>
-                                <div id = "tablePublishedFiles">
-                                    <table id="publishedFiles" class="table table-striped table-hover table-bordered" width="100%"></table>
-                                </div>
-                                <br>
-                                <br>
-                              
                                 <span class="caption-subject font-dark bold uppercase">FILES AVAILABLE TO BE PUBLISHED </span> <small style="font-size:85%;">Choose the datasets you want to request to publish in OpenEBench web page.</small>
                                 <div id ="tableMyFiles" >
                                    
                                     <table id="communityTable" class="table table-striped table-hover table-bordered" width="100%"></table>
                                 </div>
                                 <button  disabled type="button" class=" btn green" id="btn-selected-files" onclick="submitFiles(event);return false;" style="margin-top:20px;">Next</button>
+                                <br>
+                                <br>
+                                <span class="caption-subject font-dark bold uppercase titleBE">PUBLISHED FILES ON OPENEBENCH FOR THE SELECTED BENCHMARKING EVENT</span>
+                                <div id = "tablePublishedFiles">
+                                    <table id="publishedFiles" class="table table-striped table-hover table-bordered" width="100%"></table>
+                                </div>
+                                
+                              
+                                
 
                             </div>
                         </div>
