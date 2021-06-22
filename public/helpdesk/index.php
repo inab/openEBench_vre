@@ -129,11 +129,31 @@ $commmunities = getCommunities();
                                             <div class="form-group">
                                                 <label class="control-label"><b>Community List </b><span style="color:red;">*</span></label>
                                                 <select name="commmunityList" id="commmunityList" class="form-control" >
-                                                    <option value="">Select a commmunity </option>
-                                                    
+                                                    <option value="">Select a community </option>
+                                                    <?php if (isset($_REQUEST["BE"])){
+                                                        $com_id = getBenchmarkingEvents($_REQUEST["BE"], "community_id");
+                                                        $comm_name = getCommunities($com_id, "name");
+                                                        echo "<option value='$com_id' selected>$comm_name</option>";
+                                                    }?>
                                                     <?php foreach ($commmunities as $c) { ?>
                                                         <option value="<?php echo $c["_id"]; ?>"><?php echo $c["name"]; ?></option>
                                                     <?php } ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row display-hide" id="row-benchEvent">
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label class="control-label"><b>Benchmarking event List </b><span style="color:red;">*</span></label>
+                                                <select name="BEList" id="BEList" class="form-control" >
+                                                    <option value="">Select a benchmarking event </option>
+                                                    <?php if (isset($_REQUEST["BE"])){
+                                                        $BE_id = $_REQUEST["BE"];
+                                                        $BE_name = getBenchmarkingEvents($BE_id, "name");
+                                                        echo "<option value='$BE_id' selected>$BE_name</option>";
+                                                    }?>
+                                                     
                                                 </select>
                                             </div>
                                         </div>
@@ -142,7 +162,7 @@ $commmunities = getCommunities();
                                         <div class="col-md-12">
                                             <div class="form-group">
                                                 <label class="control-label"><b>Challenge List </b><span style="color:red;">*</span></label>
-                                                <select name="challengeList" id="challengeList" class="form-control" >
+                                                <select name="challengeList" id="challengeList" class="form-control" multiple>
                                                     <option value="">Select a challenge </option>
                                                 </select>
                                             </div>
