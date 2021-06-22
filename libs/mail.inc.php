@@ -40,7 +40,7 @@ function sendEmail($recipient, $subject, $body, $reply = null, $bcc = null, $deb
 	// ******************
 
 	if(isset($bcc)) {
-		$mail->addBcc($bcc);
+		$mail->addBCC($bcc);
 	}
 
 	if(!$mail->Send()) {
@@ -167,7 +167,8 @@ function sendRequestToApprover ($approver, $requester, $reqId){
 	Thank you,<br><br>
 	
 	OpenEBench team';
+	//$bcc = $GLOBALS['ADMINMAIL'];
 
-	return sendEmail($approver,$subject,$message);
+	return sendEmail($approver,$subject,$message, null, $bcc);
 
 }
