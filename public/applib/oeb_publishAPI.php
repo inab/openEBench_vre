@@ -37,7 +37,7 @@ if($_REQUEST) {
 	}elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == "getRole") {
 		$block_json ="{}";
 		$roles = array();
-		$roles["roles"] = getCommunitiesFromRoles($_SESSION['User']['TokenInfo']['oeb:roles']);
+		$roles["roles"] = getBEFromRoles($_SESSION['User']['TokenInfo']['oeb:roles']);
 		if (isset($_SESSION['User']['linked_accounts']['b2share']['access_token'])){
 			$roles["tokenEudat"]=true;
 		}
@@ -63,10 +63,16 @@ if($_REQUEST) {
 			echo actionRequest($_REQUEST['reqId'], $_REQUEST['actionReq']);
 			exit;
 		}
-	//https://dev-openebench.bsc.es/vre/applib/oeb_publishAPI.php?action=listOfChallenge&community_id=id
-	}elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == "listOfChallenge") {
+	//https://dev-openebench.bsc.es/vre/applib/oeb_publishAPI.php?action=listOfBE&community_id=id
+	}elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == "listOfBE") {
 		if (isset($_REQUEST['community_id'])) {
-			echo getChallengesFromACommunity($_REQUEST['community_id']);
+			echo getBenchmarkingEventsQL($_REQUEST['community_id']);
+			exit;
+		}
+	//https://dev-openebench.bsc.es/vre/applib/oeb_publishAPI.php?action=listOfChallenge&BE_id=id
+	}elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == "listOfChallenge") {
+		if (isset($_REQUEST['BE_id'])) {
+			echo getChallengesQL($_REQUEST['BE_id']);
 			exit;
 		}
 	//https://dev-openebench.bsc.es/vre/applib/oeb_publishAPI.php?action=getOEBdata
@@ -95,7 +101,7 @@ if($_REQUEST) {
 	//https://dev-openebench.bsc.es/vre/applib/oeb_publishAPI.php?action=getLog&reqId=id
 	}elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == "getLog") {
 		if (isset($_REQUEST['reqId'])) {
-			echo getPubRegister_fromId($_REQUEST['reqId'])['log']['error'];
+			echo json_encode(getPubRegister_fromId($_REQUEST['reqId'])['history_actions']);
 			exit;
 		}
 	}

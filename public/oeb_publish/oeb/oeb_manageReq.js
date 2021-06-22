@@ -8,6 +8,12 @@ $(document).ready(function() {
         createTableRegisters();
         createTableApprover();
         $("#loading-datatable").hide();
+        //permisions depending on the role
+        console.log(roles)
+        if (roles['roles'].length == 0) {
+            $("#beSelector").attr('disabled','disabled');
+            $("#warning-notAllowed").show();
+        } 
 
     })
 })
@@ -31,7 +37,7 @@ function createTableRegisters(){
         },
         "columns" : [
             { "data" : "id" }, //0
-            { "data" : "bench_event"},//1
+            { "data" : "benchmarking_event"},//1
             { "data" : "tool"},//2
             { "data" : "files" }, //3
             { "data" : "status" }, //4
@@ -44,6 +50,7 @@ function createTableRegisters(){
             {
                 "targets": 0,
                 "title": '<th>Request id </th>',
+                
                 render: function ( data, type, row ) {
                     return  '<a id="'+data+'"></a>'+data+' <a id ="example" data-toggle="popover" data-trigger="hover" \
                     title="Title" container="body" data-content="And here"><i class="fa fa-info-circle"></i></a>'
@@ -52,8 +59,10 @@ function createTableRegisters(){
             },
             {
                 "targets": 1,
-                "title": '<th>Benchmarking event </th>'
-                
+                "title": '<th>Benchmarking event </th>',
+                render: function ( data, type, row ) {
+                    return data['be_name'];
+                }
             },
             {
                 "targets": 2,
@@ -83,7 +92,7 @@ function createTableRegisters(){
                 "className": "dt-center",
                 render: function ( data, type, row ) {
                     if (data == "error") {
-                        return '<span class="badge badge-danger"><b>'+data+'</b></span><a href="javascript:viewLog(\''+row['id']+'\');">'+data+"</a>"
+                        return '<span class="badge badge-danger"><b>'+data+'</b></span><br><a href="javascript:viewLog(\''+row['id']+'\');">View Log</a>'
                     }else if (data == 'published'){
                         return '<span class="badge badge-success"><b>'+data+'</b></span>';
                     }else if (data == 'denied'){
@@ -306,8 +315,21 @@ function viewLog(reqId) {
         url: baseURL + "/applib/oeb_publishAPI.php?action=getLog",
         data: "reqId=" + reqId,
         success: function(data) {
+            var data = JSON.parse(data);
             $("#modalLog").modal();
-            $("#modalContent").html("<pre>"+data+"</pre>")
+            var log ="";
+            log += "=========== Request petition =======</br>"
+            for (let i = 0; i < data.length; i++) {
+                if (i == 1){
+                    log += "=========== Do petition action =======</br>"
+                    log += data[i]['log']['stderr']+"</br>";
+                }else {
+                    for (let j = 0; j < data[i]['log'].length; j++) {
+                        log += data[i]['log'][j]+"</br>";
+                    }
+                } 
+            }
+            $("#modalContent").html("<pre>"+log+"</pre>")
 
         }
     });
