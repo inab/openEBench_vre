@@ -20,7 +20,7 @@ if($_REQUEST) {
 			$userNotificationsUnseen = 0;
 			if ($userNotificationsFound >0){
 				foreach ($allUserNotifications as $n) {
-					$output .= sprintf("<li><a href='%s'><strong>%s</strong></br></a></li>",$n["redirectOnClick"], $n["content"]);
+					$output .= sprintf("<li><a href='%s'>%s</br></a></li>",$n["redirectOnClick"], $n["content"]);
 				}
 			}else {
 				$output .= '<li><a href="#" class="text-bold text-italic">No notifications found</a></li>';

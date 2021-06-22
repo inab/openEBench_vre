@@ -1,7 +1,7 @@
 <?php
 class Notification {
     
-    private $id;
+    private $_id;
     private $receiver;
     private $content;
     private $created_at;
@@ -15,7 +15,7 @@ class Notification {
     public function __construct($receiver, $content, $redirectOnClick){ 
         $this->dbConnect = new dbConnection();
 
-        $this->id = createLabel2('Not', $this->dbConnect->getConnection(self::$COLLECTION_NAME));
+        $this->_id = createLabel2('Not', $this->dbConnect->getConnection(self::$COLLECTION_NAME));
         $this->receiver = $receiver;
         $this->content = $content;
         $this->created_at = new MongoDB\BSON\UTCDateTime;
@@ -34,7 +34,7 @@ class Notification {
      * Get the value of id
      */ 
     public function getId(){
-        return $this->id;
+        return $this->_id;
     }
 
     /**
@@ -42,7 +42,7 @@ class Notification {
      * @return  self
      */ 
     public function setId($id){
-        $this->id = $id;
+        $this->_id = $id;
         return $this;
     }
 
@@ -128,7 +128,7 @@ class Notification {
      */
     public function toArray() {
         return array(
-            '_id' => $this->id,
+            '_id' => $this->_id,
             'receiver' => $this->receiver,
             'content' => $this->content,
             'created_at' => $this->created_at,
@@ -145,7 +145,8 @@ class Notification {
     public function saveNotification() {
         try {
             $connection = $this->dbConnect->getConnection(self::$COLLECTION_NAME); 
-            $insertResult = $connection->insertOne($this->toArray());
+            unset($this->dbConnect);
+            $insertResult = $connection->insertOne(get_object_vars($this));
             return $insertResult ;
         } catch (\MongoDB\Driver\Exception\Exception $e) {
             $_SESSION['errorData']['Error'][]="Error inserting notifications";
