@@ -19,7 +19,7 @@ if($_REQUEST) {
         }
     } elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == "getBlock") {
         if (isset($_REQUEST['id'])) {
-            echo _getBlock($_REQUEST['id']);
+            echo getBlock($_REQUEST['id']);
             exit;
         }
     } elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == "getWorkflows") {
@@ -47,8 +47,8 @@ if($_REQUEST) {
         }
     //https://dev-openebench.bsc.es/vre/applib/oeb_blocksAPI.php?blockForm=...
     } elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == "setBlock" ) {
-        if (isset($_REQUEST['blockForm'], $_REQUEST['buttonAction'], $_REQUEST['typeBlock'] ))
-        echo setBlock($_REQUEST['blockForm'], $_REQUEST['typeBlock'], $_REQUEST['buttonAction']);
+        if (isset($_REQUEST['blockForm'], $_REQUEST['buttonAction'], $_REQUEST['typeBlock'], $_REQUEST['id_block'] ))
+        echo setBlock($_REQUEST['blockForm'], $_REQUEST['typeBlock'], $_REQUEST['id_block'], $_REQUEST['buttonAction']);
         exit;
     } elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == "createTool_fromWFs" ) {
         echo createTool_fromWFs($_REQUEST['id']);
@@ -60,11 +60,17 @@ if($_REQUEST) {
         echo getUser($_REQUEST['id']);
         exit;
     } elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == "deleteBlock") {
-        echo deleteBlock($_REQUEST['id']);
+        echo deleteBlock($_REQUEST['id'], $_REQUEST['type']);
+    } elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == "workflowsInUse") {
+        echo workflowsInUse($_REQUEST['id']);
+    } elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == "acceptBlock") {
+        echo acceptBlock($_REQUEST['id']);
     } elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == "setWorkflow") {
         echo setWorkflow($_REQUEST['json'], $_REQUEST['validation'], $_REQUEST['metrics'], $_REQUEST['consolidation']);
     } elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == "showWorkflowJSON") {
         echo showWorkflowJSON($_REQUEST['id']);
+    } elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == "getCommunity") {
+        echo getCommunity();
     }
 } else {
     echo '{}';

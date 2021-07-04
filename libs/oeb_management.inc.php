@@ -79,6 +79,14 @@ function getBlockSelect($type) {
 	return $block_json;
 }
 
+function getCommunity() {
+	$userInfo = $_SESSION['User']['TokenInfo'];
+	$communities = $userInfo["community_id"];
+	
+	$communities = json_encode($communities, JSON_PRETTY_PRINT);
+	return $communities;
+}
+
 //get all the workflows that the user has to see (LIST WORKFLOWS)
 function getWorkflows() {
 	//initiallize variables
@@ -125,6 +133,10 @@ function updateStatusBlock($blockId, $statusId) {
 	//variables
 	$userId = $_SESSION["User"]["id"];
 	$typeUser = $GLOBALS['usersCol']->findOne(array("id"=>$userId), array("Type"=>1));
+	$block = $GLOBALS['blocksCol']->findOne(array('_id' => $blockId));
+
+	//print_r($block["data"]["publication_status"]);
+	//exit;
 
 	//collection blocks
 	$blocksCol = $GLOBALS['blocksCol'];
@@ -308,8 +320,7 @@ function getUser($id) {
 }
 
 //Get the workflow information from the form, validate all the data and inserted in MongoDB (NEW PROCESS)
-function setBlock($blockStringForm, $typeBlock, $buttonAction) {
-
+function setBlock($blockStringForm, $typeBlock, $id_block, $buttonAction) {
 	$response_json= new JsonResponse();
 	$response_json->setCode("405");
 	$response_json->setMessage("ERROR");
@@ -321,18 +332,19 @@ function setBlock($blockStringForm, $typeBlock, $buttonAction) {
 	//get the url of git
 	$gitURL = $blockForm["nextflow_files"]["files"]["gitURL"];
 	$gitTag = $blockForm["nextflow_files"]["files"]["gitTag"];
-	$privateToken = $blockForm["nextflow_files"]["files"]["privateToken"];
+	$privateToken = $blockForm["nextflow_files"]["files"]["repositoryToken"];
+	$folderName = $blockForm["nextflow_files"]["files"]["folderName"];
 
 	//get errors (or not) workflow git - the four step
-	$validationGit = _validationGit($gitURL, $gitTag, $privateToken);
-
+	$validationGit = _validationGit($gitURL, $gitTag, $privateToken, $folderName);
+	
 	//errors nextflow files
-	if ($validationGit != "OK" && $validationGit != "SUCCESS"){
+	if ($validationGit != "under_validation" && $validationGit != "registered" && $validationGit != "rejected"){
 		$response_json->setCode(422);
 		$response_json->setMessage($validationGit);
 
 		return $response_json->getResponse();
-	} 
+	}
 
 	//user logged
 	$userId = $_SESSION["User"]["id"];
@@ -341,18 +353,19 @@ function setBlock($blockStringForm, $typeBlock, $buttonAction) {
 	$data = array();
 
 	//is a function that is not done by me that create a fake ID
-	$data['_id'] = createLabel($GLOBALS['AppPrefix']."_block",'blocksCol');
+	if ($buttonAction == "submit") $data['_id'] = createLabel($GLOBALS['AppPrefix']."_block",'blocksCol');
+	//get the previous id
+	else if ($buttonAction == "edit") $data['_id'] = $id_block;
+
 	$data['_schema'] = "https://openebench.bsc.es/vre/block-schema";
 	$data['data'] = $blockForm;
+	$data['creation_date'] = date('l jS \of F Y h:i:s A');
+	$data['workflows_in_use'] = 0;
 	$data['data']['type'] = $typeBlock;
 
-	//gitlab or github without bsc
-	if ($validationGit == "OK") {
-		$data['validation_status'] = "under_validation";
-		//gitlab bsc is automatically checked
-	} elseif ($validationGit == "SUCCESS") {
-		$data['validation_status'] = "registered";
-	}
+	//gitlab or github without bsc = under_validation
+	//gitlab bsc is automatically checked = registered or reject
+	$data['validation_status'] = $validationGit;
 
 	$validator = _validateObject("block.json", $data, $GLOBALS['oeb_block_validator']);
 
@@ -369,7 +382,8 @@ function setBlock($blockStringForm, $typeBlock, $buttonAction) {
 			$GLOBALS['blocksCol']->insertOne($data);
 		} elseif ($buttonAction == "edit") {
 			//insert the data in mongo but updated
-			$GLOBALS['blocksCol']->updateOne(array("_id" => $blockForm["_id"]), array('$set' => $blockForm));
+
+			$GLOBALS['blocksCol']->updateOne(["_id" => $id_block], ['$set' => $data]);
 		}
 
 	} catch (Exception $e) {
@@ -386,7 +400,7 @@ function setBlock($blockStringForm, $typeBlock, $buttonAction) {
 }
 
 //validate the Git URL 
-function _validationGit($gitURL, $gitTag, $privateToken) {
+function _validationGit($gitURL, $gitTag, $privateToken, $folderName) {
 	$resultValidation = "";
 
 	//clone the git 
@@ -400,43 +414,40 @@ function _validationGit($gitURL, $gitTag, $privateToken) {
 			$resultValidation = "Nextflow files -> Git Files. The git URL cannot be cloned.";
 			break;
 		case 1:
-			$resultValidation = "Nextflow files -> Git Files. The git repo is empty.";
+			$resultValidation = "Nextflow files -> Git Files. The git repo is empty or not exist.";
 			break;
 		case 2:
-			$filesValidation = _validateFileNames($tempDir, $gitURL);
+			$filesValidation = _validateFileNames($tempDir, $gitURL, $folderName);
 			switch($filesValidation) {
 				case 0: 
-					$resultValidation = "Nextflow files -> main.nf. The 'workflow-block/main.nf' file is not found.";
+					$resultValidation = "Nextflow files -> main.nf. The '" . $folderName . "/workflow-block/main.nf' file is not found.";
 					break;
 				case 1: 
-					$resultValidation = "Nextflow file -> nextflow.config. The 'workflow-block/nextflow.config' file is not found.";
+					$resultValidation = "Nextflow file -> nextflow.config. The '" . $folderName . "/workflow-block/nextflow.config' file is not found.";
 					break;
 				case 2: 
-					$resultValidation = "Nextflow file -> test-data. The 'test-data/' repository is not found.";
+					$resultValidation = "Nextflow file -> test-data. The '" . $folderName . "/test-data/' repository is not found.";
 					break;
 				case 3: 
-					$resultValidation = "Nextflow file -> gitlab-ci.yml. The '.gitlab-ci.yml' file is not found.";
+					$resultValidation = "Nextflow file -> gitlab-ci.yml. The '" . $folderName . "/.gitlab-ci.yml' file is not found.";
 					break;
 				case 4:
-					$resultValidation = "OK";
+					$resultValidation = "under_validation";
 					if (strpos($gitURL, $GLOBALS['gitlab_server']) !== false) {
 						$nextflowValidation = _validateNextflow($gitURL, $privateToken);
-						if($nextflowValidation == 1) {
-							$resultValidation = "SUCCESS";
-						} else {
-							$resultValidation = $nextflowValidation;
-						}
+						if ($nextflowValidation == 1) $resultValidation = "registered";
+						else $resultValidation = "rejected";
 					}
 					break;
 				default:
-					$resultValidation = "Some error ocurred";
+					$resultValidation = "Some errors ocurred in the block's validation.";
 			}
 			break;
 		default: 
-			$resultValidation = "Some error ocurred";
+			$resultValidation = "Some errors ocurred in the block's validation.";
 			break;
 	}
-
+	
 	//remove temperal directory
 	$r = shell_exec("rm -rf $tempDir");
 	return $resultValidation;	
@@ -466,6 +477,7 @@ function _validateNextflow($gitURL, $privateToken) {
 	$gitlabPath = str_replace(".git", "", $gitlabPath);
 
 	$cmd = 'curl --header "PRIVATE-TOKEN: ' . $privateToken . '" "'. $GLOBALS['gitlab_server'] .'api/v4/projects?search=' . $gitlabPath . '"';
+	
 	$output = shell_exec($cmd);
 
 	$reposSelected = json_decode($output, true);
@@ -478,6 +490,7 @@ function _validateNextflow($gitURL, $privateToken) {
 			$repoId = $repo["id"];
 			$cmdPipeline = 'curl --header "PRIVATE-TOKEN: ' . $privateToken . '" "'.$GLOBALS['gitlab_server'].'api/v4/projects/'. $repoId .'/pipelines"';
 			$outputPipeline = shell_exec($cmdPipeline);
+
 			$pipeline = json_decode($outputPipeline, true);
 			if ($pipeline[0]["status"] == "success") {
 				return 1;
@@ -512,9 +525,13 @@ function _validateGitFiles($tempDir) {
 }
 
 //validate the nextflow files inside the git url
-function _validateFileNames($tempDir, $gitURL) {
+function _validateFileNames($tempDir, $gitURL, $folderName) {
 
 	//get the git directory file paths (clone it in the tempDir)
+	if ($folderName) {
+		$tempDir = $tempDir . $folderName . "/";
+	}
+
 	$files = glob($tempDir . '{,.}*', GLOB_BRACE);
 
 	$mainExist = 0;
@@ -523,9 +540,9 @@ function _validateFileNames($tempDir, $gitURL) {
 	$ymlExist = 0;
 
 	foreach ($files as $file) {
-		
-		if (strtoupper($file) == strtoupper($tempDir. "workflow-block")) {
+		if (strtoupper($file) == strtoupper($tempDir . "workflow-block")) {
 			$filesWorkflow_block = glob($tempDir . "workflow-block/" . '{,.}*', GLOB_BRACE);
+
 			foreach ($filesWorkflow_block as $fileWorkflow) {
 				//check if exist the main.nf file
 				if (strtoupper($fileWorkflow) == strtoupper($tempDir. "workflow-block/main.nf")) {
@@ -552,7 +569,7 @@ function _validateFileNames($tempDir, $gitURL) {
 			$ymlExist++;
 		}
 	}
-	
+
 	//check only there are a main.nf
 	if($mainExist != 1) {
 		return 0;	
@@ -593,7 +610,7 @@ function _getWorkflow($id) {
 }
 
 //return a block from the id
-function _getBlock($id) {
+function getBlock($id) {
 
 	//initiallize variables
 	$block_json="{}";
@@ -703,7 +720,7 @@ function _validateObject($nameFile, $data, $schema_validator) {
 	//skipped error
 	if ($skipped) {
 		unlink($tempFile);
-		return [422, "Sorry... There is an error with JSON Schema and the tool cannot be validated."];
+		return [422, "Sorry... There is an error with JSON Schema and the block cannot be validated."];
 	} 
 
 	//errors of sintaxis
@@ -786,7 +803,7 @@ function _createToolSpecification_fromWF($workflow) {
 	$validation_id = $workflow_json["validation_id"];
 
 
-	$validationBlock = _getBlock($validation_id);
+	$validationBlock = getBlock($validation_id);
 
 	if ($validationBlock == "null") {
 		return false;
@@ -1061,8 +1078,70 @@ function _createToolSpecification_fromWF($workflow) {
 	return $stringTool;
 }
 
+function workflowsInUse($id) {
+	//Get if there are any workflow using this validation block
+	$workflowsInUse = $GLOBALS['workflowsCol']->find(array('validation_id' => $id))->toArray();
+
+	//add query to an array
+	foreach($workflowsInUse as $workflow) {
+		array_push($workflows, $workflow);
+	}
+
+	//if are workflows using that block
+	if (!empty($workflows)) {
+		return sizeof($workflows);
+	} else {
+		return 'empty';
+	} 
+} 
+
 //Function to detele the block (LIST PROCESSES)
-function deleteBlock($id) {
+function deleteBlock($id, $typeBlock) {
+
+	$response_json = new JsonResponse();
+
+	$userId = $_SESSION["User"]["id"];
+
+	$blocksCol = $GLOBALS['blocksCol'];
+
+	//get the current user
+	$currentUser = getUser("current");
+	$typeUserLogged = json_decode($currentUser, true);
+
+	//find the owner of the block
+	$block = $blocksCol->findOne(array('_id' => $id));
+
+	//if the current user is not the same that the user owner of the block AND if the user is not admin
+	if ($userId != $block["data"]["owner"]["user"] && $typeUserLogged["Type"] != 0) {
+		$response_json->setCode(422);
+		$response_json->setMessage("You are not allowed to remove this block.");
+		return $response_json->getResponse();
+	}
+
+	//if are workflows using that block
+	if ($block['workflows_in_use'] != 0) {
+		$response_json->setCode(422);
+		$response_json->setMessage("The block is being used in a workflow.");
+		return $response_json->getResponse();
+	}
+
+	//if all is correct remove the block
+	try  {
+		$blocksCol->deleteOne(array('_id' => $id));
+
+		$response_json->setCode(200);
+		$response_json->setMessage("OK");
+
+		return $response_json->getResponse();
+	} catch (MongoCursorException $e) {
+		$response_json->setCode(500);
+		$response_json->setMessage("Cannot delete data in Mongo. Mongo Error(".$e->getCode()."): ".$e->getMessage());
+		return $response_json->getResponse();
+	}
+}
+
+//Function to accept the block as a admin (LIST PROCESSES)
+function acceptBlock($id) {
 	
 	$response_json = new JsonResponse();
 
@@ -1081,28 +1160,16 @@ function deleteBlock($id) {
 	//if the current user is not the same that the user owner of the block AND if the user is not admin
 	if ($userId != $block["data"]["owner"]["user"] && $typeUserLogged["Type"] != 0) {
 		$response_json->setCode(422);
-		$response_json->setMessage("You are not allowed to remove this block.");
-		return $response_json->getResponse();
-	}
-	
-	//Get if there are any workflow using this validation block
-	$workflowsInUse = $GLOBALS['workflowsCol']->find(array('validation_id' => $id))->toArray();
-	
-	//add query to an array
-	foreach($workflowsInUse as $workflow) {
-		array_push($workflows, $workflow);
-	}
-
-	//if are workflows using that block
-	if (!empty($workflows)) {
-		$response_json->setCode(422);
-		$response_json->setMessage("The block is being used in a workflow.");
+		$response_json->setMessage("You are not allowed to accept this block.");
 		return $response_json->getResponse();
 	}
 
-	//if all is correct remove the block
+	//if all is correct accept the block
 	try  {
-		$blocksCol->remove(array('_id' => $id));
+  		$blocksCol->updateOne(
+			['_id' => $id],
+			['$set' => ['validation_status' => "registered"]]
+		);
 
 		$response_json->setCode(200);
 		$response_json->setMessage("OK");

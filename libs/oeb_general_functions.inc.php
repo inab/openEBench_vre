@@ -201,12 +201,29 @@ function getCommunitiesFromRoles (array $roles) {
 	  if($r[0] == "owner") {
 		  array_push($communitites_ids, $r[1] );
 	  }else {
-		  if($r[0] == "manager" || $r[0] == "contributor") {
+		  if($r[0] == "manager" || $r[0] == "supervisor" ||$r[0] == "contributor") {
 		    array_push($communitites_ids, getCommunityFromChallenge($r[1]) );
 		  }
 	  }
 	}
 	return $communitites_ids;
+  
+}
+
+function getBEFromRoles (array $roles) {
+	$BE_ids = array();
+  
+	foreach ($roles as $elem) {
+	  $r = explode(":", $elem);
+	  if($r[0] == "owner") {
+		  array_push($BE_ids, getChallenges($r[1], 'benchmarking_event_id' ));
+	  }else {
+		  if($r[0] == "manager" || $r[0] == "supervisor" ||$r[0] == "contributor") {
+		    array_push($BE_ids, getChallenges($r[1], 'benchmarking_event_id' ));
+		  }
+	  }
+	}
+	return $BE_ids;
   
 }
 
@@ -318,6 +335,57 @@ function getAllContactsOfCommunity ($community_id){
     return json_encode($items);
   }
 }
+
+
+function getBenchmarkingEventsQL ($community_id){
+
+  $data_query =
+  '{"query":" 
+      query getBE($community_id: String!){
+        getBenchmarkingEvents(benchmarkingEventFilters: {community_id: $community_id}) {
+          _id
+          name   
+        } 
+      }",
+      "variables":{"community_id": "'.$community_id.'"}}';
+  $url ='https://dev-openebench.bsc.es/sciapi/graphql/'; //dev, in prod is closed
+  $headers= array('Content-Type: application/json');
+
+  $r = post($data_query, $url, $headers);
+  if ($r[1]['http_code'] != 200){
+    $_SESSION['errorData']['Warning'][]="Error getting BenchmarkingEvents. Http code= ".$r[1]['http_code'];
+    return false;
+  } else {
+    $items = json_decode($r[0])->data->getBenchmarkingEvents;
+    return json_encode($items);
+  }
+}
+
+
+function getChallengesQL ($BE_id){
+
+  $data_query =
+  '{"query":" 
+      query getCH($be: String!){
+        getChallenges(challengeFilters: {benchmarking_event_id: $be}) {
+          _id
+          name   
+        } 
+      }",
+      "variables":{"be": "'.$BE_id.'"}}';
+  $url ='https://dev-openebench.bsc.es/sciapi/graphql/'; //dev, in prod is closed
+  $headers= array('Content-Type: application/json');
+
+  $r = post($data_query, $url, $headers);
+  if ($r[1]['http_code'] != 200){
+    $_SESSION['errorData']['Warning'][]="Error getting BenchmarkingEvents. Http code= ".$r[1]['http_code'];
+    return false;
+  } else {
+    $items = json_decode($r[0])->data->getChallenges;
+    return json_encode($items);
+  }
+}
+
 
 
 /**

@@ -11,7 +11,6 @@ var informationUsed = [];
 var value;
 var editorValue;
 var urlJSON = "applib/oeb_blocksAPI.php";
-var blockEdit;
 var filePaths = [];
 
 $(document).ready(function() {
@@ -22,8 +21,6 @@ $(document).ready(function() {
   //typeBlock ==> for type
 
   //get the JSON Schema
-
-  console.log(oeb_block_schema);
 
   $.getJSON(oeb_block_schema, function(data) {
     schema = data;
@@ -47,7 +44,7 @@ $(document).ready(function() {
 
     //when petitions finished
     $.when(...ajaxPromises).done(function() {
-      for (x = 0; x < arguments.length; x++) {
+      /*for (x = 0; x < arguments.length; x++) {
         if (arguments[x][0][0]["label"] != "oeb_formats" && arguments[x][0][0]["label"] != "oeb_datasets") {
           labels = [];
           uris = [];
@@ -94,7 +91,7 @@ $(document).ready(function() {
             }
           }
         }
-      }
+      }*/
 
       //INSERT THE OWNER
       var urlDefaultValues = "applib/oeb_blocksAPI.php?action=getDefaultValues&owner";
@@ -156,7 +153,6 @@ $(document).ready(function() {
             data: {'action': 'getBlock', 'id': idBlock}
           }).done(function(data) {
 	    // load block  fields as default values
-            blockEdit = data;
             editor.setValue(data["data"]);
 
             //$('input[type="file"]').attr("disabled", "disabled");
@@ -172,7 +168,7 @@ $(document).ready(function() {
         $("#loading-datatable").hide();
 
         //ON CLICK SUBMIT 
-        clickButton(typeBlock);
+        clickButton(typeBlock, idBlock);
       });
       
     }).fail(function (jqXHR, textStatus) {
@@ -182,7 +178,7 @@ $(document).ready(function() {
 });
 
 //when click the button submit
-function clickButton(typeBlock) {
+function clickButton(typeBlock, idBlock) {
   
   $('#submit').on("click",function() {
     console.log(editor.getValue());
@@ -193,9 +189,9 @@ function clickButton(typeBlock) {
     if (!errors) {
       //take the value of the editor (the things that are write in inputs and internally)
       var json = JSON.stringify(editor.getValue(),null,2);
-
+      
       //inserted into db
-      insertJSON(json, typeBlock, "submit");
+      insertJSON(json, typeBlock, "_", "submit");
     } 
 
     $(".errorClass").show();
@@ -212,7 +208,7 @@ function clickButton(typeBlock) {
       var json = JSON.stringify(editor.getValue(),null,2);
  
       //inserted into db
-      insertJSON(json, typeBlock, "edit");
+      insertJSON(json, typeBlock, idBlock, "edit");
     } 
 
     $(".errorClass").show();
@@ -287,12 +283,12 @@ function getInformation(schema) {
   return [pathsArray, ancestorsArray, URLontologiesArray];
 }
 
-function insertJSON(blockJSONForm, typeBlock, buttonAction) {
-
+function insertJSON(blockJSONForm, typeBlock, id_block, buttonAction) {
+  console.log(blockJSONForm);
   $.ajax({
     type: 'POST',
     url: urlJSON,
-    data: {'action': 'setBlock', 'blockForm': blockJSONForm, 'typeBlock': typeBlock, 'buttonAction': buttonAction }
+    data: {'action': 'setBlock', 'blockForm': blockJSONForm, 'typeBlock': typeBlock, 'id_block': id_block, 'buttonAction': buttonAction }
   }).done(function(data) {
     if(data['code'] == 200) {
       window.location.href = baseURL + "oeb_management/oeb_block/oeb_blocks.php";
@@ -333,7 +329,7 @@ function validateErr() {
     fileError = 0;
 
     editor.options.show_errors = "always";
-    $(".errorClass").text("There are errors in some fields of the form.");
+    $(".errorClass").text("There are errors in some fields of the form. Check 'STEP 1' and 'STEP 2'");
     $(".errorClass").removeClass(" alert alert-info");
     $(".errorClass").addClass(" alert alert-danger");
 
