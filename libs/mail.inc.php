@@ -144,31 +144,28 @@ function sendPasswordToNewUser($login, $name, $surname, $password){
 
 }
 
+function fillContentEmail($template, $params) {
+	$template = file_get_contents($template, FILE_USE_INCLUDE_PATH);
+
+	foreach($params as $key => $value){
+		$template = str_replace('{{ '.$key.' }}', $value, $template);
+	}
+
+	return $template;
+}
+
 /**
  * Sends an email to the person who can approve petitions
- * @param recipient the person who will receive the email (approver)
- * @param requester of the petition
- * @param fileId to be approved
  */
 
-function sendRequestToApprover ($approver, $requester, $reqId){
+function sendRequestToApprover ($variables){
 
-	$approver_attr = $GLOBALS['usersCol']->findOne(array('Email' => $approver));
+	$approver_attr = $GLOBALS['usersCol']->findOne(array('Email' => $variables['approver']));
 	$subject = $GLOBALS['NAME']." New request for OpenEBench data publication. Action required";
-	$message = ' 
-	Hello OpenEBench community manager,<br><br>
+	$message = fillContentEmail($GLOBALS['htmlib'].'/EmailsTemplates/OEB_requestEmail.php', $variables);
 	
-	The user '.utf8_decode($requester).' has send you a new petition for publishing a dataset associated to your OpenEBench benchmarking community. Please, login to the <a href="'.$GLOBALS['URL_login'].'">OpenEBench Virtual Research Environment</a> and evaluate it. 
-	<br><br> ----- '.$reqId.' ------ .<br><br>
-
-	Notified approvers: contacts.ids<br>
-	Learn more about the OEB publication process <a href="https://openebench.readthedocs.io/en/dev/how_to/participate/publish_oeb.html">here</a>. For further information or any other enquiry, please, email to <a href="mailto:'.$GLOBALS['ADMINMAIL'].'?Subject=Enquiry related to data publication with id:'.$reqId.'">'.$GLOBALS['ADMINMAIL'].'</a>.<br><br>
-
-	Thank you,<br><br>
-	
-	OpenEBench team';
 	//$bcc = $GLOBALS['ADMINMAIL'];
-
-	return sendEmail($approver,$subject,$message, null, $bcc);
+	
+	return sendEmail($variables['approver'],$subject,$message, null, $bcc);
 
 }

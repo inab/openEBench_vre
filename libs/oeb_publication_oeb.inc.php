@@ -65,6 +65,7 @@ function getPublishableFiles($datatype) {
 
                 if(count($found) !== 0 || !is_null($found)) {
                         $value['current_status'] = $found['current_status'];
+                        $value['req_id'] = $found['_id'];
                         if (isset($found['dataset_OEBid'])){
                                 $value['oeb_id'] = $found['dataset_OEBid'];
                         }
@@ -157,7 +158,8 @@ function submitedRegisters($filters) {
                                
                         }
                         $r['approvers'] = $v['approvers'];
-                        $r['bench_event'] = $v['oeb_metadata']['benchmarking_event_id'];
+                        $r['benchmarking_event']['be_id'] = $v['oeb_metadata']['benchmarking_event_id'];
+                        $r['benchmarking_event']['be_name'] = getBenchmarkingEvents($r['benchmarking_event']['be_id'],"name");
                         $r['community'] = $v['oeb_metadata']['community_id'];
                         $r['tool'] = array("tool_id" =>$v['oeb_metadata']['tool_id'], "tool_name" =>  getToolss($v['oeb_metadata']['tool_id'], "name"));
                         $r['history_actions'] = $v['history_actions'];
@@ -183,7 +185,7 @@ function submitedRegisters($filters) {
  * @param action the action to make
  * @return Json response object
  */
-function actionRequest($id, $action){
+function actionRequest($id, $action, $message = null){
 
         //jsonResponse class (errors or successfully)
 	$response_json = new JsonResponse();
@@ -275,7 +277,7 @@ function actionRequest($id, $action){
                            
                         
                                 //notify requester
-                                $n = new Notification(getPubRegister_fromId($id)['requester'], "Your request has been approved: ".$id, "oeb_publish/oeb/oeb_manageReq.php#".$id);
+                                $n = new Notification(getPubRegister_fromId($id)['requester'], "OEB data publication: Your request has been approved: <br><b>".$id."</b>", "oeb_publish/oeb/oeb_manageReq.php#".$id);
                                 $n->saveNotification();
 
                                 $response_json->setCode(200);
@@ -301,11 +303,12 @@ function actionRequest($id, $action){
         }else{
                 try {
                         if ($action === 'deny'){
+                                $log['reason'] = $message;
                                 array_push($log, "Data successfully denied");
                                 OEBDataPetition::updateOEBPetitions(array('_id' => $id), array('$set' => array("current_status" => "denied")));
                         
                                 //notify requester
-                                $n = new Notification(getPubRegister_fromId($id)['requester'], "Your request has been denied: ".$id, "oeb_publish/oeb/oeb_manageReq.php#".$id);
+                                $n = new Notification(getPubRegister_fromId($id)['requester'], "OEB data publication: Your request has been denied: <br><b>".$id."</b>", "oeb_publish/oeb/oeb_manageReq.php#".$id);
                                 $n->saveNotification();
                                 
                         } elseif ($action === 'cancel'){
@@ -379,7 +382,7 @@ function proceedRequest_register_NC($fileId, $metaForm, $type) {
 
 	//3. CREATE petition object
         //create new obj petition
-        $newRequest = new OEBDataPetition (0, array($fileId,$participantFile_id), $_SESSION['User']['id'], $approversContactsIds, $form);
+        $newRequest = new OEBDataPetition (array($fileId,$participantFile_id), $_SESSION['User']['id'], $approversContactsIds, $form);
         $req_id = $newRequest->getId();
 
 	//4. UPLOAD to nextcloud and get url share link
@@ -431,10 +434,15 @@ function proceedRequest_register_NC($fileId, $metaForm, $type) {
                         $newRequest->setVisualitzationUrl($url_tar);
 
                         //6.Notify approvers --> TODO: now approver: Meritxell. Get user id (VRE) from contact id to get notification
-                        $n = new Notification('OpEBUSER5fd78d4e6585e', 'New request pending approval: '.$req_id, "oeb_publish/oeb/oeb_manageReq.php#".$req_id);
+                        $n = new Notification('OpEBUSER5fd78d4e6585e', 'OEB data publication: New request pending approval: </br><b>'.$req_id."</b>", "oeb_publish/oeb/oeb_manageReq.php#".$req_id);
                         $n->saveNotification();
                         
-                        if (!sendRequestToApprover("meritxell.ferret@bsc.es", $_SESSION['User']['Name'], $req_id)){
+                        $params = array();
+                        $params['approver'] = 'meritxell.ferret@bsc.es';
+                        $params['requester'] = $_SESSION['User']['Name'];
+                        $params['reqId'] = $req_id;
+                        $params['BE_name'] = getBenchmarkingEvents($benchmarkingEvent_id,"name");
+                        if (!sendRequestToApprover($params)){
                                 array_push($log, "Error sending email to approvers.");
                                 $newRequest->setCurrentStatus("error");
                         
