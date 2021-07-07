@@ -23,6 +23,7 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
 
 
 ?>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
 <body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white page-container-bg-solid page-sidebar-fixed">
     <div class="page-wrapper">
         <input type="hidden" id="base-url" value="<?php echo $GLOBALS['BASEURL']; ?>" />
@@ -56,8 +57,6 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                 </div>
             
                 <!-- END PAGE BAR -->
-
-                
                 <!-- BEGIN PAGE WARNING-->
                 <div id= "warning-notAllowed" style="display:none;">
                     <br>
@@ -67,7 +66,7 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </h4>
-                        <p>You don't have the properly permisions to request to publish datafiles. Only owners, managers and challanege contributors are allowed.</p>
+                        <p>You don't have the properly permisions to request to publish datafiles. Only owners, managers, supervisors and challanege contributors are allowed.</p>
                         
                         <p class="mb-0">You can request that permision sending a ticket to helpdesk: <a href="/vre/helpdesk/?sel=roleUpgrade">click here!</a></p>
                     </div>
@@ -90,7 +89,7 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                         <?php //var_dump ($_SESSION['User']['TokenInfo']['oeb:roles']);?>
 							<div class="portlet-title">
 								<div class="caption">
-									<span class="caption-subject font-dark bold uppercase">Your Publication requests</span>
+									<span class="caption-subject font-dark bold uppercase">My Publication requests</span>
 								</div>
                             </div>
                             <div class="portlet-body">
@@ -109,14 +108,14 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                             </div>
                         </div>
                         
-                        <div id ="approvalSection" style="display:<?php if (str_contains($_SESSION['User']['TokenInfo']['oeb:roles'][0], 'owner') || str_contains($_SESSION['User']['TokenInfo']['oeb:roles'][0], 'supervisor')) echo "block"; else echo "none"?>;" >
+                        <div id ="approvalSection" style="display:<?php if (str_contains($_SESSION['User']['TokenInfo']['oeb:roles'][0], 'owner') || str_contains($_SESSION['User']['TokenInfo']['oeb:roles'][0], 'supervisor') || str_contains($_SESSION['User']['TokenInfo']['oeb:roles'][0], 'manager')) echo "block"; else echo "none"?>;" >
                             <h1 class="page-title"> Administration Panel
-		                        <i class="icon-question tooltips" data-container="body" data-html="true" data-placement="right" data-toggle="tooltip" data-trigger="click" data-original-title="<p align='left' style='margin:0'>Table to manage users publication requests. <a target='_blank' href='https://openebench.readthedocs.io/en/dev/how_to/participate/publish_oeb.html'> +Info</a>.</p>"></i>
+		                        <i class="icon-question tooltips" data-container="body" data-html="true" data-placement="right" data-toggle="tooltip" data-trigger="click" data-original-title="Table to manage users publication requests. <a target='_blank' href='https://openebench.readthedocs.io/en/dev/how_to/participate/publish_oeb.html'> +Info</a>."></i>
 		                    </h1>
                         <div class="portlet light bordered">
                             <div  class="portlet-title">
                                 <div class="caption">
-                                    <span class="caption-subject font-dark bold uppercase">Requests to be evaluated</span>
+                                    <span class="caption-subject font-dark bold uppercase">My requests to evaluate</span>
                                 </div>
                             </div>
                             <div class="portlet-body">
@@ -166,12 +165,26 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                                     </div>
                                 </li>
                             </ul>
+                            <div>
+                                <form id="confirm-form">
+                                <div id="inputDenyReason" style="display:none">
+                                    <label for="reason">Enter a rason to deny: <span style="color:red;">*</span></label>
+                                    <textarea name="reason" rows="5" cols="60" placeholder="Reason to deny" required></textarea>
+                                </div>
+                                
+                                <input name="actionReq" id="actionReq" hidden="hidden" value=""/>
+                                <input name="reqId" id="reqId" hidden="hidden" value=""/>
+                               
+                           
+                            </div>
                             <br>
                         </div>
                         <div class="modal-footer">
+                         <button id = "" type="submit"  name="submit" class="btn btn-primary">Accept</button>
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                            <button id = "acceptModal" type="button" class="btn btn-primary">Accept</button>
+
                         </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -209,12 +222,18 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                 .hide_column {
                     display : none;
                 }
-            </style>
-            <script>
 
-$(function () {
-  $('[data-toggle="popover"]').popover()
-})
-</script>
+                div.ellipsis {
+                white-space: nowrap; 
+                width: 150px; 
+                overflow: hidden;
+                text-overflow: ellipsis;
+                direction: rtl;
+              }
+              div.ellipsis:hover {
+  overflow: visible;
+}
+            </style>
+            
 
            

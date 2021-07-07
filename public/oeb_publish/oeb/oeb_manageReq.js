@@ -13,7 +13,7 @@ $(document).ready(function() {
         if (roles['roles'].length == 0) {
             $("#beSelector").attr('disabled','disabled');
             $("#warning-notAllowed").show();
-        } 
+        }
 
     })
 })
@@ -21,15 +21,13 @@ $(document).ready(function() {
 /********************************FUNCTIONS****************************** */
 function createTableRegisters(){
     table1 = $('#tableAllFiles').DataTable( {
-        "autoWidth": false,
         "ajax": {
             url: 'applib/oeb_publishAPI.php?action=getSubmitRegisters',
             dataSrc: ''
         }, 
         "bPaginate": false,
-        //"bInfo": false,
-        "bLengthChange": false,
-        "bAutoWidth": true,
+        responsive: true,
+        "bLengthChange": false,     
         rowCallback: function( row, data, index ) {
             if (window.location.href.indexOf(data['id']) > -1){
                 $(row).css('background-color', '#fcfce0');
@@ -50,6 +48,7 @@ function createTableRegisters(){
             {
                 "targets": 0,
                 "title": '<th>Request id </th>',
+                width: '10px',
                 
                 render: function ( data, type, row ) {
                     return  '<a id="'+data+'"></a>'+data+' <a id ="example" data-toggle="popover" data-trigger="hover" \
@@ -75,14 +74,13 @@ function createTableRegisters(){
                 "targets": 3,
                 "title": '<th>File Name </th>',
                 render: function ( data, type, row ) {
-                    result = "<ul>";
+                    result = "<ul style ='padding-left: 4%;'>";
                     for (let index = 0; index < data.length; index++) {
                         result += "<li><a href='"+data[index]['nc_url']+"'target='_blank'>"+ data[index]['name']+"</a></li>";   
                         
                     }
                     result += "</ul>";
                     return result
-                    //return "<b>"+data.split("/").reverse()[1]+"</b>/"+data.split("/").pop();
                 }
                 
             },
@@ -116,6 +114,7 @@ function createTableRegisters(){
             {
                 "targets": 6,
                 "title": '<th>Creation date</th>',
+                className: "hide_column",
                 render: function ( data, type, row ) {
                     return convertTimestamp(data[0]['timestamp']['$date']['$numberLong']);
                 }
@@ -149,7 +148,7 @@ function createTableRegisters(){
                    return result;
                 }
                 
-            },
+            }
 
         ],
         'order': [[1, 'asc']]
@@ -165,7 +164,6 @@ function createTableApprover(){
         },
         "bFilter": false, 
         "bPaginate": false,
-        //"bInfo": false,
         "bLengthChange": false,
         "bAutoWidth": true,
         rowCallback: function( row, data, index ) {
@@ -173,6 +171,12 @@ function createTableApprover(){
                 $(row).css('background-color', '#fcfce0');
             }
         },
+        drawCallback: function() {
+            $('[data-toggle="popover"]').popover({
+                container: 'body'
+            })
+            
+        },  
         "columns" : [
             { "data" : "id", "title": '<th>Request id </th>' }, //0
             { "data" : "files", "title": '<th>File name </th>' }, //1
@@ -186,30 +190,30 @@ function createTableApprover(){
             {
                 "targets": 0,
                 render: function ( data, type, row ) {
-                    return '<a id="'+data+'"></a>'+data+' <a id ="example" data-toggle="popover" data-trigger="hover" \
-                    title="Title" container="body" data-content="And here"><i class="fa fa-info-circle"></i></a>'
+                    return '<a id="'+data+'"></a><div class="ellipsis">'+data+'</div><a id ="example"  data-html="true" data-toggle="popover" data-placement="top" data-trigger="click" \
+                    title="'+data+'" data-content="<b>Request created</b>: '+convertTimestamp(row['history_actions'][0]['timestamp']['$date']['$numberLong'])+'"><i class="fa fa-info-circle"></i></a>'
                 }
             },
             {
                 "targets": 1,
                 "title": '<th>File Name </th>',
                 render: function ( data, type, row ) {
-                    result = "<ul>";
+                    result = "<ul style='padding-left: 4%;'>";
                     for (let index = 0; index < data.length; index++) {
                         result += "<li><a href='"+data[index]['nc_url']+"'target='_blank'>"+ data[index]['name']+"</a></li>";   
                         
                     }
                     result += "</ul>";
                     return result
-                    //return "<b>"+data.split("/").reverse()[1]+"</b>/"+data.split("/").pop();
                 }
                 
             },
             {
                 "targets": 3,
+                "className": "dt-center",
                 render: function ( data, type, row ) {
                     if (data == "error") {
-                        return '<span class="badge badge-danger"><b>'+data+'</b></span></br><a href="javascript:viewLog(\''+row['id']+'\');">'+data+"</a>"
+                        return '<span class="badge badge-danger"><b>'+data+'</b></span></br><a href="javascript:viewLog(\''+row['id']+'\');">View log</a>'
                     }else if (data == 'published'){
                         return '<span class="badge badge-success"><b>'+data+'</b></span>';
                     }else if (data == 'denied'){
@@ -218,6 +222,17 @@ function createTableApprover(){
                         return '<span class="badge badge-secondary"><b>'+data+'</b></span>';
                     }else return '<span class="badge badge-info"><b>'+data+'</b></span>';
                 }
+            },
+            {
+                "targets": 4,
+                "title": '<th>OEB dataset id </th>',
+                "className": "dt-center",
+                render: function ( data, type, row ) {
+                    if (data == null) {
+                        return "-"
+                    }else return '<a href="https://dev-openebench.bsc.es/scientific/'+row['community']+'" target="_blank">'+data+'</a>';
+                }
+
             },
             {
                 "targets": 5,
@@ -261,49 +276,59 @@ function createTableApprover(){
 
 
 function actionTable2(id, action) {
-    
+    var myForm = document.getElementById('confirm-form');
+    myForm.actionReq.value = action;
+    myForm.reqId.value = id;
     $("#modalTitle").text("");
     $("#file").text("");
+    $("#inputDenyReason").hide();
+    if (action == "deny"){
+        $("#inputDenyReason").show();
+    }
     
     $("#modalTitle").text("Are you sure you want to "+action+" that request?");
     $("#file").text(id);
     $("#actionDialog").modal('show'); 
-
-    $("#acceptModal").click(function (){
-        $("#actionDialog").modal('hide');
-        $("#loading-datatable").show();
-        $("#pendingReq").hide();
-        $.ajax({
-            type: "POST",
-            url: baseURL + "/applib/oeb_publishAPI.php?action=proceedReq",
-            data: "actionReq=" + action+"&reqId="+id
-        }).done(function(data) {
-            //no errors
-            $("#myError").removeClass("alert alert-danger");
-			$("#myError").addClass("alert alert-info ");
-            $("#myError").append(data['message']);
-            $("#loading-datatable").hide();
-            table1.ajax.reload();
-            table2.ajax.reload();
-            $("#files").show();
-            $("#pendingReq").show();
-            $("#myError").show();
-
-        // errors
-		}). fail(function(data) {
-            $("#loading-datatable").hide();
-            table1.ajax.reload();
-            table2.ajax.reload();
-            $("#files").show();
-            $("#pendingReq").show();
-            $("#myError").removeClass("alert alert-info");
-			$("#myError").addClass("alert alert-danger");
-			$("#myError").append(data["responseJSON"]["message"]);
-            $("#myError").append("</br>Please, try it later or report this message <a href='mailto:openebench-support@bsc.es'>openebench-support@bsc.es</a>. Check full report below, at your request's table.");
-			$("#myError").show();
-        });
-    })
 }
+
+$('#confirm-form').on('submit', function (e) {
+
+    e.preventDefault();
+    $("#actionDialog").modal('hide');
+    $("#loading-datatable").show();
+    $("#pendingReq").hide();
+
+    $.ajax({
+        type: "POST",
+        url: baseURL + "/applib/oeb_publishAPI.php?action=proceedReq",
+        data: $('#confirm-form').serialize()
+    }).done(function(data) {
+        //no errors
+        $("#myError").removeClass("alert alert-danger");
+        $("#myError").addClass("alert alert-info ");
+        $("#myError").append(data['message']);
+        $("#loading-datatable").hide();
+        table1.ajax.reload();
+        table2.ajax.reload();
+        $("#files").show();
+        $("#pendingReq").show();
+        $("#myError").show();
+        // errors
+	}). fail(function(data) {
+        $("#loading-datatable").hide();
+        table1.ajax.reload();
+        table2.ajax.reload();
+        $("#files").show();
+        $("#pendingReq").show();
+        $("#myError").removeClass("alert alert-info");
+		$("#myError").addClass("alert alert-danger");
+		$("#myError").append(data["responseJSON"]["message"]);
+        $("#myError").append("</br>Please, try it later or report this message <a href='mailto:openebench-support@bsc.es'>openebench-support@bsc.es</a>. Check full report below, at your request's table.");
+		$("#myError").show();
+    });
+
+});
+    
 function showResultsPage(executionFolder, tool){
     location.href = 'tools/' + tool + '/output.php?execution=' + executionFolder;
 }
