@@ -55,7 +55,7 @@ function sendEmail($recipient, $subject, $body, $reply = null, $bcc = null, $deb
 
 }
 
-function requestPremiumUser($login, $name, $surname){
+function requestPremiumUser_DEPRECATED($login, $name, $surname){
 	
 	$subject = $GLOBALS['NAME']." Request Premium User";
 	$message = ' 
@@ -69,7 +69,7 @@ function requestPremiumUser($login, $name, $surname){
 
 }
 
-function requestNewPassword($login, $name, $surname, $hash){
+function requestNewPassword_DEPRECATED($login, $name, $surname, $hash){
 	
 	$subject = $GLOBALS['NAME']." Request new Password";
 	$message = ' 
@@ -89,7 +89,7 @@ function requestNewPassword($login, $name, $surname, $hash){
 
 }
 
-function answerPremium($login, $name, $surname, $type){
+function answerPremium_DEPRECATED($login, $name, $surname, $type){
 
 	$subject = $GLOBALS['NAME']." Request Premium User";
 	
@@ -109,38 +109,25 @@ function answerPremium($login, $name, $surname, $type){
 
 }
 
-function sendWelcomeToNewUser($login, $name, $surname){
-	
+function sendWelcomeToNewUser($variables){
+	$variables['platform_name'] = $GLOBALS['NAME'];
+	$variables['VRE_url'] = $GLOBALS['URL'];
 	$subject = "Welcome to ".$GLOBALS['NAME']." platform";
-	$message = ' 
-	Hello '.utf8_decode($name).' '.utf8_decode($surname).',<br><br>
-	
-	Your new account in the '.$GLOBALS['NAME'].' has been created.<br><br>
+	$message = fillContentEmail($GLOBALS['htmlib'].'/EmailsTemplates/welcomeNewUserEmail.php', $variables);
 
-	To access to the platform, please click here: <a href="'.$GLOBALS['URL'].'" target="_blank">'.$GLOBALS['URL'].'</a><br><br>
-			
-	Thanks for using '.$GLOBALS['NAME'].'.';
-
-	sendEmail($login,$subject,$message);
+	sendEmail($variables['login'],$subject,$message);
 
 }
 
 
-function sendPasswordToNewUser($login, $name, $surname, $password){
-	
+function sendPasswordToNewUser($variables){
+		
+	$variables['platform_name'] = $GLOBALS['NAME'];
+	$variables['VRE_url'] = $GLOBALS['URL'];
 	$subject = $GLOBALS['NAME']." New Account";
-	$message = ' 
-	Hello '.utf8_decode($name).' '.utf8_decode($surname).',<br><br>
-	
-	Your new account in the '.$GLOBALS['NAME'].' has been created. You can access with the following data:<br><br>
+	$message = fillContentEmail($GLOBALS['htmlib'].'/EmailsTemplates/passwordNewUserEmail.php', $variables);
 
-	<strong>Address:</strong> <a href="'.$GLOBALS['URL'].'">'.$GLOBALS['URL'].'</a><br>
-	<strong>Email:</strong> '.$login.'<br>
-	<strong>Password:</strong> '.$password.'<br><br>
-			
-	Thanks for using '.$GLOBALS['NAME'].'.';
-
-	sendEmail($login,$subject,$message);
+	sendEmail($variables['user_email'],$subject,$message);
 
 }
 
@@ -156,10 +143,11 @@ function fillContentEmail($template, $params) {
 
 /**
  * Sends an email to the person who can approve petitions
+ * @param variables - associative array
  */
 
 function sendRequestToApprover ($variables){
-
+	$variables['url_login'] = $GLOBALS['URL_login'];
 	$approver_attr = $GLOBALS['usersCol']->findOne(array('Email' => $variables['approver']));
 	$subject = $GLOBALS['NAME']." New request for OpenEBench data publication. Action required";
 	$message = fillContentEmail($GLOBALS['htmlib'].'/EmailsTemplates/OEB_requestEmail.php', $variables);

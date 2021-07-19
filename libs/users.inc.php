@@ -39,6 +39,14 @@ function checkToolDev() {
 	else return false;
 }
 
+function checkGuest() {
+
+	$user = $GLOBALS['usersCol']->findOne(array('_id' => $_SESSION['User']['_id']));
+
+	if(isset($_SESSION['User']) && ($user['Status'] == 1) && ($user['Type'] == 3) ) return true;
+	else return false;
+}
+
 // create user - from sign up
 function createUser(&$f) {
 
@@ -83,7 +91,11 @@ function createUser(&$f) {
      */
 
     // send mail
-	sendWelcomeToNewUser($aux['_id'], $aux['Name'], $aux['Surname']);
+    $params = array();
+    $params['name'] = $aux['Name'];
+	$params['surname'] = $aux['Surname'];
+    $params['login'] = $aux['_id'];
+	sendWelcomeToNewUser($params);
     return true;
 }
 
@@ -261,7 +273,15 @@ function createUserFromAdmin(&$f) {
     }*/
 
     // send mail to user, if selected
-	if($f['sendEmail'] == 1) sendPasswordToNewUser($f['Email'], $f['Name'], $f['Surname'], $f['pass1']);
+	if($f['sendEmail'] == 1) {
+        $params = array();
+        $params['name'] = $f['Name'];
+	    $params['surname'] = $f['Surname'];
+        $params['user_password'] = $f['pass1'];
+        $params['user_email'] = $f['Email'];
+
+        sendPasswordToNewUser($params);
+    }
     
     return true;
 }
