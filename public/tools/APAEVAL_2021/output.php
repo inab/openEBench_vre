@@ -5,7 +5,7 @@ require __DIR__."/../../../config/bootstrap.php";
 redirectOutside();
 
 
-$toolid = "QFO_6";
+$toolid = "APAEVAL_2021";
 
 
 // check if execution is given
@@ -124,6 +124,8 @@ $tool = getTool_fromId($toolid, 1);
                 <!-- END CONTENT BODY -->
                 </div>
                 <!-- END CONTENT -->
+
+<script src="tools/<?php echo $toolid;?>/assets/js/output.js" type="text/javascript"></script>
 
 <?php 
 
