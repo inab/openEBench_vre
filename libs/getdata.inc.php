@@ -100,7 +100,7 @@ function getData_fromLocal() {
 			$insertData=array(
 				'owner' => $_SESSION['User']['id'],
 				'size'  => filesize($rfnNew),
-				'mtime' => new MongoDB\BSON\UTCDateTime(filemtime($rfnNew))
+				'mtime' => new MongoDB\BSON\UTCDateTime(filemtime($rfnNew)*1000)
 			);
 			$metaData=array(
 				'validated' => FALSE
@@ -410,7 +410,7 @@ function  getData_wget_syncron($toolArgs,$toolOuts,$output_dir,$referer){
 		$insertData=array(
 			'owner' => $_SESSION['User']['id'],
 			'size'  => filesize($fnP),
-			'mtime' => new MongoDB\BSON\UTCDateTime(filemtime($fnP))
+			'mtime' => new MongoDB\BSON\UTCDateTime(filemtime($fnP)*1000)
 		);
 
 		$metaData=array(
@@ -507,7 +507,7 @@ function getData_fromTXT() {
 		$insertData=array(
 			'owner' => $_SESSION['User']['id'],
 			'size'  => filesize($rfnNew),
-			'mtime' => new MongoDB\BSON\UTCDateTime(filemtime($rfnNew))
+			'mtime' => new MongoDB\BSON\UTCDateTime(filemtime($rfnNew)*1000)
 		);
 
 		$metaData=array(
@@ -1215,7 +1215,7 @@ function getData_fromURL_DEPRECATED($source, $ext = null) {
 		$insertData=array(
 			'owner' => $_SESSION['User']['id'],
 			'size'  => filesize($rfnNew),
-			'mtime' => new MongoDB\BSON\UTCDateTime(filemtime($rfnNew))
+			'mtime' => new MongoDB\BSON\UTCDateTime(filemtime($rfnNew)*1000)
 		);
 
 		$metaData=array(

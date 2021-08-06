@@ -584,7 +584,7 @@ function processBAM($bamId,$type,$cores){
 //               '_id'   => $bam,
 //               'owner' => $_SESSION['userId'],
 //               'size'  => filesize($bamFn),
-//               'mtime' => new MongoDB\BSON\UTCDateTime(filemtime($bamFn))
+//               'mtime' => new MongoDB\BSON\UTCDateTime(filemtime($bamFn)*1000)
 //        );
 //		$fileMeta = $GLOBALS['filesMetaCol']->findOne(array('_id' => $bam));
 //		$r = uploadGSFileBNS($bam, $bamFn, $insertData,$fileMeta,FALSE);
@@ -630,7 +630,7 @@ function processUPLOAD($inId){
 	           '_id'   => $inId,
 	           'owner' => $_SESSION['userId'],
 	           'size'  => filesize($inFn),
-	           'mtime' => new MongoDB\BSON\UTCDateTime(filemtime($inFn))
+	           'mtime' => new MongoDB\BSON\UTCDateTime(filemtime($inFn)*1000)
            );
 
         // delete original file from DMP
@@ -709,7 +709,7 @@ function convert2BW($fn,$BW,$refGenome,$format){
 	       '_id'   => $BW,
 	       'owner' => $_SESSION['userId'],
 	       'size'  => filesize($BWfn),
-	       'mtime' => new MongoDB\BSON\UTCDateTime(filemtime($BWfn))
+	       'mtime' => new MongoDB\BSON\UTCDateTime(filemtime($BWfn)*1000)
 	);
 	$fileMeta = $GLOBALS['filesMetaCol']->findOne(array('_id' => $fn));
 	$r = uploadGSFileBNS($BW, $BWfn, $insertData,$fileMeta,FALSE);

@@ -1142,7 +1142,7 @@ function processPendingFiles($sessionId,$files=array()){
 
 	$SGE_updated = Array(); // jobs to be monitored. Stored in SESSION. Updated by checkPendingJobs.php (called by ajax)
 	$filesPending= Array(); // files to be listed 
-	$debug=0;
+	$debug=1;
 
 	// get files already in mongo
 	$filesStored = Array();
@@ -1374,6 +1374,7 @@ function processPendingFiles($sessionId,$files=array()){
 					}
     			    	}	
 			    	$out_data['input_files'] = $sources;
+			    	$out_data['input_files_job'] = $job['config_file'];
     		    	}
 		    
 
@@ -1637,7 +1638,7 @@ function saveResults($filePath,$metaData=array(),$job=array(),$rfn=0,$asRoot=0){
 		'size'  => $size,
 		'path'  => $filePath,
 		'project'=> $job['project'],
-		'mtime' => new MongoDB\BSON\UTCDateTime(filemtime($rfn)),
+		'mtime' => new MongoDB\BSON\UTCDateTime(filemtime($rfn)*1000),
 		'parentDir' => $parentId
 	);
 	if ($child_files !== false){ $insertData['files'] = $child_files;}
