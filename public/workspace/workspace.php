@@ -497,7 +497,7 @@ if (isset($_REQUEST['op'])){
     case 'moveFiles':
     case 'moveFile':
         if (!isset($_REQUEST['target'])){
-		    print('{"error":true, "msg": "Error while moving file. Target path not given."}');die();
+		    echo('{"error":true, "msg": "Error while moving file. Target path not given."}');die();
             break;
         }
 
@@ -506,10 +506,10 @@ if (isset($_REQUEST['op'])){
                 
         if ($r === FALSE){
             $msg = printErrorData();
-			print('{"error":true, "msg": "'.$msg.'"}');die();
+			echo('{"error":true, "msg": "'.$msg.'"}');die;
         }else{
             $_SESSION['errorData']['Info'][]="File/s successfully moved!!";
-            print('{"error":false, "msg": "File/s successfully moved!"}');die();
+            echo('{"error":false, "msg": "File/s successfully moved!"}');die;
         }
 
         break;
