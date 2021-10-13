@@ -70,9 +70,6 @@ $GLOBALS['adminRealm']             = $GLOBALS['authServer']."/admin/realms/".$GL
 //OEB submission
 $_GLOBALS['OEB_submission_repository'] = "/home/user/OEB_level2_new";
 
-//B2share submission 
-$_GLOBALS['B2SHARE_submission_repository'] = "/home/user/b2share";
-
 // Respository and storage configuration
 
 $GLOBALS['repositories'] = array(
@@ -134,7 +131,7 @@ $GLOBALS['ROLES'] = array(
 		"0"=>"Admin",
 		"1"=>"Tool Dev.",
 		"2"=>"Common",
-		"3" =>"Anonymous"
+		"3"=>"Anonymous"
 	);
 $GLOBALS['NO_GUEST'] = array(0,1,2,100,101); // 100, 101?
 $GLOBALS['PREMIUM'] = array(0,1);
@@ -157,8 +154,8 @@ $GLOBALS['placeholder_textarea'] = "Click right button to select file(s)"; // te
 
 $GLOBALS['OEB_idsolv'] = "https://openebench.bsc.es/api/scientific/idsolv";
 $GLOBALS['OEB_sciapi'] = "https://openebench.bsc.es/sciapi/graphql/";
-$GLOBALS['OEB_scirestapi'] = "https://openebench.bsc.es/api/scientific/access";
-$GLOBALS['OEB_migrate'] = 'https://dev-openebench.bsc.es/api/scientific/execute/migrate';
+$GLOBALS['OEB_scirestapi'] = "https://dev-openebench.bsc.es/api/scientific/access";
+$GLOBALS['OEB_migrate'] = 'https://dev2-openebench.bsc.es/api/scientific/execute/migrate';
 
 // Cloud infrastructures
 $GLOBALS['cloud']              = "life-bsc"; // VRE central cloud. Options are any of $GLOBALS['clouds']
@@ -337,13 +334,16 @@ $GLOBALS['oeb_workflow_validator'] = 'oeb_workflow_validator.json';
 $GLOBALS['oeb_script_validator'] = "oeb_validatorScript.sh";
 
 //schema from EUDAT
-$GLOBALS['b2share_host']="https://eudat-b2share-test.csc.fi";  // URL of EUDAT B2SHARE server
+//B2share submission 
+$GLOBALS['B2SHARE_submission_repository'] = "/home/user/b2share";
+$GLOBALS['b2share_host']="https://trng-b2share.eudat.eu/";  // URL of EUDAT B2SHARE server
 #$GLOBALS['eudat_pusher']=""; // Root directory of the pusher local installation
-$GLOBALS['oeb_eudat_schema'] = "https://raw.githubusercontent.com/inab/EUDAT-OEB-schemas/main/eudatSchema.json";
+$GLOBALS['oeb_eudat_schema'] = "https://raw.githubusercontent.com/inab/benchmarking-data-model/master/eudat-b2share-schemas/eudat%2BOEBSchema.json";
+$GLOBALS['eudat_admin_token'] =  __DIR__."/eudat_token.conf";
 
 //schema from oeb (submission)
 #$GLOBALS['oeb_submission_pusher']=""; // Root directory of the pusher local installation
-$GLOBALS['oeb_submission_schema'] = "https://raw.githubusercontent.com/inab/OEB_level2_data_migration/master/submission_form_schema.json";
+$GLOBALS['oeb_submission_schema'] = "https://raw.githubusercontent.com/inab/OEB_level2_data_migration/2.0.x/submission_form_schema.json";
 
 
 /*****NOTIFICATIONS ******/

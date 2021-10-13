@@ -5,9 +5,8 @@ if (!allowedRoles($_SESSION['User']['Type'], $GLOBALS['NO_GUEST'])) redirectInsi
 redirectOutside();
 
 $countries = array();
-foreach (array_values(iterator_to_array($GLOBALS['countriesCol']->find(array(), array('country' => 1),array('country' => 1)))) as $v)
+foreach (array_values(CountriesDAO::selectCountries(array(),array("projection" => ['country'=>1], "sort"=>["country" =>1]))) as $v)
     $countries[$v['_id']] = $v['country'];
-
 
 ?>
 

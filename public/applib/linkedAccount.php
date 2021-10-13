@@ -69,59 +69,82 @@ switch ($_REQUEST['account']) {
 		    case "new":
 
 		    	// Check compulsory fields
-		    	if (!isset($_POST['access_token']) ) {
-				$_SESSION['errorData']['Error'][]= "Not receiving expected fields. Please, submit the data again.";
-				$_SESSION['formData'] = $_POST;
-				redirect($_SERVER['HTTP_REFERER']);
-			}
+		    	if (!isset($_POST['access_token']) || !isset($_POST['eudat_email'])) {
+					$_SESSION['errorData']['Error'][]= "Not receiving expected fields. Please, submit the data again.";
+					$_SESSION['formData'] = $_POST;
+					redirect($_SERVER['HTTP_REFERER']);
+				}
 
 
-                	// TODO Validate given Token against b2share. Query EUDAT API using given token
+                // TODO Validate given Token against b2share. Query EUDAT API using given token
+				// Validate email exist in eudat enviroment
+				//get eudat tokens
+				$eudat_credentials = array();
+				if (($F = fopen($GLOBALS['eudat_admin_token'], "r")) !== FALSE) {
+					while (($data = fgetcsv($F, 1000, ";")) !== FALSE) {
+						foreach ($data as $a){
+							$t = explode("::", $a);
+							$eudat_credentials[$t[0]] = $t[1];
+						}
+					}
+					fclose($F);
+				}
 
 
-			$GLOBALS['b2share_host'] = rtrim($GLOBALS['b2share_host'], '/');
-			list($r,$info) = get($GLOBALS['b2share_host'].'/api/records/?drafts&access_token='.$_POST['access_token']);
+				$eudat_id = checkValidEudatEmail($_POST['eudat_email'], $GLOBALS['b2share_host'],$eudat_credentials);
+				if ($eudat_id != -1){
+					if (!addUserToCommunityMember($eudat_id, $GLOBALS['b2share_host'],$eudat_credentials)){
+						$_SESSION['errorData']['Error'][]= "Cannot add user as a community member";
+						redirect($_SERVER['HTTP_REFERER']);
+					}
+				} else {
+					$_SESSION['errorData']['Error'][]= "Email does not exist in eudat ".$GLOBALS['b2share_host'];
+					redirect($_SERVER['HTTP_REFERER']);
+				}
+
+				$GLOBALS['b2share_host'] = rtrim($GLOBALS['b2share_host'], '/');
+				list($r,$info) = get($GLOBALS['b2share_host'].'/api/records/?drafts&access_token='.$_POST['access_token']);
 
 
 		        if ($info['http_code'] !== 200){
-		                $_SESSION['errorData']['Error'][]= "Cannot validate given access token against ".$GLOBALS['b2share_host']. ". Please, go to EUDAT web site and make sure the token is active.";
+		            $_SESSION['errorData']['Error'][]= "Cannot validate given access token against ".$GLOBALS['b2share_host']. ". Please, go to EUDAT web site and make sure the token is active.";
 
-				$_SESSION['formData'] = $_POST;
-				redirect($_SERVER['HTTP_REFERER']);
+					$_SESSION['formData'] = $_POST;
+					redirect($_SERVER['HTTP_REFERER']);
 		        }
 
 
-			// Add/update Token
+				// Add/update Token
+				$data = array( 
+						"eudat_email"   => $_POST['eudat_email'],
+						"access_token"   => $_REQUEST['access_token'],
+						"server"         => $GLOBALS['b2share_host'],
+						"last_validated" => new MongoDB\BSON\UTCDateTime()
+						);
 
-			$data = array( 
-					"access_token"   => $_REQUEST['access_token'],
-					"server"         => $GLOBALS['b2share_host'],
-					"last_validated" => new MongoDB\BSON\UTCDateTime()
-					);
+				$r = addUserLinkedAccount($_SESSION['User']['_id'],$_REQUEST['account'],$data);
 
-			$r = addUserLinkedAccount($_SESSION['User']['_id'],$_REQUEST['account'],$data);
+				if(!$r){
+					$_SESSION['errorData']['Error'][]="Failed to link new account";
+					$_SESSION['formData'] = $_POST;
+					redirect($_SERVER['HTTP_REFERER']);
+				}
 
-			if(!$r){
-				$_SESSION['errorData']['Error'][]="Failed to link new account";
-				$_SESSION['formData'] = $_POST;
-				redirect($_SERVER['HTTP_REFERER']);
-			}
-
-			$_SESSION['errorData']['Info'][]="Account successfully linked";
-			redirect($GLOBALS['BASEURL']."user/usrProfile.php#tab_1_4");
-			break;
+				$_SESSION['errorData']['Info'][]="Account successfully linked";
+				redirect($GLOBALS['BASEURL']."user/usrProfile.php#tab_1_4");
+				break;
 
 		    // Delete Access Token
 		    case "delete":
 
-			$r = deleteUserLinkedAccount($_SESSION['User']['_id'],$_REQUEST['account']);
-			if(!$r){
-				$_SESSION['errorData']['Error'][]="Failed to unlink  account";
-				redirect($_SERVER['HTTP_REFERER']);
-			}
-			$_SESSION['errorData']['Info'][]="Account successfully unlinked";
-			redirect($GLOBALS['BASEURL']."user/usrProfile.php#tab_1_4");
-			break;
+				$r = deleteUserLinkedAccount($_SESSION['User']['_id'],$_REQUEST['account']);
+				if(!$r){
+					$_SESSION['errorData']['Error'][]="Failed to unlink  account";
+					redirect($_SERVER['HTTP_REFERER']);
+				}
+				$_SESSION['errorData']['Info'][]="Account successfully unlinked";
+				redirect($GLOBALS['BASEURL']."user/usrProfile.php#tab_1_4");
+				break;
 		}
 		break;
 	default:

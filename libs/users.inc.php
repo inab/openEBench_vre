@@ -635,4 +635,59 @@ function deleteUserLinkedAccount($login,$account_type){
     return true;
 }
 
+### B2SHARE API FUNCTIONS ###
+
+/**
+ * Checks a given email exists in eudat environment
+ * @param email - email to check
+ * @param server - server/environment to validate against
+ * @param eudat_credentials - admin's tokens in EUDAT
+ * @return {int} - the user id if email is valid, or -1 otherwise
+ */
+function checkValidEudatEmail ($email, $server, $eudat_credentials) {
+    $result = -1;
+    //get token
+    $adminEudatToken = $eudat_credentials[$server];
+
+    $headers= array('Authorization: Bearer '.$adminEudatToken);
+    $url = $server.'api/users?q='.$email;
+    $r = get($url, $headers);
+
+    if ($r[1]['http_code'] != 200){
+        $_SESSION['errorData']['Warning'][]="Error validating email. Http code= ".$status;
+        return $result;
+    } else {
+        if (json_decode($r[0], true)['hits']['total'] != 0) {
+            $result = json_decode($r[0], true)['hits']['hits'][0]['id'];
+        }
+    }
+    return $result;
+}
+
+/**
+ * Adds a user to an EUDAT community member
+ * @param userId - user id of the user to add (from eudat)
+ * @param server - server/environment to add user
+ * @param eudat_credentials - admin's tokens in EUDAT
+ * @param roleCode - code of the role in which user will be added
+ * @return true if correctly add, false otherwise
+ */
+function addUserToCommunityMember ($userId, $server, $eudat_credentials, $roleCode = 50) {
+    $added = false;
+    //get token
+    $adminEudatToken = $eudat_credentials[$server];
+    
+    $headers= array('Authorization: Bearer '.$adminEudatToken);
+    $url = $server.'api/roles/'.$roleCode.'/users/'.$userId;
+    $r = put("", $url, $headers);
+
+    if ($r[1]['http_code'] != 200){
+        $_SESSION['errorData']['Warning'][]="Error adding user to community member. Http code= ".$status;
+        return $added;
+    } else {
+        $added = true;
+    }
+
+    return $added;
+}
 ?>
