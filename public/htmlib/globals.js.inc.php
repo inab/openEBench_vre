@@ -9,9 +9,8 @@ require __DIR__."/../../config/bootstrap.php";
 // COUNTRIES VAR
 $countries = array();
 $countries[''] = 'Country';
-foreach (array_values(iterator_to_array($GLOBALS['countriesCol']->find(array(),array('country'=>1),array('country'=>1)) )) as $v){
-        $countries[$v['_id']] = $v['country'];
-}
+foreach (array_values(CountriesDAO::selectCountries(array(),array("projection" => ['country'=>1], "sort"=>["country" =>1]))) as $v)
+    $countries[$v['_id']] = $v['country'];
 
 
 echo 'var countriesSelect = \'<select style="width: 100%!important;" class="selector form-control input-sm input-xsmall input-inline" id="select-countries">';
@@ -139,6 +138,8 @@ foreach($GLOBALS as $k => $v) {
 	}
 }
 
+echo 'var server = "'.$GLOBALS['SERVER'].'";';
+echo 'var b2share_host = "'.$GLOBALS['b2share_host'].'";';
 
 
 ?>

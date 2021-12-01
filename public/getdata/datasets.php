@@ -3,17 +3,15 @@
 require __DIR__ . "/../../config/bootstrap.php";
 
 redirectOutside();
-
 //Retrive communities and datasets
 $communities = getCommunities();
-$datasets = getDatasets();
-
+$datasets = json_decode(getDatasetsQL(), true);
 
 // Print page
+
 ?>
 
 <?php require "../htmlib/header.inc.php"; ?>
-
 <body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white page-container-bg-solid page-sidebar-fixed">
   <div class="page-wrapper">
 

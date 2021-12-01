@@ -42,7 +42,7 @@ $dbname =  $GLOBALS['dbname_VRE'];
 
 $GLOBALS['db']              = $VREConn->$dbname;
 $GLOBALS['usersCol']        = $GLOBALS['db']->users;
-$GLOBALS['countriesCol']    = $GLOBALS['db']->countries;
+//$GLOBALS['countriesCol']    = $GLOBALS['db']->countries;
 $GLOBALS['filesCol']        = $GLOBALS['db']->files;
 $GLOBALS['filesMetaCol']    = $GLOBALS['db']->filesMetadata;
 $GLOBALS['logMailCol']      = $GLOBALS['db']->checkMail;
@@ -52,10 +52,9 @@ $GLOBALS['toolsDevMetaCol'] = $GLOBALS['db']->tools_dev_meta;
 $GLOBALS['visualizersCol']  = $GLOBALS['db']->visualizers;
 $GLOBALS['fileTypesCol']    = $GLOBALS['db']->file_types;
 $GLOBALS['dataTypesCol']    = $GLOBALS['db']->data_types;
-$GLOBALS['helpsCol']        = $GLOBALS['db']->helps;
+//$GLOBALS['helpsCol']        = $GLOBALS['db']->helps;
 $GLOBALS['sampleDataCol']   = $GLOBALS['db']->sampleData;
 $GLOBALS['logExecutionsCol']= $GLOBALS['db']->log_executions;
 $GLOBALS['blocksCol']      = $GLOBALS['db']->oeb_blocks;
 $GLOBALS['workflowsCol']      = $GLOBALS['db']->oeb_workflows;
-$GLOBALS['pubRegistersCol'] = $GLOBALS['db']->oeb_publication_registers; 
 ?>

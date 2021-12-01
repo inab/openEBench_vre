@@ -9,7 +9,7 @@ if($_POST){
 
 	if ($user['_id']) {
 		$newdata = array('$set' => array('Surname' => ucfirst($_POST['Surname']), 'Name' => ucfirst($_POST['Name']), 'Inst' => $_POST['Inst'], 'Country' => $_POST['Country'], 'Country' => $_POST['Country'], 'terms' => $_POST['terms'], 'oeb_community' => $_POST['oeb_community']));
-		$GLOBALS['usersCol']->update(array('_id' => $login), $newdata);
+		$GLOBALS['usersCol']->updateOne(array('_id' => $login), $newdata);
 		$_SESSION['User']['Name'] = ucfirst($_POST['Name']);
 		$_SESSION['User']['Surname'] = ucfirst($_POST['Surname']);
 		$_SESSION['User']['Country'] = $_POST['Country'];

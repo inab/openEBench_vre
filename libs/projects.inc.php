@@ -1142,7 +1142,7 @@ function processPendingFiles($sessionId,$files=array()){
 
 	$SGE_updated = Array(); // jobs to be monitored. Stored in SESSION. Updated by checkPendingJobs.php (called by ajax)
 	$filesPending= Array(); // files to be listed 
-	$debug=1;
+	$debug=0;
 
 	// get files already in mongo
 	$filesStored = Array();
@@ -1164,7 +1164,6 @@ function processPendingFiles($sessionId,$files=array()){
 
 	// classify jobs
 	foreach ($lastjobs as $job){
-		
 		if (!isset($job['pid'])){
 			continue;
 		}

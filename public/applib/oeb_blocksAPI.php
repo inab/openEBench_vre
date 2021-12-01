@@ -47,9 +47,10 @@ if($_REQUEST) {
         }
     //https://dev-openebench.bsc.es/vre/applib/oeb_blocksAPI.php?blockForm=...
     } elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == "setBlock" ) {
-        if (isset($_REQUEST['blockForm'], $_REQUEST['buttonAction'], $_REQUEST['typeBlock'], $_REQUEST['id_block'] ))
-        echo setBlock($_REQUEST['blockForm'], $_REQUEST['typeBlock'], $_REQUEST['id_block'], $_REQUEST['buttonAction']);
-        exit;
+        if (isset($_REQUEST['blockForm'], $_REQUEST['buttonAction'], $_REQUEST['typeBlock'], $_REQUEST['id_block'] )) {
+            echo setBlock($_REQUEST['blockForm'], $_REQUEST['typeBlock'], $_REQUEST['id_block'], $_REQUEST['buttonAction']);
+            exit;
+        }
     } elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == "createTool_fromWFs" ) {
         echo createTool_fromWFs($_REQUEST['id']);
         exit;
@@ -71,6 +72,10 @@ if($_REQUEST) {
         echo showWorkflowJSON($_REQUEST['id']);
     } elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == "getCommunity") {
         echo getCommunity();
+    } elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == "saveCommunity") {
+        echo saveCommunity($_REQUEST['idCommunity'], $_REQUEST['idBlock']);
+    } elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == "removeCommunity") {
+        echo removeCommunity($_REQUEST['idCommunity'], $_REQUEST['idBlock']);
     }
 } else {
     echo '{}';

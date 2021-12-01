@@ -33,7 +33,8 @@ $(document).ready(function () {
 					//do not have collapse, edit and properties options in the editor (are specific things of the web-based tool - JSONEditor)
 					disable_collapse: true,
 					disable_edit_json: true,
-					disable_properties: true
+					disable_properties: true,
+					remove_empty_properties: true
 				});
 				window.JSONEditor.defaults.callbacks = {
 					"autocomplete": {
@@ -42,7 +43,7 @@ $(document).ready(function () {
 						// Setup API calls
 						//1. Tools list
 						"search_za": function search(jseditor_editor, input) {
-							var url = 'https://dev-openebench.bsc.es/vre/applib/oeb_publishAPI.php?action=getTools';
+							var url = 'applib/oeb_publishAPI.php?action=getTools';
 
 							return new Promise(function (resolve) {
 								if (input.length < 1) {
@@ -80,7 +81,7 @@ $(document).ready(function () {
 
 						//2. Contacts list
 						"search_zza": function search(contacts_editor, input) {
-							var url = 'https://dev-openebench.bsc.es/vre/applib/oeb_publishAPI.php?action=getContacts&community_id=' + OEBinfo['community_id'];
+							var url = 'applib/oeb_publishAPI.php?action=getContacts&community_id=' + OEBinfo['community_id'];
 
 							return new Promise(function (resolve) {
 								if (input.length < 1) {
@@ -133,8 +134,9 @@ $(document).ready(function () {
 				$(".form-text:eq(5)" ).append(". <b>If your tool does not appear in list, contact with: </b><a href=\"mailto:openebench-support@bsc.es\">openebench-support@bsc.es</a>.");
 				//$("h3").next("p").append(". <b>If your contact id does not appear in list, contact with: </b><a href=\"mailto:openebench-support@bsc.es\">openebench-support@bsc.es</a>.");
 				//css
+				$('[data-schemapath="root.data_contacts"] h3 label').append('<span style="color:red;"> *</span>')
 				$('label[class="required"]').append('<span style="color:red;"> *</span>')
-
+				
 
 				$("#loading-datatable").hide();
 				editor.on('change', function () {
@@ -202,13 +204,13 @@ $(document).ready(function () {
 					$("#loading-datatable").hide();
 					$("#step3").addClass("active");
 					var listLog = "";
-					for (let index = 0; index < data['message'].length-1; index++) {
-						listLog += "<li>"+data['message'][index]+"<i class='fa fa-check'></i></li>";
+					for (let index = 0; index < data.responseJSON['message'].length-1; index++) {
+						listLog += "<li>"+data.responseJSON['message'][index]+"<i class='fa fa-check'></i></li>";
 					}
-					listLog += "<li>"+data['message'][data['message'].length-1]+"<i class='fa fa-times-circle'></i></li>";
+					listLog += "<li>"+data.responseJSON['message'][data.responseJSON['message'].length-1]+"<i class='fa fa-times-circle'></i></li>";
 					$("#myError").append("<ul>"+listLog+"</ul");
 					$("#myError").append("<br><br>"+timeStamp());
-					$("#myError").show();
+					$("#finalBanner").show();
 					
 				});
 				

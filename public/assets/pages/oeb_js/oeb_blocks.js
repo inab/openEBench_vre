@@ -128,13 +128,11 @@ function getCommunity() {
 
 $(document).ready(function() {
 
-	var communitiesUser;
 	$.when(getCommunity()).done(function(communities){
 
 		$("#myError").hide();
 
 		$.when(currentUser()).done(function(user){
-			console.log(communities);
 			var types = ["validation", "metrics", "consolidation"];
 			for(let i = 0; i < types.length; i++) {
 				$('#'+types[i]+'Table').DataTable( {
@@ -162,7 +160,6 @@ $(document).ready(function() {
 						{ "title": 'Workflows in use <a href="javascript:;" target="_blank" class="tooltips" data-toggle="tooltip" data-trigger="hover" data-placement="top" title="All names of different blocks."><i class="icon-question"></i></a>', "targets": 5 },
 						{ "title": 'Creation date <a href="javascript:;" target="_blank" class="tooltips" data-toggle="tooltip" data-trigger="hover" data-placement="top" title="All names of different blocks."><i class="icon-question"></i></a>', "targets": 6 },
 						{ render: function (data, type, row) {
-
 							//DATA:
 							//status = 0; coming soon
 							//status = 1; public
@@ -227,11 +224,14 @@ $(document).ready(function() {
 										'<option value="1">Public</option>'+
 										'<option value="2">Private</option>'+
 										'<option value="3">Testing</option>'+
-										'<option value="4" selected>Community available</option></select> ' + span;
-										for(let i = 0; i < communities; i++) {
-											'<input type="checkbox" id="'+communities[i]+'" value="Bike">' +
-  											'<label for="vehicle1"> I have a bike</label><br></br>';
+										'<option value="4" selected>Community available</option></select> ' + span + '<br><br>';
+										//select += '<select class="form-control" id="communities" onChange="changeCommunitie(value, name)" name="communities" multiple>';
+										if (communities != null) {
+											for(let i = 0; i < communities.length; i++) {
+												select += '<input type="checkbox" id="'+communities[i]+'" name="'+row._id+'" onclick="saveCommunity(id, name);"/> ' + communities[i];
+											}
 										}
+										return select;
 								default:
 									return openSelect +
 										'<option value="1">Public</option>'+
@@ -335,5 +335,62 @@ function reload(type) {
 		}
 
 	});
+}
+
+function saveCommunity(idCommunity, idBlock) {
+	if (document.getElementById(idCommunity).checked) {
+		$.ajax({
+			type: 'POST',
+			url: urlJSON,
+			data: {'action': 'saveCommunity', 'idCommunity': idCommunity, 'idBlock': idBlock}
+		}).done(function(data) {
+			//no errors
+			if(data["code"]=="200"){
+				$("#myError").removeClass("alert alert-danger");
+				$("#myError").addClass("alert alert-info");
+				$("#myError").text("Community added successfully.");
+				$("#myError").show();
+			//errors
+			} else {
+				$("#myError").removeClass("alert alert-info");
+				$("#myError").addClass("alert alert-danger");
+				$("#myError").text(data["message"]);
+				$("#myError").show();
+			}
+		//more errors
+		}).fail(function(data) {
+			$("#myError").removeClass("alert alert-info");
+			$("#myError").addClass("alert alert-danger");
+			$("#myError").text(data["responseJSON"]["message"]);
+			$("#myError").show();
+		});
+  	} else {
+		$.ajax({
+			type: 'POST',
+			url: urlJSON,
+			data: {'action': 'removeCommunity', 'idCommunity': idCommunity, 'idBlock': idBlock}
+		}).done(function(data) {
+			//no errors
+			if(data["code"]=="200"){
+				$("#myError").removeClass("alert alert-danger");
+				$("#myError").addClass("alert alert-info");
+				$("#myError").text("Community removed successfully.");
+				$("#myError").show();
+			//errors
+			} else {
+				$("#myError").removeClass("alert alert-info");
+				$("#myError").addClass("alert alert-danger");
+				$("#myError").text(data["message"]);
+				$("#myError").show();
+			}
+		//more errors
+		}).fail(function(data) {
+			$("#myError").removeClass("alert alert-info");
+			$("#myError").addClass("alert alert-danger");
+			$("#myError").text(data["responseJSON"]["message"]);
+			$("#myError").show();
+		});
+  	}
+	
 }
 

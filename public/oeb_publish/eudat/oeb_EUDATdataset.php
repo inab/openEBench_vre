@@ -48,6 +48,32 @@ require "../../htmlib/js.inc.php";
                 <h1 class="page-title">EUDAT Publication</h1>
                 <!-- END PAGE TITLE -->
                 <!-- END PAGE HEADER -->
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mt-element-step">
+                            <div class="row step-line">
+                                <div class="col-md-4 mt-step-col first active">
+                                    <div class="mt-step-number bg-white">1</div>
+                                    <div class="mt-step-title uppercase 
+                                        font-grey-cascade">Select datasets
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mt-step-col second active">
+                                    <div class="mt-step-number bg-white">2</div>
+                                    <div class="mt-step-title uppercase 
+                                        font-grey-cascade">Edit metadata's file
+                                    </div>
+                                </div>
+                                <div id ="step3" class="col-md-4 mt-step-col last">
+                                    <div class="mt-step-number bg-white">3</div>
+                                    <div class="mt-step-title uppercase 
+                                        font-grey-cascade">Summary
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+					</div>
+			    </div>
 
                 <!-- BEGIN LIST FILES  PORTLET -->
                 <div class="row">
@@ -67,7 +93,7 @@ require "../../htmlib/js.inc.php";
                                                 $filename  = basename($fnPath);
                                                 $filedir   = basename(dirname($fnPath));
 
-                                            ?>	
+                                        ?>	
                                         <li>
                                             <div class="col1">
                                                 <div class="cont">
@@ -86,9 +112,6 @@ require "../../htmlib/js.inc.php";
                                             </div>
                                         </li>
                                     </ul>
-                                    <div class="scroller-footer">
-                                        <a class="btn btn-sm green pull-right" id="btn-rmv-all" href="javascript:windows.history.back(); return false;"><i class="fa fa-times-circle"></i> Edit list</a>
-                                    </div>
                                 </div>
 			                </div>
                         </div>
@@ -101,31 +124,40 @@ require "../../htmlib/js.inc.php";
                     <div class="col-md-12">
                         <div class="portlet light portlet-fit bordered">
                             <div id="blocks" class="portlet-body">
-                                <input type="hidden" id="base-url" value="<?php echo $GLOBALS['BASEURL']; ?>" />
+                                <input type="hidden" id="base-url" 
+                                    value="<?php echo $GLOBALS['BASEURL']; ?>" />
                                 <!-- LOADING SPINNER -->
                                 <div id="loading-datatable" class="loadingForm">
                                     <div id="loading-spinner">LOADING</div>
                                     <div id="loading-text">It could take a few minutes</div>
                                 </div>
                                     
-                                <input type="hidden" id="files" name="custId" value= "<?php echo $_REQUEST['files'] ?>">
+                                <input type="hidden" id="files" name="custId" 
+                                    value= "<?php echo $_REQUEST['files'] ?>">
                                 <div id ="formMetadata">
                                     
                                     <div id ="editor_holder" ></div>
                                     <br>
-                                    <button id="submit" class="btn btn-primary">Submit</button><span id='valid_indicator'></span>
+                                    <button id="submit" class="btn btn-primary">
+                                        Submit
+                                    </button>
+                                    <span id='valid_indicator'></span>
                                     <br>
                                     <p class="errorClass" id="idP" style="display:none;"></p>
                                     
                                 </div>
- 				                <div id="result" style="display:none; margin-top:20px;" class="alert alert-info"></div>
+ 				                <div id="result" style="display:none; margin-top:20px;" 
+                                    class="alert alert-info">
+                                </div>
                                 <!-- Modal -->
                                 <div class="modal fade" id="myModal" role="dialog">
                                     <div class="modal-dialog modal-lg">"
                                         <!-- Modal content-->
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                            <button type="button" onclick="closeModal()" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                                            <button type="button" onclick="closeModal()" 
+                                                class="close" data-dismiss="modal" aria-hidden="true">
+                                            </button>
                                                 <h3 class="modal-title">
                                                     <span >
                                                         <i class="fa fa-list"></i>
@@ -133,7 +165,9 @@ require "../../htmlib/js.inc.php";
                                                     <b>Summary </b>
                                                 </h3>
                                             </div>
-                                            <div style="margin: 15px ;"><h4>Are you sure you want to submit the following data to EUDAT?</h4></div>
+                                            <div style="margin: 15px ;">
+                                                <h4>Are you sure you want to submit the following data to EUDAT?</h4>
+                                            </div>
                                             <div class="modal-body table-responsive">
                                                 <h4 class="text-info" style="font-weight:bold;" >Datasets: </h4>
 
@@ -180,8 +214,8 @@ require "../../htmlib/js.inc.php";
                                         <div class="portlet-body">
                                             <p>
                                                 Service: B2SHARE</br>
-                                                Server: <a href="https://eudat-b2share-test.csc.fi/">https://eudat-b2share-test.csc.fi</a></br>
-                                                Username: openEBench-generic 
+                                                Server: <a href="<?php echo $GLOBALS['b2share_host']; ?>"><?php echo $GLOBALS['b2share_host']; ?></a></br>
+                                                Username: <?php echo $_SESSION["User"]["Email"]; ?>
                                             </p>
                                         </div>
                                             

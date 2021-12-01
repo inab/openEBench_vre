@@ -85,7 +85,8 @@ if (!isset($_GET['code'])) {
 //            if (!$r)
 //                $_SESSION['errorData']['Error'][] = "Central authorization Server has no 'vre_id' for '".$resourceOwner['email'];
         }
-        redirect("../home/redirect.php");
+        redirect("../home/redirect.php?view=1");
+
     }else{
 	redirect($GLOBALS['URL']);
 	}

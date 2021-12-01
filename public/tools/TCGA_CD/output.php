@@ -11,44 +11,81 @@ $toolid = "TCGA_CD";
 
 // check if execution is given
 
-if(!isset($_REQUEST['execution'])){
+if(!isset($_REQUEST['execution']) && !isset($_REQUEST['OEBpetition'])){
 	$_SESSION['errorData']['Error'][]="You should select a project to view results";
 	redirect($GLOBALS['BASEURL'].'workspace/');
-}
+} else {
+    if(isset($_REQUEST['execution'])){
+        $executions= explode(",",$_REQUEST['execution']);
+        // find unTARed data in tmp dir
+        $data_wds      = array(); // list of unTARed temporal directories, one per execution
+        $data_ids      = array(); // list of file_ids for each temporal directory
+        $data_pathTemps= array(); // list of files to be passed to the OEB viewer
+        foreach ($executions as $execution){
+            // build temporal directories
+            $wd  = $GLOBALS['dataDir'].$_SESSION['User']['id']."/".$_SESSION['User']['activeProject']."/".$GLOBALS['tmpUser_dir']."/outputs_".$execution;
+            if (!is_dir($wd)){
+                $_SESSION['errorData']['Error'][]="Cannot visualize your results. They are not accessible anymore. Try logging again, please. ($wd)";
+                redirect($GLOBALS['BASEURL'].'workspace/');
+            }
+            array_push($data_wds,$wd);
 
-$executions= explode(",",$_REQUEST['execution']);
+            // get file_ids from index 
+            $indexFile = $wd.'/index';
+            $results = file($indexFile);
+            array_push($data_ids,$results);
 
-// find unTARed data in tmp dir
-$data_wds      = array(); // list of unTARed temporal directories, one per execution
-$data_ids      = array(); // list of file_ids for each temporal directory
-$data_pathTemps= array(); // list of files to be passed to the OEB viewer
-foreach ($executions as $execution){
-	// build temporal directories
-	$wd  = $GLOBALS['dataDir'].$_SESSION['User']['id']."/".$_SESSION['User']['activeProject']."/".$GLOBALS['tmpUser_dir']."/outputs_".$execution;
-	if (!is_dir($wd)){
-		$_SESSION['errorData']['Error'][]="Cannot visualize your results. They are not accessible anymore. Try logging again, please. ($wd)";
-		redirect($GLOBALS['BASEURL'].'workspace/');
-	}
-	array_push($data_wds,$wd);
+            // prepare data for custom viewer
+            $inner_data  = glob("$wd/*", GLOB_ONLYDIR);
+            if (!isset($inner_data[0])){
+                    $_SESSION['errorData']['Error'][]="Cannot display the run output. Received results do not contain the expected data or are empty.";
+                    redirect($GLOBALS['BASEURL'].'workspace/');
+            }	
+            $viewerfolder = fromAbsPath_toPath($inner_data[0]);
+            $pathTemp = 'workspace/workspace.php?op=openPlainFileFromPath&fnPath='.$viewerfolder;
+            array_push($data_pathTemps,$pathTemp);
+        }
 
-	// get file_ids from index 
-	$indexFile = $wd.'/index';
-	$results = file($indexFile);
-	array_push($data_ids,$results);
+        // build data-dir for custom viewer
+        $data_dir = "[\"".implode("\", \"",$data_pathTemps)."\"]";
 
-	// prepare data for custom viewer
-	$inner_data  = glob("$wd/*", GLOB_ONLYDIR);
-	if (!isset($inner_data[0])){
-	        $_SESSION['errorData']['Error'][]="Cannot display the run output. Received results do not contain the expected data or are empty.";
+    }elseif(isset($_REQUEST['OEBpetition'])){
+        $petition_id = $_REQUEST['OEBpetition'];
+        //get visualitzation url
+        $visualitzationURL = OEBDataPetition::selectAllOEBPetitions(array("_id" => $petition_id))[0]['visualitzation_url'];
+        
+        // build temporal directories
+        $other_exec = "other_executions"."/".$petition_id;
+        $wd  = $GLOBALS['dataDir'].$_SESSION['User']['id']."/".$_SESSION['User']['activeProject']."/".$GLOBALS['tmpUser_dir']."/".$other_exec;
+        if (!file_exists($wd)) {
+            mkdir($wd, 0777, true);
+        }
+        //download visualitzation files
+	    if(!file_put_contents( $wd."/execution.tar.gz",fopen($visualitzationURL, 'r'))) {
+            $_SESSION['errorData']['Error'][]="Error downloading tar file";
 	        redirect($GLOBALS['BASEURL'].'workspace/');
-	}	
-	$viewerfolder = fromAbsPath_toPath($inner_data[0]);
-	$pathTemp = 'workspace/workspace.php?op=openPlainFileFromPath&fnPath='.$viewerfolder;
-	array_push($data_pathTemps,$pathTemp);
+        }
+        //get filename
+        $headers = get_headers($visualitzationURL,true);
+        $fileName = isset($headers['Content-Disposition']) ? strstr($headers['Content-Disposition'], "filename=") : null ;
+        $fileName = trim($fileName,"filename=\"'");
+        var_dump($fileName);
+        $fileName = substr($fileName, 0, -7);
+        $data_dir = "";
+
+        /** Extract tar file */
+        try {
+            $phar = new PharData($wd."/execution.tar.gz");
+            $phar->extractTo($wd, null, true);
+            $data_dir = '["workspace/workspace.php?op=openPlainFileFromPath&fnPath='.$wd.'/'.$fileName.'"]';
+        } catch (Exception $e) {
+            $_SESSION['errorData']['Error'][]="Error extracting tar file";
+            
+        }
+       
+    }
 }
 
-// build data-dir for custom viewer
-$data_dir = "[\"".implode("\", \"",$data_pathTemps)."\"]";
 
 
 // get tool metadata
@@ -131,7 +168,8 @@ $tool = getTool_fromId($toolid, 1);
                         <div class="panel-group accordion">
                             <div class="panel panel-default">
 
-                                <div id="custom_body" data-dir='<?php echo("$data_dir") ?>' x-label="True Positive Rate - % driver genes correctly predicted" y-label="Precision - % True positives over total predicted"></div>
+                            <div id="custom_body" data-dir='<?php echo("$data_dir") ?>' x-label="True Positive Rate - % driver genes correctly predicted" y-label="Precision - % True positives over total predicted"></div>
+                                
 
                             </div>
                         </div>

@@ -123,20 +123,6 @@ class Notification {
     }
 
 
-    /**
-     * Converts obj properties to array
-     */
-    public function toArray() {
-        return array(
-            '_id' => $this->_id,
-            'receiver' => $this->receiver,
-            'content' => $this->content,
-            'created_at' => $this->created_at,
-            'is_seen' => $this->is_seen,
-            'redirectOnClick' => $this->redirectOnClick
-        );
-    }
-
     /*****************FUNCTIONS ********************/
 
     /**

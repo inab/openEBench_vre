@@ -130,7 +130,7 @@ class nc_Connection extends Client{
      */
     function getLinkFile($pathFile){ 
 
-        $url = $this->server."ocs/v1.php/apps/files_sharing/api/v1/shares?path=test.md";
+        $url = $this->server."ocs/v1.php/apps/files_sharing/api/v1/shares?path=".$pathFile;
         $auth_basic["user"] = $this->username;
         $auth_basic["pass"] = $this->password;
         $headers= array("OCS-APIRequest: true");
@@ -181,6 +181,9 @@ class nc_Connection extends Client{
         } else {
             //GET existing public link 
             $url = $this->getLinkFile($targetDir."/".$file_name);
+            if (!filter_var($url, FILTER_VALIDATE_URL)) {
+                return false;
+            }
         }
         return $url;
     }

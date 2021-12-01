@@ -2,8 +2,11 @@
 
 require __DIR__."/../../config/bootstrap.php";
 
-redirectToolDevOutside();
-
+?>
+<script src="../assets/global/plugins/js.cookie.min.js" type="text/javascript"></script>
+<script src="../assets/pages/scripts/cookie.js?v=<?php echo rand(); ?>" type="text/javascript">
+<?php 
+redirectToolDevOutside_v2();
 
 # check previleges
 

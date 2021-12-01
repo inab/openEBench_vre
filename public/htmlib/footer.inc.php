@@ -65,6 +65,11 @@
     </div>
 </div>
 
+<!-- <div style=" position: fixed; bottom: 0; z-index: 10101; padding: 20px 45px; width: 100%; background: slategray; color: #fff; left: 0; right: 0; font-size:1.6em; font-weight:bold" >
+        <div> Scheduled mantainance: This site is going to be offline next Tuesday 20th July. Sorry for the inconveniences
+        </div>
+</div> --> 
+
 <div class="mt-cookie-consent-bar mt-cookie-consent-bar-light">
     <div class="mt-cookie-consent-bar-holder">
         <div class="mt-cookie-consent-bar-content"> This website uses cookies to ensure you get the best experience on our website.

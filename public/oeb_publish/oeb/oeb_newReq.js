@@ -1,137 +1,59 @@
 var arrayOfFiles = [];
-var table0;
 var table1;
 var be_selected = $("#beSelector").val();//selected benchmarking event
+var allowed;
+const CONTROLLER = 'applib/oeb_publishAPI.php'
+
 $(document).ready(function() {
-
-    $("#selectAll").click();
-
     //get user roles
     getRoles().done(function(r) {
         var roles = JSON.parse(r)
-
-        table0 = $('#publishedFiles').DataTable( {
-            "ajax": {
-                url: 'applib/oeb_publishAPI.php?action=getSubmitRegisters',
-                dataSrc: ''
-            },
-            "bFilter": false, 
-            "bPaginate": false,
-            "bInfo": false,
-            "bAutoWidth": true,
-            //filter for published registers and accordig to BE selected.
-            rowCallback: function( row, data, index ) {
-                if (data['status'] != "published" || data['bench_event'] != be_selected) {
-                    $(row).hide();
-                }
-            },
-            columns: [
-                { 
-                    "data" : "tool",
-                    title: '<th>Participant Tool <i class="icon-question" data-toggle="tooltip" data-placement="top" title="Tool used to make input predictions"></i></th>'
-                }, //0
-                { 
-                    "data" : "files",
-                    title: '<th>Files <i class="icon-question" data-toggle="tooltip" data-placement="top" title="Published files in OpenEBench"></i></th>'
-                }, //1
-                { 
-                    "data" : "id",
-                    title: '<th>Request ID <i class="icon-question" data-toggle="tooltip" data-placement="top" title="ID of the petition to publish files"></i></th>'
-                }, //2
-                { 
-                    "data" : "bench_event",
-                    title: '<th>Benchmarking event <i class="icon-question" data-toggle="tooltip" data-placement="top" title="Benchmarking event which files are published."></i></th>'
-                }, //3
-                { 
-                    "data" : "status",
-                    title: '<th>Status <i class="icon-question" data-toggle="tooltip" data-placement="top" title="Status of the petition. If it is publised, datasets are publicly in OpenEBench"></i></th>'
-                } //4
-
-            ],
-            'columnDefs': [
-                {
-                    'targets': 0,
-                    render: function ( data, type, row ) {
-                        return data['tool_name'];
-                    }
-
-                },
-                {
-                    'targets': 1,
-                    "className": "dt-center",
-                    render: function ( data, type, row ) {
-                        result = "<ul>";
-                        for (let index = 0; index < data.length; index++) {
-                            result += "<li><a href='"+data[index]['nc_url']+"'target='_blank'>"+ data[index]['name']+"</a></li>";   
-                            
-                        }
-                        result += "</ul>";
-                        return result
-                    }
-                },
-                {
-                    'targets': 2,
-                    render: function ( data, type, row ) {
-                        return '<a href="vre/oeb_publish/oeb/oeb_manageReq.php">'+data+"</a>";
-                    }
-                },
-                {
-                    'targets': 3,
-                    className: "hide_column"
-
-                },
-                {
-                    'targets': 4,
-                    "className": "dt-center",
-                    
-                    
-                }
-            ]
-        } );
-
-        table1 = createSelectableTable();
-        
-        //permisions depending on the role
         console.log(roles)
+        table1 = createSelectableTable();
+
+        //permisions depending on the role
         if (roles['roles'].length == 0) {
-            $("#communitySelector").attr('disabled','disabled');
+            $("#beSelector").attr('disabled','disabled');
             $("#warning-notAllowed").show();
-        } 
-        /*
-        else if (roles.find(a =>a.includes("contributor"))===undefined && roles.find(a =>a.includes("manager"))===undefined && roles.find(a =>a.includes("supervisor"))===undefined && roles.find(a =>a.includes("owner"))===undefined) {
-            $("#communitySelector").attr('disabled','disabled');
-            $("#warning-notAllowed").show();
+            $('input').attr('disabled','disabled');
         }
-        */
-        //refresh list each time table is clicked
-        $("#tableMyFiles" ).on( "click", function() {
-            arrayOfFiles = [];
+        $("#beSelector").on('change', function() {
+            be_selected = $("#beSelector").val();
+            allowed = true;
+            $("#errorNotAllowed").hide();
+            $("#availableFiles").show()
+            $('input').attr('disabled',false);
+            table1.ajax.reload();
             
-            $.each($('tbody tr td:first-child input[type="radio"]:checked', this), function() {
-                var obj = {};
-                obj['id'] = $(this).val();
-                obj['benchmarkingEvent_id'] = $(this).parents('tr').first().children(":nth-child(4)").children("p").prop("id");
-                obj['tool'] = $(this).parents('tr').first().children(":nth-child(4)").children("input").prop("id");
-
-                //arrayOfFiles.push($('td:first-child input', this).prop('value'));
-                arrayOfFiles.push( obj);
-       
-            });
-            if (arrayOfFiles.length >0) {
-                $('#btn-selected-files').prop("disabled", false)
-            } else {
-                $('#btn-selected-files').prop("disabled", true)
+            if (!roles['roles'].includes(be_selected)){
+                $("#errorNotAllowed a").attr("href", "/vre/helpdesk/?sel=roleUpgrade&BE="+be_selected)
+                $("#errorNotAllowed").show();
+                allowed = false;
             }
+                  
+            
         })
-    
-    })
-    $("#beSelector").on('change', function() {
-        be_selected = $("#beSelector").val();
-        table0.ajax.reload();
-        table1.ajax.reload();
     })
     
+    //refresh list each time table is clicked
+    $("#tableMyFiles" ).on( "click", function() {
+        arrayOfFiles = [];
+        
+        $.each($('tbody tr td:first-child input[type="radio"]:checked', this), function() {
+            var obj = {};
+            obj['id'] = $(this).val();
+            obj['benchmarkingEvent_id'] = $(this).parents('tr').first().children(":nth-child(4)").children("p").prop("id");
+            obj['tool'] = $(this).parents('tr').first().children(":nth-child(4)").children("input").prop("id");
 
+            arrayOfFiles.push(obj);
+   
+        });
+        if (arrayOfFiles.length >0) {
+            $('#btn-selected-files').prop("disabled", false)
+        } else {
+            $('#btn-selected-files').prop("disabled", true)
+        }
+    })
 })
 
 
@@ -140,21 +62,43 @@ $(document).ready(function() {
 function createSelectableTable(){
     return $('#communityTable').DataTable( {
         "ajax": {
-            url: 'applib/oeb_publishAPI.php?action=getAllFiles&type[]=OEB_data_model',
-            dataSrc: ''
+            url: CONTROLLER+'?action=getAllFiles',
+            data: ({
+                type: JSON.stringify(['OEB_data_model']),
+              }),
+            "dataSrc": ""
         },
         "bFilter": false, 
         "bPaginate": false,
-        //"bInfo": false,
         "bLengthChange": false,
         "bAutoWidth": true,
         //filter for BE selected
         rowCallback: function( row, data, index ) {
             if (data['benchmarking_event']['be_id'] != be_selected) {
+                $("#availableFiles").show()
                 $(row).hide();
             }
+            if(data['current_status'] == 'pending approval' || data['current_status'] == 'published'){
+                $("#availableFiles").show()
+                $(row).css('color', 'silver');
+            }
+            if (be_selected == "") {
+                $("#errorNotAllowed").hide()
+                $("#availableFiles").hide()
+            }
+            if (!allowed) {
+                $(row).css('color', 'silver');
+                $('input',row).prop('disabled', true)
+            }
+
+            
         },
-        
+        drawCallback: function() {
+            $('[data-toggle="popover"]').popover({
+                container: 'body'
+            })
+            
+        },
         "columns" : [
             {"data" : "_id"}, //0
             { "data" : "files" }, //1
@@ -176,15 +120,13 @@ function createSelectableTable(){
                 'orderable': false,
                 render: function ( data, type, row ) {
                     if(row['current_status'] == 'pending approval' || row['current_status'] == 'published'){
-                        r = '</br></br><input disabled type="radio" name = "'+data+'" value="'+row.files['participant']['id']+'"></br></br>\
-                        <input disabled type="radio" name = "'+data+'" value="'+row.files['consolidated']['id']+'">'
+                        res = '</br><input disabled type="radio" name = "'+data+'" value="'+row.files['consolidated']['id']+'">'
                        
                     } else {
-                        r = '</br></br><input disabled type="radio" name = "'+data+'" value="'+row.files['participant']['id']+'"></br></br>\
-                        <input  type="radio" name = "'+data+'" value="'+row.files['consolidated']['id']+'">'
+                        res = '</br><input  type="radio" name = "'+data+'" value="'+row.files['consolidated']['id']+'">'
                     }
                     
-                    return r;
+                    return res;
                 }
             },
             {
@@ -192,11 +134,12 @@ function createSelectableTable(){
                 "title": '<th>Execution files <i class="icon-question" data-toggle="tooltip" data-placement="top" title="Files in execution folder"></i></th>',
                 render:function ( data, type, row ) {
                     if(row['current_status'] == 'pending approval' || row['current_status'] == 'published'){
-                        r = "<div class='disabled-dataset'><b>"+row['path'].split("/").reverse()[1]+"/</b><i class=\"fa fa-exclamation-triangle\" data-toggle=\"tooltip\" data-placement=\"top\" title=\"File already submitted\" style='color: #F4D03F'></i></br></br>";
-                    }else r = "<div><b>"+row['path'].split("/").reverse()[1]+"/</b></br></br>";  
-                    r += data['participant']['path'].split("/").reverse()[1]+"/"+data['participant']['path'].split("/").reverse()[0]+'</br></br>';
-                    r += data['consolidated']['path'].split("/").reverse()[0]+"</div>";
-                    
+                        r = "<div><b>"+row['path'].split("/").reverse()[1]+"/</b><a data-html='true' data-toggle='popover' data-placement='top' data-trigger='click' \
+                        data-content='<b>Files already submitted: </b><a href =\"oeb_publish/oeb/oeb_manageReq.php#"+row['req_id']+"\">View request</a>' <i class='fa fa-exclamation-triangle' style='color: #F4D03F'></i></a></br>"
+                        
+                        
+                    }else r = "<b>"+row['path'].split("/").reverse()[1]+"/</b></br>";  
+                    r += data['consolidated']['path'].split("/").reverse()[0];
 
                     return r;
                 }
@@ -228,7 +171,7 @@ function createSelectableTable(){
                 render: function ( data, type, row, meta ) {
                     if (data != undefined && data.length != 0){
                         
-                        listChallenges = '<ul class = "ul-challenges" id = "ul-challenges'+meta.row+'">';
+                        listChallenges = '<ul class = "ul-challenges style="padding-left:4%;" id = "ul-challenges'+meta.row+'">';
                        for (let index = 0; index < data.length; index++) {
                         listChallenges += '<li>'+data[index]+'</li>';
                            
@@ -308,7 +251,6 @@ function hideChallenges(numRow){
 
 
 function submitFiles() {
-    console.log(arrayOfFiles)
     var myForm = $('#files-form');
     $('#filesInput').val(JSON.stringify(arrayOfFiles));
     myForm.submit();
@@ -319,24 +261,8 @@ function submitFiles() {
 function getRoles() {
     return $.ajax({
         type: 'POST',
-        url: 'applib/oeb_publishAPI.php?action=getRole'
+        url: CONTROLLER+'?action=getRole'
     })
-}
-
-function createAlert ($fileName, $action) {
-    if ($action == "success") {
-        return  '<div class="alert alert-success alert-dismissible fade in">\
-                    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>\
-                <strong>File '+$fileName+' correctly requested!</strong> To manage your request: <a href="/vre/oeb_publish/oeb/oeb_manageReq.php" class="alert-link">click here!</a>\
-                </div>'
-
-    } else {
-        return '<div class="alert alert-danger alert-dismissible fade in">\
-        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>\
-    <strong>File '+$fileName+' no correctly request!</strong> \
-    </div>'
-
-    }
 }
 
 /**

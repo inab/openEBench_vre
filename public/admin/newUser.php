@@ -1,7 +1,6 @@
 <?php
 
 require __DIR__."/../../config/bootstrap.php";
-require "../phplib/admin.inc.php";
 
 redirectAdminOutside();
 
@@ -115,7 +114,7 @@ redirectAdminOutside();
                                                     <select name="Country" id="Country" class="form-control">
 																											<option value=""></option>
 																											<?php
-																											foreach(iterator_to_array($GLOBALS['countriesCol']->find(array(),array('country'=>1))->sort(array('country'=>1))) as $k => $v){
+                                                                                                            foreach (CountriesDAO::selectCountries(array(),array("projection" => ['country'=>1], "sort"=>["country" =>1])) as $k => $v){
 																												$selected="";
 																												if ($_REQUEST['Country'] == $k)
 																												$selected = "selected";

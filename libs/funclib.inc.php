@@ -1,6 +1,7 @@
 <?php
 
 function redirect($url) {
+    setcookie('currentPage', $GLOBALS['BASEURL'].$_SERVER['REQUEST_URI'].$_SERVER['QUERY_STRING']);
     header("Location:$url");
     exit;
 }
@@ -45,6 +46,22 @@ function redirectOutside(){
     }
 }
 
+function redirectLogin(){
+
+    # Login or load user. Anon not allowed
+    if(!checkLoggedIn() || checkGuest() ){
+	redirect($GLOBALS['BASEURL']."/login.php");
+    }else{
+        $r = loadUser($_SESSION['User']['_id'],false);
+    }
+    if(!checkTermsOfUse()) {
+	if(pathinfo($_SERVER['PHP_SELF'])['filename'] != 'usrProfile') redirect($GLOBALS['BASEURL']."user/usrProfile.php");
+    }
+
+    # Do nothing, keep loading the page 
+    return true;
+}
+
 function redirectAdminOutside(){
 	if(!checkAdmin()){
 		redirectInside();
@@ -55,6 +72,16 @@ function redirectToolDevOutside(){
 	if(!checkToolDev()){
 		redirectInside();
 	}
+}
+
+function redirectToolDevOutside_v2(){
+	if(!checkLoggedIn() || checkGuest()){
+		redirect($GLOBALS['BASEURL']."/login.php");
+
+	}elseif(!checkToolDev()){
+		redirectInside();
+	}
+	return true;
 }
 
 function redirectInside(){

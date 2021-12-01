@@ -59,7 +59,7 @@ $GLOBALS['tool_io_dev_sample']  = $GLOBALS['root']."/install/data/tool_schemas/t
 $GLOBALS['auth_credentials']       = __DIR__."/oauth2.conf"; // oauth2 client credentials
 $GLOBALS['authAdmin_credentials']  = __DIR__."/oauth2_admin.conf"; // oauth2 client credentials with admin privileges
 $GLOBALS['authServer']             = 'https://inb.bsc.es/auth'; // external oauth2 server
-$GLOBALS['authRealm']              = 'openebench'; // keycloak realm
+$GLOBALS['authRealm']              = 'dev-openebench'; // keycloak realm
 $GLOBALS['urlAuthorize' ]          = $GLOBALS['authServer'].'/realms/'.$GLOBALS['authRealm'].'/protocol/openid-connect/auth';     //get autorization_code
 $GLOBALS['urlAccessToken']         = $GLOBALS['authServer'].'/realms/'.$GLOBALS['authRealm'].'/protocol/openid-connect/token';    //get token
 $GLOBALS['urlResourceOwnerDetails']= $GLOBALS['authServer'].'/realms/'.$GLOBALS['authRealm'].'/protocol/openid-connect/userinfo'; //get user details
@@ -68,7 +68,7 @@ $GLOBALS['adminToken']             = $GLOBALS['authServer']."/realms/master/prot
 $GLOBALS['adminRealm']             = $GLOBALS['authServer']."/admin/realms/".$GLOBALS['authRealm']; // admin keycloak users
 
 //OEB submission
-$_GLOBALS['OEB_submission_repository'] = "/home/user/OEB_level2_new";
+$GLOBALS['OEB_submission_repository'] = "/home/user/OEB_level2_data_migration";
 
 // Respository and storage configuration
 
@@ -151,12 +151,13 @@ $GLOBALS['placeholder_textarea'] = "Click right button to select file(s)"; // te
 ********************************/
 
 // External Resources
+#$GLOBALS['OEB_sciapi'] = "https://openebench.bsc.es/sciapi/graphql/";
+$GLOBALS['OEB_sciapi'] = "https://dev-openebench.bsc.es/api/scientific/graphql";
+#$GLOBALS['OEB_scirestapi'] = "https://dev-openebench.bsc.es/api/scientific/access";
+$GLOBALS['OEB_scirestapi'] = "https://dev-openebench.bsc.es/api/scientific/staged";
+$GLOBALS['OEB_migrate'] = 'https://dev-openebench.bsc.es/api/scientific/execute/migrate';
 
-$GLOBALS['OEB_idsolv'] = "https://openebench.bsc.es/api/scientific/idsolv";
-$GLOBALS['OEB_sciapi'] = "https://openebench.bsc.es/sciapi/graphql/";
-$GLOBALS['OEB_scirestapi'] = "https://dev-openebench.bsc.es/api/scientific/access";
-$GLOBALS['OEB_migrate'] = 'https://dev2-openebench.bsc.es/api/scientific/execute/migrate';
-
+$GLOBALS['OEB_doc'] = 'https://openebench.readthedocs.io/en/latest/';
 // Cloud infrastructures
 $GLOBALS['cloud']              = "life-bsc"; // VRE central cloud. Options are any of $GLOBALS['clouds']
 $GLOBALS['clouds'] = Array(
@@ -336,10 +337,11 @@ $GLOBALS['oeb_script_validator'] = "oeb_validatorScript.sh";
 //schema from EUDAT
 //B2share submission 
 $GLOBALS['B2SHARE_submission_repository'] = "/home/user/b2share";
-$GLOBALS['b2share_host']="https://trng-b2share.eudat.eu/";  // URL of EUDAT B2SHARE server
+$GLOBALS['b2share_host']="https://b2share.eudat.eu/";  // URL of EUDAT B2SHARE server
 #$GLOBALS['eudat_pusher']=""; // Root directory of the pusher local installation
 $GLOBALS['oeb_eudat_schema'] = "https://raw.githubusercontent.com/inab/benchmarking-data-model/master/eudat-b2share-schemas/eudat%2BOEBSchema.json";
 $GLOBALS['eudat_admin_token'] =  __DIR__."/eudat_token.conf";
+$GLOBALS['eudat_community_id'] = "f60ff069-c8fa-4b48-8442-903bffa3acb1";
 
 //schema from oeb (submission)
 #$GLOBALS['oeb_submission_pusher']=""; // Root directory of the pusher local installation

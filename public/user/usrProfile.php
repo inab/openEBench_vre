@@ -1,15 +1,15 @@
 <?php
 
-require __DIR__ . "/../../config/bootstrap.php";
+require __DIR__."/../../config/bootstrap.php";
+
 if (!allowedRoles($_SESSION['User']['Type'], $GLOBALS['NO_GUEST'])) redirectInside();
 redirectOutside();
 
 $countries = array();
 $ops = [ 'projection' => [ 'country' => 1 ], 'sort' => [ 'country' => 1 ] ];
-foreach (array_values(iterator_to_array($GLOBALS['countriesCol']->find(array(), $ops))) as $v)
+
+foreach (array_values(CountriesDAO::selectCountries(array(), $ops)) as $v)
     $countries[$v['_id']] = $v['country'];
-
-
 ?>
 
 <?php require "../htmlib/header.inc.php"; ?>
@@ -184,21 +184,21 @@ foreach (array_values(iterator_to_array($GLOBALS['countriesCol']->find(array(), 
                                                                 ?>
                                                             </select>
                                                         </div>
-                                                        <div class="form-group">
+                                                        <!-- <div class="form-group">
                                                             <label class="control-label">OEB Community</label>
                                                             <select name="oeb_community" class="form-control">
                                                                 <option value=""></option>
                                                                 <?php
-                                                                $r = $communities = getCommunities();
+                                                                /*$r = $communities = getCommunities();
                                                                 $selCommunity = '';
                                                                 foreach ($communities as $key => $value) :
                                                                     if ($_SESSION['User']['oeb_community'] == $key) $selCommunity = ' selected';
                                                                     else $selCommunity = '';
                                                                     echo '<option value="' . $key . '"' . $selCommunity . '>' . $value["acronym"] . '</option>';
-                                                                endforeach;
+                                                                endforeach;*/
                                                                 ?>
                                                             </select>
-                                                        </div>
+                                                        </div> -->
                                                         <!-- <?php //if (!allowedRoles($_SESSION['User']['Type'], $GLOBALS['TOOLDEV']) && (checkTermsOfUse())) { ?>
                                                             <div class="form-group margin-top-30">
                                                                 <label class="control-label">You are a standard user. Do you want to bring your own tool?
@@ -392,7 +392,7 @@ foreach (array_values(iterator_to_array($GLOBALS['countriesCol']->find(array(), 
 					if (! isset($_SESSION['User']['linked_accounts']['b2share'])){?>
 							
                                                     <p>
-                                                        <span style="color: #666;font-weight: bold;">Do you have an BSHARE account in EUDAT?</span><br/>
+                                                        <span style="color: #666;font-weight: bold;">Do you have a B2SHARE account in EUDAT?</span><br/>
                                                         Link it here and you'll be able to publish your datasets to EUDAT with one click at <a href="oeb_publish/eudat/" target="blank"> <i class="fa fa-upload"> </i> Publish <i class="fa fa-circle" style="font-size:5px; margin: 0 5px; position: relative;top: -3px;"></i> to B2SHARE </a>
                                                     </p>
                                                     <div class="row" style="margin-left:30px;">

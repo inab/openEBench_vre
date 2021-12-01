@@ -1,7 +1,10 @@
 <?php
-/////////////////////////////////////////////////////////////////////////////////////
-////////////////////////FUNCTIONS TO CONNECT OPENEBENCH APIs/////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////FUNCTIONS TO OPENEBENCH APIs////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+
+#------------------------- REST API FUNCTIONS ----------------------------------/
 
 /**
  * Gets all communitites with their info or an specific community filtered or not
@@ -92,7 +95,7 @@ function getChallenges ($challenge_id = null, $filter_field = null ){
 
 }
 /** 
- * Gets all benchmarking events with their info or an specific benchmark filtered or not
+ * Gets all benchmarking events with their info or an specific BE filtered or not
  * @param $benchmarkingEvent_id, the id of the benchmark to find
  * @param $filter_field, the attribute of the given benchmarking event
  * @return benchmark/s (json format). If an error ocurs it return false.
@@ -114,7 +117,8 @@ function getBenchmarkingEvents ($benchmarkingEvent_id = null, $filter_field = nu
 
   $r = get($url, $headers);
   if ($r[1]['http_code'] != 200){
-    $_SESSION['errorData']['Warning'][]="Error getting benchmarkings events. Http code= ".$r[1]['http_code'];
+    $_SESSION['errorData']['Warning'][]="Error getting benchmarkings events. 
+      Http code= ".$r[1]['http_code'];
     return false;
   } else {
     return json_decode($r[0], true);
@@ -193,15 +197,15 @@ function getCommunityFromChallenge($challenge_id){
  * @param roles array of user roles
  * @return array of communitites id's
  */
-function getCommunitiesFromRoles (array $roles) {
+function getCommunitiesFromRoles ($roles) {
 	$communitites_ids = array();
   
 	foreach ($roles as $elem) {
 	  $r = explode(":", $elem);
 	  if($r[0] == "owner") {
-		  array_push($communitites_ids, $r[1] );
+		  array_push($communitites_ids, $r[1]);
 	  }else {
-		  if($r[0] == "manager" || $r[0] == "supervisor" ||$r[0] == "contributor") {
+		  if($r[0] == "manager" ||$r[0] == "contributor") {
 		    array_push($communitites_ids, getCommunityFromChallenge($r[1]) );
 		  }
 	  }
@@ -215,12 +219,21 @@ function getBEFromRoles (array $roles) {
   
 	foreach ($roles as $elem) {
 	  $r = explode(":", $elem);
-	  if($r[0] == "owner") {
-		  array_push($BE_ids, getChallenges($r[1], 'benchmarking_event_id' ));
-	  }else {
-		  if($r[0] == "manager" || $r[0] == "supervisor" ||$r[0] == "contributor") {
-		    array_push($BE_ids, getChallenges($r[1], 'benchmarking_event_id' ));
-		  }
+    if($r[0] == "owner") {
+      $BE_array = json_decode(getBenchmarkingEventsQL($r[1]), true);
+
+      foreach ($BE_array as $key => $value) {
+        array_push($BE_ids, $value['_id']);
+      }
+      
+	  } else if($r[0] == "manager") {
+      array_push($BE_ids, $r[1] );
+
+	  }else if($r[0] == "contributor") {
+        if(str_starts_with($r[1], 'OEBE')) {
+          array_push($BE_ids, $r[1]);
+		    } 
+      
 	  }
 	}
 	return $BE_ids;
@@ -261,7 +274,8 @@ function getChallengesFromACommunity ($community_id) {
 /**
  * Gets the email of the contacts (NEED authentification!!!)
  * @param array of contacts ids
- * @return associative array of each contacts id and their emails. If an error ocurs it return false.
+ * @return associative array of each contacts id and their emails. 
+ * If an error ocurs it return false.
  */
 //var_dump(getContactEmail(array("Meritxell.Ferret")));
 function getContactEmail ($contacts_ids) {
@@ -294,7 +308,8 @@ function getContactEmail ($contacts_ids) {
     $r = get($url, $headers, $auth_basic);
 
     if ($r[1]['http_code'] != 200){
-      $_SESSION['errorData']['Warning'][]="Error getting contacts emails. Http code= ".$status;
+      $_SESSION['errorData']['Warning'][]="Error getting contacts emails. 
+        Http code= ".$status;
       $contacts_emails[$value] = 0;
     } else {
       $contacts_emails[$value] = json_decode($r[0], true);
@@ -305,7 +320,9 @@ function getContactEmail ($contacts_ids) {
 
 }
 
-
+#-------------------------------------------------------------------------------
+#------------------------ GRAPHQL API FUNCTIONS -------------------------------/
+#-------------------------------------------------------------------------------
 
 /**
  * Gets all contacts id's given a community
@@ -316,19 +333,34 @@ function getContactEmail ($contacts_ids) {
 function getAllContactsOfCommunity ($community_id){
 
   $data_query =
-  '{"query":" 
-      query getContacts($community_id: String!){
-        getContacts(contactFilters: {community_id: $community_id}) {
-          _id    
-        } 
-      }",
-      "variables":{"community_id": "'.$community_id.'"}}';
-  $url ='https://dev-openebench.bsc.es/sciapi/graphql/'; //dev, in prod is closed
+  '{"query":"query getContacts($community_id: String!){getContacts(contactFilters: {community_id: $community_id}) {_id}}","variables":{"community_id": "'.$community_id.'"}}';
+  $url = $GLOBALS['OEB_sciapi'];
   $headers= array('Content-Type: application/json');
+  //get credentials
+  $confFile = $GLOBALS['OEBapi_credentials'];
 
-  $r = post($data_query, $url, $headers);
+  // fetch API credentials
+  $credentials = array();
+  if (($F = fopen($confFile, "r")) !== false) {
+      while (($d = fgetcsv($F, 1000, ";")) !== false) {
+          foreach ($d as $a){
+              //$r = explode(":",$a);
+              $r = preg_replace('/^.:/', "", $a);
+              if (isset($r)){array_push($credentials,$r);}
+          }
+      }
+      fclose($F);
+  }
+  $username = $credentials[0];
+  $password = $credentials[1];
+
+  $auth_basic["user"] = $username;
+  $auth_basic["pass"] = $password;
+
+  $r = post($data_query, $url, $headers, $auth_basic);
   if ($r[1]['http_code'] != 200){
-    $_SESSION['errorData']['Warning'][]="Error getting contacts. Http code= ".$r[1]['http_code'];
+    $_SESSION['errorData']['Warning'][]="Error getting contacts. 
+      Http code= ".$r[1]['http_code'];
     return false;
   } else {
     $items = json_decode($r[0])->data->getContacts;
@@ -340,20 +372,15 @@ function getAllContactsOfCommunity ($community_id){
 function getBenchmarkingEventsQL ($community_id){
 
   $data_query =
-  '{"query":" 
-      query getBE($community_id: String!){
-        getBenchmarkingEvents(benchmarkingEventFilters: {community_id: $community_id}) {
-          _id
-          name   
-        } 
-      }",
-      "variables":{"community_id": "'.$community_id.'"}}';
-  $url ='https://dev-openebench.bsc.es/sciapi/graphql/'; //dev, in prod is closed
+  '{"query":"query getBE($community_id: String!){getBenchmarkingEvents(benchmarkingEventFilters: {community_id: $community_id}) {_id\\n          name}}","variables":{"community_id": "'.$community_id.'"}}';
+
+  $url = $GLOBALS['OEB_sciapi'];
   $headers= array('Content-Type: application/json');
 
   $r = post($data_query, $url, $headers);
   if ($r[1]['http_code'] != 200){
-    $_SESSION['errorData']['Warning'][]="Error getting BenchmarkingEvents. Http code= ".$r[1]['http_code'];
+    $_SESSION['errorData']['Warning'][]="Error getting BenchmarkingEvents. 
+      Http code= ".$r[1]['http_code'];
     return false;
   } else {
     $items = json_decode($r[0])->data->getBenchmarkingEvents;
@@ -365,20 +392,14 @@ function getBenchmarkingEventsQL ($community_id){
 function getChallengesQL ($BE_id){
 
   $data_query =
-  '{"query":" 
-      query getCH($be: String!){
-        getChallenges(challengeFilters: {benchmarking_event_id: $be}) {
-          _id
-          name   
-        } 
-      }",
-      "variables":{"be": "'.$BE_id.'"}}';
-  $url ='https://dev-openebench.bsc.es/sciapi/graphql/'; //dev, in prod is closed
+  '{"query":"query getCH($be: String!){getChallenges(challengeFilters: {benchmarking_event_id: $be}) {_id\\n          name}}","variables":{"be": "'.$BE_id.'"}}';
+  $url = $GLOBALS['OEB_sciapi']; 
   $headers= array('Content-Type: application/json');
 
   $r = post($data_query, $url, $headers);
   if ($r[1]['http_code'] != 200){
-    $_SESSION['errorData']['Warning'][]="Error getting BenchmarkingEvents. Http code= ".$r[1]['http_code'];
+    $_SESSION['errorData']['Warning'][]="Error getting BenchmarkingEvents. 
+      Http code= ".$r[1]['http_code'];
     return false;
   } else {
     $items = json_decode($r[0])->data->getChallenges;
@@ -394,19 +415,14 @@ function getChallengesQL ($BE_id){
  */
 //var_dump(getTools());
 function getTools () {
-  $data_query = 
-  '{"query":"{ 
-    getTools {
-      _id
-      name
-    }
-  }"}';
+  $data_query = '{"query":"{ \\n    getTools {\\n      _id\\n      name\\n    }\\n}","variables":{}}';
   $url = $GLOBALS['OEB_sciapi'];
   $headers= array('Content-Type: application/json');
 
   $r = post($data_query, $url, $headers);
   if ($r[1]['http_code'] != 200){
-    $_SESSION['errorData']['Warning'][]="Error getting tools. Http code= ".$r[1]['http_code'];
+    $_SESSION['errorData']['Warning'][]="Error getting tools. 
+      Http code= ".$r[1]['http_code'];
     return false;
   } else {
     $items = json_decode($r[0])->data->getTools;
@@ -421,7 +437,7 @@ function getTools () {
 * @param token - to take provenance from token
 * @return json response or false if error ocurred
 */
-function migrateToOEB ($token, $dryrun=false) {
+function migrateToOEB ($token, $dryrun=true) {
 
   $url= $GLOBALS['OEB_migrate'].'?dryrun=false';
   if ($dryrun) {
@@ -432,7 +448,8 @@ function migrateToOEB ($token, $dryrun=false) {
 
   $r = get($url, $headers);
   if ($r[1]['http_code'] != 200){
-    $_SESSION['errorData']['Warning'][]="Error uploading files. Http code= ".$r[1]['http_code'];
+    $_SESSION['errorData']['Warning'][]="Error uploading files. 
+      Http code= ".$r[1]['http_code'];
     return false;
   } else {
     return json_decode($r[0], true);
@@ -447,8 +464,8 @@ function migrateToOEB ($token, $dryrun=false) {
  */
 function getContactsIds($email){
   $data_query =
-  '{"query":"query getContacts($email: String!){\\n\\n    getContacts (contactFilters: {email: $email}){\\n        _id\\n    }\\n}\\n","variables":{"email":"'.$email.'"}}';
-  $url ='https://dev-openebench.bsc.es/api/scientific/graphql';
+  '{"query":"query getContacts($email: String!){getContacts (contactFilters: {email: $email}){_id\\n    }\\n}\\n","variables":{"email":"'.$email.'"}}';
+  $url = $GLOBALS['OEB_sciapi'];
 
   //get credentials
   $confFile = $GLOBALS['OEBapi_credentials'];
@@ -475,7 +492,8 @@ function getContactsIds($email){
 
   $r = post($data_query, $url, $headers, $auth_basic);
   if ($r[1]['http_code'] != 200){
-    $_SESSION['errorData']['Warning'][]="Error getting contacts. Http code= ".$r[1]['http_code'];
+    $_SESSION['errorData']['Warning'][]="Error getting contacts. 
+      Http code= ".$r[1]['http_code'];
     return false;
   } else {
     $items = json_decode($r[0])->data->getContacts[0]->_id;
@@ -483,3 +501,86 @@ function getContactsIds($email){
   }
 }
 
+
+
+/**
+ * Gets datasets
+ * @return json with datasets objs
+ */
+//var_dump(getDatasetsQL());
+function getDatasetsQL () {
+  $data_query = '{"query":"{getDatasets(datasetFilters: {community_id: \\"OEBC001\\"}){id\\n        name\\n        version\\n        description\\n        community_ids\\n        visibility        \\n        type\\n        datalink{\\n            uri\\n        }\\n        \\n\\n\\n    }\\n}","variables":{}}';
+  $url = $GLOBALS['OEB_sciapi'];
+  $headers= array('Content-Type: application/json');
+
+  $r = post($data_query, $url, $headers);
+  if ($r[1]['http_code'] != 200){
+    $_SESSION['errorData']['Warning'][]="Error getting tools. 
+      Http code= ".$r[1]['http_code'];
+    return $r;
+  } else {
+    $items = json_decode($r[0])->data->getDatasets;
+    return json_encode($items);
+  }
+
+}
+
+/**
+ * Returns owners or managers of the spiciefied community or be
+ * @param Community id (to get owners), or bench event (to get managers)
+ * @return 
+ */
+function getOEBRoles($BE){
+  $url =  explode("/staged",$GLOBALS['OEB_scirestapi'])[0];
+  $url = $url."/query/contacts/".$BE;
+
+  $headers= array('Accept: aplication/json');
+
+  $r = get($url, $headers);
+  if ($r[1]['http_code'] != 200){
+    $_SESSION['errorData']['Warning'][]="Error getting benchmarkings events. 
+      Http code= ".$r[1]['http_code'];
+    return false;
+  } else {
+    return json_decode($r[0], true);
+  }
+
+}
+
+function getUserEmailFromORCID ($orcid){
+
+  $data_query =
+  '{"query":"query getContacts($orcid: String!){getContacts(contactFilters:{links: {label: \\"ORCID\\", uri: $orcid}}) {email}}","variables":{"orcid":"'.$orcid.'"}}';
+  $url = $GLOBALS['OEB_sciapi'];
+  
+  //get credentials
+  $confFile = $GLOBALS['OEBapi_credentials'];
+
+  // fetch API credentials
+  $credentials = array();
+  if (($F = fopen($confFile, "r")) !== FALSE) {
+      while (($d = fgetcsv($F, 1000, ";")) !== FALSE) {
+          foreach ($d as $a){
+              //$r = explode(":",$a);
+              $r = preg_replace('/^.:/', "", $a);
+              if (isset($r)){array_push($credentials,$r);}
+          }
+      }
+      fclose($F);
+  }
+  $username = $credentials[0];
+  $password = $credentials[1];
+
+  $auth_basic["user"] = $username;
+  $auth_basic["pass"] = $password;
+
+  $r = post($data_query, $url, $headers, $auth_basic);
+  if ($r[1]['http_code'] != 200){
+    $_SESSION['errorData']['Warning'][]="Error getting contacts. 
+      Http code= ".$r[1]['http_code'];
+    return false;
+  } else {
+    $items = json_decode($r[0])->data->getContacts;
+    return (array) $items[0];
+  }
+}

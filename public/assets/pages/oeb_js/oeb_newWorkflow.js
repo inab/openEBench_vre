@@ -341,7 +341,6 @@ function clickButton() {
       var consolidation = $("#consolidationSelect").val();
   
       if (!validation) {
-        console.log("no validation");
         $("#divErrors").removeClass(" alert alert-info");
         $("#divErrors").addClass(" alert alert-danger");
         $("#divErrors").text("Validation select is empty");
@@ -449,7 +448,6 @@ function validateErr() {
   if(errors.length != 0) {
     console.log("ERRORS: ");
     console.log(errors);
-    fileError = 0;
 
     editor.options.show_errors = "always";
     

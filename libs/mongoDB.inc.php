@@ -14,26 +14,6 @@ function isGSDirBNS($col, $fn) {
 	}
 }
 
-//  recursively retrive entire Files for a given directory selection
-
-function getGSFileIdsFromDir($dirId,$asRoot=0,$filesAnt=array()){
-/*
-    $files = getAttr_fromGSFileId($dirId,"files",$asRoot);
-
-    if ($files) {
-        foreach($files as $f){
-            $files_child = getGSFileIdsFromDir($f,$asRoot);
-            array_merge($files,$files_child);
-        }
-    }else{
-        array_push($files,$dirId);
-        $files = 
-    }
-    return $files;
- */
-    return array();
-}
-
 function getGSFilesFromDir($dataSelection=Array(),$onlyVisible=0){
 
 	$files=Array();
@@ -50,8 +30,7 @@ function getGSFilesFromDir($dataSelection=Array(),$onlyVisible=0){
         );
     }
     // query directory document
-    $dirData = $GLOBALS['filesCol']->findOne($dataSelection);
-
+	$dirData = FilesDAO::selectFiles($dataSelection)[0];
     if (!isset($dirData['_id'])){
         $_SESSION['errorData']['Error'][]="Data is not accessible or do not exist anymore.";
         if (isset($GLOBALS['helpdeskMail'])){
@@ -103,20 +82,12 @@ function getGSFilesFromDir($dataSelection=Array(),$onlyVisible=0){
 }
 
 //  return file_id from attribute 'path'
-
 function getGSFileId_fromPath($fnPath,$asRoot=0) {
-	$col = $GLOBALS['filesCol'];
-	if ($asRoot){
-		$file = $col->findOne(array('path'  => $fnPath));
-	}else{
-		$file = $col->findOne(array('path'  => $fnPath,
-				    'owner' => $_SESSION['User']['id']
-		));
-	}
-	if (empty($file)){
+	$result = FilesDAO::selectFiles(array('path'  => $fnPath), array('projection' => ['_id' => 1]));
+	if (empty($result)){
 		return 0;
 	}else{
-		return $file['_id'];
+		return $result[0]['_id'];
 	}
 }
 
@@ -1229,68 +1200,5 @@ function uploadGSFile($col,$fn,$fsFile) {
 	$_SESSION['errorData']['mongoDB'][]= 'File ' . $fn . ' not stored. Temporal '. $fsFile . ' not found';
 	return 0;
    }
-}
-
-// create unique file id
-
-/*function createLabel(){
-        $label= uniqid($_SESSION['User']['id']."_",TRUE);
-        if (! empty($GLOBALS['filesCol']->findOne(array('_id' => $label))) ){
-                $label= uniqid($_SESSION['User']['id']."_",TRUE);
-        }
-        return $label;
-}*/
-
-
-//create a new submision register
-function uploadReqRegister($fn, $metadata){
-	$id =0;
-	$collection = $GLOBALS['pubRegistersCol']; 
-	$insertResult = $collection->insertOne($metadata);
-	$id = $insertResult->getInsertedId();
-	return $id ;
-}
-
-//update a submision register given a submision id
-function updateReqRegister ($id, $metadata){
-	
-	if (empty($GLOBALS['pubRegistersCol']->findOne(array('_id' => $id))) ){
-		$_SESSION['errorData']['mongoDB'][]= "Cannot add metadata for $id. Entry not in the repository";
-		return 0;
-	}
-	foreach ($metadata as $k=>$v){
-		$GLOBALS['pubRegistersCol']->updateOne(
-			array('_id'=> $id),
-			array('$set' => $metadata),
-			array('upsert'=> true));
-		
-	}
-	return 1;
-
-}
-
-//insert a new object into an array attribute (history actions)
-function insertAttrInReqRegister ($id, $metadata){
-	
-	if (empty($GLOBALS['pubRegistersCol']->findOne(array('_id' => $id))) ){
-		$_SESSION['errorData']['mongoDB'][]= "Cannot add metadata for $id. Entry not in the repository";
-		return 0;
-	}
-	$GLOBALS['pubRegistersCol']->updateOne(array('_id'=> $id),array('$push'=> array("history_actions" => $metadata)));
-
-	return 1;
-
-}
-
-//find a register 
-function getPubRegister_fromId ($rgId) {
-	$col = $GLOBALS['pubRegistersCol']; 
-	$pub_register = $col->findOne(array('_id' => $rgId));
-	
-	if (empty($pub_register)){
-		return 0;
-	}else{
-		return $pub_register;
-	}
 }
 

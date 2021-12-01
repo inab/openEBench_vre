@@ -150,6 +150,7 @@
 			<link href="assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
 		<?php break;
 		case 'tools':
+		case 'viewResults':
 		case 'visualizers': ?>
 			<link href="assets/global/plugins/cubeportfolio/css/cubeportfolio.css" rel="stylesheet" type="text/css" />
 			<?php break ?>;
@@ -196,6 +197,7 @@
 		<?php break;
 		
 		case 'input':
+		case 'viewResults':
 		case 'output': ?>
 			<link href="assets/pages/css/customized-tools.css" rel="stylesheet" type="text/css" />
 		<?php break;
@@ -244,6 +246,7 @@
 		case 'dataFromID':
 		case 'input':
 		case 'output':
+		case 'viewResults':
 		case 'loading_output':
 
 		case 'general':

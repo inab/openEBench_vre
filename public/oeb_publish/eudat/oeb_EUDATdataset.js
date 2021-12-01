@@ -1,3 +1,5 @@
+const CONTROLLER = 'applib/oeb_publishAPI.php'
+
 $(document).ready(function() {
   var valid = false;
   var currentURL = window.location["href"];
@@ -6,12 +8,10 @@ $(document).ready(function() {
   $.getJSON(oeb_eudat_schema, function(data) {
       schema = data;
     }).done(function() {
-      //user
-      var getUserInfo = "applib/oeb_publishAPI.php?action=getUserInfo";
 
       //files
       fn = $("#files").val();
-      var fileInfo = "applib/oeb_publishAPI.php?action=getFileInfo";
+     
 
       //create jsonEditor obj
       editor = new JSONEditor(document.getElementById("editor_holder"),{
@@ -28,7 +28,7 @@ $(document).ready(function() {
       //file info
       $.ajax({
         type: 'POST',
-        url: fileInfo,
+        url: CONTROLLER + "?action=getFileInfo",
         data: {"files" : fn}
       }).done(function(data) {
         var fileinfo = JSON.parse(data);
@@ -36,31 +36,39 @@ $(document).ready(function() {
         //user info
         $.ajax({
           type: 'POST',
-          url: getUserInfo,
+          url: CONTROLLER + "?action=getUserInfo",
           data: currentURL
         }).done(function(data) {
           
           var userinfo = JSON.parse(data);
 
-          //set the values internally in the form
+          //set values internally in the form
           editor.getEditor("root.titles.0.title").setValue(fileinfo["path"].split("/").pop());
           editor.getEditor("root.contact_email").setValue(userinfo["Email"]);
           $("#Creators .json-editor-btn-add").trigger("click");
           editor.getEditor("root.creators.0.creator_name").setValue(userinfo["Name"]+" "+userinfo["Surname"]);
-          //OEB data
-          if ('oeb_id'in fileinfo) {
-            editor.getEditor("root.community_specific.12ed8b46-1e2f-4fd3-9963-29c112b92da1.oeb_id").setValue(fileinfo["oeb_id"]);
-          } else editor.getEditor("root.community_specific.12ed8b46-1e2f-4fd3-9963-29c112b92da1.oeb_id").setValue("OEBD555AZEAZEA");
           
-          editor.getEditor("root.community_specific.12ed8b46-1e2f-4fd3-9963-29c112b92da1.oeb_community").setValue(userinfo["oeb_community"]);
-          editor.getEditor("root.community_specific.12ed8b46-1e2f-4fd3-9963-29c112b92da1.type").setValue(fileinfo["data_type"]);
-          editor.getEditor("root.community_specific.12ed8b46-1e2f-4fd3-9963-29c112b92da1.version").setValue("1.0");
+          
+          //OEB data
+          editor.getEditor("root.community_specific.176df0a6-8c8e-424d-a5c1-34b1d84a580c.oeb_id").setValue(fileinfo['OEB_dataset_id']);
+          editor.getEditor("root.community_specific.176df0a6-8c8e-424d-a5c1-34b1d84a580c.oeb_community").setValue(userinfo["oeb_community"]);
+          
+          //data type
+          if (fileinfo["data_type"] == "OEB_data_model"){
+            editor.getEditor("root.community_specific.176df0a6-8c8e-424d-a5c1-34b1d84a580c.oeb_type").setValue("participant_assessments");
+          } else if (fileinfo["data_type"] == "participant"){
+            editor.getEditor("root.community_specific.176df0a6-8c8e-424d-a5c1-34b1d84a580c.oeb_type").setValue("participant");
+          }
+          editor.getEditor("root.community_specific.176df0a6-8c8e-424d-a5c1-34b1d84a580c.oeb_dataset_version").setValue("1.0");
 
           //css form
           $("[id*=contact_email]").next().next().append('<b> Warning: data is going to be public!</b>');
           $('label[class="required"]').append('<span style="color:red;"> *</span>')
-          //hide resource type label
+          //hide labels
           $('.card-header li a[href="#Resource-Type"]').parent().hide();
+          $('.card-header li a[href="#Disciplines"]').parent().hide();
+          $('.card-header li a[href="#Keywords"]').parent().hide();
+          $('.card-header li a[href="#Languages"]').parent().hide();
           $('.card-header li a[href="#community_specific"]').parent().hide();
 
           //hide items
@@ -78,11 +86,16 @@ $(document).ready(function() {
             } else editor.getEditor("root.license.license_uri").setValue("http://creativecommons.org/licenses/by/4.0/")
           });
           
+
+          //hide the spinner when are all working propertly
+          $("#loading-datatable").hide();
+          
           editor.on('change',function() {
 
             //custom validation fields
             JSONEditor.defaults.custom_validators.push(function(schema, value, path) {
               var errors = [];
+             
               if(schema.format==="date") {
                   // Errors must be an object with `path`, `property`, and `message`
                   errors.push({
@@ -102,6 +115,7 @@ $(document).ready(function() {
             // Not valid
             if(errors.length || $("input[id*=title]").val()==""|| $("input[id*=description]").val()=="" || $("input[id*=creator_name]").val()=="") {
               editor.options.show_errors = "always";
+              console.log(errors)
               $(".errorClass").text("There are errors in some fields of the form.");
               $(".errorClass").removeClass(" alert alert-info");
               $(".errorClass").addClass(" alert alert-danger");
@@ -116,9 +130,9 @@ $(document).ready(function() {
             }
             return valid;
           });
+          
 
-          //hide the spinner when are all working propertly
-          $("#loading-datatable").hide();
+          
 
         });
       });
@@ -143,32 +157,30 @@ $(document).ready(function() {
           data: {"metadata" : json, "fileId": fn}
         }).done (function(data) {
             //no errors
-            if(data["code"]=="200"){
               $("#loading-datatable").hide();
               $("#result").removeClass("alert alert-danger");
               $("#result").addClass("alert alert-info");
-              
-              $("#result").append("<h4>Data successfully published!</h4><p style=\"font-size:1.1em;\">Registered D.O.I.: <b>"+data["message"]+"</b><br/>"+timeStamp()+"</p><br><a href=\"https://eudat-b2share-test.csc.fi/records/"+data["message"]+"\" target=\"_blank\" class=\"btn green\"> EUDAT record</a>");
+              $("#step3").addClass("active");
+              $("#result").append("<h4>Data successfully published!</h4>\
+                <p style=\"font-size:1.1em;\">\
+                Registered D.O.I.: <b>"+data["message"]+"</b><br/>"+timeStamp()+
+                "</p><br><a href=\""+b2share_host+"records/"+data["message"]+
+                "\" target=\"_blank\" class=\"btn green\"> EUDAT record</a>");
               $("#result").show();
               //button back display
               $("#back").show();
 
-            } else {
-              $("#loading-datatable").hide();
-              $("#result").removeClass("alert alert-info");
-              $("#result").addClass("alert alert-danger");
-              $("#result").text(data["message"]);
-              $("#result").show();
-
-            }
         //more errors
 		    }). fail(function(data) {
             $("#loading-datatable").hide();
             $("#result").removeClass("alert alert-info");
             $("#result").addClass("alert alert-danger");
             $("#result").append(data["responseJSON"]["message"]);
-            $("#result").append("</br>Please, try it later or report this message <a href='mailto:openebench-support@bsc.es'>openebench-support@bsc.es</a>.");
+            $("#result").append("</br>Please, try it later or report this message \
+              <a href='mailto:openebench-support@bsc.es'>openebench-support@bsc.es</a>.");
             $("#result").show();
+            //button back display
+            $("#back").show();
         }); 
       })
     }

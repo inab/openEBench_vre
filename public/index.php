@@ -54,3 +54,5 @@ if (!$_REQUEST['id']){
     }
 }
 redirect($GLOBALS['BASEURL']."home/redirect.php");
+//redirect($GLOBALS['BASEURL']);
+

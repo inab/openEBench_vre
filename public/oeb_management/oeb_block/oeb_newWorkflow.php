@@ -155,9 +155,9 @@ require "../../htmlib/js.inc.php"; ?>
                     margin-left: 20px;
                 }
 
-                input[type="file"] {
+                /* input[type="file"] {
                     color: red;
-                }
+                } */
 
                 .form-group .required {
                     font-size: 14px;

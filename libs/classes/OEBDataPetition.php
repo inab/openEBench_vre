@@ -1,7 +1,7 @@
 <?php
 class OEBDataPetition {
 
-    private $id; 
+    private $_id;
     private $filesIds;
     private $requester;
     private $approvers;
@@ -11,9 +11,16 @@ class OEBDataPetition {
     private $visualitzation_url;
     private $dataset_OEBid;
 
+    //connection collections attributes
+    private static $COLLECTION_NAME = 'oeb_publication_registers';
+    private $dbConnect;
+
     
-    public function __construct($id, array $filesIds, $requester, $approvers, $oeb_metadata, $visualitzation_ur = null, $dataset_OEBid = null){
-        $this->id = createLabel('vre-oebreq', 'pubRegistersCol');
+    public function __construct(array $filesIds, $requester, $approvers, $oeb_metadata, $visualitzation_ur = null, $dataset_OEBid = null){
+        
+        $this->dbConnect = new dbConnection();
+        
+        $this->_id = createLabel2('vre-oebreq', $this->dbConnect->getConnection(self::$COLLECTION_NAME));
         $this->filesIds = $filesIds;
         $this->requester = $requester;
         $this->approvers = $approvers;
@@ -22,6 +29,8 @@ class OEBDataPetition {
         $this->oeb_metadata = $oeb_metadata;
         $this->visualitzation_url = $visualitzation_url;
         $this->dataset_OEBid = $dataset_OEBid;
+
+
     }
 
     /************GETTERS AND SETTERS ****************/
@@ -30,7 +39,7 @@ class OEBDataPetition {
      * Get the value of id
      */ 
     public function getId(){
-        return $this->id;
+        return $this->_id;
     }
 
     /**
@@ -38,7 +47,7 @@ class OEBDataPetition {
      * @return  self
      */ 
     public function setId($id){
-        $this->id = $id;
+        $this->_id = $id;
         return $this;
     }
     
@@ -177,7 +186,7 @@ class OEBDataPetition {
     public function toArray() {
         
         return array(
-            '_id' => $this->id,
+            '_id' => $this->_id,
             'filesIds' => $this->filesIds,
             'requester' => $this->requester,
             'approvers' => $this->approvers,
@@ -196,10 +205,13 @@ class OEBDataPetition {
     * Saves OEBDataPetition object on mongodb
     */
     public function saveOEBPetition() {
-        $save = false;
-	    $collection = $GLOBALS['pubRegistersCol'];
-	    $insertResult = $collection->insertOne($this->toArray());
-	    return $insertResult ;
+        try {
+            $connection = $this->dbConnect->getConnection(self::$COLLECTION_NAME); 
+            $insertResult = $connection->insertOne($this->toArray());
+            return $insertResult ;
+        } catch (\MongoDB\Driver\Exception\Exception $e) {
+            $_SESSION['errorData']['Error'][]="Error inserting OEB petition";
+        }
     }
 
     /**
@@ -209,8 +221,9 @@ class OEBDataPetition {
      * @return array of OEB petitions
      */
     public static function selectAllOEBPetitions($filters, $options = []) {
-        $collection = $GLOBALS['pubRegistersCol'];
-        $cursor = $collection->find($filters, $options);
+        $c = new dbConnection();
+        $connection = $c->getConnection(self::$COLLECTION_NAME); 
+        $cursor = $connection->find($filters, $options);
         return $cursor->toArray();
     }
     
@@ -221,12 +234,11 @@ class OEBDataPetition {
      * @return int of registers modified
      */
     public static function updateOEBPetitions($filters, $updateCommand) {
-        $collection = $GLOBALS['pubRegistersCol'];
-        $cursor = $collection-> updateMany($filters, $updateCommand);
+        $c = new dbConnection();
+        $connection = $c->getConnection(self::$COLLECTION_NAME); 
+        $cursor = $connection-> updateMany($filters, $updateCommand);
         return $cursor->getModifiedCount();
     }
-
-
 }
 
 class historyActions {

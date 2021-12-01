@@ -4,7 +4,7 @@ require __DIR__."/../../config/bootstrap.php";
 
 redirectAdminOutside();
 
-$user = $GLOBALS['usersCol']->findOne(array('id' => $_REQUEST['id']));
+$user = UsersDAO::selectUsers(array('id' => $_REQUEST['id']))[0];
 
 if($user['Type'] == 0) {
 	$_SESSION['errorData']['Error'][] = "You are trying to edit an admin user.";
@@ -129,12 +129,14 @@ sort($tlsvlzrs);
                                                     <select name="Country" id="Country" class="form-control">
 																											<option value=""></option>
 																											<?php
-																											foreach(iterator_to_array($GLOBALS['countriesCol']->find(array(),array('country'=>1))->sort(array('country'=>1))) as $k => $v){
+                                                                                                            foreach (array_values(CountriesDAO::selectCountries(array(),array("projection" => ['country'=>1], "sort"=>["country" =>1]))) as $v){
 																												$selected="";
-																												if ($user["Country"] == $k)
-																												$selected = "selected";
+                                                                                                                var_dump($user["Country"]);
+                                                                                                                var_dump($v['country']);
+																												if ($user["Country"] == $v['_id'])
+																												    $selected = "selected";
 																													?>
-																													<option <?php echo $selected; ?> value=<?php echo $k; ?>><?php echo $v['country']; ?></option>
+																													<option <?php echo $selected; ?> value=<?php echo $v['_id']; ?>><?php echo $v['country']; ?></option>
 																												<?php } ?>
 																											</select>
                                                 </div>
@@ -189,7 +191,7 @@ sort($tlsvlzrs);
 																									<?php
 																									foreach ( $tlsvlzrs as $id => $value ) {
 																											$selected="";
-                                                    	if (in_array($value['_id'], $user['ToolsDev'])) $selected = "selected";
+                                                    	//if (in_array($value['_id'], $user['ToolsDev'])) $selected = "selected";
 
 																											echo "<option value='".$value['_id']."' $selected>".$value['name']."</option>";
 																									}

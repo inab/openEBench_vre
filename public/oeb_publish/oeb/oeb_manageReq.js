@@ -1,6 +1,9 @@
 var table1;
 var table2;
 
+const CONTROLLER = 'applib/oeb_publishAPI.php'
+
+
 $(document).ready(function() {
     getRoles().done(function(r) {
         var roles = JSON.parse(r)
@@ -22,7 +25,7 @@ $(document).ready(function() {
 function createTableRegisters(){
     table1 = $('#tableAllFiles').DataTable( {
         "ajax": {
-            url: 'applib/oeb_publishAPI.php?action=getSubmitRegisters',
+            url: CONTROLLER +'?action=getSubmitRegisters',
             dataSrc: ''
         }, 
         "bPaginate": false,
@@ -41,20 +44,22 @@ function createTableRegisters(){
             { "data" : "status" }, //4
             { "data" : "oeb_id"}, //5
             { "data" : "history_actions" }, //6
-            { "data" : null} //7
+            { "data" : "view"} //7
 
         ],
         'columnDefs': [
             {
                 "targets": 0,
                 "title": '<th>Request id </th>',
-                width: '10px',
-                
+                "targets": 0,
                 render: function ( data, type, row ) {
-                    return  '<a id="'+data+'"></a>'+data+' <a id ="example" data-toggle="popover" data-trigger="hover" \
-                    title="Title" container="body" data-content="And here"><i class="fa fa-info-circle"></i></a>'
+                    return '<a id="'+data+'"></a><div class="ellipsis">'+
+                        data+'</div><a id ="example"  data-html="true" \
+                        data-toggle="popover" data-placement="top" data-trigger="click" \
+                        title="'+data+'" data-content="<b>Request created</b>: '+
+                        convertTimestamp(row['history_actions'][0]['timestamp']['$date']
+                        ['$numberLong'])+'"><i class="fa fa-info-circle"></i></a>'
                 }
-                
             },
             {
                 "targets": 1,
@@ -76,7 +81,8 @@ function createTableRegisters(){
                 render: function ( data, type, row ) {
                     result = "<ul style ='padding-left: 4%;'>";
                     for (let index = 0; index < data.length; index++) {
-                        result += "<li><a href='"+data[index]['nc_url']+"'target='_blank'>"+ data[index]['name']+"</a></li>";   
+                        result += "<li><a href='"+data[index]['nc_url']+
+                        "'target='_blank'>"+ data[index]['name']+"</a></li>";   
                         
                     }
                     result += "</ul>";
@@ -90,7 +96,8 @@ function createTableRegisters(){
                 "className": "dt-center",
                 render: function ( data, type, row ) {
                     if (data == "error") {
-                        return '<span class="badge badge-danger"><b>'+data+'</b></span><br><a href="javascript:viewLog(\''+row['id']+'\');">View Log</a>'
+                        return '<span class="badge badge-danger"><b>'+data+
+                            '</b></span><br><a href="javascript:viewLog(\''+row['id']+'\');">View Log</a>'
                     }else if (data == 'published'){
                         return '<span class="badge badge-success"><b>'+data+'</b></span>';
                     }else if (data == 'denied'){
@@ -107,9 +114,13 @@ function createTableRegisters(){
                 render: function ( data, type, row ) {
                     if (data == null) {
                         return "-"
-                    }else return '<a href="https://dev-openebench.bsc.es/scientific/'+row['community']+'" target="_blank">'+data+'</a>';
+                    }else{
+                        return '<a href="'+server+'/scientific/'+row['community']
+                            +'" target="_blank">'+data[0]+'</a>\
+                            <a href="'+server+'/scientific/'+row['community']+
+                            '" target="_blank">'+data[1]+'</a>';
+                    } 
                 }
-
             },
             {
                 "targets": 6,
@@ -142,7 +153,7 @@ function createTableRegisters(){
 						        <i class="fa fa-angle-down"></i>\
 		                    </button>\
                             <ul class="dropdown-menu pull-right" role="menu">\
-						        <li><a href="javascript:showResultsPage(\'OpEBUSER5e301d61da6f8_5e5fc0fab53483.99018780\',\'QFO_6\');"><i class="fa fa-file-text"></i> View Results</a></li>\
+						        <li><a href="javascript:showResultsPage(\''+data['dir']+'\',\''+data['vre-tool']+'\', \'self\');"><i class="fa fa-file-text"></i> View Results</a></li>\
 	                        </ul>\
                         </div>'
                    return result;
@@ -159,10 +170,10 @@ function createTableApprover(){
     table2 = $('#tableApprovals').DataTable( {
         "autoWidth": false,
         "ajax": {
-            url: 'applib/oeb_publishAPI.php?action=getApprovalRequest',
+            url: CONTROLLER + '?action=getApprovalRequest',
             dataSrc: ''
         },
-        "bFilter": false, 
+        bFilter: true,
         "bPaginate": false,
         "bLengthChange": false,
         "bAutoWidth": true,
@@ -177,13 +188,35 @@ function createTableApprover(){
             })
             
         },  
+        initComplete: function () {
+            	
+            this.api().columns([6]).every( function () {
+                var column = this;
+                var select = $('<select class="form-control" style="width: 30%;"><option value="">All benchmarking events</option></select>')
+                    .appendTo( $('#BESelect').empty() )
+                    .on( 'change', function () {
+                        var val = $.fn.dataTable.util.escapeRegex(
+                            $(this).val()
+                        );
+                        column
+                            .search( val ? '^'+val+'$' : '', true, false )
+                            .draw();
+                    } );
+
+                column.cells('', column[0]).render('display').sort().unique().each( function ( d, j ){
+                    select.append( '<option value="'+d+'">'+d+'</option>' )
+                } );
+            } );
+        },
         "columns" : [
             { "data" : "id", "title": '<th>Request id </th>' }, //0
             { "data" : "files", "title": '<th>File name </th>' }, //1
             { "data" : "requester_name", "title": '<th>Requester</th>' }, //2
             { "data" : "status",  "title": '<th>Status</th>' }, //3
             { "data" : "oeb_id", "title": '<th>OEB dataset id</th>'}, //4
-            { "data" : null, "title": '<th>Actions</th>' }, //5
+            { "data" : "view", "title": '<th>Actions</th>' }, //5
+            { "data" : "benchmarking_event", "title": '<th>BE</th>' }, //6
+
 
         ],
         'columnDefs': [
@@ -230,7 +263,10 @@ function createTableApprover(){
                 render: function ( data, type, row ) {
                     if (data == null) {
                         return "-"
-                    }else return '<a href="https://dev-openebench.bsc.es/scientific/'+row['community']+'" target="_blank">'+data+'</a>';
+                    }else{
+                        return '<a href="'+server+'/scientific/'+row['community']+'" target="_blank">'+data[0]+'</a>\
+                        <a href="'+server+'/scientific/'+row['community']+'" target="_blank">'+data[1]+'</a>';
+                    } 
                 }
 
             },
@@ -258,12 +294,19 @@ function createTableApprover(){
 						        <i class="fa fa-angle-down"></i>\
 		                    </button>\
                             <ul class="dropdown-menu pull-right" role="menu">\
-						        <li><a href="javascript:showResultsPage(\'OpEBUSER5e301d61da6f8_5e5fc0fab53483.99018780\',\'QFO_6\');"><i class="fa fa-file-text"></i> View Results</a></li>\
+						        <li><a href="javascript:showResultsPage(\''+row['id']+'\',\''+data['vre-tool']+'\');"><i class="fa fa-file-text"></i> View Results</a></li>\
 	                        </ul>\
                         </div>'
                    return result;
                 }
                 
+            },
+            {
+                "targets": 6,
+                className: "hide_column",
+                render: function ( data, type, row ) {
+                    return data['be_name']
+                }
             }
 
         ],
@@ -300,7 +343,7 @@ $('#confirm-form').on('submit', function (e) {
 
     $.ajax({
         type: "POST",
-        url: baseURL + "/applib/oeb_publishAPI.php?action=proceedReq",
+        url: CONTROLLER + "?action=proceedReq",
         data: $('#confirm-form').serialize()
     }).done(function(data) {
         //no errors
@@ -329,15 +372,16 @@ $('#confirm-form').on('submit', function (e) {
 
 });
     
-function showResultsPage(executionFolder, tool){
-    location.href = 'tools/' + tool + '/output.php?execution=' + executionFolder;
+function showResultsPage(viewURL, tool, opt =""){
+    if (opt == "self") location.href = 'tools/' + tool + '/output.php?execution=' + viewURL;
+    else location.href = 'visualizers/viewResults.php?OEBpetition=' + viewURL +'&vre-tool='+tool;
 }
 
 function viewLog(reqId) {
     
     $.ajax({
         type: "POST",
-        url: baseURL + "/applib/oeb_publishAPI.php?action=getLog",
+        url: CONTROLLER + "?action=getLog",
         data: "reqId=" + reqId,
         success: function(data) {
             var data = JSON.parse(data);
@@ -367,7 +411,7 @@ function viewLog(reqId) {
 function getRoles() {
     return $.ajax({
         type: 'POST',
-        url: 'applib/oeb_publishAPI.php?action=getRole'
+        url: CONTROLLER + '?action=getRole'
     })
 }
 

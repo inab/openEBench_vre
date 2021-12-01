@@ -330,9 +330,9 @@ sort($visualizers);
 
 							<ul class="sub-menu">
 								<?php foreach ($tools as $t) {
-									$s = $GLOBALS['helpsCol']->find(array('tool' => $t["_id"]),array('_id' => 1));
-									$sections = iterator_to_array($s);
-									$sections2 = array_column($sections, 'help');
+									$s = HelpsDAO::selectHelps(array('tool' => $t["_id"]),array("projection" => ['_id' => 1]));
+									$sections = $s;
+									$sections2 = array_column($s, 'help');
 									$arrSect = array();
 									foreach ($sections as $sec) {
 										$arrSect[] = $sec['help'];

@@ -33,7 +33,6 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
         require "../../htmlib/menu.inc.php";
         ?>
 
-
         <!-- BEGIN CONTENT -->
         <div class="page-content-wrapper">
             <!-- BEGIN CONTENT BODY -->
@@ -68,15 +67,21 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                             <div class="row step-line">
                                 <div class="col-md-4 mt-step-col first active">
                                     <div class="mt-step-number bg-white">1</div>
-                                    <div class="mt-step-title uppercase font-grey-cascade">Select datasets</div>
+                                    <div class="mt-step-title uppercase 
+                                        font-grey-cascade">Select datasets
+                                    </div>
                                 </div>
                                 <div class="col-md-4 mt-step-col second active">
                                     <div class="mt-step-number bg-white">2</div>
-                                    <div class="mt-step-title uppercase font-grey-cascade">Edit metadata's file</div>
+                                    <div class="mt-step-title uppercase 
+                                        font-grey-cascade">Edit metadata's file
+                                    </div>
                                 </div>
                                 <div id ="step3" class="col-md-4 mt-step-col last">
                                     <div class="mt-step-number bg-white">3</div>
-                                    <div class="mt-step-title uppercase font-grey-cascade">Summary</div>
+                                    <div class="mt-step-title uppercase 
+                                        font-grey-cascade">Summary
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -84,12 +89,10 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
 			    </div>
 
                 <!-- BEGIN LIST OF ALL FILES -->
-
                 <div class="row">
                     <div class="col-md-12">
                         <div class="portlet light portlet-fit bordered">
                             <div class="portlet-body">
-                         
 				                <h3 style="font-weight: bold; color: #666;">List of files</h3>
 
                                 <div data-always-visible="1" data-rail-visible="0">
@@ -125,13 +128,9 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                                                     </div>
                                                 </div>
                                             </div>
-                                            
-
                                         <?php }}?>
-
                                         </li>
                                     </ul>
-                                   
                                 </div>
 			                </div>
                         </div>
@@ -151,7 +150,8 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                                 <div id ="formMetadata">
                                     <div id ="editor_holder"></div>
                                     <br>
-                                    <button id="sendForm" class="btn btn-primary" disabled>Send</button><span id='valid_indicator'></span>
+                                    <button id="sendForm" class="btn btn-primary" 
+                                        disabled>Send</button><span id='valid_indicator'></span>
                                     <br>
                                     <p class="errorClass" id="idP" style="display:none;"></p>
                                     
@@ -160,8 +160,13 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                                 <!-- Show errors from frontend-->
                                 <div id = "finalBanner" style="display:none;">
                                     <div id="myError"></div>
-                                    <button class="btn btn-primary" onclick="location.href='oeb_publish/oeb/oeb_newReq.php'">New request</button>
-                                    <button id ="viewRequests" class="btn btn-primary float-right">View your requests</button>
+                                    <button class="btn btn-primary" 
+                                        onclick="location.href='oeb_publish/oeb/oeb_newReq.php'">
+                                        New request
+                                    </button>
+                                    <button id ="viewRequests" class="btn btn-primary float-right">
+                                        View your requests
+                                    </button>
                                 </div>
                 	            
                             
@@ -176,7 +181,9 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                         <!-- Modal content-->
                         <div class="modal-content">
                             <div class="modal-header">
-                                <button type="button" onclick="closeModal()" class="close" data-dismiss="modal" aria-hidden="true"></button>
+                                <button type="button" onclick="closeModal()" 
+                                    class="close" data-dismiss="modal" aria-hidden="true">
+                                </button>
                                 <h3 class="modal-title">
                                     <span>
                                         <i class="fa fa-list"></i>
@@ -184,47 +191,57 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                                     <b>Summary </b>
                                 </h3>
                             </div>
-                            <div style="margin: 15px ;"><h4>Are you sure you want to request to publish the following data?</h4></div>
-                                <div class="modal-body table-responsive">
-                                    <h4 class="text-info" style="font-weight:bold;" >Datasets: </h4>
-                                    <div class="portlet-body">
-                		                <div class="" data-always-visible="1" data-rail-visible="0">
-                                		    <ul class="feeds" id="list-files-run-tools">
-                                                <li>
-                                                    <div class="col1">
-                                                        <div class="cont">
-                                                            <div class="cont-col1">
-                                                                <div class="label label-sm label-info">
-                                                                    <i class="fa fa-file"></i>
-                                                                </div>
+                            <div style="margin: 15px ;">
+                                <h4>Are you sure you want 
+                                    to request to publish the following data?
+                                </h4>
+                            </div>
+                            <div class="modal-body table-responsive">
+                                <h4 class="text-info" style="font-weight:bold;">Datasets: </h4>
+                                <div class="portlet-body">
+                                    <div class="" data-always-visible="1" data-rail-visible="0">
+                                        <ul class="feeds" id="list-files-run-tools">
+                                            <li>
+                                                <div class="col1">
+                                                    <div class="cont">
+                                                        <div class="cont-col1">
+                                                            <div class="label label-sm label-info">
+                                                                <i class="fa fa-file"></i>
                                                             </div>
-                                                            <div class="cont-col2">
-                                                                <div class="desc">
-                                                                    <span class="text-info" style="font-weight:bold;"><?php echo $filedir?>  /</span><?php echo $filename?>
-                                                                </div>
+                                                        </div>
+                                                        <div class="cont-col2">
+                                                            <div class="desc">
+                                                                <span class="text-info" 
+                                                                    style="font-weight:bold;"><?php echo $filedir?>  /
+                                                                </span>
+                                                                <?php echo $filename?>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </li>
-                                            </ul>
-                                        </div>
+                                                </div>
+                                            </li>
+                                        </ul>
                                     </div>
-                                    <br/>
-                                    <h4 class="text-info" style="font-weight:bold;" >Metadata: </h4>
-                                    <div style="max-height:400px;" id ="summaryContent"></div>
                                 </div>
-                                <div class="modal-footer">
-                                    <button type="button" id="submitModal" class="btn btn-primary">Submit</button>
-                                    <button type="button" id="closeModal" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                                </div>
+                                <br/>
+                                <h4 class="text-info" style="font-weight:bold;" >Metadata: </h4>
+                                <div style="max-height:400px;" id ="summaryContent"></div>
                             </div>
-                        </div> 
-                    </div>          
-                </div>
-
+                            <div class="modal-footer">
+                                <button type="button" id="submitModal" 
+                                    class="btn btn-primary">Submit
+                                </button>
+                                <button type="button" id="closeModal" 
+                                    class="btn btn-default" data-dismiss="modal">Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div> 
+                </div>          
             </div>
-        </div> 
-    </div>
+        </div>
+    </div> 
+
             
 
 <!-- Footer-->

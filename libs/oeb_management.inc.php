@@ -87,6 +87,63 @@ function getCommunity() {
 	return $communities;
 }
 
+function saveCommunity($idCommunity, $idBlock) {
+	
+	$response_json = new JsonResponse();
+
+	try  {
+		$blocksCol = $GLOBALS['blocksCol'];
+		$blockFound = $blocksCol->find(array("communities"=>$idCommunity, "_id"=>$idBlock))->toArray();
+
+		if ($blockFound == array()) {
+			$blocksCol->updateOne(['_id' => $idBlock], [ '$push' => [ 'communities' => $idCommunity]]);
+
+			$response_json->setCode(200);
+			$response_json->setMessage("Community added successfully");
+		} else {
+			$response_json->setCode(500);
+			$response_json->setMessage("This community is already available for this block. Mongo Error.");
+		}
+
+		return $response_json->getResponse();
+
+	} catch (MongoCursorException $e) {
+
+		$response_json->setCode(500);
+		$response_json->setMessage("Internal error, try again. Mongo Error(".$e->getCode()."): ".$e->getMessage());
+
+		return $response_json->getResponse();
+	}
+	
+}
+
+function removeCommunity($idCommunity, $idBlock) {
+
+	$response_json = new JsonResponse();
+
+	try  {
+		$blocksCol = $GLOBALS['blocksCol'];
+		$blockFound = $blocksCol->find(array("communities"=>$idCommunity, "_id"=>$idBlock))->toArray();
+
+		if ($blockFound != array()) {
+			$blocksCol->updateOne(['_id' => $idBlock], [ '$pull' => [ 'communities' => $idCommunity]]);
+
+			$response_json->setCode(200);
+			$response_json->setMessage("Community removed successfully");
+		} else {
+			$response_json->setCode(500);
+			$response_json->setMessage("This community it does not available for this block, so you cannot remove it");
+		}
+
+		return $response_json->getResponse();
+	} catch (MongoCursorException $e) {
+
+		$response_json->setCode(500);
+		$response_json->setMessage("Internal error, try again. Mongo Error(".$e->getCode()."): ".$e->getMessage());
+		return $response_json->getResponse();
+	}
+}
+
 //get all the workflows that the user has to see (LIST WORKFLOWS)
 function getWorkflows() {
 	//initiallize variables
@@ -338,6 +395,8 @@ function setBlock($blockStringForm, $typeBlock, $id_block, $buttonAction) {
 	//get errors (or not) workflow git - the four step
 	$validationGit = _validationGit($gitURL, $gitTag, $privateToken, $folderName);
 	
+	exit;
+
 	//errors nextflow files
 	if ($validationGit != "under_validation" && $validationGit != "registered" && $validationGit != "rejected"){
 		$response_json->setCode(422);
@@ -472,12 +531,11 @@ function _cloneGit($gitURL, $gitTag) {
 }
 
 function _validateNextflow($gitURL, $privateToken) {
-
 	$gitlabPath = str_replace($GLOBALS['gitlab_server'], "", $gitURL);
 	$gitlabPath = str_replace(".git", "", $gitlabPath);
 
 	$cmd = 'curl --header "PRIVATE-TOKEN: ' . $privateToken . '" "'. $GLOBALS['gitlab_server'] .'api/v4/projects?search=' . $gitlabPath . '"';
-	
+
 	$output = shell_exec($cmd);
 
 	$reposSelected = json_decode($output, true);
@@ -485,6 +543,8 @@ function _validateNextflow($gitURL, $privateToken) {
 	$repoFound = false;
 
 	foreach ($reposSelected as $repo) {
+		
+
 		if ($repo["path_with_namespace"] == $gitlabPath) {
 			$repoFound = true;
 			$repoId = $repo["id"];
@@ -1204,12 +1264,13 @@ function setWorkflow($json, $validation, $metrics, $consolidation) {
 	// take as references setBlock()
 	/*
 	$validator = _validateObject("block.json", $data, $GLOBALS['oeb_block_validator']);
-        if($validator[0] != 200) {
-                $response_json->setCode($validator[0]);
-                $response_json->setMessage($validator[1]);
+	
+	if($validator[0] != 200) {
+			$response_json->setCode($validator[0]);
+			$response_json->setMessage($validator[1]);
 
-                return $response_json->getResponse();
-        } */ 
+			return $response_json->getResponse();
+	} */ 
 
 
 	//Compose WF data from 3 blocks + form data
@@ -1239,7 +1300,7 @@ function setWorkflow($json, $validation, $metrics, $consolidation) {
 	}
 
 	//send the email and check it
-/* 	if(_reportMailNewTool($data['_id'])) {
+/*  	if(_reportMailNewTool($data['_id'])) {
 		$response_json->setCode(200);
 		$response_json->setMessage("OK");
 	
@@ -1250,7 +1311,7 @@ function setWorkflow($json, $validation, $metrics, $consolidation) {
 		$response_json->setMessage("Error sending an email to the administrator");
 	
 		return $response_json->getResponse();
-	} */	
+	} */
 
 	$response_json->setCode(200);
 	$response_json->setMessage("OK");
@@ -1269,7 +1330,7 @@ function _reportMailNewTool($idWF) {
 		User name: '.$_SESSION["User"]["Name"].' '.$_SESSION["User"]["Surname"].'<br>
 		User email: '.$_SESSION["User"]["Email"].'<br>
 		Request type: '.$subject.'<br>
-		Request subject: Creation of new tool <strong>'.$idWF.'</strong><br>
+		Request subject: Creation of new workflow <strong>'.$idWF.'</strong><br>
 		Comments: '.$_REQUEST['comments'];
 	
 	$messageUser = '
@@ -1278,7 +1339,7 @@ function _reportMailNewTool($idWF) {
 		User name: '.$_SESSION["User"]["Name"].' '.$_SESSION["User"]["Surname"].'<br>
 		User email: '.$_SESSION["User"]["Email"].'<br>
 		Request type: '.$subject.'<br>
-		Request subject: Creation of new tool <strong>'.$idWF.'</strong><br>
+		Request subject: Creation of new workflow <strong>'.$idWF.'</strong><br>
 		Comments: '.$_REQUEST['comments'].'<br><br>
 		VRE Technical Team';
 	

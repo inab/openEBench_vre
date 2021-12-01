@@ -98,7 +98,7 @@ switch ($_REQUEST['account']) {
 						redirect($_SERVER['HTTP_REFERER']);
 					}
 				} else {
-					$_SESSION['errorData']['Error'][]= "Email does not exist in eudat ".$GLOBALS['b2share_host'];
+					$_SESSION['errorData']['Error'][]= "Email does not exist in EUDAT ".$GLOBALS['b2share_host'].". Please, register.";
 					redirect($_SERVER['HTTP_REFERER']);
 				}
 
@@ -130,7 +130,7 @@ switch ($_REQUEST['account']) {
 					redirect($_SERVER['HTTP_REFERER']);
 				}
 
-				$_SESSION['errorData']['Info'][]="Account successfully linked";
+				$_SESSION['errorData']['Info'][]="Account successfully linked. You have been added to <a href='".$GLOBALS['b2share_host']."/communities/OpenEBench' target='_blank'>OpenEBench community</a> in EUDAT.";
 				redirect($GLOBALS['BASEURL']."user/usrProfile.php#tab_1_4");
 				break;
 

@@ -113,7 +113,7 @@ require "../../htmlib/js.inc.php";
                                 $proj_name_active   = basename(getAttr_fromGSFileId($_SESSION['User']['dataDir'], "path"));
                                 $file_filter = array(
                                     "tool"       => getSelectedTool($toolsList, $_REQUEST["tool"]),
-                                    "data_type" => "tool_statistics",
+                                    "data_type" => "workflow_stats",
                                     "project"   => $proj_name_active
                                 );
                                 $filteredFiles = getGSFiles_filteredBy($file_filter);

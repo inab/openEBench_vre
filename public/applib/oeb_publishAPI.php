@@ -8,7 +8,7 @@ redirectOutside();
 if($_REQUEST) {
 	//https://dev-openebench.bsc.es/vre/applib/oeb_publishAPI.php?action=getAllFiles&type=
 	if(isset($_REQUEST['action']) && $_REQUEST['action'] == "getAllFiles" && isset($_REQUEST['type'])) {
-		echo(getPublishableFiles($_REQUEST['type']));
+		echo getPublishableFiles(json_decode($_REQUEST['type']));
 		exit;
 
 	//https://dev-openebench.bsc.es/vre/applib/oeb_publishAPI.php?action=getUserInfo
@@ -57,12 +57,14 @@ if($_REQUEST) {
 		$filters = array ('requester' => $_SESSION['User']['id']);
 		echo submitedRegisters($filters);
 		exit;
-	//https://dev-openebench.bsc.es/vre/applib/oeb_publishAPI.php?action=proceedReq&actionReq=deny&reqId=id
+	//https://dev-openebench.bsc.es/vre/applib/oeb_publishAPI.php?action=proceedReq&actionReq=deny&reqId=id&reason=blabla
 	}elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == "proceedReq") {
 		if (isset($_REQUEST['actionReq']) && isset($_REQUEST['reqId'])) {
-			echo actionRequest($_REQUEST['reqId'], $_REQUEST['actionReq']);
-			exit;
+			if(isset($_REQUEST['reason'])) {
+				echo actionRequest($_REQUEST['reqId'], $_REQUEST['actionReq'], $_REQUEST['reason']);
+			} else echo actionRequest($_REQUEST['reqId'], $_REQUEST['actionReq']);
 		}
+		exit;
 	//https://dev-openebench.bsc.es/vre/applib/oeb_publishAPI.php?action=listOfBE&community_id=id
 	}elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == "listOfBE") {
 		if (isset($_REQUEST['community_id'])) {
@@ -93,15 +95,14 @@ if($_REQUEST) {
 		}
 	//https://dev-openebench.bsc.es/vre/applib/oeb_publishAPI.php?action=getApprovalRequest
 	}elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == "getApprovalRequest") {
-		if (getContactsIds($_SESSION['User']['Email'])){
-			$filters = array ('approvers' => array('$in' => array(getContactsIds($_SESSION['User']['Email']))));
+			$filters = array ('approvers' => array('$in' => array($_SESSION['User']['Email'])));
 			echo submitedRegisters($filters);
 			exit;
-		}else echo '{}';exit;
+	
 	//https://dev-openebench.bsc.es/vre/applib/oeb_publishAPI.php?action=getLog&reqId=id
 	}elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == "getLog") {
 		if (isset($_REQUEST['reqId'])) {
-			echo json_encode(getPubRegister_fromId($_REQUEST['reqId'])['history_actions']);
+			echo json_encode(OEBDataPetition::selectAllOEBPetitions(array("_id" => $_REQUEST['reqId']))[0]['history_actions']);
 			exit;
 		}
 	}

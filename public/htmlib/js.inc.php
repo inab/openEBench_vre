@@ -237,6 +237,7 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 			<script src="assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
 		<?php } ?>
 	<?php break;
+	case 'viewResults':
 	case 'output': ?>
 		<?php if (dirname($_SERVER['PHP_SELF']) == '/tools/tool_skeleton') {
 			I ?>
@@ -250,6 +251,8 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 		<?php } elseif (dirname($_SERVER['PHP_SELF']) == '/tools/QFO_6') { ?>
 			<script src="tools/QFO_6/assets/js/output.js?v=<?php echo rand(); ?>" type="text/javascript"></script>
 		<?php } elseif (dirname($_SERVER['PHP_SELF']) == '/tools/TCGA_CD') { ?>
+			<script src="tools/TCGA_CD/assets/js/output.js?v=<?php echo rand(); ?>" type="text/javascript"></script>
+		<?php } else { ?>
 			<script src="tools/TCGA_CD/assets/js/output.js?v=<?php echo rand(); ?>" type="text/javascript"></script>
 		<?php }
 		break;
@@ -519,6 +522,7 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 	case 'references':
 	case 'tools':
 	case 'visualizers':
+	case 'viewResults':
 	case 'sampleDataList':
 	case 'form':
 	case 'logs': ?>
@@ -560,6 +564,8 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 	case 'tutorials':
 	case 'references':
 	case 'tools':
+	case 'usrProfile':
+	case 'logs':
 	case 'visualizers': ?>
 		<script src="assets/pages/scripts/cookie.js?v=<?php echo rand(); ?>" type="text/javascript"></script>
 		<?php break;

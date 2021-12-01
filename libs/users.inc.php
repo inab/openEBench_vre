@@ -672,7 +672,7 @@ function checkValidEudatEmail ($email, $server, $eudat_credentials) {
  * @param roleCode - code of the role in which user will be added
  * @return true if correctly add, false otherwise
  */
-function addUserToCommunityMember ($userId, $server, $eudat_credentials, $roleCode = 50) {
+function addUserToCommunityMember ($userId, $server, $eudat_credentials, $roleCode = 42) {
     $added = false;
     //get token
     $adminEudatToken = $eudat_credentials[$server];
