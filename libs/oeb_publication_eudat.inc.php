@@ -21,7 +21,7 @@ function oeb_publish_file_eudat($fn, $metadata, $userEudatToken){
         if (!is_dir($wd)){
             mkdir($wd);
     }
-    $random_id = "test"; //TO random num
+    $random_id = strval(round(microtime(true) * 1000));
     $r = file_put_contents($wd."/".$random_id.".json", $metadata);
 
     if (!$r) {
@@ -46,9 +46,9 @@ function oeb_publish_file_eudat($fn, $metadata, $userEudatToken){
         $response_json->setMessage("<b>ERROR</b> pushing datasets to B2SHARE.".$retvalue['stderr']);
         return $response_json->getResponse();    
     }
-    $doi = explode("DOI:",$retvalue['stdout'])[1];
+    $doi = explode("DOI: ",$retvalue['stdout'])[1];
     //register doi to VRE
-    if (!registerDOIToVRE($fn, "00.0000/b2share.".$doi)){
+    if (!registerDOIToVRE($fn, $doi)){
         $response_json->setCode(400);
         $response_json->setMessage("Error register DOI "+doi+" to VRE database");
         return $response_json->getResponse();    
@@ -58,7 +58,7 @@ function oeb_publish_file_eudat($fn, $metadata, $userEudatToken){
     //get oeb dataset id
     $oeb_id = getAttr_fromGSFileId($fn, "oeb_id");
    
-    if (!registerDOIToOEB("00.0000/b2share.".$doi, $oeb_id)){
+    if (!registerDOIToOEB($doi, $oeb_id)){
         $response_json->setCode(400);
         $response_json->setMessage("Error register DOI "+doi+" to OpenEBench database");
         return $response_json->getResponse();    

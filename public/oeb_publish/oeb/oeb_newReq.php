@@ -27,9 +27,7 @@ foreach ($outputExe_files as $key => $value) {
         }
     }
 }
-//var_dump(getAllContactsOfCommunity("OEBC002"))
-//var_dump(getUserEmailFromORCID("orcid:0000-0002-6797-8746"));
-//var_dump(getOEBRoles("OEBE0010000000")['manager']);
+
 ?>
 
 <body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white 
@@ -148,11 +146,7 @@ foreach ($outputExe_files as $key => $value) {
                         </div>
                         <!--only communities you are allowed to submit will be apperar-->
                         <div class="portlet-body">
-                            <?php 
-                            foreach ($communityList as $cl) { ?>
-                                <?php if ($_REQUEST["community"] == $cl) 
-                                    echo 'selected'; ?><?php echo getCommunities($cl, "name"); ?>
-                            <?php } ?>
+                            
                             <div class="input-group" style="margin-bottom:20px;">
                                 <span class="input-group-addon" style="background:#5e738b;">
                                     <i class="fa fa-users font-white"></i>

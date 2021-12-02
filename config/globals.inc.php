@@ -17,6 +17,7 @@ $GLOBALS['TIMEOUT']   = 3600; // session and cookies timeout
 $GLOBALS['mail_credentials'] = __DIR__."/mail.conf"; // SMTP credentials
 $GLOBALS['FROMNAME']  = "OpenEBench VRE Dev"; // 'From' for VRE tickets and notifications
 $GLOBALS['ADMINMAIL'] = "openebench@bsc.es"; // BBC address for VRE ticket emails
+$GLOBALS['MAIL_SUPPORT_OEB'] = "openebench-support@bsc.es";
 
 //OEB-API
 $GLOBALS['OEBapi_credentials'] = __DIR__."/oeb_api.conf"; 
@@ -337,11 +338,12 @@ $GLOBALS['oeb_script_validator'] = "oeb_validatorScript.sh";
 //schema from EUDAT
 //B2share submission 
 $GLOBALS['B2SHARE_submission_repository'] = "/home/user/b2share";
-$GLOBALS['b2share_host']="https://b2share.eudat.eu/";  // URL of EUDAT B2SHARE server
+$GLOBALS['b2share_host']="https://trng-b2share.eudat.eu/";  // URL of EUDAT B2SHARE server
 #$GLOBALS['eudat_pusher']=""; // Root directory of the pusher local installation
 $GLOBALS['oeb_eudat_schema'] = "https://raw.githubusercontent.com/inab/benchmarking-data-model/master/eudat-b2share-schemas/eudat%2BOEBSchema.json";
 $GLOBALS['eudat_admin_token'] =  __DIR__."/eudat_token.conf";
 $GLOBALS['eudat_community_id'] = "f60ff069-c8fa-4b48-8442-903bffa3acb1";
+$GLOBALS['eudat_community_schema_id'] = "176df0a6-8c8e-424d-a5c1-34b1d84a580c";
 
 //schema from oeb (submission)
 #$GLOBALS['oeb_submission_pusher']=""; // Root directory of the pusher local installation

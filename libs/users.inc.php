@@ -669,10 +669,10 @@ function checkValidEudatEmail ($email, $server, $eudat_credentials) {
  * @param userId - user id of the user to add (from eudat)
  * @param server - server/environment to add user
  * @param eudat_credentials - admin's tokens in EUDAT
- * @param roleCode - code of the role in which user will be added
+ * @param roleCode - code of the role in which user will be added (42, prod, 50 trng)
  * @return true if correctly add, false otherwise
  */
-function addUserToCommunityMember ($userId, $server, $eudat_credentials, $roleCode = 42) {
+function addUserToCommunityMember ($userId, $server, $eudat_credentials, $roleCode = 50) {
     $added = false;
     //get token
     $adminEudatToken = $eudat_credentials[$server];
@@ -682,7 +682,8 @@ function addUserToCommunityMember ($userId, $server, $eudat_credentials, $roleCo
     $r = put("", $url, $headers);
 
     if ($r[1]['http_code'] != 200){
-        $_SESSION['errorData']['Warning'][]="Error adding user to community member. Http code= ".$status;
+        $_SESSION['errorData']['Warning'][]="Error adding user to community member. 
+            Http code= ".$status;
         return $added;
     } else {
         $added = true;

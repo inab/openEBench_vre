@@ -47,7 +47,8 @@ function getPublishableFiles(array $datatype) {
 	// Find user files with the given allowed datatype/s
 
 	//get path of the user workspace
-	$proj_name_active   = basename(getAttr_fromGSFileId($_SESSION['User']['dataDir'], "path"));
+	$proj_name_active = basename(getAttr_fromGSFileId($_SESSION['User']['dataDir'], 
+                                                                        "path"));
 
 	// get list of user files with the allowed datatypes
 	if (is_array($datatype)){
@@ -412,16 +413,6 @@ function proceedRequest_register_NC($fileId, $metaForm, $type) {
     foreach ($orcids as $value) {
             array_push($approversEmails, getUserEmailFromORCID($value)['email'][0]);
     }
-    /*
-	//gets associative array with key: contact_id and value: email
-	$approversContacts = getContactEmail (getCommunities($community, "community_contact_ids"));
-	$approversContactsIds = array();
-	foreach ($approversContacts as $key => $value) {
-		array_push($approversContactsIds, $key);
-	}
-        //TODO: delete for prod:
-        array_push($approversContactsIds,"Meritxell.Ferret");
-*/
 
 	//3. CREATE petition object
     //create new obj petition
@@ -485,31 +476,50 @@ function proceedRequest_register_NC($fileId, $metaForm, $type) {
             $newRequest->setVisualitzationUrl($url_tar."/download");
 
             //6.Notify approvers
-            $user = UsersDAO::selectUsers(array('Email' => $approversEmails[0]))[0]['id'];
-            if (!is_null($user)) {
-                $n = new Notification($user, 'OEB data publication: New request \
-                pending approval: </br><b>'.$req_id."</b>", "oeb_publish/oeb/oeb_manageReq.php#".$req_id);
+            $notified = 0;
+            foreach ($approversEmails as $value) {
+                //notification
+                $user = UsersDAO::selectUsers(array('Email' => $value))[0]['id'];
+                if (!is_null($user)) {
+                    $n = new Notification($user, 'OEB data publication: New request \
+                    pending approval: </br><b>'.$req_id."</b>", 
+                    "oeb_publish/oeb/oeb_manageReq.php#".$req_id);
+                }
+                $n->saveNotification();
+
+                //email
+                $params = array();
+                $params['approver'] = $value;
+                $params['requester'] = $_SESSION['User']['Name'];
+                $params['reqId'] = $req_id;
+                $params['BE_name'] = getBenchmarkingEvents($benchmarkingEvent_id,"name");
+                if (sendRequestToApprover($params)){
+                    $notified += 1;  
+                } 
             }
-            
-            $n->saveNotification();
-            
-            $params = array();
-            $params['approver'] = $approversEmails[0];
-            $params['requester'] = $_SESSION['User']['Name'];
-            $params['reqId'] = $req_id;
-            $params['BE_name'] = getBenchmarkingEvents($benchmarkingEvent_id,"name");
-            if (!sendRequestToApprover($params)){
+            if ($notified == count($approversEmails)){
+                array_push($log, "All approvers successfully notified.");
+                $response_json->setCode(200);
+                $response_json->setMessage($log);
+
+            } else if ($notified == 0){
                 array_push($log, "Error sending email to approvers.");
                 $newRequest->setCurrentStatus("error");
         
                 // return error msg via BlockResponse
                 $response_json->setCode(400);
                 $response_json->setMessage($log);
-                    
-            } else {
+
+            }else {
                 array_push($log, "Approvers successfully notified.");
                 $response_json->setCode(200);
                 $response_json->setMessage($log);
+            }
+            $user = UsersDAO::selectUsers(array('Email' => $approversEmails[0]))[0]['id'];
+            if (!is_null($user)) {
+                $n = new Notification($user, 'OEB data publication: New request \
+                pending approval: </br><b>'.$req_id."</b>", 
+                "oeb_publish/oeb/oeb_manageReq.php#".$req_id);
             }
 
         } catch (MongoCursorException $e) {

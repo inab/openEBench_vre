@@ -366,7 +366,9 @@ $('#confirm-form').on('submit', function (e) {
         $("#myError").removeClass("alert alert-info");
 		$("#myError").addClass("alert alert-danger");
 		$("#myError").append(data["responseJSON"]["message"]);
-        $("#myError").append("</br>Please, try it later or report this message <a href='mailto:openebench-support@bsc.es'>openebench-support@bsc.es</a>. Check full report below, at your request's table.");
+        $("#myError").append("</br>Please, try it later or report this message \
+            <a href='mailto:"+mail_support_oeb+"'>"+mail_support_oeb+"</a>. \
+            Check full report below, at your request's table.");
 		$("#myError").show();
     });
 

@@ -78,7 +78,8 @@ function createSelectableTable(){
                 $("#availableFiles").show()
                 $(row).hide();
             }
-            if(data['current_status'] == 'pending approval' || data['current_status'] == 'published'){
+            if(data['current_status'] == 'pending approval' || 
+                data['current_status'] == 'published'){
                 $("#availableFiles").show()
                 $(row).css('color', 'silver');
             }
@@ -119,19 +120,22 @@ function createSelectableTable(){
                 'searchable': false,
                 'orderable': false,
                 render: function ( data, type, row ) {
-                    if(row['current_status'] == 'pending approval' || row['current_status'] == 'published'){
-                        res = '</br><input disabled type="radio" name = "'+data+'" value="'+row.files['consolidated']['id']+'">'
+                    if(row['current_status'] == 'pending approval' || 
+                        row['current_status'] == 'published'){
+                        res = '</br><input disabled type="radio" \
+                            name = "'+data+'" value="'+row.files['consolidated']['id']+'">'
                        
                     } else {
-                        res = '</br><input  type="radio" name = "'+data+'" value="'+row.files['consolidated']['id']+'">'
+                        res = '</br><input  type="radio" name = "'+
+                            data+'" value="'+row.files['consolidated']['id']+'">'
                     }
-                    
                     return res;
                 }
             },
             {
                 "targets": 1,
-                "title": '<th>Execution files <i class="icon-question" data-toggle="tooltip" data-placement="top" title="Files in execution folder"></i></th>',
+                "title": '<th>Execution files <i class="icon-question" data-toggle="tooltip" \
+                    data-placement="top" title="Files in execution folder"></i></th>',
                 render:function ( data, type, row ) {
                     if(row['current_status'] == 'pending approval' || row['current_status'] == 'published'){
                         r = "<div><b>"+row['path'].split("/").reverse()[1]+"/</b><a data-html='true' data-toggle='popover' data-placement='top' data-trigger='click' \
@@ -147,7 +151,8 @@ function createSelectableTable(){
             {
                 "targets": 2,
                 className: "hide_column",
-                "title": '<th>Execution workflow <i class="icon-question" data-toggle="tooltip" data-placement="top" title="Execution and file name"></i></th>',
+                "title": '<th>Execution workflow <i class="icon-question" data-toggle="tooltip" \
+                    data-placement="top" title="Execution and file name"></i></th>',
                 render: function ( data, type, row ) {
                     
                     if(row['current_status'] == 'pending approval'){
@@ -159,7 +164,8 @@ function createSelectableTable(){
             
             {
                 "targets": 3,
-                "title": '<th>Benchmarking Event <i class="icon-question" data-toggle="tooltip" data-placement="top" title="OpenEBench benchmarking event in which the dataset was used or the metrics produced"></i></th>',
+                "title": '<th>Benchmarking Event <i class="icon-question" data-toggle="tooltip" \
+                    data-placement="top" title="OpenEBench benchmarking event in which the dataset was used or the metrics produced"></i></th>',
                 render:function ( data, type, row ) {
                     return '<p id ="'+data['be_id']+'">'+data['be_name']+'</p><input id="'+data['workflow_id']+'" type="hidden">';
                 }
@@ -167,7 +173,8 @@ function createSelectableTable(){
             },
             {
                 "targets": 4,
-                "title": '<th>Benchmarking Challenges <i class="icon-question" data-toggle="tooltip" data-placement="top" title="OpenEBench benchmarking challenges evaluated in the execution"></i></th>',
+                "title": '<th>Benchmarking Challenges <i class="icon-question" data-toggle="tooltip" \
+                    data-placement="top" title="OpenEBench benchmarking challenges evaluated in the execution"></i></th>',
                 render: function ( data, type, row, meta ) {
                     if (data != undefined && data.length != 0){
                         
@@ -178,8 +185,10 @@ function createSelectableTable(){
                        }
                        listChallenges += '</ul>';
                        if (data.length >3 ){
-                        listChallenges += '<div id ="plusShow" style="text-align: center;"><span>...</span><i class="fa fa-plus" style="color: green;float: right;" onclick="showChallenges('+meta.row+')"></i></div>';
-                        listChallenges += '<div id ="minusShow" style="display:none"><i class="fa fa-minus" style="color: red;float: right;" onclick="hideChallenges('+meta.row+')"></i></div>';
+                        listChallenges += '<div id ="plusShow" style="text-align: center;"><span>...</span>\
+                            <i class="fa fa-plus" style="color: green;float: right;" onclick="showChallenges('+meta.row+')"></i></div>';
+                        listChallenges += '<div id ="minusShow" style="display:none"><i class="fa fa-minus" \
+                            style="color: red;float: right;" onclick="hideChallenges('+meta.row+')"></i></div>';
                        }
                        
                        return listChallenges;
@@ -190,17 +199,17 @@ function createSelectableTable(){
             },
             {
                 "targets": 5,
-                "title": '<th>Date <i class="icon-question" data-toggle="tooltip" data-placement="top" title="Execution date"></i></th>',
+                "title": '<th>Date <i class="icon-question" data-toggle="tooltip" \
+                    data-placement="top" title="Execution date"></i></th>',
                 render: function ( data, type, row ) {
                     return convertTimestamp(data['$date']['$numberLong']);
-                        //return data['sec'].toLocalTime();
-                    
                 }
             },
             {
                 "targets": 6,
                 className: "hide_column",
-                "title": '<th>Status petition  <i class="icon-question" data-toggle="tooltip" data-placement="top" title=""></i></th>',
+                "title": '<th>Status petition  <i class="icon-question" data-toggle="tooltip" \
+                    data-placement="top" title=""></i></th>',
                 render: function ( data, type, row ) {
                     if (!data) {
                         return "not submited"
@@ -212,7 +221,8 @@ function createSelectableTable(){
             },
             {
                 "targets":7,
-                "title": '<th>Event status  <i class="icon-question" data-toggle="tooltip" data-placement="top" title="Benchmarking event status, if it is still open to submit datasets or not"></i></th>',
+                "title": '<th>Event status  <i class="icon-question" data-toggle="tooltip" \
+                    data-placement="top" title="Benchmarking event status, if it is still open to submit datasets or not"></i></th>',
                 render: function ( data, type, row ) {
                         return "Open"
                     //TODO (for now, events date are irrellevant)
@@ -220,7 +230,8 @@ function createSelectableTable(){
             },
             {
                 "targets": 8,
-                "title": '<th>Published on OEB <i class="icon-question" data-toggle="tooltip" data-placement="top" title="If datasets are already published in OpenEBench"></i></th>',
+                "title": '<th>Published on OEB <i class="icon-question" data-toggle="tooltip" \
+                    data-placement="top" title="If datasets are already published in OpenEBench"></i></th>',
                 render: function ( data, type, row ) {
                     if (data) return data ;
                     else return false;

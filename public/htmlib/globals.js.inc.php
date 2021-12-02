@@ -126,6 +126,8 @@ foreach($GLOBALS as $k => $v) {
 		echo "\n";
 	}
 }
+echo 'var server = "'.$GLOBALS['SERVER'].'";';
+echo 'var mail_support_oeb = "'.$GLOBALS['MAIL_SUPPORT_OEB'].'";';
 
 /*******************************************/
 /*          LOADING NOTIFICATIONS VARIABLES          */
@@ -137,9 +139,11 @@ foreach($GLOBALS as $k => $v) {
 		echo "\n";
 	}
 }
-
-echo 'var server = "'.$GLOBALS['SERVER'].'";';
+/*******************************************/
+/*          LOADING B2SHARE VARIABLES          */
+/*******************************************/
 echo 'var b2share_host = "'.$GLOBALS['b2share_host'].'";';
+echo 'var eudat_community_schema_id = "'.$GLOBALS['eudat_community_schema_id'].'";';
 
 
 ?>

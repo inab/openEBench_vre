@@ -1,4 +1,5 @@
 var valid = false;
+const CONTROLLER = 'applib/oeb_publishAPI.php'
 
 $(document).ready(function () {
 	//files
@@ -13,7 +14,7 @@ $(document).ready(function () {
 		var fileinfo = JSON.parse(data);
 		$.ajax({
 			type: 'POST',
-			url: "applib/oeb_publishAPI.php?action=getOEBdata",
+			url: CONTROLLER + "?action=getOEBdata",
 			data: { "benchmarkingEvent": filesObj["benchmarkingEvent_id"] }
 
 		}).done(function (data) {
@@ -30,7 +31,8 @@ $(document).ready(function () {
 					ajax: true,
 					schema: schema,
 
-					//do not have collapse, edit and properties options in the editor (are specific things of the web-based tool - JSONEditor)
+					//do not have collapse, edit and properties options in the 
+					//editor (are specific things of the web-based tool - JSONEditor)
 					disable_collapse: true,
 					disable_edit_json: true,
 					disable_properties: true,
@@ -43,7 +45,7 @@ $(document).ready(function () {
 						// Setup API calls
 						//1. Tools list
 						"search_za": function search(jseditor_editor, input) {
-							var url = 'applib/oeb_publishAPI.php?action=getTools';
+							var url = CONTROLLER + '?action=getTools';
 
 							return new Promise(function (resolve) {
 								if (input.length < 1) {
@@ -81,7 +83,7 @@ $(document).ready(function () {
 
 						//2. Contacts list
 						"search_zza": function search(contacts_editor, input) {
-							var url = 'applib/oeb_publishAPI.php?action=getContacts&community_id=' + OEBinfo['community_id'];
+							var url = CONTROLLER + '?action=getContacts&community_id=' + OEBinfo['community_id'];
 
 							return new Promise(function (resolve) {
 								if (input.length < 1) {
@@ -131,8 +133,9 @@ $(document).ready(function () {
 				editor.getEditor("root.workflow_oeb_id").setValue(filesObj['tool']);
 				editor.getEditor("root.data_version").setValue("1");
 
-				$(".form-text:eq(5)" ).append(". <b>If your tool does not appear in list, contact with: </b><a href=\"mailto:openebench-support@bsc.es\">openebench-support@bsc.es</a>.");
-				//$("h3").next("p").append(". <b>If your contact id does not appear in list, contact with: </b><a href=\"mailto:openebench-support@bsc.es\">openebench-support@bsc.es</a>.");
+				$(".form-text:eq(5)" ).append(". <b>If your tool does not appear in list, contact with: \
+					</b><a href=\"mailto:"+mail_support_oeb+"\">"+mail_support_oeb+"</a>.");
+				
 				//css
 				$('[data-schemapath="root.data_contacts"] h3 label').append('<span style="color:red;"> *</span>')
 				$('label[class="required"]').append('<span style="color:red;"> *</span>')
@@ -178,7 +181,7 @@ $(document).ready(function () {
 		
 				$.ajax({
 					type: 'POST',
-					url: "applib/oeb_publishAPI.php?action=requestPublish",
+					url: CONTROLLER + "?action=requestPublish",
 					data: { "fileId": filesObj["id"], "metadata": formData }
 				}).done(function(data) {
 					//no errors

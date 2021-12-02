@@ -9,7 +9,7 @@ $(document).ready(function () {
 
   }
     //build table
-    var types = ['participant','OEB_data_model'];
+    var types = ['participant'];
     table = $("#filesTable").DataTable({
       ajax: {
         url: CONTROLLER + "?action=getAllFiles",
@@ -95,8 +95,6 @@ $(document).ready(function () {
                 <a href =\"oeb_publish/oeb/oeb_newReq.php\"> Publish to OEB first</a>'\
                 <i class='fa fa-exclamation-triangle' style='color: #F4D03F'></i></a></br>"
           }
-          
-          
         },
       },
       {

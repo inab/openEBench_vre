@@ -148,7 +148,9 @@ function fillContentEmail($template, $params) {
 
 function sendRequestToApprover ($variables){
 	$variables['url_login'] = $GLOBALS['URL_login'];
-	$approver_attr = $GLOBALS['usersCol']->findOne(array('Email' => $variables['approver']));
+	$variables['oeb_doc'] = $GLOBALS['OEB_doc'];
+	$variables['oeb_support'] = $GLOBALS['MAIL_SUPPORT_OEB'];
+	//$approver_attr = $GLOBALS['usersCol']->findOne(array('Email' => $variables['approver']));
 	$subject = $GLOBALS['NAME']." New request for OpenEBench data publication. Action required";
 	$message = fillContentEmail($GLOBALS['htmlib'].'/EmailsTemplates/OEB_requestEmail.php', $variables);
 	

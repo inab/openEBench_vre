@@ -11,14 +11,14 @@ $(document).ready(function() {
 
       //files
       fn = $("#files").val();
-     
 
       //create jsonEditor obj
       editor = new JSONEditor(document.getElementById("editor_holder"),{
         theme: 'bootstrap4',
         schema: schema,
   
-        //do not have collapse, edit and properties options in the editor (are specific things of the web-based tool - JSONEditor)
+        //do not have collapse, edit and properties options in the editor 
+        //(are specific things of the web-based tool - JSONEditor)
         disable_collapse: true,
         disable_edit_json: true,
         disable_properties: true
@@ -50,16 +50,21 @@ $(document).ready(function() {
           
           
           //OEB data
-          editor.getEditor("root.community_specific.176df0a6-8c8e-424d-a5c1-34b1d84a580c.oeb_id").setValue(fileinfo['OEB_dataset_id']);
-          editor.getEditor("root.community_specific.176df0a6-8c8e-424d-a5c1-34b1d84a580c.oeb_community").setValue(userinfo["oeb_community"]);
+          editor.getEditor("root.community_specific." + eudat_community_schema_id +
+            ".oeb_id").setValue(fileinfo['OEB_dataset_id']);
+          editor.getEditor("root.community_specific." + eudat_community_schema_id +
+            ".oeb_community").setValue(userinfo["oeb_community"]);
           
           //data type
           if (fileinfo["data_type"] == "OEB_data_model"){
-            editor.getEditor("root.community_specific.176df0a6-8c8e-424d-a5c1-34b1d84a580c.oeb_type").setValue("participant_assessments");
+            editor.getEditor("root.community_specific." + eudat_community_schema_id +
+            ".oeb_type").setValue("participant_assessments");
           } else if (fileinfo["data_type"] == "participant"){
-            editor.getEditor("root.community_specific.176df0a6-8c8e-424d-a5c1-34b1d84a580c.oeb_type").setValue("participant");
+            editor.getEditor("root.community_specific." + eudat_community_schema_id +
+            ".oeb_type").setValue("participant");
           }
-          editor.getEditor("root.community_specific.176df0a6-8c8e-424d-a5c1-34b1d84a580c.oeb_dataset_version").setValue("1.0");
+          editor.getEditor("root.community_specific." + eudat_community_schema_id +
+            ".oeb_dataset_version").setValue("1.0");
 
           //css form
           $("[id*=contact_email]").next().next().append('<b> Warning: data is going to be public!</b>');
@@ -113,7 +118,10 @@ $(document).ready(function() {
             var indicator = document.getElementById('valid_indicator');
             
             // Not valid
-            if(errors.length || $("input[id*=title]").val()==""|| $("input[id*=description]").val()=="" || $("input[id*=creator_name]").val()=="") {
+            if(errors.length || $("input[id*=title]").val()==""|| 
+              $("input[id*=description]").val()=="" || 
+              $("input[id*=creator_name]").val()=="") {
+
               editor.options.show_errors = "always";
               console.log(errors)
               $(".errorClass").text("There are errors in some fields of the form.");
@@ -130,10 +138,6 @@ $(document).ready(function() {
             }
             return valid;
           });
-          
-
-          
-
         });
       });
   });
@@ -153,7 +157,7 @@ $(document).ready(function() {
 
         $.ajax({
           type: 'POST',
-          url: "applib/oeb_publishAPI.php?action=publish",
+          url: CONTROLLER + "?action=publish",
           data: {"metadata" : json, "fileId": fn}
         }).done (function(data) {
             //no errors
@@ -164,20 +168,20 @@ $(document).ready(function() {
               $("#result").append("<h4>Data successfully published!</h4>\
                 <p style=\"font-size:1.1em;\">\
                 Registered D.O.I.: <b>"+data["message"]+"</b><br/>"+timeStamp()+
-                "</p><br><a href=\""+b2share_host+"records/"+data["message"]+
+                "</p><br><a href=\""+data["message"]+
                 "\" target=\"_blank\" class=\"btn green\"> EUDAT record</a>");
               $("#result").show();
               //button back display
               $("#back").show();
 
         //more errors
-		    }). fail(function(data) {
+		}). fail(function(data) {
             $("#loading-datatable").hide();
             $("#result").removeClass("alert alert-info");
             $("#result").addClass("alert alert-danger");
-            $("#result").append(data["responseJSON"]["message"]);
+            $("#result").append(data);
             $("#result").append("</br>Please, try it later or report this message \
-              <a href='mailto:openebench-support@bsc.es'>openebench-support@bsc.es</a>.");
+              <a href='mailto:"+mail_support_oeb+"'>"+mail_support_oeb+"</a>.");
             $("#result").show();
             //button back display
             $("#back").show();
