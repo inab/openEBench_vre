@@ -13,15 +13,18 @@ class nc_Connection extends Client{
         //default parameters
         if (is_null($username) && is_null($password) && is_null($server)){
             if (!isset($GLOBALS['repositories']['nc'])){
-                $_SESSION['errorData']['Error'][]="Nextcloud storage '$server' not declared on the VRE. Please, contact with the administrators";
+                $_SESSION['errorData']['Error'][]="Nextcloud storage '$server' 
+                    not declared on the VRE. Please, contact with the administrators";
                 return false;
             }
             $server = array_keys($GLOBALS['repositories']['nc'])[0];
             // Query Nextcloud API to get file-path of the given NC file Id
             $nc_username = 0;
             $nc_password = 0;
-            if (!isset($GLOBALS['repositories']['nc'][$server]['credentials']['conf_file']) || !is_file($GLOBALS['repositories']['nc'][$server]['credentials']['conf_file'])){
-                $_SESSION['errorData']['Error'][]="Credentials for VRE repository '$server' not found or invalid. Please, contact with the administrators.";
+            if (!isset($GLOBALS['repositories']['nc'][$server]['credentials']['conf_file']) || 
+                !is_file($GLOBALS['repositories']['nc'][$server]['credentials']['conf_file'])){
+                $_SESSION['errorData']['Error'][]="Credentials for VRE repository 
+                    '$server' not found or invalid. Please, contact with the administrators.";
                 return false;
             }
             $confFile = $GLOBALS['repositories']['nc'][$server]['credentials']['conf_file'];
@@ -38,7 +41,8 @@ class nc_Connection extends Client{
                 fclose($F);
             }
             if ($credentials[2] != $server){
-                $_SESSION['errorData']['Error'][]="Credentials for VRE nextcloud storage '$server' are invalid. Please, contact with the administrators";
+                $_SESSION['errorData']['Error'][]="Credentials for VRE nextcloud 
+                    storage '$server' are invalid. Please, contact with the administrators";
                 return false;
             }
             
@@ -52,7 +56,8 @@ class nc_Connection extends Client{
             $this->server = $server;
         }
         $this->baseUri = $this->server."/remote.php/dav/files/".$this->username."/";
-        $settings = array('baseUri' => $this->baseUri, 'userName' => $this->username , 'password' => $this->password);
+        $settings = array('baseUri' => $this->baseUri, 'userName' => 
+            $this->username , 'password' => $this->password);
 
         parent::__construct($settings);
 
@@ -191,7 +196,8 @@ class nc_Connection extends Client{
     /**
      * Get the properties of a file
      * @param
-     * @param properties - array of properties: https://docs.nextcloud.com/server/12.0/developer_manual/client_apis/WebDAV/index.html
+     * @param properties - array of properties: 
+     * https://docs.nextcloud.com/server/12.0/developer_manual/client_apis/WebDAV/index.html
      * @return
      */
     //var_dump(getProperties("test.md", array("{http://owncloud.org/ns}vre_ids")));
@@ -204,7 +210,8 @@ class nc_Connection extends Client{
 
     /**
      * Adds properties to a file
-     * @param propertiesToAdd - associative array with property-value: https://docs.nextcloud.com/server/12.0/developer_manual/client_apis/WebDAV/index.html
+     * @param propertiesToAdd - associative array with property-value: 
+     * https://docs.nextcloud.com/server/12.0/developer_manual/client_apis/WebDAV/index.html
      * @return true if correctly done, false otherwise
      */
     //var_dump(addProperties("test.md", array('{http://owncloud.org/ns}vre_id' => "testId")));

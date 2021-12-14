@@ -16,7 +16,7 @@ function getChallenges_associated_to_outfile($file_id){
     //fetch execution run that generated the given file or folder
     $execution_data = getExecutionInfo_fromResultId($file_id);
     if (!count($execution_data)){
-        $_SESSION['errorData']['Error'][]="Cannot infer OEB benchmarking \
+        $_SESSION['errorData']['Error'][]="Cannot infer OEB benchmarking 
         challenges associated to the given file.";
         return $challenges_ids;
     }
@@ -238,7 +238,7 @@ function actionRequest($id, $action, $message = null){
             $cmd = $GLOBALS['OEB_submission_repository']."/.py3env/bin/python "
                 .$GLOBALS['OEB_submission_repository']."/APP/push_data_to_oeb.py -i '"
                 .$config_json."' -cr ".$GLOBALS['OEB_submission_repository']
-                ."/APP/dev2-oeb-token.json -tk '".$tk."'";
+                ."/APP/dev-oeb-token.json -tk '".$tk."'";
             $retvalue = my_exec($cmd);
             $log['cmd'] = $cmd;
             $log['stderr'] = $retvalue['stderr'];
@@ -250,7 +250,7 @@ function actionRequest($id, $action, $message = null){
                         array('$set' => array("current_status" => "error")));
                 
                 $response_json->setCode(400);
-                $response_json->setMessage("<b>ERROR</b> pushing datasets to \
+                $response_json->setMessage("<b>ERROR</b> pushing datasets to 
                     OpenEBench for Request ID:<b>".$id."</b>. Cannot upload data to buffer.");
 
             } else {
@@ -311,10 +311,18 @@ function actionRequest($id, $action, $message = null){
                                 'dataset_OEBid'=> array($OEB_id, $participant_OEBid, $partAssess_OEBid ))));
                         
                             //notify requester
+                            
                             $n = new Notification(OEBDataPetition::selectAllOEBPetitions(
                                 array('_id' => $id))['requester'], "OEB data publication: Your 
                                 request has been approved: <br><b>".$id."</b>", "oeb_publish/oeb/oeb_manageReq.php#".$id);
                             $n->saveNotification();
+
+                            //email requester
+                            $params = array();
+                            $params['requester'] = UsersDAO::selectUsers(array(
+                                'id' => OEBDataPetition::selectAllOEBPetitions(array('_id' => $id))['requester']))[0]['Email'];
+                            $params['reqId'] = $id;
+                            sendUpdateApproveRequester($params);
 
                             $response_json->setCode(200);
                             $response_json->setMessage("Data successfully published");
@@ -373,7 +381,8 @@ function actionRequest($id, $action, $message = null){
 
 
 /**
- * MAnages petition: upload files to nextcloud, registers petitions to mongo, notify approvers.
+ * MAnages petition: upload files to nextcloud, 
+ * registers petitions to mongo, notify approvers.
  * @param fileId - id of the file
  * @param metaForm - form data
  * @param type - participant or consolidated
@@ -517,7 +526,7 @@ function proceedRequest_register_NC($fileId, $metaForm, $type) {
             }
             $user = UsersDAO::selectUsers(array('Email' => $approversEmails[0]))[0]['id'];
             if (!is_null($user)) {
-                $n = new Notification($user, 'OEB data publication: New request \
+                $n = new Notification($user, 'OEB data publication: New request 
                 pending approval: </br><b>'.$req_id."</b>", 
                 "oeb_publish/oeb/oeb_manageReq.php#".$req_id);
             }

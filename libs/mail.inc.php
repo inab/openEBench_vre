@@ -159,3 +159,21 @@ function sendRequestToApprover ($variables){
 	return sendEmail($variables['approver'],$subject,$message, null, $bcc);
 
 }
+
+/**
+ * Sends an email to the requester that its petitions has been approved
+ * @param variables - associative array
+ */
+
+function sendUpdateApproveRequester ($variables){
+	$variables['url_login'] = $GLOBALS['URL_login'];
+	$variables['oeb_doc'] = $GLOBALS['OEB_doc'];
+	$variables['oeb_support'] = $GLOBALS['MAIL_SUPPORT_OEB'];
+	$subject = $GLOBALS['NAME']." Your request has been approved";
+	$message = fillContentEmail($GLOBALS['htmlib'].'/EmailsTemplates/OEB_approveEmail.php', $variables);
+	
+	//$bcc = $GLOBALS['ADMINMAIL'];
+	
+	return sendEmail($variables['requester'],$subject,$message, null, $bcc);
+
+}

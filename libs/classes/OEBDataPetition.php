@@ -16,11 +16,13 @@ class OEBDataPetition {
     private $dbConnect;
 
     
-    public function __construct(array $filesIds, $requester, $approvers, $oeb_metadata, $visualitzation_ur = null, $dataset_OEBid = null){
+    public function __construct(array $filesIds, $requester, $approvers, 
+        $oeb_metadata, $visualitzation_ur = null, $dataset_OEBid = null){
         
         $this->dbConnect = new dbConnection();
         
-        $this->_id = createLabel2('vre-oebreq', $this->dbConnect->getConnection(self::$COLLECTION_NAME));
+        $this->_id = createLabel2('vre-oebreq', $this->dbConnect->
+            getConnection(self::$COLLECTION_NAME));
         $this->filesIds = $filesIds;
         $this->requester = $requester;
         $this->approvers = $approvers;
