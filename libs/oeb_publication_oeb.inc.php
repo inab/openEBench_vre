@@ -270,15 +270,17 @@ function actionRequest($id, $action, $message = null){
                     //get dataset umbrella
                     $OEB_id = null;
                     $participant_OEBid = null;
-                    $partAssess_OEBid = null;
+                    //$partAssess_OEBid = null;
                     foreach ($response as $value) {
                         if ($value['orig_id'] == $id){
                                 $OEB_id = $value['_id'];
-                        }elseif (preg_match("/participant/", $value['orig_id'])){
+                        }elseif (preg_match("/_P/", $value['orig_id'])){
                                 $participant_OEBid = $value['_id'];
-                        }elseif (preg_match("/ParticipantAssessments/", $value['orig_id'])){
+                        }
+                        /*elseif (preg_match("/ParticipantAssessments/", $value['orig_id'])){
                                 $partAssess_OEBid = $value['_id'];
                         }
+                        */
                     }
 
                     //3. update VRE mongo: hisotry actions, new attr oeb_id, status published. 
@@ -300,27 +302,27 @@ function actionRequest($id, $action, $message = null){
                                 array('$set' => array('current_status' => 'obsolete')));
                             }
 
-                            //save OEB id on participant_assessmentes file (get its id first, first element on array of files)
+                            //save OEB id on consolidated file (get its id first, first element on array of files)
                             $part_assessId = OEBDataPetition::selectAllOEBPetitions(array('_id' => $id))[0]['filesIds'][0];
-                            addMetadataBNS($part_assessId, array("OEB_dataset_id" => $partAssess_OEBid));
+                            addMetadataBNS($part_assessId, array("OEB_dataset_id" => $OEB_id));
 
                             array_push($log, "Successfully getting umbrella dataset: ".$OEB_id);
                             //update req with datasets OEB ids
                             $result = OEBDataPetition::updateOEBPetitions(array('_id' => $id), 
                             array('$set' => array('current_status' => 'published', 
-                                'dataset_OEBid'=> array($OEB_id, $participant_OEBid, $partAssess_OEBid ))));
+                                'dataset_OEBid'=> array($OEB_id, $participant_OEBid ))));
                         
                             //notify requester
                             
                             $n = new Notification(OEBDataPetition::selectAllOEBPetitions(
-                                array('_id' => $id))['requester'], "OEB data publication: Your 
+                                array('_id' => $id))[0]['requester'], "OEB data publication: Your 
                                 request has been approved: <br><b>".$id."</b>", "oeb_publish/oeb/oeb_manageReq.php#".$id);
                             $n->saveNotification();
 
                             //email requester
                             $params = array();
                             $params['requester'] = UsersDAO::selectUsers(array(
-                                'id' => OEBDataPetition::selectAllOEBPetitions(array('_id' => $id))['requester']))[0]['Email'];
+                                'id' => OEBDataPetition::selectAllOEBPetitions(array('_id' => $id))[0]['requester']))[0]['Email'];
                             $params['reqId'] = $id;
                             sendUpdateApproveRequester($params);
 
@@ -347,9 +349,9 @@ function actionRequest($id, $action, $message = null){
                 OEBDataPetition::updateOEBPetitions(array('_id' => $id), 
                     array('$set' => array("current_status" => "denied")));
         
-                //notify requester
+                //notify requester['requester']
                 $n = new Notification(OEBDataPetition::selectAllOEBPetitions(
-                    array('_id' => $id))['requester'], "OEB data publication: 
+                    array('_id' => $id))[0]['requester'], "OEB data publication: 
                     Your request has been denied: <br><b>".$id."</b>", 
                     "oeb_publish/oeb/oeb_manageReq.php#".$id);
                 $n->saveNotification();
@@ -474,7 +476,7 @@ function proceedRequest_register_NC($fileId, $metaForm, $type) {
                 "url"=> $url_consolidated."/download"))));
             addMetadataBNS($participantFile_id, array("urls" => array(array(
                 "repository"=> array("type"=>"nc", "server"=>"dev-openebench.bsc.es/nextcloud"),
-                "url"=> $url_participant."/download"))));
+                "url"=> $url_participant))));
 
             //EDIT metadata form: add url nc to participant (in case not url) and consolidated
             $form['participant_file']  = $url_participant;
@@ -490,7 +492,7 @@ function proceedRequest_register_NC($fileId, $metaForm, $type) {
                 //notification
                 $user = UsersDAO::selectUsers(array('Email' => $value))[0]['id'];
                 if (!is_null($user)) {
-                    $n = new Notification($user, 'OEB data publication: New request \
+                    $n = new Notification($user, 'OEB data publication: New request 
                     pending approval: </br><b>'.$req_id."</b>", 
                     "oeb_publish/oeb/oeb_manageReq.php#".$req_id);
                 }
