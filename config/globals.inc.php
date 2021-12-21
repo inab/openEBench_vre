@@ -6,29 +6,36 @@
 
 
 // Main config
-$GLOBALS['SERVER']    = "https://openebench.bsc.es"; // host 
+$GLOBALS['SERVER']    = "https://dev-openebench.bsc.es"; // host 
 $GLOBALS['BASEURL']   = "/vre/"; // prefix
 $GLOBALS['AppPrefix'] = "OpEB"; // project abbreviation
-$GLOBALS['NAME']      = "OpenEBench VRE"; // project name 
-$GLOBALS['SITETITLE'] = "OpenEBench | Virtual Research Environment"; // site title
+$GLOBALS['NAME']      = "OpenEBench VRE Development"; // project name 
+$GLOBALS['SITETITLE'] = "OpenEBench Development | Virtual Research Environment"; // site title
 $GLOBALS['TIMEOUT']   = 3600; // session and cookies timeout
 
 // Email
 $GLOBALS['mail_credentials'] = __DIR__."/mail.conf"; // SMTP credentials
-$GLOBALS['FROMNAME']  = "OpEB VRE"; // 'From' for VRE tickets and notifications
+$GLOBALS['FROMNAME']  = "OpenEBench VRE Dev"; // 'From' for VRE tickets and notifications
 $GLOBALS['ADMINMAIL'] = "openebench@bsc.es"; // BBC address for VRE ticket emails
+$GLOBALS['MAIL_SUPPORT_OEB'] = "openebench-support@bsc.es";
+
+//OEB-API
+$GLOBALS['OEBapi_credentials'] = __DIR__."/oeb_api.conf"; 
 
 // SGE
 $GLOBALS['queueTask']  = "local.q"; //default queue
 
 // Mongo databases
 $GLOBALS['db_credentials'] = __DIR__."/mongo.conf"; // Mongo access 
-$GLOBALS['dbname_VRE']     = "oeb_submission"; // Database name
+$GLOBALS['dbname_VRE']     = "oeb-vre-dev"; // Database name
+
+//Notifications configuration
+$GLOBALS['notifications_conf'] = __DIR__."/notifications.conf"; // notifications config 
 
 //VRE installation paths
 $GLOBALS['root']       = dirname(__DIR__); // VRE root directory
 $GLOBALS['logFile']    = $GLOBALS['root']."/logs/VRE.log"; // Log file path 
-$GLOBALS['shared']     = "/gpfs/VRE/"; // VRE data directory
+$GLOBALS['shared']     = "/gpfs/VRE-dev/"; // VRE data directory
 $GLOBALS['dataDir']    = $GLOBALS['shared']."userdata/"; // User data directory
 $GLOBALS['pubDir']     = $GLOBALS['shared']."public/"; // Public data directory
 $GLOBALS['sampleData'] = $GLOBALS['shared']."sampleData/"; // Tool dataset directory 
@@ -41,6 +48,7 @@ $GLOBALS['MAXSIZEUPLOAD']   = 4000; // Maximum upload file size (MB)
 $GLOBALS['caduca']          = "182"; // Expiration date for user files (days)
 $GLOBALS['project_default'] = "MyFirstProject"; // Default name for user project
 $GLOBALS['tmpUser_dir']     = ".tmp/"; // Default name for user temporal forder
+$GLOBALS['devUser_dir']     = ".dev/"; // Default name for user temporal forder
 
 // Tool integration models and templates
 $GLOBALS['tool_json_schema']    = $GLOBALS['root']."/install/data/tool_schemas/tool_specification/tool_schema.json"; // data model for tool registration
@@ -52,13 +60,29 @@ $GLOBALS['tool_io_dev_sample']  = $GLOBALS['root']."/install/data/tool_schemas/t
 $GLOBALS['auth_credentials']       = __DIR__."/oauth2.conf"; // oauth2 client credentials
 $GLOBALS['authAdmin_credentials']  = __DIR__."/oauth2_admin.conf"; // oauth2 client credentials with admin privileges
 $GLOBALS['authServer']             = 'https://inb.bsc.es/auth'; // external oauth2 server
-$GLOBALS['authRealm']              = 'openebench'; // keycloak realm
+$GLOBALS['authRealm']              = 'dev-openebench'; // keycloak realm
 $GLOBALS['urlAuthorize' ]          = $GLOBALS['authServer'].'/realms/'.$GLOBALS['authRealm'].'/protocol/openid-connect/auth';     //get autorization_code
 $GLOBALS['urlAccessToken']         = $GLOBALS['authServer'].'/realms/'.$GLOBALS['authRealm'].'/protocol/openid-connect/token';    //get token
 $GLOBALS['urlResourceOwnerDetails']= $GLOBALS['authServer'].'/realms/'.$GLOBALS['authRealm'].'/protocol/openid-connect/userinfo'; //get user details
 $GLOBALS['urlLogout']              = $GLOBALS['authServer'].'/realms/'.$GLOBALS['authRealm'].'/protocol/openid-connect/logout';   //close keyclok session   
 $GLOBALS['adminToken']             = $GLOBALS['authServer']."/realms/master/protocol/openid-connect/token"; // get Admin token
 $GLOBALS['adminRealm']             = $GLOBALS['authServer']."/admin/realms/".$GLOBALS['authRealm']; // admin keycloak users
+
+//OEB submission
+$GLOBALS['OEB_submission_repository'] = "/home/user/OEB_level2_data_migration";
+
+// Respository and storage configuration
+
+$GLOBALS['repositories'] = array(
+        'nc' => array(
+                'https://dev-openebench.bsc.es/nextcloud/' => array(
+                        'name'        => 'OEB nextcloud (dev)',
+                        'auth'        => 'basic',
+                        'credentials' => array(
+                                        "conf_file" => __DIR__."/nextcloud.conf")
+                )
+        )
+);
 
 /************************
 // Definitions
@@ -83,9 +107,10 @@ $GLOBALS['tool_metadata_file']   = ".input_metadata.json"; // Default name for r
 // Tool and visualizer status
 $GLOBALS['tool_status'] = Array(
 		0  => "Coming soon",
-		1  => "Active",
-		2   => "Disabled",
-		3   => "Testing"
+		1  => "Public",
+		2   => "Private",
+		3   => "Testing",
+		4  => "Community available"
 );
 
 // File 'compression' attribute (extension => compression model)
@@ -107,7 +132,7 @@ $GLOBALS['ROLES'] = array(
 		"0"=>"Admin",
 		"1"=>"Tool Dev.",
 		"2"=>"Common",
-		"3" =>"Anonymous"
+		"3"=>"Anonymous"
 	);
 $GLOBALS['NO_GUEST'] = array(0,1,2,100,101); // 100, 101?
 $GLOBALS['PREMIUM'] = array(0,1);
@@ -127,20 +152,23 @@ $GLOBALS['placeholder_textarea'] = "Click right button to select file(s)"; // te
 ********************************/
 
 // External Resources
+#$GLOBALS['OEB_sciapi'] = "https://openebench.bsc.es/sciapi/graphql/";
+$GLOBALS['OEB_sciapi'] = "https://dev-openebench.bsc.es/api/scientific/graphql";
+#$GLOBALS['OEB_scirestapi'] = "https://dev-openebench.bsc.es/api/scientific/access";
+$GLOBALS['OEB_scirestapi'] = "https://dev-openebench.bsc.es/api/scientific/staged";
+$GLOBALS['OEB_migrate'] = 'https://dev-openebench.bsc.es/api/scientific/execute/migrate';
 
-$GLOBALS['OEB_idsolv'] = "https://openebench.bsc.es/api/scientific/idsolv";
-$GLOBALS['OEB_sciapi'] = "https://openebench.bsc.es/sciapi/graphql/";
-
+$GLOBALS['OEB_doc'] = 'https://openebench.readthedocs.io/en/latest/';
 // Cloud infrastructures
 $GLOBALS['cloud']              = "life-bsc"; // VRE central cloud. Options are any of $GLOBALS['clouds']
 $GLOBALS['clouds'] = Array(
 		'life-bsc' => array(
-			"http_host"	    => "openebench.bsc.es",	       // used in getCurrentCloud
+			"http_host"	    => $GLOBALS['SERVER'],	       // used in getCurrentCloud
 			"dataDir_fs"        => "/data/cloud/apps/noroot/elixir_benchmarking_submission/VRE/userdata", //export path for NFS server
 			"pubDir_fs"         => "/data/cloud/apps/noroot/elixir_benchmarking_submission/VRE/public",   //export path for NFS server
-			"dataDir_virtual"   => "/gpfs/VRE/userdata",
-			"pubDir_virtual"    => "/gpfs/VRE/public",
-			"PMESserver_domain" => "multiscalegenomics.bsc.es",
+			"dataDir_virtual"   => $GLOBALS['dataDir'],
+			"pubDir_virtual"    => $GLOBALS['pubDir'],
+			"PMESserver_domain" => "pmes.server.domain",
 			"PMESserver_port"   => "80",
 			"PMESserver_address"=> "pmes/",
 			"imageTypes" 	    => array(),
@@ -264,5 +292,64 @@ $GLOBALS['clouds'] = Array(
 				"OS_PASSWORD"    => "VLZtKndy",
 				"OS_TENANT_NAME" => "BSC-MuG" 
 			)
-	    )
+		)
 );
+
+#OPENEBENCH
+// Temporal directory used when uploading reference data
+$GLOBALS['oeb_tmp']     = $GLOBALS['shared']."tmp/"; // Temporal data directory
+
+// From OEB WF to VRE tool
+$GLOBALS['oeb_tool_wrapper'] = "/home/vre/projects/wrapper_test/VRE_NF_RUNNER"; // in VM-tool
+$GLOBALS['oeb_tool_json_schema']    = $GLOBALS['root']."/install/data/tool_schemas/tool_specification/oeb_tool_schema.json"; // specific data model for OEB-VRE tool registration
+
+// OEB WF VALIDATION
+$GLOBALS['status_requested'] = Array(
+	0 => "In preparation",
+	1 => "Submitted",
+	2 => "To be reviewed",
+	3 => "Registered",
+	4 => "Rejected"
+); // WF status
+$GLOBALS['gitlab_server'] = "https://gitlab.bsc.es/"; //reference git server supporting CI
+$GLOBALS['oeb_block_schema'] = "https://raw.githubusercontent.com/inab/OpEB-VRE-schemas/master/oeb_block_UI.json";  // block web form json (ui)
+$GLOBALS['oeb_workflow_schema'] = "https://raw.githubusercontent.com/inab/OpEB-VRE-schemas/master/oeb_workflow_UI.json"; // workflow web form json (ui)
+
+$GLOBALS['oeb_general_ontology_reasoner'] = "https://raw.githubusercontent.com/inab/OEB-ontologies/master/oebDatasets-complete.owl"; // should correspond to the URIs refered in 'oeb_workflow_schema'
+
+// List of URI ontologies accepted in our schemas
+$GLOBALS['oeb_dataModels'] = Array(
+	"oeb_datasets_complete" => "https://w3id.org/oebDatasets/complete", //equivalent to oeb_datasets but without imports (in a plain text)
+ 	"oeb_datasets" => "https://w3id.org/oebDatasets",
+	"oeb_formats" => "https://w3id.org/oebDataFormats"
+);
+// List of URI ontologies accepted in our schemas
+$GLOBALS['oeb_ancestorModels'] = Array(
+ 	"oeb_ancestor_datasets" => "https://w3id.org/oebDatasets/dataset",
+	"oeb_ancestor_formats" => "https://w3id.org/oebDataFormats/FormatDatasets"
+);
+// JSON schemas used by the enriched validator
+// should be found at the directory specified at oeb_tool_validation/fairtracks_validator/python
+$GLOBALS['oeb_block_validator'] = 'oeb_block_validator.json';
+$GLOBALS['oeb_workflow_validator'] = 'oeb_workflow_validator.json';
+//script to run the JM validator
+$GLOBALS['oeb_script_validator'] = "oeb_validatorScript.sh";
+
+//schema from EUDAT
+//B2share submission 
+$GLOBALS['B2SHARE_submission_repository'] = "/home/user/b2share";
+$GLOBALS['b2share_host']="https://trng-b2share.eudat.eu/";  // URL of EUDAT B2SHARE server
+$GLOBALS['oeb_eudat_schema'] = "https://raw.githubusercontent.com/inab/benchmarking-data-model/master/eudat-b2share-schemas/eudat%2BOEBSchema.json";
+$GLOBALS['eudat_admin_token'] =  __DIR__."/eudat_token.conf";
+$GLOBALS['eudat_community_id'] = "f60ff069-c8fa-4b48-8442-903bffa3acb1";
+$GLOBALS['eudat_community_schema_id'] = "176df0a6-8c8e-424d-a5c1-34b1d84a580c";
+
+//schema from oeb (submission)
+#$GLOBALS['oeb_submission_pusher']=""; // Root directory of the pusher local installation
+$GLOBALS['oeb_submission_schema'] = "https://raw.githubusercontent.com/inab/OEB_level2_data_migration/master/submission_form_schema.json";
+
+
+/*****NOTIFICATIONS ******/
+$GLOBALS['notifications_active'] = true;
+$GLOBALS['notifications_refresh'] = 30000;
+$GLOBALS['notifications_clean_period'] = 60; //-1 to disable

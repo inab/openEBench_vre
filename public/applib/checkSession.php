@@ -14,8 +14,10 @@ if(isset($_SESSION['VREtimeout'])) {
     $duration = time() - (int)$_SESSION['VREtimeout'];
 
     if($duration > $timeout) {
-	$dtF = new \DateTime('@0');
-	$dtT = new \DateTime($duration);
+	$dtF = new DateTime();
+	$dtT = new DateTime();
+	$dtF->setTimestamp(0);
+	$dtT->setTimestamp($duration);
 	$duration_time = $dtF->diff($dtT)->format('%H:%I:%S'); 
 	echo '{"hasSession":false, "duration":"'.$duration_time.'"}';
 

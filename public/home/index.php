@@ -4,13 +4,16 @@ require __DIR__ . "/../../config/bootstrap.php";
 redirectOutside();
 
 $tls = getTools_List(1);
+//var_dump($tls);
 $tlsProv = getTools_List(0);
 $vslzrs = getVisualizers_List(1);
 $vslzrsProv = getVisualizers_List(0);
+//var_dump(count(array_keys($tls)));
+//var_dump(count(array_keys($tlsProv)));
+$appList = array_merge($tls, $tlsProv, $vslzrs, $vslzrsProv);
+$vslzrList = array_merge($vslzrs, $vslzrsProv);
 
-$toolList = array_merge($tls, $tlsProv, $vslzrs, $vslzrsProv);
-
-sort($toolList);
+sort($appList);
 
 ?>
 
@@ -50,17 +53,17 @@ sort($toolList);
           <input type="hidden" id="base-url" value="<?php echo $GLOBALS['BASEURL']; ?>" />
 
           <?php
-
+	  // create list of keywords
           $kw = array();
-          foreach ($toolList as $t) {
+          foreach ($appList as $t) {
             foreach ($t['keywords'] as $tk) {
-              if ($tk == "next gen seq") $tk = "next_gen_seq";
               $kw[] = $tk;
             }
           }
-
           $kw = array_unique($kw);
           sort($kw);
+          // create list of tool ids 
+          $vslzrIds = array_column(array_values($vslzrList),"_id");
 
           ?>
 
@@ -79,15 +82,11 @@ sort($toolList);
 
             <?php
 
-            foreach ($toolList as $t) {
+            foreach ($appList as $t) {
 
-              $kw = implode(" ", $t['keywords']);
+              $kw = (isset($t['keywords'])?implode(" ", $t['keywords']):"");
 
-              if (strpos($kw, 'visualization') === false) $type = 'tools';
-              else $type = 'visualizers';
-
-              $kw = str_replace("next gen seq", "next_gen_seq", $kw);
-
+              $type= (in_array($t['_id'],$vslzrIds)? "visualizers" : "tools");
 
               ?>
 

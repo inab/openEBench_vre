@@ -387,12 +387,11 @@ runVisualizer = function(tool, user) {
 }
 	
 viewResults = function(execution, tool) {
-		
 	App.blockUI({
 				boxed: true,
 		message: 'Creating tool output, this operation may take a while, please don\'t close the tab...'
 			});
-
+	console.log("execution=" + execution + "&tool=" + tool);
 	$.ajax({
 		type: "POST",
 		url: baseURL + "/applib/loadOutput.php",
@@ -608,13 +607,7 @@ $(document).ready(function() {
 			data: "op=" + op + "&fn=" + fileRenameID + "&target=" + pathRename + $('#modalRename .modal-body #form-rename input#new-name').val(), 
 			success: function(data) {
 				var obj = JSON.parse(data);
-		
-				if(!obj.error) {
-					location.href = baseURL + "workspace";
-				}	else {
-					$('#modalRename .modal-body .alert-danger').show();
-					$('#modalRename .modal-body .alert-danger').html('<strong>Error!</strong> ' + obj.msg);
-				}
+				location.reload();
 			}
 			
 		});

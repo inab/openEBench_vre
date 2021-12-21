@@ -29,7 +29,7 @@ $Parsedown->setBreaksEnabled(true);
 
 
 
-$page = $GLOBALS['helpsCol']->findOne(array('tool' => $tool, 'help' => $help));
+$page = HelpsDAO::selectHelps(array('tool' => $tool, 'help' => $help))[0];
 
 $markdowncontent = $page['content'];
 

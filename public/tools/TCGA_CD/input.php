@@ -129,13 +129,13 @@ $tool   = getTool_fromId($toolId,1);
 
 			     <div class="row">
 					<div class="col-md-12">
-						<?php $ff = matchFormat_File($tool['input_files']['genes']['file_type'], $inPaths); ?>
-						<?php InputTool_printSelectFile($tool['input_files']['genes'], $rerunParams['fasta1'], $ff[0], false, true); ?>
+						<?php $ff = matchFormat_File($tool['input_files']['input']['file_type'], $inPaths); ?>
+						<?php InputTool_printSelectFile($tool['input_files']['input'], $rerunParams['fasta1'], $ff[0], false, true); ?>
 					</div>
 			     </div>
-	     <input type="hidden" name="input_files_public_dir[metrics_ref_datasets]" value="<?php echo $tool['input_files_public_dir']['metrics_ref_datasets']['value']; ?>" />
-	     <input type="hidden" name="input_files_public_dir[assessment_datasets]" value="<?php echo $tool['input_files_public_dir']['assessment_datasets']['value']; ?>" />
-	     <input type="hidden" name="input_files_public_dir[public_ref]" value="<?php echo $tool['input_files_public_dir']['public_ref']['value']; ?>" />
+	     <input type="hidden" name="input_files_public_dir[goldstandard_dir]" value="<?php echo $tool['input_files_public_dir']['goldstandard_dir']['value']; ?>" />
+	     <input type="hidden" name="input_files_public_dir[assess_dir]" value="<?php echo $tool['input_files_public_dir']['assess_dir']['value']; ?>" />
+	     <input type="hidden" name="input_files_public_dir[public_ref_dir]" value="<?php echo $tool['input_files_public_dir']['public_ref_dir']['value']; ?>" />
 
     				<!-- PRINT TOOL ARGUMENTS -->
 			     <h4 class="form-section">Settings</h4>

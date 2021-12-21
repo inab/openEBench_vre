@@ -1,14 +1,15 @@
 <?php
 
-require __DIR__ . "/../../config/bootstrap.php";
+require __DIR__."/../../config/bootstrap.php";
+
 if (!allowedRoles($_SESSION['User']['Type'], $GLOBALS['NO_GUEST'])) redirectInside();
 redirectOutside();
 
 $countries = array();
-foreach (array_values(iterator_to_array($GLOBALS['countriesCol']->find(array(), array('country' => 1))->sort(array('country' => 1)))) as $v)
+$ops = [ 'projection' => [ 'country' => 1 ], 'sort' => [ 'country' => 1 ] ];
+
+foreach (array_values(CountriesDAO::selectCountries(array(), $ops)) as $v)
     $countries[$v['_id']] = $v['country'];
-
-
 ?>
 
 <?php require "../htmlib/header.inc.php"; ?>
@@ -132,7 +133,7 @@ foreach (array_values(iterator_to_array($GLOBALS['countriesCol']->find(array(), 
                                             <a href="#tab_1_3" data-toggle="tab">Change Password</a>
                                         </li>-->
                                                 <li>
-                                                    <a href="#tab_1_4" data-toggle="tab">API keys</a>
+                                                    <a href="#tab_1_4" data-toggle="tab">Keys</a>
                                                 </li>
                                             </ul>
                                         </div>
@@ -183,10 +184,25 @@ foreach (array_values(iterator_to_array($GLOBALS['countriesCol']->find(array(), 
                                                                 ?>
                                                             </select>
                                                         </div>
+                                                        <!-- <div class="form-group">
+                                                            <label class="control-label">OEB Community</label>
+                                                            <select name="oeb_community" class="form-control">
+                                                                <option value=""></option>
+                                                                <?php
+                                                                /*$r = $communities = getCommunities();
+                                                                $selCommunity = '';
+                                                                foreach ($communities as $key => $value) :
+                                                                    if ($_SESSION['User']['oeb_community'] == $key) $selCommunity = ' selected';
+                                                                    else $selCommunity = '';
+                                                                    echo '<option value="' . $key . '"' . $selCommunity . '>' . $value["acronym"] . '</option>';
+                                                                endforeach;*/
+                                                                ?>
+                                                            </select>
+                                                        </div> -->
                                                         <!-- <?php //if (!allowedRoles($_SESSION['User']['Type'], $GLOBALS['TOOLDEV']) && (checkTermsOfUse())) { ?>
                                                             <div class="form-group margin-top-30">
                                                                 <label class="control-label">You are a standard user. Do you want to bring your own tool?
-                                                                    <a href="http://www.multiscalegenomics.eu/MuGVRE/policy/" target="_blank"><i class="icon-question tooltips" data-container="body" data-placement="right" data-original-title="Click here to read more about how to bring your own tool."></i></a>
+								   <a href="http://www.multiscalegenomics.eu/MuGVRE/policy/" target="_blank"><i class="icon-question tooltips" data-container="body" data-placement="right" data-original-title="Click here to read more about how to bring your own tool."></i></a>
                                                                 </label>
                                                                 <br /><br />
                                                                 <a href="<?php //echo $GLOBALS['BASEURL']; ?>helpdesk/?sel=tooldev" class="btn green">Become tool developer</a></div>
@@ -304,11 +320,11 @@ foreach (array_values(iterator_to_array($GLOBALS['countriesCol']->find(array(), 
                                                     </div>
                                                     <input id="exp-token" type="hidden" value="<?php echo $_SESSION['User']['Token']['expires']; ?>">
                                                     <input id="curr-time" type="hidden" value="<?php echo time(); ?>">
-                                                    <?php
+						    <?php
                                                     $ed = date('h:i:s A (jS \of F Y)', $_SESSION['User']['Token']['expires']);
                                                     /*$edd = date('h:i:s A (jS \of F Y)');
                                                            print ">>>>>>>>> INI : $edd <br/>";
-														print ">>>>>>>>> EXP : $ed <br/>";*/
+							print ">>>>>>>>> EXP : $ed <br/>";*/
                                                     $expiresIn = $_SESSION['User']['Token']['expires'] - time();
                                                     if ($expiresIn > 0)
                                                         $expDate = "Token will expire in " . intval($expiresIn / 60) . " minutes, at $ed";
@@ -325,7 +341,6 @@ foreach (array_values(iterator_to_array($GLOBALS['countriesCol']->find(array(), 
                                                             </span>
                                                         </div>
                                                     </div>
-
 
 
                                                     <div class="form-group mt-clipboard-container">
@@ -356,13 +371,67 @@ foreach (array_values(iterator_to_array($GLOBALS['countriesCol']->find(array(), 
                                                         <label class="control-label">Token User information<i class="icon-question tooltips" data-container="body" data-html="true" data-placement="right" data-original-title="<p align='left' style='margin:0'>Information returned by Oauth2 provider when the user token is beared</p>"></i></label>
                                                         <br />
                                                         <pre><?php echo json_encode($_SESSION['User']['TokenInfo'], JSON_PRETTY_PRINT); ?></pre>
+						    </div>
+
+						<br/>
+						<br/>
+						<span class="caption-subject font-blue-madison bold uppercase">Linked Accounts</span>
+
+							
+                                                    <!--EUDAT/B2SHARE ACCOUNT-->
+						    <hr>
+                                                    <img src="https://b2share.eudat.eu/img/logo.png" style="float: right; height: 60px; margin: 0 60px;">
+                                                    <h4>B2SHARE (EUDAT) repository</h4>
+                                                    <a id="linkedEudat"></a>
+					
+				
+						<div style="padding-left: 15px;border-left: 2px solid lightgray;">
+						<br/>
+
+					<?php
+					if (! isset($_SESSION['User']['linked_accounts']['b2share'])){?>
+							
+                                                    <p>
+                                                        <span style="color: #666;font-weight: bold;">Do you have a B2SHARE account in EUDAT?</span><br/>
+                                                        Link it here and you'll be able to publish your datasets to EUDAT with one click at <a href="oeb_publish/eudat/" target="blank"> <i class="fa fa-upload"> </i> Publish <i class="fa fa-circle" style="font-size:5px; margin: 0 5px; position: relative;top: -3px;"></i> to B2SHARE </a>
+                                                    </p>
+                                                    <div class="row" style="margin-left:30px;">
+                                                        <div class="col-md-6">
+                                                            <a href="user/linkedAccount.php?account=b2share&action=new" class="btn green"><i class="fa fa-plus"></i> &nbsp; Link your account</a>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <a href="https://eudat.eu/services/userdoc/b2share-http-rest-api#Creating_an_access_token" target="_blank"><i class="fa fa-sign-in"></i> How to generate my EUDAT token?</a>
+                                                        </div>
                                                     </div>
-
-                                                </div>
-
+                                                    <div class="form-group mt-clipboard-container" style="display:none;">
+                                                        <label class="control-label">Access B2SHARE Token <i class="icon-question tooltips" data-container="body" data-html="true" data-placement="right" data-original-title="<p align='left' style='margin:0'>Token used to authenticate your access to upload file to B2SHARE repository.</p>"></i></label>
+                                                        <div class="input-group">
+                                                            <input id="tokenB2SHARE" type="text" class="form-control" value="<?php echo $_SESSION['User']['oeb_community'] ?>" style="background:#fff;">
+                                                            <span class="input-group-btn">
+                                                                <button class="btn green mt-clipboard" data-clipboard-action="copy" data-clipboard-target="#mt-target-1" type="button"><i class="fa fa-copy"></i> Copy to clipboard</button>
+                                                            </span>
+                                                        </div>
+                                                    </div>
+					<?php			
+					}else{ ?>
+                                                    <div class="form-group">
+							<label class="control-label">Access Token</label>
+							<br />
+							<input type="text" value="<?php echo $_SESSION['User']['linked_accounts']['b2share']['access_token'] ?>" class="form-control" readonly style="background:#fff;"  />
+						   </div>
+                                                    <div class="form-group">
+							<label class="control-label">Last Time Validated</label>
+							<br />
+							<pre><?php echo strftime('%d/%m/%Y %H:%M',$_SESSION['User']['linked_accounts']['b2share']['last_validated']->toDateTime()->format('U')); ?></pre>
+                                                    <div class="form-group">
+						        <a href="<?php echo $GLOBALS['BASEURL']; ?>user/linkedAccount.php?account=b2share&action=update" class="btn btn-xs green"><i class="fa fa-refresh"></i> &nbsp; Update Token</a>
+						        <a href="<?php echo $GLOBALS['BASEURL']; ?>applib/linkedAccount.php?account=b2share&action=delete" class="btn btn-xs green"><i class="fa fa-trash"></i> &nbsp; Delete Account</a>
+						    </div>
+						</div>
+					   <?php } ?>
+						</div>
 
                                                 <!-- END CHANGE PASSWORD TAB -->
-
 
                                             </div>
                                         </div>

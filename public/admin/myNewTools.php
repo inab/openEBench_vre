@@ -139,10 +139,10 @@ foreach (array_values(iterator_to_array($result)) as $v){
 										><i class="fa fa-trash"></i></a>
 										<br><br>
 
-										<?php if(file_exists($GLOBALS['dataDir']."/".$v["user_id"]."/.dev/".$v['_id']."/logo/logo.png")) { ?>
+										<?php if(file_exists($GLOBALS['dataDir']."/".$v["user_id"]."/" . $GLOBALS['devUser_dir'] .$v['_id']."/logo/logo.png")) { ?>
 
-										<a href="workspace/workspace.php?op=openPlainFileFromPath&fnPath=<?php echo $v["user_id"]."/.dev/".$v['_id']."/logo/logo.png";?>" target="_blank">
-											<img src="workspace/workspace.php?op=openPlainFileFromPath&fnPath=<?php echo $v["user_id"]."/.dev/".$v['_id']."/logo/logo.png";?>" style="width:100px;border:1px solid #999;" />
+										<a href="workspace/workspace.php?op=openPlainFileFromPath&fnPath=<?php echo $v["user_id"]."/" .$GLOBALS['devUser_dir'].$v['_id']."/logo/logo.png";?>" target="_blank">
+											<img src="workspace/workspace.php?op=openPlainFileFromPath&fnPath=<?php echo $v["user_id"]."/".$GLOBALS['devUser_dir'].$v['_id']."/logo/logo.png";?>" style="width:100px;border:1px solid #999;" />
 										</a>
 										<br>
 										<a href="applib/createLogo.php?toolid=<?php echo $v["_id"]; ?>" class="btn green tooltips" style="margin-top:10px;"
@@ -460,19 +460,19 @@ foreach (array_values(iterator_to_array($result)) as $v){
                     } ?>
                 </div>
 
-								<!-- only for admin -->
-								<?php if($_SESSION['User']['Type'] == 0) { ?>
-								<div class="btn-group btn-group-sm">
-                	<button type="button" class="btn btn-outline green dropdown-toggle" data-toggle="dropdown">Status <i class="fa fa-angle-down"></i></button>
-                  <ul class="dropdown-menu pull-right" role="menu">
-                  	<li><a href="applib/changeToolStatus.php?toolid=<?php echo $v['_id']; ?>&status=in_preparation">In preparation</a></li>
-                    <li><a href="applib/changeToolStatus.php?toolid=<?php echo $v['_id']; ?>&status=submitted">Submitted</a></li>
-										<li><a href="applib/changeToolStatus.php?toolid=<?php echo $v['_id']; ?>&status=to_be_reviewed">To be reviewed</a></li>
-										<li><a href="applib/changeToolStatus.php?toolid=<?php echo $v['_id']; ?>&status=registered">Registered</a></li>
-										<li><a href="applib/changeToolStatus.php?toolid=<?php echo $v['_id']; ?>&status=rejected">Rejected</a></li>
-                  </ul>
+				<!-- only for admin -->
+			    <?php if($_SESSION['User']['Type'] == 0) { ?>
+				<div class="btn-group btn-group-sm">
+                    <button type="button" class="btn btn-outline green dropdown-toggle" data-toggle="dropdown">Status <i class="fa fa-angle-down"></i></button>
+                    <ul class="dropdown-menu pull-right" role="menu">
+                        <li><a href="applib/changeToolStatus.php?toolid=<?php echo $v['_id']; ?>&status=in_preparation">In preparation</a></li>
+                        <li><a href="applib/changeToolStatus.php?toolid=<?php echo $v['_id']; ?>&status=submitted">Submitted</a></li>
+                        <li><a href="applib/changeToolStatus.php?toolid=<?php echo $v['_id']; ?>&status=to_be_reviewed">To be reviewed</a></li>
+                        <li><a href="applib/changeToolStatus.php?toolid=<?php echo $v['_id']; ?>&status=registered">Registered</a></li>
+                        <li><a href="applib/changeToolStatus.php?toolid=<?php echo $v['_id']; ?>&status=rejected">Rejected</a></li>
+                    </ul>
                 </div>
-								<?php } ?>
+				<?php } ?>
 
 					
 				</td>

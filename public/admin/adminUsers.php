@@ -2,15 +2,15 @@
 
 require __DIR__."/../../config/bootstrap.php";
 
-redirectAdminOutside();
+#redirectAdminOutside();
+redirectToolDevOutside_v2();
 
 $countries = array();
-foreach (array_values(iterator_to_array($GLOBALS['countriesCol']->find(array(),array('country'=>1))->sort(array('country'=>1)))) as $v)
-	$countries[$v['_id']] = $v['country'];
-
+foreach (array_values(CountriesDAO::selectCountries(array(),array("projection" => ['country'=>1], "sort"=>["country" =>1]))) as $v)
+    $countries[$v['_id']] = $v['country'];
 
 $users = array();
-foreach (array_values(iterator_to_array($GLOBALS['usersCol']->find(array("Type" => array('$ne' => "3")),array('Surname'=>1, 'Name'=>1, 'Inst'=>1, 'Country'=>1, 'diskQuota'=>1, 'lastLogin'=>1, 'Type'=>1, 'Status'=>1, 'id'=>1, 'lastReload'=>1))->sort(array('Surname'=>1)))) as $v)
+foreach (array_values(UsersDAO::selectUsers(array("Type" => array('$ne' => "3")),array("projection" => ['Surname'=>1, 'Name'=>1, 'Inst'=>1, 'Country'=>1, 'diskQuota'=>1, 'lastLogin'=>1, 'Type'=>1, 'Status'=>1, 'id'=>1, 'lastReload'=>1], "sort"=>["Surname" =>1]))) as $v)
 	$users[$v['_id']] = array($v['Surname'], $v['Name'], $v['Inst'], $v['Country'], $v['diskQuota'], $v['lastLogin'], $v['Type'], $v['Status'],$v['id'], $v['lastReload']);
 
 unset($users['guest@guest']);
@@ -23,7 +23,7 @@ unset($users['guest@guest']);
   <div class="page-wrapper">
 
   <?php require "../htmlib/top.inc.php"; ?>
-  <?php require "../htmlib/menu.inc.php"; ?>
+  <?php #require "../htmlib/menu.inc.php"; ?>
 
 
 <!-- BEGIN CONTENT -->
@@ -112,10 +112,10 @@ unset($users['guest@guest']);
                                                     <th> Institution </th>
                                                     <th> Country </th>
                                                     <th> Type of User </th>
-																										<th> Last login </th>
-																										<th> Status 
-																											<i class="icon-question tooltips" data-container="body" data-html="true" data-placement="top" data-original-title="<p align='left' style='margin:0'>There are three possible status according to the last user's login:<br>- INACTIVE: more than 30 days from the last login<br>- ACTIVE: less than 30 days from the last login<br>- LOGGED IN: user is currently logged in</p>"></i>
-																										</th>
+                                                    <th> Last login </th>
+                                                    <th> Status 
+                                                        <i class="icon-question tooltips" data-container="body" data-html="true" data-placement="top" data-original-title="<p align='left' style='margin:0'>There are three possible status according to the last user's login:<br>- INACTIVE: more than 30 days from the last login<br>- ACTIVE: less than 30 days from the last login<br>- LOGGED IN: user is currently logged in</p>"></i>
+                                                    </th>
                                                     <th> Disk </th>
                                                     <th> Actions </th>
                                                 </tr>

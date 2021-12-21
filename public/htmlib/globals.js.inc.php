@@ -9,9 +9,9 @@ require __DIR__."/../../config/bootstrap.php";
 // COUNTRIES VAR
 $countries = array();
 $countries[''] = 'Country';
-foreach (array_values(iterator_to_array($GLOBALS['countriesCol']->find(array(),array('country'=>1))->sort(array('country'=>1)))) as $v){
-	$countries[$v['_id']] = $v['country'];
-}
+foreach (array_values(CountriesDAO::selectCountries(array(),array("projection" => ['country'=>1], "sort"=>["country" =>1]))) as $v)
+    $countries[$v['_id']] = $v['country'];
+
 
 echo 'var countriesSelect = \'<select style="width: 100%!important;" class="selector form-control input-sm input-xsmall input-inline" id="select-countries">';
 foreach($countries as $key => $value){
@@ -115,6 +115,35 @@ echo '};';
 echo '
 
 var baseURL = '.$GLOBALS['BASEURL'].';';
+
+/*******************************************/
+/*          LOADING OEB VARIABLES          */
+/*******************************************/
+echo "\n\n";
+foreach($GLOBALS as $k => $v) {
+	if(preg_match('/oeb_/', $k)) {
+		echo 'var ' . $k . '= ' . json_encode($v) . ';';
+		echo "\n";
+	}
+}
+echo 'var server = "'.$GLOBALS['SERVER'].'";';
+echo 'var mail_support_oeb = "'.$GLOBALS['MAIL_SUPPORT_OEB'].'";';
+
+/*******************************************/
+/*          LOADING NOTIFICATIONS VARIABLES          */
+/*******************************************/
+echo "\n\n";
+foreach($GLOBALS as $k => $v) {
+	if(preg_match('/notifications_/', $k)) {
+		echo 'var ' . $k . '= ' . json_encode($v) . ';';
+		echo "\n";
+	}
+}
+/*******************************************/
+/*          LOADING B2SHARE VARIABLES          */
+/*******************************************/
+echo 'var b2share_host = "'.$GLOBALS['b2share_host'].'";';
+echo 'var eudat_community_schema_id = "'.$GLOBALS['eudat_community_schema_id'].'";';
 
 
 ?>

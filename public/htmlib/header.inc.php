@@ -27,7 +27,7 @@
 	switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 		case 'errordb': ?>
 			<link href="assets/pages/css/login.min.css" rel="stylesheet" type="text/css" />
-			<?php break;
+		<?php break;
 		case 'index2': ?>
 			<?php if (dirname($_SERVER['PHP_SELF']) == '/workspace') { ?>
 				<link href="assets/pages/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css" />
@@ -40,7 +40,8 @@
 				<link href="assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
 				<link href="assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
 				<link href="assets/pages/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css" />
-			<?php } break;
+			<?php }
+			break;
 		case 'index': ?>
 			<?php if (dirname($_SERVER['PHP_SELF']) == '/workspace') { ?>
 				<link href="assets/pages/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css" />
@@ -55,37 +56,42 @@
 				<link href="assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css" rel="stylesheet" type="text/css" />
 				<link href="assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
 				<link href="assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
+			<?php } elseif (dirname($_SERVER['PHP_SELF']) == '/oeb_publish') { ?>
+				<link href="assets/pages/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css" />
+				<link href="assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css" rel="stylesheet" type="text/css" />
+				<link href="assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
+				<link href="assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
 			<?php } elseif ((dirname($_SERVER['PHP_SELF']) == '/home') || (dirname($_SERVER['PHP_SELF']) == '/publicsite')) { ?>
 				<link href="assets/global/plugins/cubeportfolio/css/cubeportfolio.css" rel="stylesheet" type="text/css" />
 			<?php } else { ?>
 				<link href="assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
 				<link href="assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
 			<?php } ?>
-			<?php break;
+		<?php break;
 		case 'usrProfile': ?>
 			<link href="assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.css" rel="stylesheet" type="text/css" />
-			<?php break;
+		<?php break;
 		case 'dataFromID': ?>
 			<link href="assets/global/plugins/typeahead/typeahead.css" rel="stylesheet" type="text/css" />
-			<?php break;
+		<?php break;
 		case 'listOfProjects': ?>
 			<link href="assets/pages/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css" />
 			<link href="assets/pages/css/treeTable.dataTables.css" rel="stylesheet" type="text/css" />
 			<link href="assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css" rel="stylesheet" type="text/css" />
 			<link href="assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
 			<link href="assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
-			<?php break;
+		<?php break;
 		case 'uploadForm': ?>
 			<link href="assets/global/plugins/dropzone/dropzone.min.css" rel="stylesheet" type="text/css" />
 			<link href="assets/global/plugins/dropzone/basic.min.css" rel="stylesheet" type="text/css" />
-			<?php break;
+		<?php break;
 		case 'uploadForm2':
 		case 'editFile':
 		case 'editFile2': ?>
 			<link href="assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
 			<link href="assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
 			<link href="assets/global/plugins/typeahead/typeahead.css" rel="stylesheet" type="text/css" />
-			<?php break;
+		<?php break;
 		case 'adminUsers':
 		case 'adminTools':
 		case 'adminJobs':
@@ -96,7 +102,7 @@
 			<link href="assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.css" rel="stylesheet" type="text/css" />
 			<link href="assets/global/plugins/datatables/datatables.min.css" rel="stylesheet" type="text/css" />
 			<link href="assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css" rel="stylesheet" type="text/css" />
-			<?php break;
+		<?php break;
 		case 'help':
 		case 'toolhelp':
 		case 'method':
@@ -106,7 +112,7 @@
 		case 'tutorials':
 		case 'references': ?>
 			<link href="assets/global/plugins/markdown/bootstrap-markdown-editor.css" rel="stylesheet" type="text/css" />
-			<?php break;
+		<?php break;
 		case 'output': ?>
 			<?php if (dirname($_SERVER['PHP_SELF']) == '/tools/pydockdna' || dirname($_SERVER['PHP_SELF']) == '/tools/pydock') { ?>
 				<link href="assets/global/plugins/datatables/datatables.min.css" rel="stylesheet" type="text/css" />
@@ -122,48 +128,49 @@
 				<link href="assets/global/plugins/datatables/plugins/fixedColumns/fixedColumns.dataTables.min.css" rel="stylesheet" type="text/css" />
 				<link href="assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css" rel="stylesheet" type="text/css" />
 			<?php } ?>
-			<?php break;
+		<?php break;
 		case 'input': ?>
 			<link href="assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
 			<link href="assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
 			<link href="assets/global/plugins/datatables/datatables.min.css" rel="stylesheet" type="text/css" />
 			<link href="assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css" rel="stylesheet" type="text/css" />
 			<link href="assets/global/plugins/typeahead/typeahead.css" rel="stylesheet" type="text/css" />
-			<?php break;
+		<?php break;
 		case 'jsonTestValidator':
 		case 'jsonSpecValidator': ?>
 			<link href="assets/global/plugins/codemirror/lib/codemirror.css" rel="stylesheet" type="text/css" />
 			<link href="assets/global/plugins/codemirror/addon/lint/lint.css" rel="stylesheet" type="text/css" />
-			<?php break;
+		<?php break;
 		case 'editUser': ?>
 			<link href="assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
 			<link href="assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
-			<?php break;
+		<?php break;
 		case 'createTest': ?>
 			<link href="assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
 			<link href="assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
-			<?php break;
+		<?php break;
 		case 'tools':
+		case 'viewResults':
 		case 'visualizers': ?>
 			<link href="assets/global/plugins/cubeportfolio/css/cubeportfolio.css" rel="stylesheet" type="text/css" />
 			<?php break ?>;
-		<?php } ?>
-		<!-- END PAGE LEVEL PLUGINS -->
-		<!-- BEGIN THEME GLOBAL STYLES -->
-		<link href="assets/global/css/components.min.css" rel="stylesheet" id="style_components" type="text/css" />
-		<link href="assets/global/css/plugins.min.css" rel="stylesheet" type="text/css" />
-		<!-- END THEME GLOBAL STYLES -->
-		<!-- BEGIN PAGE LEVEL STYLES -->
-		<?php
-		switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
-			case 'index2': ?>
+	<?php } ?>
+	<!-- END PAGE LEVEL PLUGINS -->
+	<!-- BEGIN THEME GLOBAL STYLES -->
+	<link href="assets/global/css/components.min.css" rel="stylesheet" id="style_components" type="text/css" />
+	<link href="assets/global/css/plugins.min.css" rel="stylesheet" type="text/css" />
+	<!-- END THEME GLOBAL STYLES -->
+	<!-- BEGIN PAGE LEVEL STYLES -->
+	<?php
+	switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
+		case 'index2': ?>
 			<?php if (dirname($_SERVER['PHP_SELF']) == '/workspace') { ?>
 			<?php } elseif (dirname($_SERVER['PHP_SELF']) == '/home') { ?>
 				<link href="assets/pages/css/portfolio.min.css" rel="stylesheet" type="text/css" />
 			<?php } else { ?>
 				<link href="assets/pages/css/login.min.css" rel="stylesheet" type="text/css" />
 			<?php } ?>
-			<?php break;
+		<?php break;
 		case 'resetPassword':
 		case 'index': ?>
 			<?php if (dirname($_SERVER['PHP_SELF']) == '/workspace') { ?>
@@ -172,22 +179,33 @@
 			<?php } else { ?>
 				<link href="assets/pages/css/login.min.css" rel="stylesheet" type="text/css" />
 			<?php } ?>
-			<?php break;
+		<?php break;
 		case 'lockScreen': ?>
 			<link href="assets/pages/css/lock.min.css" rel="stylesheet" type="text/css" />
-			<?php break;
+		<?php break;
 		case 'usrProfile': ?>
 			<link href="assets/pages/css/profile.min.css" rel="stylesheet" type="text/css" />
-			<?php break;
+		<?php break;
+		case 'oeb_newReq':
+		case "oeb_editMetadata":
+		case 'oeb_manageReq':?>
+			<link rel="stylesheet" href="https://unpkg.com/@trevoreyre/autocomplete-js/dist/style.css"/>
+			<link href="assets/pages/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css" />
+			<link href="assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css" rel="stylesheet" type="text/css" />
+			<link href="assets/global/plugins/select2/css/select2.min.css" rel="stylesheet" type="text/css" />
+			<link href="assets/global/plugins/select2/css/select2-bootstrap.min.css" rel="stylesheet" type="text/css" />
+		<?php break;
+		
 		case 'input':
+		case 'viewResults':
 		case 'output': ?>
 			<link href="assets/pages/css/customized-tools.css" rel="stylesheet" type="text/css" />
-			<?php break;
+		<?php break;
 		case 'tools':
 		case 'visualizers': ?>
 			<link href="assets/pages/css/portfolio.min.css" rel="stylesheet" type="text/css" />
 			<?php break; ?>
-		<?php } ?>
+	<?php } ?>
 	<!-- END PAGE LEVEL STYLES -->
 	<!-- BEGIN THEME LAYOUT STYLES -->
 	<?php
@@ -196,6 +214,7 @@
 		case 'index':
 		case 'home':
 		case 'usrProfile':
+		case 'linkedAccount':
 		case 'uploadForm':
 		case 'uploadForm2':
 		case 'editFile':
@@ -216,11 +235,18 @@
 		case 'jsonTestValidator':
 		case 'dashboard':
 		case 'datasets':
+		case 'oeb_manuals':
+		case 'oeb_blocks':
+		case 'oeb_workflows':
+		case 'oeb_newBlock':
+		case 'oeb_newWorkflow';
+		case 'oeb_generalView':
 		case 'sampleDataList':
 		case 'dataFromTxt':
 		case 'dataFromID':
 		case 'input':
 		case 'output':
+		case 'viewResults':
 		case 'loading_output':
 
 		case 'general':
@@ -228,6 +254,10 @@
 		case 'upload':
 		case 'ws':
 		case 'launch':
+		case "oeb_EUDATdataset":
+		case "oeb_newReq":
+		case "oeb_manageReq":
+		case "oeb_editMetadata":
 		case 'hdesk':
 		case 'related':
 		case 'refs':
@@ -247,14 +277,14 @@
 		case 'logs':
 		case 'errordb':
 
-			?>
-		<link href="assets/layouts/layout/css/layout.min.css" rel="stylesheet" type="text/css" />
-		<link href="assets/layouts/layout/css/themes/darkblue.min.css" rel="stylesheet" type="text/css" id="style_color" />
-		<?php break; ?>
+	?>
+			<link href="assets/layouts/layout/css/layout.min.css" rel="stylesheet" type="text/css" />
+			<link href="assets/layouts/layout/css/themes/darkblue.min.css" rel="stylesheet" type="text/css" id="style_color" />
+			<?php break; ?>
 	<?php } ?>
 	<link href="assets/layouts/layout/css/custom.min.css?v=<?php echo rand(); ?>" rel="stylesheet" type="text/css" />
 	<!-- END THEME LAYOUT STYLES -->
 	<link rel="icon" href="assets/layouts/layout/img/icon.png" sizes="32x32" />
-
+	<script src="assets/global/plugins/jquery.min.js" type="text/javascript"></script>
 </head>
 <!-- END HEAD -->
