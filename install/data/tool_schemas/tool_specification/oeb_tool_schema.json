@@ -468,7 +468,28 @@
           "file"
         ]
       }
+    },
+    "community-specific_metadata":{
+      "type": "object",
+      "properties": {
+          "benchmarking_event_id": {
+            "type": "string",
+            "pattern": "^OEBE"
+          },
+          "workflow_id": {
+            "type": "string",
+            "pattern": "^OEBT"
+          },
+          "automate_publication": {
+            "type": "boolean",
+          },
+          "max_requests": {
+            "type": "integer"
+          }
+        
+      }
     }
+      
   },
   "required": [
     "_id",
@@ -485,7 +506,8 @@
     "input_files",
     "input_files_public_dir",
     "arguments",
-    "output_files"
+    "output_files",
+    "community-specific_metadata"
   ],
   "additionalProperties": false,
   "definitions": {
