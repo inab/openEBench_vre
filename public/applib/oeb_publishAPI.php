@@ -105,6 +105,17 @@ if($_REQUEST) {
 			echo json_encode(OEBDataPetition::selectAllOEBPetitions(array("_id" => $_REQUEST['reqId']))[0]['history_actions']);
 			exit;
 		}
+	//https://dev-openebench.bsc.es/vre/applib/oeb_publishAPI.php?action=getNotAutomaticBE
+	}elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == "getNotAutomaticBE") {
+		echo json_encode(getBenchEventidsNotAutomatic());
+		exit;
+	//https://dev-openebench.bsc.es/vre/applib/oeb_publishAPI.php?action=getNumPetitions&BEId=id
+	}elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == "getNumNotAutoPetitions") {
+		if (isset($_REQUEST['BEId'])) {
+			echo json_encode(getNumOfPetitionBench($_SESSION['User']['id'], $_REQUEST['BEId'], true));
+			exit;
+		}
+		
 	}
 } else {
     echo '{}';

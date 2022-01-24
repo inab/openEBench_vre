@@ -98,7 +98,7 @@ function createTableRegisters(){
                     if (data == "error") {
                         return '<span class="badge badge-danger"><b>'+data+
                             '</b></span><br><a href="javascript:viewLog(\''+row['id']+'\');">View Log</a>'
-                    }else if (data == 'published'){
+                    }else if (data == 'approved'){
                         return '<span class="badge badge-success"><b>'+data+'</b></span>';
                     }else if (data == 'denied'){
                         return '<span class="badge badge-warning"><b>'+data+'</b></span>';
@@ -247,7 +247,7 @@ function createTableApprover(){
                 render: function ( data, type, row ) {
                     if (data == "error") {
                         return '<span class="badge badge-danger"><b>'+data+'</b></span></br><a href="javascript:viewLog(\''+row['id']+'\');">View log</a>'
-                    }else if (data == 'published'){
+                    }else if (data == 'approved'){
                         return '<span class="badge badge-success"><b>'+data+'</b></span>';
                     }else if (data == 'denied'){
                         return '<span class="badge badge-warning"><b>'+data+'</b></span>';
@@ -339,7 +339,7 @@ $('#confirm-form').on('submit', function (e) {
     e.preventDefault();
     $("#actionDialog").modal('hide');
     $("#loading-datatable").show();
-    $("#pendingReq").hide();
+    $("#tableApprovals").hide();
 
     $.ajax({
         type: "POST",
@@ -354,7 +354,7 @@ $('#confirm-form').on('submit', function (e) {
         table1.ajax.reload();
         table2.ajax.reload();
         $("#files").show();
-        $("#pendingReq").show();
+        $("#tableApprovals").show();
         $("#myError").show();
         // errors
 	}). fail(function(data) {
@@ -362,7 +362,7 @@ $('#confirm-form').on('submit', function (e) {
         table1.ajax.reload();
         table2.ajax.reload();
         $("#files").show();
-        $("#pendingReq").show();
+        $("#tableApprovals").show();
         $("#myError").removeClass("alert alert-info");
 		$("#myError").addClass("alert alert-danger");
 		$("#myError").append(data["responseJSON"]["message"]);

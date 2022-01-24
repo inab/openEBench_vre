@@ -23,18 +23,44 @@ $(document).ready(function() {
             $("#errorNotAllowed").hide();
             $("#availableFiles").show()
             $('input').attr('disabled',false);
-            table1.ajax.reload();
+            $("#noAutoBE").hide();
+            
             
             if (!roles['roles'].includes(be_selected)){
                 $("#errorNotAllowed a").attr("href", "/vre/helpdesk/?sel=roleUpgrade&BE="+be_selected)
                 $("#errorNotAllowed").show();
                 allowed = false;
+            } else {
+                //BEs not automatic
+                getBEnotAuto().done(function(resp) {
+                    BEnotAuto = JSON.parse(resp)
+                    
+                    resultBE = BEnotAuto.filter(x => x.id === be_selected)
+                    if (resultBE.length > 0) {
+                        getNumPetitions(be_selected).done(function(petitions) {
+                            petitions = JSON.parse(petitions)
+                            //get the counter of made approved requests for the user
+                            counter = petitions['Approved'] + petitions['Pending']
+                            $("#noAutoBE span").html(counter)
+
+                            // get num of max requests for that be
+                            $("#noAutoBE b").html(resultBE[0]['max_req'])
+                            $("#noAutoBE").show();
+
+                            if(resultBE[0]['max_req'] <= counter){
+                                allowed = false;
+                            }
+                    
+                        })
+                    }
+                })
+
             }
-                  
+            table1.ajax.reload();
             
         })
-    })
-    
+       
+    });
     //refresh list each time table is clicked
     $("#tableMyFiles" ).on( "click", function() {
         arrayOfFiles = [];
@@ -79,7 +105,7 @@ function createSelectableTable(){
                 $(row).hide();
             }
             if(data['current_status'] == 'pending approval' || 
-                data['current_status'] == 'published'){
+                data['current_status'] == 'approved'){
                 $("#availableFiles").show()
                 $(row).css('color', 'silver');
             }
@@ -88,6 +114,7 @@ function createSelectableTable(){
                 $("#availableFiles").hide()
             }
             if (!allowed) {
+                console.log(allowed)
                 $(row).css('color', 'silver');
                 $('input',row).prop('disabled', true)
             }
@@ -121,7 +148,7 @@ function createSelectableTable(){
                 'orderable': false,
                 render: function ( data, type, row ) {
                     if(row['current_status'] == 'pending approval' || 
-                        row['current_status'] == 'published'){
+                        row['current_status'] == 'approved'){
                         res = '</br><input disabled type="radio" \
                             name = "'+data+'" value="'+row.files['consolidated']['id']+'">'
                        
@@ -137,7 +164,7 @@ function createSelectableTable(){
                 "title": '<th>Execution files <i class="icon-question" data-toggle="tooltip" \
                     data-placement="top" title="Files in execution folder"></i></th>',
                 render:function ( data, type, row ) {
-                    if(row['current_status'] == 'pending approval' || row['current_status'] == 'published'){
+                    if(row['current_status'] == 'pending approval' || row['current_status'] == 'approved'){
                         r = "<div><b>"+row['path'].split("/").reverse()[1]+"/</b><a data-html='true' data-toggle='popover' data-placement='top' data-trigger='click' \
                         data-content='<b>Files already submitted: </b><a href =\"oeb_publish/oeb/oeb_manageReq.php#"+row['req_id']+"\">View request</a>' <i class='fa fa-exclamation-triangle' style='color: #F4D03F'></i></a></br>"
                         
@@ -230,8 +257,8 @@ function createSelectableTable(){
             },
             {
                 "targets": 8,
-                "title": '<th>Published on OEB <i class="icon-question" data-toggle="tooltip" \
-                    data-placement="top" title="If datasets are already published in OpenEBench"></i></th>',
+                "title": '<th>Approved/Published <i class="icon-question" data-toggle="tooltip" \
+                    data-placement="top" title="If datasets are already approved/published in OpenEBench"></i></th>',
                 render: function ( data, type, row ) {
                     if (data) return data ;
                     else return false;
@@ -273,6 +300,21 @@ function getRoles() {
     return $.ajax({
         type: 'POST',
         url: CONTROLLER+'?action=getRole'
+    })
+}
+
+function getBEnotAuto () {
+    return $.ajax({
+        type: 'POST',
+        url: CONTROLLER+'?action=getNotAutomaticBE'
+    })
+}
+
+function getNumPetitions (BE_id) {
+    return $.ajax({
+        type: 'POST',
+        url: CONTROLLER+'?action=getNumNotAutoPetitions',
+        data: {"BEId": BE_id }
     })
 }
 

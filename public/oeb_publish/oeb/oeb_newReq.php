@@ -166,6 +166,12 @@ foreach ($outputExe_files as $key => $value) {
                                     request it by sending a ticket: <a>click here!</a>
                                 </p>
                             </div>
+                            <div id="noAutoBE" style="display:none; color:red;">
+                                <p><i class="fa fa-exclamation-triangle"></i>Remember: you
+                                are only allowed to make a maximum of <b></b> approved publication requests.
+                                You have done <span></span> requests. 
+                                </p>
+                            </div>
                             <div id ="availableFiles" style="display:none;">
                             <span class="caption-subject font-dark bold uppercase">
                                 FILES AVAILABLE TO BE PUBLISHED </span> <small 

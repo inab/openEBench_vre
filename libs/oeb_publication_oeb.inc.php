@@ -36,7 +36,7 @@ function getChallenges_associated_to_outfile($file_id){
 /**
  * Lists users files elegible for being  publicated according to the 
  * OEB publication rules
- * @param datatype (string or array). Filter out files by this list of 
+ * @param datatype (array). Filter out files by this list of 
  * accepted type/s of dataset.
  * @return string (json) Document with an array of file entries 
  */
@@ -64,7 +64,7 @@ function getPublishableFiles(array $datatype) {
 
 	// apply further filters to the files based on OEB metadata
 	foreach ($filteredFiles as $key => $value) {
-        //check if file is already requested to be published
+        //check if file is already requested 
         $filters = array("filesIds" => array('$in'=> array($value['_id'])));
         $found = OEBDataPetition::selectAllOEBPetitions($filters);
 
@@ -206,141 +206,173 @@ function actionRequest($id, $action, $message = null){
 
     //approve
     if($action === 'approve'){
-        //0. Input files
-        //create consolidated json in temp folder
         $oeb_form = OEBDataPetition::selectAllOEBPetitions(array('_id' => $id))[0]['oeb_metadata'];
 
-        // build temporal directories
-        $wd  = $GLOBALS['dataDir'].$_SESSION['User']['id']."/".$_SESSION['User']
-                        ['activeProject']."/".$GLOBALS['tmpUser_dir']."oeb_form";
-        if (!is_dir($wd)){
-            mkdir($wd);
-        }
-        
-        $r = file_put_contents($wd."/".$id.".json", json_encode($oeb_form));
-        if (!$r) {
-            array_push($log, "Cannnot access temporary dir or write content.");
-            OEBDataPetition::updateOEBPetitions(array('_id' => $id), 
-                            array('$set' => array("current_status" => "error")));
+        //check if BE is automatic publication or not
+        $auto = $GLOBALS['toolsCol']->find(array(
+            'community-specific_metadata.benchmarking_event_id' => $oeb_form['benchmarking_event_id']));
+        if ($auto->toArray()[0]['community-specific_metadata']['automate_publication']){
+        //PUBLICATION TO OEB AUTOMATIC (LEVEL 2)
+            //0. Input files
+            //create consolidated json in temp folder
+            // build temporal directories
+            $wd  = $GLOBALS['dataDir'].$_SESSION['User']['id']."/".$_SESSION['User']
+                            ['activeProject']."/".$GLOBALS['tmpUser_dir']."oeb_form";
+            if (!is_dir($wd)){
+                mkdir($wd);
+            }
             
-        // return error msg via BlockResponse
-        $response_json->setCode(404);
-        $response_json->setMessage($log[0]);
-                
-        } else {
-            $config_json = $wd."/".$id.".json";
-            array_push($log, "Temporary user directory: ".$config_json);
-
-            //get token 
-            $tk = $_SESSION['User']['Token']['access_token'];
-
-            //1. Execute script to buffer
-            $cmd = $GLOBALS['OEB_submission_repository']."/.py3env/bin/python "
-                .$GLOBALS['OEB_submission_repository']."/APP/push_data_to_oeb.py -i '"
-                .$config_json."' -cr ".$GLOBALS['OEB_submission_repository']
-                ."/APP/dev-oeb-token.json -tk '".$tk."'";
-            $retvalue = my_exec($cmd);
-            $log['cmd'] = $cmd;
-            $log['stderr'] = $retvalue['stderr'];
-
-            //2. Execute migration to oeb database: curl
-            if ($retvalue['return'] != 0){
-                array_push($log, "Error pushing datasets");
+            $r = file_put_contents($wd."/".$id.".json", json_encode($oeb_form));
+            if (!$r) {
+                array_push($log, "Cannnot access temporary dir or write content.");
                 OEBDataPetition::updateOEBPetitions(array('_id' => $id), 
-                        array('$set' => array("current_status" => "error")));
+                                array('$set' => array("current_status" => "error")));
                 
-                $response_json->setCode(400);
-                $response_json->setMessage("<b>ERROR</b> pushing datasets to 
-                    OpenEBench for Request ID:<b>".$id."</b>. Cannot upload data to buffer.");
-
-            } else {
-                //array_push($log, "Data correctly pushed to OEB staged-database.");
+            // return error msg via BlockResponse
+            $response_json->setCode(404);
+            $response_json->setMessage($log[0]);
                     
-                $response = migrateToOEB($tk);
+            } else {
+                $config_json = $wd."/".$id.".json";
+                array_push($log, "Temporary user directory: ".$config_json);
 
-                if (!$response) {
-                    array_push($log, "Error migration to database");
+                //get token 
+                $tk = $_SESSION['User']['Token']['access_token'];
+
+                //1. Execute script to buffer
+                $cmd = $GLOBALS['OEB_submission_repository']."/.py3env/bin/python "
+                    .$GLOBALS['OEB_submission_repository']."/APP/push_data_to_oeb.py -i '"
+                    .$config_json."' -cr ".$GLOBALS['OEB_submission_repository']
+                    ."/APP/dev-oeb-token.json -tk '".$tk."'";
+                $retvalue = my_exec($cmd);
+                $log['cmd'] = $cmd;
+                $log['stderr'] = $retvalue['stderr'];
+
+                //2. Execute migration to oeb database: curl
+                if ($retvalue['return'] != 0){
+                    array_push($log, "Error pushing datasets");
                     OEBDataPetition::updateOEBPetitions(array('_id' => $id), 
-                        array('$set' => array("current_status" => "error")));
+                            array('$set' => array("current_status" => "error")));
                     
                     $response_json->setCode(400);
-                    $response_json->setMessage("<b>ERROR</b> migration to database");
-            
-                }else {
-                    //get dataset umbrella
-                    $OEB_id = null;
-                    $participant_OEBid = null;
-                    //$partAssess_OEBid = null;
-                    foreach ($response as $value) {
-                        if ($value['orig_id'] == $id){
-                                $OEB_id = $value['_id'];
-                        }elseif (preg_match("/_P/", $value['orig_id'])){
-                                $participant_OEBid = $value['_id'];
-                        }
-                        /*elseif (preg_match("/ParticipantAssessments/", $value['orig_id'])){
-                                $partAssess_OEBid = $value['_id'];
-                        }
-                        */
-                    }
+                    $response_json->setMessage("<b>ERROR</b> pushing datasets to 
+                        OpenEBench for Request ID:<b>".$id."</b>. Cannot upload data to buffer.");
 
-                    //3. update VRE mongo: hisotry actions, new attr oeb_id, status published. 
-                    //Other registers (same user?, BE and tool), passed to obsolete
-                    if (is_null($OEB_id)) {
-                            array_push($log, "Error getting umbrella dataset");
-                            OEBDataPetition::updateOEBPetitions(array('_id' => $id), 
-                                array('$set' => array("current_status" => "error")));
-                            $response_json->setCode(400);
-                    }else {
-                        try {
-                            //get all registers with same BE and same tool and set current status obsolete
-                            $filters = array( 'oeb_metadata.benchmarking_event_id' => $oeb_form['benchmarking_event_id'], 
-                            'oeb_metadata.tool_id' => $oeb_form['tool_id'] );
-                            $regData = OEBDataPetition::selectAllOEBPetitions($filters);
-
-                            foreach ($regData as $doc) {
-                                OEBDataPetition::updateOEBPetitions(array('_id' => $doc['_id']), 
-                                array('$set' => array('current_status' => 'obsolete')));
-                            }
-
-                            //save OEB id on consolidated file (get its id first, first element on array of files)
-                            $part_assessId = OEBDataPetition::selectAllOEBPetitions(array('_id' => $id))[0]['filesIds'][0];
-                            addMetadataBNS($part_assessId, array("OEB_dataset_id" => $OEB_id));
-
-                            array_push($log, "Successfully getting umbrella dataset: ".$OEB_id);
-                            //update req with datasets OEB ids
-                            $result = OEBDataPetition::updateOEBPetitions(array('_id' => $id), 
-                            array('$set' => array('current_status' => 'published', 
-                                'dataset_OEBid'=> array($OEB_id, $participant_OEBid ))));
+                } else {
+                    //array_push($log, "Data correctly pushed to OEB staged-database.");
                         
-                            //notify requester
+                    $response = migrateToOEB($tk);
+
+                    if (!$response) {
+                        array_push($log, "Error migration to database");
+                        OEBDataPetition::updateOEBPetitions(array('_id' => $id), 
+                            array('$set' => array("current_status" => "error")));
+                        
+                        $response_json->setCode(400);
+                        $response_json->setMessage("<b>ERROR</b> migration to database");
+                
+                    }else {
+                        //get dataset umbrella
+                        $OEB_id = null;
+                        $participant_OEBid = null;
+                        //$partAssess_OEBid = null;
+                        foreach ($response as $value) {
+                            if ($value['orig_id'] == $id){
+                                    $OEB_id = $value['_id'];
+                            }elseif (preg_match("/_P/", $value['orig_id'])){
+                                    $participant_OEBid = $value['_id'];
+                            }
+                            /*elseif (preg_match("/ParticipantAssessments/", $value['orig_id'])){
+                                    $partAssess_OEBid = $value['_id'];
+                            }
+                            */
+                        }
+
+                        //3. update VRE mongo: hisotry actions, new attr oeb_id, status approved. 
+                        //Other registers (same user?, BE and tool), passed to obsolete
+                        if (is_null($OEB_id)) {
+                                array_push($log, "Error getting umbrella dataset");
+                                OEBDataPetition::updateOEBPetitions(array('_id' => $id), 
+                                    array('$set' => array("current_status" => "error")));
+                                $response_json->setCode(400);
+                        }else {
+                            try {
+                                //get all registers with same BE and same tool and set current status obsolete
+                                $filters = array( 'oeb_metadata.benchmarking_event_id' => $oeb_form['benchmarking_event_id'], 
+                                'oeb_metadata.tool_id' => $oeb_form['tool_id'] );
+                                $regData = OEBDataPetition::selectAllOEBPetitions($filters);
+
+                                foreach ($regData as $doc) {
+                                    OEBDataPetition::updateOEBPetitions(array('_id' => $doc['_id']), 
+                                    array('$set' => array('current_status' => 'obsolete')));
+                                }
+
+                                //save OEB id on consolidated file (get its id first, first element on array of files)
+                                $part_assessId = OEBDataPetition::selectAllOEBPetitions(array('_id' => $id))[0]['filesIds'][0];
+                                addMetadataBNS($part_assessId, array("OEB_dataset_id" => $OEB_id));
+
+                                array_push($log, "Successfully getting umbrella dataset: ".$OEB_id);
+                                //update req with datasets OEB ids
+                                $result = OEBDataPetition::updateOEBPetitions(array('_id' => $id), 
+                                array('$set' => array('current_status' => 'approved', 
+                                    'dataset_OEBid'=> array($OEB_id, $participant_OEBid ))));
                             
-                            $n = new Notification(OEBDataPetition::selectAllOEBPetitions(
-                                array('_id' => $id))[0]['requester'], "OEB data publication: Your 
-                                request has been approved: <br><b>".$id."</b>", "oeb_publish/oeb/oeb_manageReq.php#".$id);
-                            $n->saveNotification();
+                                //notify requester
+                                $n = new Notification(OEBDataPetition::selectAllOEBPetitions(
+                                    array('_id' => $id))[0]['requester'], "OEB data publication: Your 
+                                    request has been approved: <br><b>".$id."</b>", "oeb_publish/oeb/oeb_manageReq.php#".$id);
+                                $n->saveNotification();
 
-                            //email requester
-                            $params = array();
-                            $params['requester'] = UsersDAO::selectUsers(array(
-                                'id' => OEBDataPetition::selectAllOEBPetitions(array('_id' => $id))[0]['requester']))[0]['Email'];
-                            $params['reqId'] = $id;
-                            sendUpdateApproveRequester($params);
+                                //email requester
+                                $params = array();
+                                $params['requester'] = UsersDAO::selectUsers(array(
+                                    'id' => OEBDataPetition::selectAllOEBPetitions(array('_id' => $id))[0]['requester']))[0]['Email'];
+                                $params['reqId'] = $id;
+                                sendUpdateApproveRequester($params);
 
-                            $response_json->setCode(200);
-                            $response_json->setMessage("Data successfully published");
-                                    
+                                $response_json->setCode(200);
+                                $response_json->setMessage("Data successfully approved");
+                                        
 
-                        } catch (MongoCursorException $e) {
-                            $response_json->setCode(500);
-                            $response_json->setMessage("Cannot update data in Mongo. 
-                                Mongo Error(".$e->getCode()."): ".$e->getMessage());
-                            return $response_json->getResponse();
+                            } catch (MongoCursorException $e) {
+                                $response_json->setCode(500);
+                                $response_json->setMessage("Cannot update data in Mongo. 
+                                    Mongo Error(".$e->getCode()."): ".$e->getMessage());
+                                return $response_json->getResponse();
+                            }
                         }
                     }
                 }
             }
+        } else {
+            //BE not to submit to OEB (not automatic)
+            //1. check num_user_requests < == max_req for that BE
+                if (!userWithMaxRequests(OEBDataPetition::selectAllOEBPetitions(
+                    array('_id' => $id))[0]['requester'], $oeb_form['benchmarking_event_id'])) {
+
+                    //2. Procees req: update VRE request in mongo: hisotry actions, new attr oeb_id, status approved. 
+                    $result = OEBDataPetition::updateOEBPetitions(array('_id' => $id), 
+                        array('$set' => array('current_status' => 'approved')));
+
+                    //3. Notify requester
+                    $n = new Notification(OEBDataPetition::selectAllOEBPetitions(
+                    array('_id' => $id))[0]['requester'], "OEB data publication: Your 
+                    request has been approved: <br><b>".$id."</b>", "oeb_publish/oeb/oeb_manageReq.php#".$id);
+                    $n->saveNotification();
+
+                    //email requester
+                    $params = array();
+                    $params['requester'] = UsersDAO::selectUsers(array(
+                    'id' => OEBDataPetition::selectAllOEBPetitions(array('_id' => $id))[0]['requester']))[0]['Email'];
+                    $params['reqId'] = $id;
+                    sendUpdateApproveRequester($params);
+
+                    $response_json->setCode(200);
+                    $response_json->setMessage("Data successfully approved");
+
+                }
         }
-            
+
     }else{
         try {
             if ($action === 'deny'){
@@ -589,4 +621,55 @@ function getOEBdataFromBenchmarkingEvent ($BE_id) {
 	return $block_json;
 
 
+}
+/**
+ * Serach for tools in VRE collection which doesnt have automatic publication
+ * @return array - benchmarking event id's which are not publish automatically
+ */
+function getBenchEventidsNotAutomatic () {
+    $toolsNoAuto = [];
+    foreach ($GLOBALS['toolsCol']->find(array("community-specific_metadata.automate_publication" => false)) as $value) {
+        array_push($toolsNoAuto,array("id" => $value['community-specific_metadata']['benchmarking_event_id'], 
+        "max_req" => $value['community-specific_metadata']['max_requests']) );
+    }
+    return $toolsNoAuto ;
+}
+
+/**
+ * Gets the num of petitions with status approved or pending approval
+ * @param user id
+ * @param benchamarking id 
+ * @return associative array, which num approve petitions, num of pending petitons to be approve
+ */
+function getNumOfPetitionBench ($user, $benchmarkingEvent_id) {
+    $petitions = ['Approved' => 0, 'Pending' => 0] ;
+
+    //serach petitions which that user and that BE
+    $filters = array("requester" => $user, "oeb_metadata.benchmarking_event_id" => $benchmarkingEvent_id);
+    $found = OEBDataPetition::selectAllOEBPetitions($filters);
+    
+    //check status
+    foreach ($found as $value) {
+        if($value['current_status'] == 'approved') {
+            $petitions['Approved'] += 1;
+        }elseif ($value['current_status'] == 'pending approval') {
+            $petitions['Pending'] += 1;
+        }
+    }
+    
+    return $petitions;
+}
+
+
+function userWithMaxRequests ($user, $benchmarkingEvent_id) {
+    $hasMaxReq = false; 
+
+    $petitions = getNumOfPetitionBench ($user, $benchmarkingEvent_id);
+    $totalPetitions = $petitions['Approved'] + $petitions['Pending'];
+    $max = $GLOBALS['toolsCol']->find(array('community-specific_metadata.benchmarking_event_id' => $benchmarkingEvent_id));
+    if ($totalPetitions > $max->toArray()[0]['community-specific_metadata']['max_requests']){
+        $hasMaxReq = true;
+    }
+
+    return $hasMaxReq;
 }
