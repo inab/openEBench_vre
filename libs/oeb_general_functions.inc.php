@@ -206,7 +206,12 @@ function getCommunitiesFromRoles ($roles) {
 		  array_push($communitites_ids, $r[1]);
 	  }else {
 		  if($r[0] == "manager" ||$r[0] == "contributor") {
-		    array_push($communitites_ids, getCommunityFromChallenge($r[1]) );
+        if(str_starts_with($r[1], 'OEBE')) {
+          array_push($communitites_ids, getBenchmarkingEvents($r[1], "community_id") );
+        } elseif(str_starts_with($r[1], 'OEBX')) {
+          array_push($communitites_ids, getCommunityFromChallenge($r[1]) );
+        }
+		    
 		  }
 	  }
 	}
