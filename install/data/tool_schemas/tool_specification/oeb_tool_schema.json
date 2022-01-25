@@ -480,8 +480,9 @@
             "type": "string",
             "pattern": "^OEBT"
           },
-          "automate_publication": {
-            "type": "boolean",
+          "publication_scope": {
+            "type": "string",
+            "enum": ["oeb", "manager"]
           },
           "max_requests": {
             "type": "integer"
