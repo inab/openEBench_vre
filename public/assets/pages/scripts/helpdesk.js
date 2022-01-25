@@ -22,9 +22,6 @@ var Helpdesk = function() {
                 commmunityList: {
                     required: true,
                 },
-                challengeList: {
-                    required: true,
-                },
                 Subject: {
                     required: true
                 },
@@ -102,7 +99,6 @@ function fillForm(option) {
         $('#row-tools').show();
         $('#row-communities').hide();
         $('#row-benchEvent').hide();
-        $('#row-challenges').hide();
         $('#label-msg').html("Message details");
     }else if(option == "tooldev"){
         $('#label-msg').html("Please tell us which kind of tool(s) you want to integrate in the VRE");
@@ -111,13 +107,11 @@ function fillForm(option) {
         $('#commmunity').prop('disabled', false);
         $('#row-communities').show();
         $('#row-benchEvent').show();
-        $('#row-challenges').show();
         roleUpgrade();
     }else{
         $('#Tool').prop('disabled', true);
         $('#row-tools').hide();
         $('#row-communities').hide();
-        $('#row-challenges').hide();
         $('#label-msg').html("Message details");
     }
 }
@@ -134,14 +128,13 @@ function roleUpgrade () {
        var roleToupgrade = "contributor";
        var community_name = $( "#commmunityList option:selected" ).text();
        var be_name = $( "#BEList option:selected" ).text();
-       var challengesList = $( "#challengeList" ).val();
-       console.log(challengesList)
+
 
        //subject
-       $("#Subject").val("Request to upgrade role from "+requester);
+       $("#Subject").val("Request to upgrade role for "+requester);
        //message
        $("#Message").html("Dear user,\n\nThe user "+requester+" would like to upgrade its role to "+roleToupgrade+".\
-       \n Community: "+community_name+".\n BenchmarkingEvent: "+be_name+".\n Challenges: "+challengesList+"\nIf you agree on that, please accept that request on OEB. \n\nRegards, \n\nOEB team.");
+       \n Community: "+community_name+".\n BenchmarkingEvent: "+be_name+".\nIf you agree on that, please accept that request on OpenEBench. \n\nRegards, \n\nOEB team.");
 
    })
 }
@@ -168,36 +161,7 @@ $('#commmunityList').on('change',function(){
         }); 
     }else{
         $('#BEList').html('<option value="">Select a Benchmarking event </option>'); 
-        $('#challengeList').html('<option value="">Select a Challenge </option>'); 
     }
 });
 
-
-$('#BEList').on('change',function(){
-    $('#challengeList').html('');
-    
-    var BEID = $(this).val();
-
-    if(BEID != ""){
-        $.ajax({
-            type:'POST',
-            url: 'applib/oeb_publishAPI.php?action=listOfChallenge',
-            data:'BE_id='+BEID,
-            success:function(data){
-                var cList = JSON.parse(data);
-                cList.forEach((element) => {
-                    $('#challengeList').append('<option value="'+element['name']+'">'+element['name']+'</option>');
-                });
-                roleUpgrade();
-            }
-        }); 
-    }else{
-        $('#challengeList').append('<option value="">Select a Challenge </option>'); 
-    }
-});
-
-
-$('#challengeList').click(function() {
-    roleUpgrade();
-});
 

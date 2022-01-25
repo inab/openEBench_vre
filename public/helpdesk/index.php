@@ -158,16 +158,7 @@ $commmunities = getCommunities();
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="row display-hide" id="row-challenges">
-                                        <div class="col-md-12">
-                                            <div class="form-group">
-                                                <label class="control-label"><b>Challenge List </b><span style="color:red;">*</span></label>
-                                                <select name="challengeList" id="challengeList" class="form-control" multiple>
-                                                    <option value="">Select a challenge </option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    
                                     <div class="row">
                                         <div class="col-md-12">
                                             <div class="form-group">
