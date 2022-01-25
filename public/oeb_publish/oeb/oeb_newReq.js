@@ -68,8 +68,8 @@ $(document).ready(function() {
         $.each($('tbody tr td:first-child input[type="radio"]:checked', this), function() {
             var obj = {};
             obj['id'] = $(this).val();
-            obj['benchmarkingEvent_id'] = $(this).parents('tr').first().children(":nth-child(4)").children("p").prop("id");
-            obj['tool'] = $(this).parents('tr').first().children(":nth-child(4)").children("input").prop("id");
+            obj['benchmarkingEvent_id'] = $(this).parents('tr').first().children(":nth-child(5)").children("p").prop("id");
+            obj['tool'] = $(this).parents('tr').first().children(":nth-child(5)").children("input").prop("id");
 
             arrayOfFiles.push(obj);
    
@@ -79,6 +79,7 @@ $(document).ready(function() {
         } else {
             $('#btn-selected-files').prop("disabled", true)
         }
+        console.log(arrayOfFiles)
     })
 })
 
@@ -130,13 +131,14 @@ function createSelectableTable(){
         "columns" : [
             {"data" : "_id"}, //0
             { "data" : "files" }, //1
+            { "data" : "oeb_id" }, //8
             { "data" : "path" }, //2
             { "data" : "benchmarking_event" }, //3
             { "data" : "oeb_challenges" }, //4
             { "data" : "mtime" }, //5
             { "data" : "current_status" }, //6 --> to hide
             { "data" : "challenge_status" }, //7
-            { "data" : "oeb_id" } //8
+            
 
 
         ],
@@ -165,8 +167,7 @@ function createSelectableTable(){
                     data-placement="top" title="Files in execution folder"></i></th>',
                 render:function ( data, type, row ) {
                     if(row['current_status'] == 'pending approval' || row['current_status'] == 'approved'){
-                        r = "<div><b>"+row['path'].split("/").reverse()[1]+"/</b><a data-html='true' data-toggle='popover' data-placement='top' data-trigger='click' \
-                        data-content='<b>Files already submitted: </b><a href =\"oeb_publish/oeb/oeb_manageReq.php#"+row['req_id']+"\">View request</a>' <i class='fa fa-exclamation-triangle' style='color: #F4D03F'></i></a></br>"
+                        r = "<div><b>"+row['path'].split("/").reverse()[1]+"/</b></br>"
                         
                         
                     }else r = "<b>"+row['path'].split("/").reverse()[1]+"/</b></br>";  
@@ -177,6 +178,27 @@ function createSelectableTable(){
             },
             {
                 "targets": 2,
+                "title": '<th>Status <i class="icon-question" data-toggle="tooltip" \
+                    data-placement="top" title="If datasets are already approved/published in OpenEBench"></i></th>',
+                render: function ( data, type, row ) {
+                    if(row['current_status'] == 'approved'){
+                        r = "<div><span class='badge badge-success'><b>"+row['current_status']+"</b></span><a data-html='true' data-toggle='popover' data-placement='top' data-trigger='click' \
+                        data-content='<b>Files already submitted: </b><a href =\"oeb_publish/oeb/oeb_manageReq.php#"+row['req_id']+"\">View request</a>' <i class='fa fa-exclamation-triangle' style='color: #F4D03F'></i></a></br>"
+                        
+                        
+                    }else if(row['current_status'] == 'pending approval'){
+                        r = "<div><span class='badge badge-info'><b>"+row['current_status']+"</b></span><a data-html='true' data-toggle='popover' data-placement='top' data-trigger='click' \
+                        data-content='<b>Files already submitted: </b><a href =\"oeb_publish/oeb/oeb_manageReq.php#"+row['req_id']+"\">View request</a>' <i class='fa fa-exclamation-triangle' style='color: #F4D03F'></i></a></br>"
+                        
+                    } else if(row['current_status'] == null){
+                         r = "<div><span class='badge badge-secondary'><b>Not submitted</b></span>"
+                    }
+                    return r;
+                    
+                }
+            },
+            {
+                "targets": 3,
                 className: "hide_column",
                 "title": '<th>Execution workflow <i class="icon-question" data-toggle="tooltip" \
                     data-placement="top" title="Execution and file name"></i></th>',
@@ -190,7 +212,8 @@ function createSelectableTable(){
             },
             
             {
-                "targets": 3,
+                "targets": 4,
+                className: "hide_column",
                 "title": '<th>Benchmarking Event <i class="icon-question" data-toggle="tooltip" \
                     data-placement="top" title="OpenEBench benchmarking event in which the dataset was used or the metrics produced"></i></th>',
                 render:function ( data, type, row ) {
@@ -199,7 +222,7 @@ function createSelectableTable(){
 
             },
             {
-                "targets": 4,
+                "targets": 5,
                 "title": '<th>Benchmarking Challenges <i class="icon-question" data-toggle="tooltip" \
                     data-placement="top" title="OpenEBench benchmarking challenges evaluated in the execution"></i></th>',
                 render: function ( data, type, row, meta ) {
@@ -225,7 +248,7 @@ function createSelectableTable(){
 
             },
             {
-                "targets": 5,
+                "targets": 6,
                 "title": '<th>Date <i class="icon-question" data-toggle="tooltip" \
                     data-placement="top" title="Execution date"></i></th>',
                 render: function ( data, type, row ) {
@@ -233,7 +256,7 @@ function createSelectableTable(){
                 }
             },
             {
-                "targets": 6,
+                "targets": 7,
                 className: "hide_column",
                 "title": '<th>Status petition  <i class="icon-question" data-toggle="tooltip" \
                     data-placement="top" title=""></i></th>',
@@ -247,24 +270,15 @@ function createSelectableTable(){
                 
             },
             {
-                "targets":7,
+                "targets":8,
                 "title": '<th>Event status  <i class="icon-question" data-toggle="tooltip" \
                     data-placement="top" title="Benchmarking event status, if it is still open to submit datasets or not"></i></th>',
                 render: function ( data, type, row ) {
                         return "Open"
                     //TODO (for now, events date are irrellevant)
                 }
-            },
-            {
-                "targets": 8,
-                "title": '<th>Approved/Published <i class="icon-question" data-toggle="tooltip" \
-                    data-placement="top" title="If datasets are already approved/published in OpenEBench"></i></th>',
-                render: function ( data, type, row ) {
-                    if (data) return data ;
-                    else return false;
-                    
-                }
             }
+            
 
         ],
         'order': [[1, 'asc']]

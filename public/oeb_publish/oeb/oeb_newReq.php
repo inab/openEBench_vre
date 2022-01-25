@@ -9,12 +9,7 @@ require "../../htmlib/header.inc.php";
 //project list of the user
 $projects = getProjects_byOwner();
 
-if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
-    $communityList = getCommunitiesFromRoles($_SESSION['User']
-                                    ['TokenInfo']['oeb:roles']);
-} else {
-    $communityList = array("Filter files by community");
-}
+
 //get bechmarking events particapated from output files in workspace
 $benchmarkingEvents_participated = array();
 $outputExe_files = json_decode(getPublishableFiles(array("OEB_data_model")), true);
@@ -168,7 +163,7 @@ foreach ($outputExe_files as $key => $value) {
                             </div>
                             <div id="noAutoBE" style="display:none; color:red;">
                                 <p><i class="fa fa-exclamation-triangle"></i>Remember: you
-                                are only allowed to make a maximum of <b></b> approved publication requests.
+                                are only allowed to publish a maximum of <b></b> results for your tool.
                                 You have done <span></span> requests. 
                                 </p>
                             </div>
