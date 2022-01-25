@@ -352,4 +352,4 @@ $GLOBALS['oeb_submission_schema'] = "https://raw.githubusercontent.com/inab/OEB_
 /*****NOTIFICATIONS ******/
 $GLOBALS['notifications_active'] = true;
 $GLOBALS['notifications_refresh'] = 30000;
-$GLOBALS['notifications_clean_period'] = 60; //-1 to disable
+$GLOBALS['notifications_clean_period'] = 4; //-1 to disable
