@@ -142,23 +142,19 @@ $(document).ready(function () {
 				
 
 				$("#loading-datatable").hide();
+
 				editor.on('change', function () {
 					// Validate the editor's current value against the schema
+					$('#sendForm').prop('disabled', true);
 					var errors = editor.validate();
-
-					if (errors.length) {
-						// errors is an array of objects, each with a `path`, `property`, and `message` parameter
-						// `property` is the schema keyword that triggered the validation error (e.g. "minLength")
-						// `path` is a dot separated path into the JSON object (e.g. "root.path.to.field")
-						
-					}
-					else {
+					var contacts = editor.getEditor('root.data_contacts');
+					if (errors.length == 0 || contacts.getValue()[0] != "") {
 						// It's valid!, enable de button
 						valid = true;
 						$('#sendForm').prop('disabled', false);
-
-
+						
 					}
+						
 				})
 			});
 
