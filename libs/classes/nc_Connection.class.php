@@ -106,13 +106,17 @@ class nc_Connection extends Client{
     }
 
     /**
-     * Shares a file
+     * Shares a file protected by password
      * @param pathFile - path of the file to share
      * @return url of the shared file or false otherwise
      */
     function createPublicLinkFile ($pathFile){  
-
-        $data = array('path' => $pathFile,'shareType' => '3');
+        //create password from now
+        $date   = new DateTime(); //this returns the current date time
+        $result = $date->format('Y-m-d-H-i-s');
+        $password = hash("md5", $result);
+        
+        $data = array('path' => $pathFile,'shareType' => '3', "password" => $password);
         $url = $this->server."ocs/v1.php/apps/files_sharing/api/v1/shares";
         $auth_basic["user"] = $this->username;
         $auth_basic["pass"] = $this->password;
@@ -122,7 +126,10 @@ class nc_Connection extends Client{
         $result = new SimpleXMLElement($r[0]);
 
         if ($result->meta->statuscode == 100){
-            return $result->data->url->__toString();
+            $res = $result->data->url->__toString();
+            $urlUser = end(explode("/", $res));
+            return "https://".$urlUser.":".$password."@".end(explode("//",$this->server))."public.php/webdav/";
+
         } else {
             return false;
         }

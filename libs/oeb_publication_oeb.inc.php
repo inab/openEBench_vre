@@ -211,7 +211,7 @@ function actionRequest($id, $action, $message = null){
         //check if BE is automatic publication or not
         $auto = $GLOBALS['toolsCol']->find(array(
             'community-specific_metadata.benchmarking_event_id' => $oeb_form['benchmarking_event_id']));
-        if ($auto->toArray()[0]['community-specific_metadata']['automate_publication']){
+        if ($auto->toArray()[0]['community-specific_metadata']['publication_scope'] == "oeb"){
         //PUBLICATION TO OEB AUTOMATIC (LEVEL 2)
             //0. Input files
             //create consolidated json in temp folder
@@ -505,18 +505,18 @@ function proceedRequest_register_NC($fileId, $metaForm, $type) {
         try{
             addMetadataBNS($fileId, array("urls" => array(array("repository"=> 
                 array("type"=>"nc", "server"=>"dev-openebench.bsc.es/nextcloud"),
-                "url"=> $url_consolidated."/download"))));
+                "url"=> $url_consolidated))));
             addMetadataBNS($participantFile_id, array("urls" => array(array(
                 "repository"=> array("type"=>"nc", "server"=>"dev-openebench.bsc.es/nextcloud"),
                 "url"=> $url_participant))));
 
             //EDIT metadata form: add url nc to participant (in case not url) and consolidated
             $form['participant_file']  = $url_participant;
-            $form['consolidated_oeb_data']  = $url_consolidated."/download";
+            $form['consolidated_oeb_data']  = $url_consolidated;
             $form['dataset_submission_id'] = $req_id;
             
             $newRequest->setOebMetadata($form);
-            $newRequest->setVisualitzationUrl($url_tar."/download");
+            $newRequest->setVisualitzationUrl($url_tar);
 
             //6.Notify approvers
             $notified = 0;
@@ -628,7 +628,7 @@ function getOEBdataFromBenchmarkingEvent ($BE_id) {
  */
 function getBenchEventidsNotAutomatic () {
     $toolsNoAuto = [];
-    foreach ($GLOBALS['toolsCol']->find(array("community-specific_metadata.automate_publication" => false)) as $value) {
+    foreach ($GLOBALS['toolsCol']->find(array("community-specific_metadata.publication_scope" => "manager")) as $value) {
         array_push($toolsNoAuto,array("id" => $value['community-specific_metadata']['benchmarking_event_id'], 
         "max_req" => $value['community-specific_metadata']['max_requests']) );
     }
@@ -672,4 +672,33 @@ function userWithMaxRequests ($user, $benchmarkingEvent_id) {
     }
 
     return $hasMaxReq;
+}
+
+/**
+ * Check if a tool is already submitted (pending or approved) for a benchmarking
+ * @param tool_id the tool to check
+ * @param benchmarkingEvent_id to check 
+ * @return false if it is not submitted (<max_req) or true it is already submitted == max_req
+ */
+function checkToolAlreadySubmitted ($tool_id, $benchmarkingEvent_id) {
+    $submitted = false;
+
+    //check max_req for that BE
+    $max = $GLOBALS['toolsCol']->find(array(
+        'community-specific_metadata.benchmarking_event_id' => $benchmarkingEvent_id))->toArray()[0]
+        ['community-specific_metadata']['max_requests'];
+
+    //search for publication requests with BE and this tool, count how many
+    ////////////////cehck status?????
+    $filters = array( 'oeb_metadata.benchmarking_event_id' => $benchmarkingEvent_id, 
+    'oeb_metadata.tool_id' => $tool_id);
+    $regData = OEBDataPetition::selectAllOEBPetitions($filters);
+    $countToolReq = count($regData);
+
+    //if count < max_req --> false
+    if ($max <= $countToolReq) {
+        $submitted = true;
+    }
+
+    return $submitted;
 }
