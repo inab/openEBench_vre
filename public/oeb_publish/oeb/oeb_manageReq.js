@@ -295,6 +295,7 @@ function createTableApprover(){
 		                    </button>\
                             <ul class="dropdown-menu pull-right" role="menu">\
 						        <li><a href="javascript:showResultsPage(\''+row['id']+'\',\''+data['vre-tool']+'\');"><i class="fa fa-file-text"></i> View Results</a></li>\
+                                <li><a href="javascript:importToWorkspace(\''+row['files'][0]['nc_url']+'\');"><i class="fa fa-file-upload"></i> Import to Workspace </a></li>\
 	                        </ul>\
                         </div>'
                    return result;
@@ -379,6 +380,23 @@ function showResultsPage(viewURL, tool, opt =""){
     else location.href = 'visualizers/viewResults.php?OEBpetition=' + viewURL +'&vre-tool='+tool;
 }
 
+function importToWorkspace (nc_url){
+    if (nc_url != undefined) {
+        
+        $.ajax({
+            type: 'POST',
+            url: CONTROLLER + '?action=importFromUrl',
+            data: "url=" + nc_url,
+        })
+        $("#myError").removeClass("alert alert-danger");
+        $("#myError").addClass("alert alert-info ");
+        $("#myError").append("Data is being imported to workspace <a href='workspace/index.php'>See my data</a>");
+        $("#myError").show();
+        $('html, body').animate({scrollTop:0}, 'slow');
+    }
+
+
+}
 function viewLog(reqId) {
     
     $.ajax({

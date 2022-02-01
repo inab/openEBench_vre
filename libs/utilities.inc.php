@@ -539,90 +539,92 @@ function getVREfile_fromFile($mugfile){
 //formats and completes mongo file metadata from $meta and $lastjob
 function prepMetadataResult($meta,$fnPath=0,$lastjob=Array() ){
 
-        if ($fnPath){
-                $extension = pathinfo("$fnPath",PATHINFO_EXTENSION);
-                $extension = preg_replace('/_\d+$/',"",$extension);
-	        if (preg_match('/^E\d+$/',strtoupper($extension)) )
-	                $extension="ERR";
-        }
+    if ($fnPath){
+            $extension = pathinfo("$fnPath",PATHINFO_EXTENSION);
+            $extension = preg_replace('/_\d+$/',"",$extension);
+        if (preg_match('/^E\d+$/',strtoupper($extension)) )
+                $extension="ERR";
+    }
 
-        if (!isset($meta['format']) && $fnPath)
-                $meta['format']= strtoupper($extension);
-        
-        if (!isset($meta['input_files']) && isset($lastjob['input_files']) ){
-            $input_ids = array();
-            array_walk_recursive($lastjob['input_files'], function($v, $k) use (&$input_ids){ $input_ids[] = $v; });
-            $input_ids = array_unique($input_ids);
-            $meta['input_files']=$input_ids;
-        }
+    if (!isset($meta['format']) && $fnPath)
+            $meta['format']= strtoupper($extension);
+    
+    if (!isset($meta['input_files']) && isset($lastjob['input_files']) ){
+        $input_ids = array();
+        array_walk_recursive($lastjob['input_files'], function($v, $k) use (&$input_ids){ $input_ids[] = $v; });
+        $input_ids = array_unique($input_ids);
+        $meta['input_files']=$input_ids;
+    }
 
-        if (!isset($meta['submission_file']) && isset($lastjob['submission_file']) )
-                $meta['submission_file']=$lastjob['submission_file'];
+    if (!isset($meta['submission_file']) && isset($lastjob['submission_file']) )
+            $meta['submission_file']=$lastjob['submission_file'];
 
-        if (!isset($meta['submission_file']) && isset($lastjob['shPath']) )
-                $meta['submission_file']=$lastjob['shPath'];
+    if (!isset($meta['submission_file']) && isset($lastjob['shPath']) )
+            $meta['submission_file']=$lastjob['shPath'];
 
-        if (!isset($meta['log_file']) && isset($lastjob['log_file']) )
-                $meta['log_file']=$lastjob['log_file'];
+    if (!isset($meta['log_file']) && isset($lastjob['log_file']) )
+            $meta['log_file']=$lastjob['log_file'];
 
-        if (!isset($meta['log_file']) && isset($lastjob['log_file']) )
-                $meta['log_file']=$lastjob['log_file'];
+    if (!isset($meta['log_file']) && isset($lastjob['log_file']) )
+            $meta['log_file']=$lastjob['log_file'];
 
-        if (!isset($meta['tool']) && isset($lastjob['tool']))
-                $meta['tool']=$lastjob['tool'];
-        if (!isset($meta['tool']) && isset($lastjob['toolId']))
-                $meta['tool']=$lastjob['toolId'];
+    if (!isset($meta['tool']) && isset($lastjob['tool']))
+            $meta['tool']=$lastjob['tool'];
+    if (!isset($meta['tool']) && isset($lastjob['toolId']))
+            $meta['tool']=$lastjob['toolId'];
 
 
-        if (!isset($meta['refGenome']) && in_array($meta['format'],array("BAM","GFF","GFF3","BW")) ){
-            if (isset($meta['input_files']) ){
-                $inp = $meta['input_files'][0];
-                $inpObj = $GLOBALS['filesMetaCol']->findOne(array('path'  => $inp));
-                if (!empty($inpObj) && isset($inpObj['refGenome']) ){
-                        $meta['refGenome']= $inpObj['refGenome'];
-                }
-            }
-            if (!isset($meta['refGenome']) && $fnPath ){
-                $fnCore   = "";
-                $refGenome= "";
-                $ext = $meta['format'];
-                if (preg_match("/^[A-Z]+_\(\w+\)(.+)-\(\w+\)(.+)\.$ext/i",basename($fnPath),$m)) {
-                        $fnCore = $m[1];
-                }elseif (preg_match("/^[A-Z]+_\(\w+\)(.+)-/",basename($fnPath),$m)) {
-                         $fnCore = $m[1];
-                }elseif (preg_match("/^[A-Z]+_(.+)\.$ext/i",basename($fnPath),$m)) {
-                        $fnCore = $m[1];
-                }elseif (preg_match("/^[A-Z]+_(.+)\./i",basename($fnPath),$m)) {
-                        $fnCore = $m[1];
-                }else{
-                        $fnCore = preg_replace("/.$ext/i","",basename($fnPath));
-                        $fnCore = preg_replace("/^.*_/","",$fnCore);
-                }
-		$reObj = new \MongoDB\BSON\MongoRegex($_SESSION['User']['id'].".*".$fnCore);
-                $relatedBAMS = $GLOBALS['filesMetaCol']->find(array('path'  => $reObj));
-                if (!empty($relatedBAMS)){
-                       $relatedBAMS->next();
-                       $BAM = $relatedBAMS->current();
-                       if (!empty($BAM))
-                                $meta['refGenome'] = $BAM['refGenome'];
-                }
+    if (!isset($meta['refGenome']) && in_array($meta['format'],array("BAM","GFF","GFF3","BW")) ){
+        if (isset($meta['input_files']) ){
+            $inp = $meta['input_files'][0];
+            $inpObj = $GLOBALS['filesMetaCol']->findOne(array('path'  => $inp));
+            if (!empty($inpObj) && isset($inpObj['refGenome']) ){
+                    $meta['refGenome']= $inpObj['refGenome'];
             }
         }
-	if (!isset($meta['description']) ){
-		$prefix = 0;
-		if ($meta['tool']){
-			$tool = $GLOBALS['toolsCol']->findOne(array('_id' => $meta['tool']));
-			$prefix = $tool['prefix'];
-		}
-		$meta['description'] = getDescriptionFromFN(basename($fnPath),$prefix);
-	}
-        if (!isset($meta['validated'])){
-                $meta['validated']=1;
+        if (!isset($meta['refGenome']) && $fnPath ){
+            $fnCore   = "";
+            $refGenome= "";
+            $ext = $meta['format'];
+            if (preg_match("/^[A-Z]+_\(\w+\)(.+)-\(\w+\)(.+)\.$ext/i",basename($fnPath),$m)) {
+                    $fnCore = $m[1];
+            }elseif (preg_match("/^[A-Z]+_\(\w+\)(.+)-/",basename($fnPath),$m)) {
+                        $fnCore = $m[1];
+            }elseif (preg_match("/^[A-Z]+_(.+)\.$ext/i",basename($fnPath),$m)) {
+                    $fnCore = $m[1];
+            }elseif (preg_match("/^[A-Z]+_(.+)\./i",basename($fnPath),$m)) {
+                    $fnCore = $m[1];
+            }else{
+                    $fnCore = preg_replace("/.$ext/i","",basename($fnPath));
+                    $fnCore = preg_replace("/^.*_/","",$fnCore);
+            }
+            $reObj = new \MongoDB\BSON\Regex($_SESSION['User']['id'].".*".$fnCore);
+            $relatedBAMS = $GLOBALS['filesMetaCol']->find(array('path'  => $reObj));
+            /*
+            if (!empty($relatedBAMS)){
+                $relatedBAMS->next();
+                $BAM = $relatedBAMS->current();
+                if (!empty($BAM))
+                    $meta['refGenome'] = $BAM['refGenome'];
+            }
+            */
         }
-        if (!isset($meta['visible']) && $fnPath){
-                $meta['visible']=((in_array($extension,$GLOBALS['internalResults']))?0:1);
+    }
+    if (!isset($meta['description']) ){
+        $prefix = 0;
+        if ($meta['tool']){
+            $tool = $GLOBALS['toolsCol']->findOne(array('_id' => $meta['tool']));
+            $prefix = $tool['prefix'];
         }
-        return $meta;
+        $meta['description'] = getDescriptionFromFN(basename($fnPath),$prefix);
+    }
+    if (!isset($meta['validated'])){
+            $meta['validated']=1;
+    }
+    if (!isset($meta['visible']) && $fnPath){
+            $meta['visible']=((in_array($extension,$GLOBALS['internalResults']))?0:1);
+    }
+    return $meta;
 }
 
 //completes $meta for log files based on expected outfile

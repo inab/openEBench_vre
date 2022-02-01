@@ -116,6 +116,11 @@ if($_REQUEST) {
 			exit;
 		}
 		
+	}elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == 'importFromUrl'){
+		if (isset($_REQUEST['url'])) {
+			echo getData_fromURL($_REQUEST['url']);
+			exit;
+		}
 	}
 } else {
     echo '{}';
