@@ -148,7 +148,8 @@ $(document).ready(function () {
 					$('#sendForm').prop('disabled', true);
 					var errors = editor.validate();
 					var contacts = editor.getEditor('root.data_contacts');
-					if (errors.length == 0 || contacts.getValue()[0] != "") {
+					console.log(contacts.getValue()[0])
+					if (errors.length == 0 && contacts.getValue()[0] != "") {
 						// It's valid!, enable de button
 						valid = true;
 						$('#sendForm').prop('disabled', false);
