@@ -303,12 +303,13 @@ function prepare_getData_fromURL($url,$outdir,$referer,$meta=array()) {
 
         $fileOut=array("name"  => "file",
        		   "file_path"=> $fnP,
-    	    	   "data_type"=> "",
+    	    	   "data_type"=> isset($meta['data_type'])?$meta['data_type']:"", 
     	    	   "file_type"=> $filetype,
+				   "format"=> $fileExtension,
                    "sources"=> [0],
                    "taxon_id" => $taxon,
        		   "meta_data"=> array(
-                   "validated"   => false,
+                   "validated"   => isset($meta['data_type'])?true:false, 
                    "compressed"  => $compressed,
       		   "description" => $descrip)
 	);

@@ -118,7 +118,7 @@ if($_REQUEST) {
 		
 	}elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == 'importFromUrl'){
 		if (isset($_REQUEST['url'])) {
-			echo getData_fromURL($_REQUEST['url']);
+			echo getData_fromURL($_REQUEST['url'], array("data_type" => "participant"));
 			exit;
 		}
 	}
