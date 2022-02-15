@@ -81,8 +81,7 @@ function createTableRegisters(){
                 render: function ( data, type, row ) {
                     result = "<ul style ='padding-left: 4%;'>";
                     for (let index = 0; index < data.length; index++) {
-                        result += "<li><a href='"+data[index]['nc_url']+
-                        "'target='_blank'>"+ data[index]['name']+"</a></li>";   
+                        result += "<li><a href='applib/oeb_publishAPI.php?action=getNCFile&fn="+data[index]['id']+"'>"+ data[index]['name']+"</a></li>";   
                         
                     }
                     result += "</ul>";
@@ -233,7 +232,7 @@ function createTableApprover(){
                 render: function ( data, type, row ) {
                     result = "<ul style='padding-left: 4%;'>";
                     for (let index = 0; index < data.length; index++) {
-                        result += "<li><a href='"+data[index]['nc_url']+"'target='_blank'>"+ data[index]['name']+"</a></li>";   
+                        result += "<li><a href='applib/oeb_publishAPI.php?action=getNCFile&fn="+data[index]['id']+"'>"+ data[index]['name']+"</a></li>";   
                         
                     }
                     result += "</ul>";
@@ -295,7 +294,7 @@ function createTableApprover(){
 		                    </button>\
                             <ul class="dropdown-menu pull-right" role="menu">\
 						        <li><a href="javascript:showResultsPage(\''+row['id']+'\',\''+data['vre-tool']+'\');"><i class="fa fa-file-text"></i> View Results</a></li>\
-                                <li><a href="javascript:importToWorkspace(\''+row['files'][1]['nc_url']+'\');"><i class="fa fa-file-upload"></i> Import to Workspace </a></li>\
+                                <li><a href="javascript:importToWorkspace(\''+row['files'][1]['id']+'\');"><i class="fa fa-file-upload"></i> Import to Workspace </a></li>\
 	                        </ul>\
                         </div>'
                    return result;
@@ -380,13 +379,12 @@ function showResultsPage(viewURL, tool, opt =""){
     else location.href = 'visualizers/viewResults.php?OEBpetition=' + viewURL +'&vre-tool='+tool;
 }
 
-function importToWorkspace (nc_url){
-    if (nc_url != undefined) {
-        
+function importToWorkspace (fileId){
+    if (fileId != undefined) {
         $.ajax({
             type: 'POST',
             url: CONTROLLER + '?action=importFromUrl',
-            data: "url=" + nc_url,
+            data: "fileId=" + fileId,
         })
         $("#myError").removeClass("alert alert-danger");
         $("#myError").addClass("alert alert-info ");
@@ -394,8 +392,16 @@ function importToWorkspace (nc_url){
         $("#myError").show();
         $('html, body').animate({scrollTop:0}, 'slow');
     }
+}
 
-
+function getNCFile (fileId) {
+    if (fileId != undefined) {
+        $.ajax({
+            type: 'POST',
+            url: CONTROLLER + '?action=getNCFile',
+            data: "fileId=" + fileId,
+        })
+    }
 }
 function viewLog(reqId) {
     

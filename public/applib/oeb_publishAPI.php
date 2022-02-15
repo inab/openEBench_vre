@@ -117,9 +117,25 @@ if($_REQUEST) {
 		}
 		
 	}elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == 'importFromUrl'){
-		if (isset($_REQUEST['url'])) {
-			echo getData_fromURL($_REQUEST['url'], array("data_type" => "participant"));
+		if (isset($_REQUEST['fileId'])) {
+			echo getData_fromURL(getAttr_fromGSFileId($_REQUEST['fileId'], "urls", 1)[0]['url'], array("data_type" => "participant"));
 			exit;
+		}
+	} elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == 'getNCFile'){
+		if (isset($_REQUEST['fn'])) {
+			set_time_limit(0); 
+			ini_set('memory_limit', '512M');
+			$url = getAttr_fromGSFileId($_REQUEST['fn'], "urls", 1)[0]['url'];
+			downloadFile($url);
+			exit(0);
+		}
+	} elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == 'toolToSubmit'){
+		if (isset($_REQUEST['metadata'])) {
+			$form = json_decode($_REQUEST['metadata'], true);
+			if(checkToolAlreadySubmitted($form['tool_id'], $form['benchmarking_event_id'])){
+				echo "1";
+			} else echo "0";
+			
 		}
 	}
 } else {

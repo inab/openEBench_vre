@@ -1841,12 +1841,20 @@ function formatSize($bytes) {
 
 
 function downloadFile( $rfn ){
-		$fileInfo      = pathinfo($rfn);
-		$fileName      = $fileInfo['basename'];
-		$fileExtension = $fileInfo['extension'];
-		$fileExtension = preg_replace('/_\d+$/',"",$fileExtension);
-		$content_type  = (array_key_exists($fileExtension, mimeTypes()) ? mimeTypes()[$fileExtension] : "application/octet-stream");
-		$size = filesize($rfn);
+		if(!filter_var($rfn, FILTER_VALIDATE_URL)){
+			$fileInfo      = pathinfo($rfn);
+			$fileName      = $fileInfo['basename'];
+			$fileExtension = $fileInfo['extension'];
+			$fileExtension = preg_replace('/_\d+$/',"",$fileExtension);
+			$content_type  = (array_key_exists($fileExtension, mimeTypes()) ? mimeTypes()[$fileExtension] : "application/octet-stream");
+			$size = filesize($rfn);
+
+		}else {
+			$result = get_remote_file_info($rfn);
+			$fileName 	  = $result['fileName'];
+			$size     	  = $result['fileSize'];
+			$content_type = $result['contentType'];
+		}
 		$offset = 0;
 		$length = $size;
 
@@ -1870,7 +1878,7 @@ function downloadFile( $rfn ){
 		header("Expires: -1");
 		header("Cache-Control: no-cache");
 		header("Cache-Control: public, must-revalidate, post-check=0, pre-check=0");
-		header("Content-Length: ".filesize($rfn));
+		header("Content-Length: ".$size);
 		$chunksize = 8 * (1024 * 1024); //8MB (highest possible fread length)
 
 		if ($size > $chunksize){
@@ -1893,7 +1901,28 @@ function downloadFile( $rfn ){
 		}
 		exit(0);
 }
+function get_remote_file_info($url) {
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+    curl_setopt($ch, CURLOPT_HEADER, TRUE);
+    curl_setopt($ch, CURLOPT_NOBODY, TRUE);
+    $data = curl_exec($ch);
+    $fileSize = curl_getinfo($ch, CURLINFO_CONTENT_LENGTH_DOWNLOAD);
+    $contentType = curl_getinfo($ch,  CURLINFO_CONTENT_TYPE);
+    $httpResponseCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $reDispo = '/^Content-Disposition: .*?filename=(?<f>[^\s]+|\x22[^\x22]+\x22)\x3B?.*$/m';
+    if (preg_match($reDispo, $data, $mDispo)){
+        $filename = trim($mDispo['f'],' ";');
 
+    }
+    curl_close($ch);
+    return [
+        'fileExists' => (int) $httpResponseCode == 200,
+        'fileSize' => (int) $fileSize,
+        'contentType' =>  $contentType,
+        'fileName' => $filename
+    ];
+}
 function refresh_token($force=false){
 
     if (!$_SESSION['User']['Token']['access_token']){
