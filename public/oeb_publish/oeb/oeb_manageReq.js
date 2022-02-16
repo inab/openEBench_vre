@@ -294,7 +294,7 @@ function createTableApprover(){
 		                    </button>\
                             <ul class="dropdown-menu pull-right" role="menu">\
 						        <li><a href="javascript:showResultsPage(\''+row['id']+'\',\''+data['vre-tool']+'\');"><i class="fa fa-file-text"></i> View Results</a></li>\
-                                <li><a href="javascript:importToWorkspace(\''+row['files'][1]['id']+'\');"><i class="fa fa-file-upload"></i> Import to Workspace </a></li>\
+                                <li><a href="javascript:importToWorkspace(\''+row['files'][0]['id']+'\');"><i class="fa fa-file-upload"></i> Import to Workspace </a></li>\
 	                        </ul>\
                         </div>'
                    return result;

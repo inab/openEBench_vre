@@ -12,7 +12,7 @@ $projects = getProjects_byOwner();
 
 //get bechmarking events particapated from output files in workspace
 $benchmarkingEvents_participated = array();
-$outputExe_files = json_decode(getPublishableFiles(array("OEB_data_model")), true);
+$outputExe_files = json_decode(getPublishableFiles(array("OEB_data_model", "participant_validated")), true);
 
 foreach ($outputExe_files as $key => $value) {
     //not include if already exists
@@ -22,6 +22,9 @@ foreach ($outputExe_files as $key => $value) {
         }
     }
 }
+
+//var_dump(downloadNCFile('https://wRjtBnWMaLEcMna:235cb25f5a2ce98ba1f0f06a6d49b21f@dev-openebench.bsc.es/nextcloud/public.php/webdav/'));
+
 ?>
 
 <body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white 
@@ -161,7 +164,7 @@ foreach ($outputExe_files as $key => $value) {
                                     request it by sending a ticket: <a>click here!</a>
                                 </p>
                             </div>
-                            <div id="noAutoBE" style="display:none; color:red;">
+                            <div id="maxReqBE" style="display:none; color:red;">
                                 <p><i class="fa fa-exclamation-triangle"></i>Remember: you
                                 are only allowed to publish a maximum of <b></b> results for your tool.
                                 You have done <span></span> requests. 

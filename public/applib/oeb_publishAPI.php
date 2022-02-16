@@ -49,7 +49,7 @@ if($_REQUEST) {
 		if (isset($_REQUEST['fileId']) && isset($_REQUEST['metadata'])) {
 			$fn = $_REQUEST['fileId'];
 			$metadataForm = $_REQUEST['metadata'];
-			echo proceedRequest_register_NC($fn, $metadataForm, "");
+			echo proceedRequest_register_NC($fn, $metadataForm);
 			exit; 
 		}
 	//https://dev-openebench.bsc.es/vre/applib/oeb_publishAPI.php?action=getSubmitRegisters

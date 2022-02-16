@@ -148,7 +148,7 @@ $(document).ready(function () {
 					$('#sendForm').prop('disabled', true);
 					var errors = editor.validate();
 					var contacts = editor.getEditor('root.data_contacts');
-					console.log(contacts.getValue()[0])
+					$("#toolSubmit").hide();
 					if (errors.length == 0 && contacts.getValue()[0] != "") {
 						// It's valid!, enable de button
 						valid = true;
@@ -165,57 +165,70 @@ $(document).ready(function () {
 
 	$('#sendForm').on("click", function () {
 		if (valid) {
-			//var json = JSON.stringify(editor.getValue(),null,4);
 			var formData = JSON.stringify(editor.getValue(),null,4);
-			$("#myModal").modal();
-			$("#summaryContent").html("<pre>"+formData+"</pre>")
+			//check tool can be submitted 
+			$.ajax({
+				type: 'POST',
+				url: CONTROLLER + "?action=toolToSubmit",
+				data: { "metadata": formData }
 
-			//when submit on modal is clicked
-			$('#submitModal').on("click",function() {
-				$("#closeModal").trigger("click");
-				$("#formMetadata").hide();
-				$("#loading-datatable").show();
-		
-				$.ajax({
-					type: 'POST',
-					url: CONTROLLER + "?action=requestPublish",
-					data: { "fileId": filesObj["id"], "metadata": formData }
-				}).done(function(data) {
-					//no errors
-					$("#myError").removeClass("alert alert-danger");
-					$("#myError").addClass("alert alert-info");
-					$("#myError").append("<h4><b>OpenEBench data publication request successfully created: </b></h4>");
-					$("#loading-datatable").hide();
-					$("#step3").addClass("active");
-					var reqID = data['message'][0].match(/vre-oebreq_.+/);
-					var listLog = "";
-					for (let index = 0; index < data['message'].length; index++) {
-						listLog += "<li>"+data['message'][index]+"<i class='fa fa-check'></i></li>";
-					}
-					$("#myError").append("<ul>"+listLog+"</ul");
-					$("#myError").append("<br><br>"+timeStamp());
-					$("#viewRequests").attr("onclick", 'location.href="oeb_publish/oeb/oeb_manageReq.php#'+reqID+'"')
-					$("#finalBanner").show();
+			}).done(function(data) {
+				if (data == '0'){
+					$("#myModal").modal();
+					$("#summaryContent").html("<pre>"+formData+"</pre>")
 
-				//more errors
-				}). fail(function(data) {
-					$("#myError").removeClass("alert alert-info");
-					$("#myError").addClass("alert alert-danger");
-					$("#loading-datatable").hide();
-					$("#step3").addClass("active");
-					var listLog = "";
-					for (let index = 0; index < data.responseJSON['message'].length-1; index++) {
-						listLog += "<li>"+data.responseJSON['message'][index]+"<i class='fa fa-check'></i></li>";
-					}
-					listLog += "<li>"+data.responseJSON['message'][data.responseJSON['message'].length-1]+"<i class='fa fa-times-circle'></i></li>";
-					$("#myError").append("<ul>"+listLog+"</ul");
-					$("#myError").append("<br><br>"+timeStamp());
-					$("#finalBanner").show();
-					
-				});
+					//when submit on modal is clicked
+					$('#submitModal').on("click",function() {
+						$("#closeModal").trigger("click");
+						$("#formMetadata").hide();
+						$("#loading-datatable").show();
 				
-			});
-		
+						$.ajax({
+							type: 'POST',
+							url: CONTROLLER + "?action=requestPublish",
+							data: { "fileId": filesObj["id"], "metadata": formData }
+						}).done(function(data) {
+							//no errors
+							$("#myError").removeClass("alert alert-danger");
+							$("#myError").addClass("alert alert-info");
+							$("#myError").append("<h4><b>OpenEBench data publication request successfully created: </b></h4>");
+							$("#loading-datatable").hide();
+							$("#step3").addClass("active");
+							var reqID = data['message'][0].match(/vre-oebreq_.+/);
+							var listLog = "";
+							for (let index = 0; index < data['message'].length; index++) {
+								listLog += "<li>"+data['message'][index]+"<i class='fa fa-check'></i></li>";
+							}
+							$("#myError").append("<ul>"+listLog+"</ul");
+							$("#myError").append("<br><br>"+timeStamp());
+							$("#viewRequests").attr("onclick", 'location.href="oeb_publish/oeb/oeb_manageReq.php#'+reqID+'"')
+							$("#finalBanner").show();
+
+						//more errors
+						}). fail(function(data) {
+							$("#myError").removeClass("alert alert-info");
+							$("#myError").addClass("alert alert-danger");
+							$("#loading-datatable").hide();
+							$("#step3").addClass("active");
+							var listLog = "";
+							for (let index = 0; index < data.responseJSON['message'].length-1; index++) {
+								listLog += "<li>"+data.responseJSON['message'][index]+"<i class='fa fa-check'></i></li>";
+							}
+							listLog += "<li>"+data.responseJSON['message'][data.responseJSON['message'].length-1]+"<i class='fa fa-times-circle'></i></li>";
+							$("#myError").append("<ul>"+listLog+"</ul");
+							$("#myError").append("<br><br>"+timeStamp());
+							$("#finalBanner").show();
+					
+						});
+				
+					});
+
+				} else{
+					$("#toolSubmit span").html(editor.getEditor('root.tool_id').getValue())
+					$("#toolSubmit").show();
+				}
+			
+			})
 
 		}
 	})

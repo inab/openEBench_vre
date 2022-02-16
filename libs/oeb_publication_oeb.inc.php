@@ -165,8 +165,7 @@ function submitedRegisters($filters) {
             foreach ($v['filesIds'] as $value) {
                     $file_path  = $GLOBALS['dataDir'].getAttr_fromGSFileId($value,'path', 1);
                     $file_name  = basename($file_path);
-                    $f = ["id" => $value, "name" => $file_name, "nc_url" => 
-                            getAttr_fromGSFileId($value, "urls", 1)[0]['url']];
+                    $f = ["id" => $value, "name" => $file_name];
                     array_push($r['files'], $f);
             }
             $r['approvers'] = $v['approvers'];
@@ -417,14 +416,12 @@ function actionRequest($id, $action, $message = null){
 /**
  * MAnages petition: upload files to nextcloud, 
  * registers petitions to mongo, notify approvers.
- * @param fileId - id of the file
+ * @param fileId - id of the file json output from workflow
  * @param metaForm - form data
- * @param type - participant or consolidated
  * @return Json response object
  */
-function proceedRequest_register_NC($fileId, $metaForm, $type) {
-    //type: TODO in future releases
-
+function proceedRequest_register_NC($fileId, $metaForm) {
+    
 	//jsonResponse class (errors or successfully)
 	$response_json = new JsonResponse();
 
@@ -435,62 +432,73 @@ function proceedRequest_register_NC($fileId, $metaForm, $type) {
 	$community = $form['community_id'];
 	$benchmarkingEvent_id = $form['benchmarking_event_id'];
 
+    $oeb_metadata_tool = $GLOBALS['toolsCol']->find(array(
+        'community-specific_metadata.benchmarking_event_id' => $benchmarkingEvent_id))->toArray();
+    $datatype_files_publish = $oeb_metadata_tool[0]['community-specific_metadata']['publishable_files'];
+
 	$executionfolder_id = getAttr_fromGSFileId($fileId, "parentDir");
 	$executionfolder_name = str_replace(' ', '', 
         basename(getAttr_fromGSFileId($executionfolder_id, "path")));
-	$participantFile_id = getAttr_fromGSFileId($fileId, "input_files")[0];
+    
+    $filesToUpload = [];
+    foreach ($datatype_files_publish as $datatype) {
+        if ($datatype == "participant") {
+            $filesToUpload[$datatype] = getAttr_fromGSFileId($fileId, "input_files")[0];
 
-	//1. check if associated participant has nc_url in mongo VRE
-        $upload_participant_nc = true;
-        $url_participant ="";
-	
-	if ($url_participant = getAttr_fromGSFileId($participantFile_id, "urls")[0]['url']){
-		//update form: participant_source from nc_url
-        $upload_participant_nc = false;
-	}
+        } elseif ($datatype == "participant_validated") {
+            if (getAttr_fromGSFileId($fileId, "data_type") == $datatype){
+                $filesToUpload[$datatype] = $fileId;
+            }
 
-	
-	//2. Gets APPROVERS
+        }elseif ($datatype == "OEB_data_model") {
+            if (getAttr_fromGSFileId($fileId, "data_type") == $datatype){
+                $filesToUpload[$datatype] = $fileId;
+            }
+
+        }elseif ($datatype == "tool_statistics") {
+            $filter =  array("data_type" => $datatype , "parentDir" => $executionfolder_id);
+            $tar_id = getGSFiles_filteredBy($filter)[0]['_id'];
+            $filesToUpload[$datatype] = $tar_id;
+        }
+    }
+
+    //2. Gets APPROVERS
     $approversEmails =  array();
     $orcids = getOEBRoles($benchmarkingEvent_id)['manager'];
     foreach ($orcids as $value) {
             array_push($approversEmails, getUserEmailFromORCID($value)['email'][0]);
     }
 
-	//3. CREATE petition object
+    //3. CREATE petition object
     //create new obj petition
-    $newRequest = new OEBDataPetition (array($fileId,$participantFile_id), 
-        $_SESSION['User']['id'], $approversEmails, $form);
+    $newRequest = new OEBDataPetition (array_values($filesToUpload), $_SESSION['User']['id'], 
+                                        $approversEmails, $form);
     $req_id = $newRequest->getId();
 
-	//4. UPLOAD to nextcloud and get url share link
+
+    //4. UPLOAD to nextcloud and get url 
     $conn = new nc_Connection();
-    // UPLOAD consolidated file
-	$url_consolidated = $conn->ncUploadFile($fileId, $community."/"
-        .$benchmarkingEvent_id."/".$_SESSION['User']['id']."/".$executionfolder_name);
-
-	//UPLOAD participant file (in case url is needed)
-    if ($upload_participant_nc ){
-            $url_participant = $conn->ncUploadFile($participantFile_id, 
-                $community."/".$benchmarkingEvent_id."/".$_SESSION['User']['id']."/".$executionfolder_name);
+    $pathNC = $community."/".$benchmarkingEvent_id."/".$_SESSION['User']['id']."/".$executionfolder_name;
+    $filesurls = [];
+    
+    foreach ($filesToUpload as $key => $fileId) {
+        if (!$url_file = getAttr_fromGSFileId($fileId, "urls")[0]['url']){
+            // UPLOAD file
+            $url_file = $conn->ncUploadFile($fileId, $pathNC);
+            $filesurls[$fileId] = $url_file;
+            //save url nc to mongo 
+            addMetadataBNS($fileId, array("urls" => array(array("repository"=> 
+                array("type"=>"nc", "server"=>"dev-openebench.bsc.es/nextcloud"),
+                "url"=> $url_file))));
+        }else {
+            $filesurls[$fileId] = $url_file;
+        }
     }
-	
-	//UPLOAD tar file
-	$filter =  array("data_type" => "tool_statistics" , "parentDir"   => $executionfolder_id);
-	$files_list = getGSFiles_filteredBy($filter);
-	$simpleArray = array();
-	foreach ($files_list as $value){
-		$simpleArray = $value;
-	}
-	$id_tar = $simpleArray['_id'];
-	$url_tar = $conn->ncUploadFile($id_tar, $community."/".$benchmarkingEvent_id
-        ."/".$_SESSION['User']['id']."/".$executionfolder_name);
-	
+    
     //error uploading files
-	if (!$url_consolidated || !$url_participant || !$url_tar) {
+	if (in_array(false, array_values($filesurls))) {
         array_push($log, "Petition created with identifier: ".$req_id);
-        array_push($log, "Error uploading file to nextcloud.".$url_participant);
-
+        array_push($log, "Error uploading files to nextcloud.");
         $newRequest->setCurrentStatus("error");
                 
 		// return error msg via BlockResponse
@@ -500,77 +508,59 @@ function proceedRequest_register_NC($fileId, $metaForm, $type) {
 	} else {
         array_push($log, "Petition created with identifier: ".$req_id);
         array_push($log, "Files successfully uploaded to Nextcloud.");
-
-        //5. EDIT metadata: to paricipant (in case url is needed) and consolidated file in mongo
-        try{
-            addMetadataBNS($fileId, array("urls" => array(array("repository"=> 
-                array("type"=>"nc", "server"=>"dev-openebench.bsc.es/nextcloud"),
-                "url"=> $url_consolidated))));
-            addMetadataBNS($participantFile_id, array("urls" => array(array(
-                "repository"=> array("type"=>"nc", "server"=>"dev-openebench.bsc.es/nextcloud"),
-                "url"=> $url_participant))));
-
-            //EDIT metadata form: add url nc to participant (in case not url) and consolidated
-            $form['participant_file']  = $url_participant;
-            $form['consolidated_oeb_data']  = $url_consolidated;
-            $form['dataset_submission_id'] = $req_id;
-            
-            $newRequest->setOebMetadata($form);
-            $newRequest->setVisualitzationUrl($url_tar);
-
-            //6.Notify approvers
-            $notified = 0;
-            foreach ($approversEmails as $value) {
-                //notification
-                $user = UsersDAO::selectUsers(array('Email' => $value))[0]['id'];
-                if (!is_null($user)) {
-                    $n = new Notification($user, 'OEB data publication: New request 
-                    pending approval: </br><b>'.$req_id."</b>", 
-                    "oeb_publish/oeb/oeb_manageReq.php#".$req_id);
-                }
-                $n->saveNotification();
-
-                //email
-                $params = array();
-                $params['approver'] = $value;
-                $params['requester'] = $_SESSION['User']['Name'];
-                $params['reqId'] = $req_id;
-                $params['BE_name'] = getBenchmarkingEvents($benchmarkingEvent_id,"name");
-                if (sendRequestToApprover($params)){
-                    $notified += 1;  
-                } 
-            }
-            if ($notified == count($approversEmails)){
-                array_push($log, "All approvers successfully notified.");
-                $response_json->setCode(200);
-                $response_json->setMessage($log);
-
-            } else if ($notified == 0){
-                array_push($log, "Error sending email to approvers.");
-                $newRequest->setCurrentStatus("error");
+        //EDIT metadata form
+        $form['participant_file']  = $filesurls[$filesToUpload["participant"]];
+        $form['consolidated_oeb_data']  = $filesurls[$filesToUpload["OEB_data_model"]];
+        $form['dataset_submission_id'] = $req_id;
         
-                // return error msg via BlockResponse
-                $response_json->setCode(400);
-                $response_json->setMessage($log);
+        $newRequest->setOebMetadata($form);
+        $newRequest->setVisualitzationUrl($filesurls[$filesToUpload["tool_statistics"]]);
 
-            }else {
-                array_push($log, "Approvers successfully notified.");
-                $response_json->setCode(200);
-                $response_json->setMessage($log);
-            }
-            $user = UsersDAO::selectUsers(array('Email' => $approversEmails[0]))[0]['id'];
+        //6.Notify approvers
+        $notified = 0;
+        foreach ($approversEmails as $value) {
+            //notification
+            $user = UsersDAO::selectUsers(array('Email' => $value))[0]['id'];
             if (!is_null($user)) {
                 $n = new Notification($user, 'OEB data publication: New request 
                 pending approval: </br><b>'.$req_id."</b>", 
                 "oeb_publish/oeb/oeb_manageReq.php#".$req_id);
             }
+            $n->saveNotification();
 
-        } catch (MongoCursorException $e) {
+            //email
+            $params = array();
+            $params['approver'] = $value;
+            $params['requester'] = $_SESSION['User']['Name'];
+            $params['reqId'] = $req_id;
+            $params['BE_name'] = getBenchmarkingEvents($benchmarkingEvent_id,"name");
+            if (sendRequestToApprover($params)){
+                $notified += 1;  
+            } 
+        }
+        if ($notified == count($approversEmails)){
+            array_push($log, "All approvers successfully notified.");
+            $response_json->setCode(200);
+            $response_json->setMessage($log);
 
-            $response_json->setCode(500);
-            $response_json->setMessage("Cannot update data in Mongo. 
-                Mongo Error(".$e->getCode()."): ".$e->getMessage());
-            return $response_json->getResponse();
+        } else if ($notified == 0){
+            array_push($log, "Error sending email to approvers.");
+            $newRequest->setCurrentStatus("error");
+    
+            // return error msg via BlockResponse
+            $response_json->setCode(400);
+            $response_json->setMessage($log);
+
+        }else {
+            array_push($log, "Approvers successfully notified.");
+            $response_json->setCode(200);
+            $response_json->setMessage($log);
+        }
+        $user = UsersDAO::selectUsers(array('Email' => $approversEmails[0]))[0]['id'];
+        if (!is_null($user)) {
+            $n = new Notification($user, 'OEB data publication: New request 
+            pending approval: </br><b>'.$req_id."</b>", 
+            "oeb_publish/oeb/oeb_manageReq.php#".$req_id);
         }
     }
     //7.return JSON RESULT and register in mongo
@@ -579,6 +569,7 @@ function proceedRequest_register_NC($fileId, $metaForm, $type) {
     $newRequest->saveOEBPetition();
 
 	return $response_json->getResponse();
+    
 }
 
 /**
@@ -689,9 +680,8 @@ function checkToolAlreadySubmitted ($tool_id, $benchmarkingEvent_id) {
         ['community-specific_metadata']['max_requests'];
 
     //search for publication requests with BE and this tool, count how many
-    ////////////////cehck status?????
     $filters = array( 'oeb_metadata.benchmarking_event_id' => $benchmarkingEvent_id, 
-    'oeb_metadata.tool_id' => $tool_id);
+    'oeb_metadata.tool_id' => $tool_id, '$or' => [['current_status' => 'approved'],['current_status' => 'pending approval']]);
     $regData = OEBDataPetition::selectAllOEBPetitions($filters);
     $countToolReq = count($regData);
 

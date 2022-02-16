@@ -23,14 +23,14 @@ $(document).ready(function() {
             $("#errorNotAllowed").hide();
             $("#availableFiles").show()
             $('input').attr('disabled',false);
-            $("#noAutoBE").hide();
-            
+            $("#maxReqBE").hide();
             
             if (!roles['roles'].includes(be_selected)){
                 $("#errorNotAllowed a").attr("href", "/vre/helpdesk/?sel=roleUpgrade&BE="+be_selected)
                 $("#errorNotAllowed").show();
                 allowed = false;
             } else {
+                
                 //BEs not automatic
                 getBEnotAuto().done(function(resp) {
                     BEnotAuto = JSON.parse(resp)
@@ -41,11 +41,11 @@ $(document).ready(function() {
                             petitions = JSON.parse(petitions)
                             //get the counter of made approved requests for the user
                             counter = petitions['Approved'] + petitions['Pending']
-                            $("#noAutoBE span").html(counter)
+                            $("#maxReqBE span").html(counter)
 
                             // get num of max requests for that be
-                            $("#noAutoBE b").html(resultBE[0]['max_req'])
-                            $("#noAutoBE").show();
+                            $("#maxReqBE b").html(resultBE[0]['max_req'])
+                            $("#maxReqBE").show();
 
                             if(resultBE[0]['max_req'] <= counter){
                                 allowed = false;
@@ -54,7 +54,7 @@ $(document).ready(function() {
                         })
                     }
                 })
-
+                
             }
             table1.ajax.reload();
             
@@ -91,7 +91,7 @@ function createSelectableTable(){
         "ajax": {
             url: CONTROLLER+'?action=getAllFiles',
             data: ({
-                type: JSON.stringify(['OEB_data_model']),
+                type: JSON.stringify(['OEB_data_model', "participant_validated"]),
               }),
             "dataSrc": ""
         },

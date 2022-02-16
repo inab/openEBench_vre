@@ -157,6 +157,9 @@ if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
                                     
                                     
                                 </div>
+                                <div id = "toolSubmit" class="alert alert-warning" role="alert" style="display:none;">
+                                    The tool <span></span> has been already submitted!
+                                </div>
                                 <!-- Show errors from frontend-->
                                 <div id = "finalBanner" style="display:none;">
                                     <div id="myError"></div>
