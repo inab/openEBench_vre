@@ -70,7 +70,6 @@ $(document).ready(function() {
             obj['id'] = $(this).val();
             obj['benchmarkingEvent_id'] = $(this).parents('tr').first().children(":nth-child(5)").children("p").prop("id");
             obj['tool'] = $(this).parents('tr').first().children(":nth-child(5)").children("input").prop("id");
-
             arrayOfFiles.push(obj);
    
         });
@@ -152,11 +151,10 @@ function createSelectableTable(){
                     if(row['current_status'] == 'pending approval' || 
                         row['current_status'] == 'approved'){
                         res = '</br><input disabled type="radio" \
-                            name = "'+data+'" value="'+row.files['consolidated']['id']+'">'
+                            name = "file-id" value="'+row.files['consolidated']['id']+'">'
                        
                     } else {
-                        res = '</br><input  type="radio" name = "'+
-                            data+'" value="'+row.files['consolidated']['id']+'">'
+                        res = '</br><input  type="radio" name = "file-id" value="'+row.files['consolidated']['id']+'">'
                     }
                     return res;
                 }
@@ -185,13 +183,16 @@ function createSelectableTable(){
                         r = "<div><span class='badge badge-success'><b>"+row['current_status']+"</b></span><a data-html='true' data-toggle='popover' data-placement='top' data-trigger='click' \
                         data-content='<b>Files already submitted: </b><a href =\"oeb_publish/oeb/oeb_manageReq.php#"+row['req_id']+"\">View request</a>' <i class='fa fa-exclamation-triangle' style='color: #F4D03F'></i></a></br>"
                         
-                        
                     }else if(row['current_status'] == 'pending approval'){
                         r = "<div><span class='badge badge-info'><b>"+row['current_status']+"</b></span><a data-html='true' data-toggle='popover' data-placement='top' data-trigger='click' \
                         data-content='<b>Files already submitted: </b><a href =\"oeb_publish/oeb/oeb_manageReq.php#"+row['req_id']+"\">View request</a>' <i class='fa fa-exclamation-triangle' style='color: #F4D03F'></i></a></br>"
                         
+                    } else if(row['current_status'] == 'cancelled'){
+                        r = "<div><span class='badge badge-secondary'><b>"+row['current_status']+"</b></span><a data-html='true' data-toggle='popover' data-placement='top' data-trigger='click' \
+                        data-content='<b>Files already submitted: </b><a href =\"oeb_publish/oeb/oeb_manageReq.php#"+row['req_id']+"\">View request</a>' <i class='fa fa-exclamation-triangle' style='color: #F4D03F'></i></a></br>"
+                        
                     } else if(row['current_status'] == null){
-                         r = "<div><span class='badge badge-secondary'><b>Not submitted</b></span>"
+                        r = "<div><span class='badge badge-secondary'><b>Not submitted</b></span>"
                     }
                     return r;
                     
@@ -235,9 +236,9 @@ function createSelectableTable(){
                        }
                        listChallenges += '</ul>';
                        if (data.length >3 ){
-                        listChallenges += '<div id ="plusShow" style="text-align: center;"><span>...</span>\
+                        listChallenges += '<div id ="plusShow'+meta.row+'" style="text-align: center;"><span>...</span>\
                             <i class="fa fa-plus" style="color: green;float: right;" onclick="showChallenges('+meta.row+')"></i></div>';
-                        listChallenges += '<div id ="minusShow" style="display:none"><i class="fa fa-minus" \
+                        listChallenges += '<div id ="minusShow'+meta.row+'" style="display:none"><i class="fa fa-minus" \
                             style="color: red;float: right;" onclick="hideChallenges('+meta.row+')"></i></div>';
                        }
                        
@@ -287,16 +288,16 @@ function createSelectableTable(){
 }
 
 function showChallenges(numRow) {
-        $('#ul-challenges'+numRow+' li:hidden').show();
-        if ($('#ul-challenges'+numRow+' li').length == $('#ul-challenges'+numRow+' li:visible').length) {
-            $('#plusShow').hide();
-            $('#minusShow').show();
-        }
+    $('#ul-challenges'+numRow+' li:hidden').show();
+    if ($('#ul-challenges'+numRow+' li').length == $('#ul-challenges'+numRow+' li:visible').length) {
+        $('#plusShow'+numRow).hide();
+        $('#minusShow'+numRow).show();
+    }
 }
 function hideChallenges(numRow){
     $('#ul-challenges'+numRow+' li:nth-child(n+4)').hide();
-    $('#plusShow').show();
-    $('#minusShow').hide();
+    $('#plusShow'+numRow).show();
+    $('#minusShow'+numRow).hide();
 
 }
 
