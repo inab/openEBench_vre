@@ -62,6 +62,8 @@ function oeb_publish_file_eudat($fn, $metadata, $userEudatToken){
         $response_json->setCode(400);
         $response_json->setMessage("Error register DOI "+doi+" to OpenEBench database");
         return $response_json->getResponse();    
+    } else {
+        //TODO --> remove file from NC and destroy link
     }
 */
     $response_json->setCode(200);

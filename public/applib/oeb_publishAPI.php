@@ -1,7 +1,6 @@
 <?php
 
-//Manages the backend request of publication tabs
-
+//Controller of publication worklfow
 require __DIR__."/../../config/bootstrap.php";
 redirectOutside();
 

@@ -92,20 +92,18 @@ function getPublishableFiles(array $datatype) {
 
 		if (isset($value['tool'])){
 			$tool = getTool_fromId($value['tool'],1);
-                if (isset($tool['community-specific_metadata'])){
-                    if (isset($tool['community-specific_metadata']['benchmarking_event_id'])){
-                        $value['benchmarking_event']['be_id'] = 
-                            $tool['community-specific_metadata']['benchmarking_event_id'];
-                        $value['benchmarking_event']['be_name'] = 
-                            getBenchmarkingEvents($value['benchmarking_event']['be_id'],"name");
-                    }else{
-                        $value['benchmarking_event'] = $value['tool'];
-                    }
-                    $value['benchmarking_event']['workflow_id'] = 
-                        $tool['community-specific_metadata']['workflow_id'];
+            if (isset($tool['community-specific_metadata'])){
+                if (isset($tool['community-specific_metadata']['benchmarking_event_id'])){
+                    $value['benchmarking_event']['be_id'] = 
+                        $tool['community-specific_metadata']['benchmarking_event_id'];
+                    $value['benchmarking_event']['be_name'] = 
+                        getBenchmarkingEvents($value['benchmarking_event']['be_id'],"name");
+                }else{
+                    $value['benchmarking_event'] = $value['tool'];
                 }
-
-                        
+                $value['benchmarking_event']['workflow_id'] = 
+                    $tool['community-specific_metadata']['workflow_id'];
+            }          
 		}else{
 			// file is not the result of a VRE run. No 'tool'/event associated
 			$value['benchmarking_event']="NA";
