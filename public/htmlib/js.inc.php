@@ -115,6 +115,7 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 		<script src="assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.js" type="text/javascript"></script>
 		<script src="assets/global/scripts/jquery.dataTables.min.js" type="text/javascript"></script>
 		<script src="assets/global/plugins/select2/js/select2.full.min.js" type="text/javascript"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.13.3/js/standalone/selectize.js" integrity="sha512-pF+DNRwavWMukUv/LyzDyDMn8U2uvqYQdJN0Zvilr6DDo/56xPDZdDoyPDYZRSL4aOKO/FGKXTpzDyQJ8je8Qw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 	<?php break;
 	case 'usrProfile': ?>
 		<script src="assets/global/plugins/jquery-validation/js/jquery.validate.min.js" type="text/javascript"></script>

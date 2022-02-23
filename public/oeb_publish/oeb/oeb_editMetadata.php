@@ -268,7 +268,6 @@ require "../../htmlib/js.inc.php";
 <?php
    $files = $_REQUEST['files'];
 ?>
-
 <script type="text/javascript">
     var files = '<?php echo $files;?>'
 </script>

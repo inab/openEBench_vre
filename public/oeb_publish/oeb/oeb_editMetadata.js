@@ -1,6 +1,6 @@
 var valid = false;
 const CONTROLLER = 'applib/oeb_publishAPI.php'
-
+var currentURL = window.location["href"];
 $(document).ready(function () {
 	//files
 	var filesObj = JSON.parse(files)[0]
@@ -19,6 +19,15 @@ $(document).ready(function () {
 
 		}).done(function (data) {
 			var OEBinfo = JSON.parse(data);
+			$.ajax({
+				type: 'POST',
+				url: CONTROLLER + "?action=getUserInfo",
+				data: currentURL
+        	}).done(function(data) {
+          
+          	var userinfo = JSON.parse(data);
+
+			
 
 			//get schema
 			$.getJSON(oeb_submission_schema, function (data) {
@@ -40,47 +49,7 @@ $(document).ready(function () {
 				});
 				window.JSONEditor.defaults.callbacks = {
 					"autocomplete": {
-						// https://autocomplete.trevoreyre.com/#/javascript-component
-
-						// Setup API calls
-						//1. Tools list
-						"search_za": function search(jseditor_editor, input) {
-							var url = CONTROLLER + '?action=getTools';
-
-							return new Promise(function (resolve) {
-								if (input.length < 1) {
-									return resolve([]);
-								}
-
-								fetch(url).then(function (response) {
-									return response.json();
-								}).then(function (data) {
-									var r = data.filter(tool => {
-										let nameValid = false;
-
-										if (input && input != "") {
-											if (tool.name.toLowerCase().indexOf(input.toLowerCase()) != -1) {
-												nameValid = true;
-											}
-										} else {
-											nameValid = true;
-										}
-										return nameValid
-									})
-
-									resolve(r);
-								});
-							});
-						},
-						"renderResult_za": function (jseditor_editor, result, props) {
-							return ['<li ' + props + '>',
-							'<div class="eiao-object-snippet">' + result.name + ' <small>' + result._id + '<small></div>',
-								'</li>'].join('');
-						},
-						"getResultValue_za": function getResultValue(jseditor_editor, result) {
-							return result._id;
-						},
-
+						
 						//2. Contacts list
 						"search_zza": function search(contacts_editor, input) {
 							var url = CONTROLLER + '?action=getContacts&community_id=' + OEBinfo['community_id'];
@@ -118,8 +87,34 @@ $(document).ready(function () {
 						"getResultValue_zza": function getResultValue(contacts_editor, result) {
 							return result._id;
 						}
+					},
+					"selectize": {
+						render: {
+							option: function(jseditor_editor2, data, escape) {
+								return '<div>' +
+									'<span class="title">' +
+										'<span class="name">' + escape(data.name) + '</span>' +
+									'</span>' +
+								'</div>';
+							}
+						},
+						load: function(jseditor_editor2, query, callback) {
+							if (!query.length) return callback();
+							$.ajax({
+								url: CONTROLLER + '?action=getTools',
+								type: 'POST',
+								error: function() {
+									callback();
+								},
+								success: function(res) {
+									callback(JSON.parse(res));
+								}
+							});
+						}
+						
+
 					}
-				}
+				} 
 
 
 				//set values 
@@ -132,12 +127,13 @@ $(document).ready(function () {
 				editor.getEditor("root.community_id").setValue(OEBinfo['community_id']);
 				editor.getEditor("root.workflow_oeb_id").setValue(filesObj['tool']);
 				editor.getEditor("root.data_version").setValue("1");
-
-				$(".form-text:eq(5)" ).append(". <b>If your tool does not appear in list, contact with: \
+				editor.getEditor("root.data_contacts.0").setValue(userinfo['Email']);
+				$(".form-text:eq(6)" ).append(". <b>If your tool does not appear in list, contact with: \
 					</b><a href=\"mailto:"+mail_support_oeb+"\">"+mail_support_oeb+"</a>.");
 				
 				//css
 				$('[data-schemapath="root.data_contacts"] h3 label').append('<span style="color:red;"> *</span>')
+				$('[data-schemapath="root.tool_selection"] label').append('<span style="color:red;"> *</span>')
 				$('label[class="required"]').append('<span style="color:red;"> *</span>')
 				
 
@@ -147,9 +143,11 @@ $(document).ready(function () {
 					// Validate the editor's current value against the schema
 					$('#sendForm').prop('disabled', true);
 					var errors = editor.validate();
+					var toolId = $('select.selectized,input.selectized').val();
 					var contacts = editor.getEditor('root.data_contacts');
+					
 					$("#toolSubmit").hide();
-					if (errors.length == 0 && contacts.getValue()[0] != "") {
+					if (errors.length == 0 && contacts.getValue()[0] != "" && toolId !="") {
 						// It's valid!, enable de button
 						valid = true;
 						$('#sendForm').prop('disabled', false);
@@ -158,14 +156,23 @@ $(document).ready(function () {
 						
 				})
 			});
+		});
 
 		});
 	});
 
-
 	$('#sendForm').on("click", function () {
 		if (valid) {
+			var toolId = $('select.selectized,input.selectized').val();
+			var contactsList = []
+			
+			editor.getEditor("root.tool_id").setValue(toolId);
 			var formData = JSON.stringify(editor.getValue(),null,4);
+			$('select[multiple="multiple"],input.selectized').each(function(){
+				contactsList.push($(this).val());
+			});
+			editor.getEditor("root.data_contacts").setValue(contactsList);
+			
 			//check tool can be submitted 
 			$.ajax({
 				type: 'POST',
@@ -224,7 +231,7 @@ $(document).ready(function () {
 					});
 
 				} else{
-					$("#toolSubmit span").html(editor.getEditor('root.tool_id').getValue())
+					$("#toolSubmit span").html(editor.getEditor('root.tool_selection').getValue())
 					$("#toolSubmit").show();
 				}
 			
