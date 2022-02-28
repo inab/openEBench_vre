@@ -86,12 +86,15 @@ if($_REQUEST) {
 	}elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == "getTools") {
 		echo getTools();
 		exit; 
-	//https://dev-openebench.bsc.es/vre/applib/oeb_publishAPI.php?action=getContacts&community_id=id	
+	//https://dev-openebench.bsc.es/vre/applib/oeb_publishAPI.php?action=getContacts
 	}elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == "getContacts") {
-		if (isset($_REQUEST['community_id'])) {
-			echo getAllContactsOfCommunity($_REQUEST['community_id']);
-			exit;
-		}
+		echo getAllContacts();
+		exit;
+	//https://dev-openebench.bsc.es/vre/applib/oeb_publishAPI.php?action=getContactOEB
+	}elseif (isset($_REQUEST['action']) && $_REQUEST['action'] == "getContactOEB") {
+		echo getContactsIds($_SESSION['User']['Email']);
+		exit;
+		
 	//https://dev-openebench.bsc.es/vre/applib/oeb_publishAPI.php?action=getApprovalRequest
 	}elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == "getApprovalRequest") {
 			$filters = array ('approvers' => array('$in' => array($_SESSION['User']['Email'])));

@@ -334,11 +334,11 @@ function getContactEmail ($contacts_ids) {
  * @param community to search
  * @return json with contacts ids
  */
-//var_dump(getAllContactsOfCommunity("OEBC002"));
-function getAllContactsOfCommunity ($community_id){
+//var_dump(getAllContacts());
+function getAllContacts(){
 
   $data_query =
-  '{"query":"query getContacts($community_id: String!){getContacts(contactFilters: {community_id: $community_id}) {_id}}","variables":{"community_id": "'.$community_id.'"}}';
+  '{"query":"query getContacts{getContacts {_id}}"}';
   $url = $GLOBALS['OEB_sciapi'];
   $headers= array('Content-Type: application/json');
   //get credentials
