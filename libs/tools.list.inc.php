@@ -38,31 +38,31 @@ function getTools_List($status = 1) {
 // list tools
 
 function getTools_ListComplete($status = 1) {
-   if ($_SESSION['User']['Type'] == 3){
+   	if ($_SESSION['User']['Type'] == 3){
        $tools = $GLOBALS['toolsCol']->find(array('external' => true, 'status' => $status, 'owner.license' => array('$ne' => "free_for_academics")), array(),array('title' => 1));
-	 }elseif($_SESSION['User']['Type'] == 0 || $_SESSION['User']['Type'] == 1) {
+	}elseif($_SESSION['User']['Type'] == 0 || $_SESSION['User']['Type'] == 1) {
 	 		$tools = $GLOBALS['toolsCol']->find(array('external' => true, 'status' => array('$ne' => 2)), array(),array('title' => 1));
-	 }else{
+	}else{
        $tools = $GLOBALS['toolsCol']->find(array('external' => true, 'status' => $status), array(),array('title' => 1));
-   }
+   	}
 
 	if($_SESSION['User']['Type'] == 1) {
 
-		 $tools_list = iterator_to_array($tools);
+		$tools_list = iterator_to_array($tools);
 
-		 foreach($tools_list as $key => $tool) {
+		foreach($tools_list as $key => $tool) {
 
-			 if($tool["status"] == 3 && !in_array($tool["_id"], $_SESSION['User']["ToolsDev"])) {
+			if($tool["status"] == 3 && !in_array($tool["_id"], $_SESSION['User']["ToolsDev"])) {
 				 unset($tools_list[$key]);
-			 }
+			}
 
-		 }
+		}
 
-			return $tools_list;
+		return $tools_list;
 
-	 } else {
+	} else {
 		return iterator_to_array($tools);	
-	 }	
+	}	
 
 }
 

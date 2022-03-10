@@ -3,14 +3,18 @@
 require __DIR__."/../../config/bootstrap.php";
 
 switch($_REQUEST["Request"]) {
-	case 'general': $req = "Technical question";
-									break;
-	case 'tools': $req = "Issue related with tools";
-								break;
-	case 'space': $req = "Request to increase disk quota";
-								break;
-	case 'tooldev': $req = "Request for becoming a tool developer";
-								break;
+	case 'general': 
+		$req = "Technical question";
+		break;
+	case 'tools': 
+		$req = "Issue related with tools";
+		break;
+	case 'space': 
+		$req = "Request to increase disk quota";
+		break;
+	case 'tooldev': 
+		$req = "Request for becoming a tool developer";
+		break;
 
 
 }
@@ -42,6 +46,7 @@ $messageUser = '
 	Request subject: '.$_REQUEST["Subject"].'<br>
 	Request message: '.$_REQUEST["Message"].'<br><br>
 	MuG VRE Technical Team';
+	
 
 if(sendEmail($GLOBALS['ADMINMAIL'], "[".$ticketnumber."]: ".$req." - ".$_REQUEST["Subject"], $message, $_REQUEST["Email"], $toolContact)) {
 
