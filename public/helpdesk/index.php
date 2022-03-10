@@ -67,8 +67,8 @@ $commmunities = getCommunities();
                             <?php } ?>
                         </div>
                     </div>
-                    <form name="helpdesk" id="helpdesk" action="applib/openTicket.php" method="post" class="needs-validation" novalidate>
-
+                    <form name="helpdesk" id="helpdesk"  method="post" class="needs-validation" novalidate>
+<!--action="applib/openTicket.php"-->
                         <div class="portlet box blue-oleo">
                             <div class="portlet-title">
                                 <div class="caption">
@@ -99,7 +99,7 @@ $commmunities = getCommunities();
                                                 <select name="Request" id="Request" class="form-control">
                                                     <option value=""><b>Select a request</b></option>
                                                     <option value="general" <?php if ($_REQUEST["sel"] == "general") { ?>selected<?php } ?>>I have a technical question</option>
-                                                    <option value="tools" <?php if ($_REQUEST["sel"] == "tools") { ?>selected<?php } ?>>I have an issue related with some tool</option>
+                                                    <option value="tools" <?php if ($_REQUEST["sel"] == "tools") { ?>selected<?php } ?>>I have an issue related with some workflow</option>
                                                     <option value="space" <?php if ($_REQUEST["sel"] == "space") { ?>selected<?php } ?>>I need more disk space</option>
                                                     <option value="community" <?php if ($_REQUEST["sel"] == "community") { ?>selected<?php } ?>>Register a new community</option>
                                                     <option value="roleUpgrade" <?php if ($_REQUEST["sel"] == "roleUpgrade") { ?>selected<?php } ?>>Request to become contributor</option>
@@ -155,6 +155,69 @@ $commmunities = getCommunities();
                                                     }?>
                                                      
                                                 </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row display-hide" id="row-tool">
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label class="control-label"><b>Select your tool </b></b><span style="color:red;">*</span></label>
+                                                <small>Select your tool. If your tool is not in the list, click to register it.</small>
+                                                <select name="toolList" id="toolList" class="form-control" >
+                                                    <option value="">Select a tool </option>
+                                                    <?php 
+                                                        $tools = json_decode(getTools(), true);
+                                                        foreach ($tools as $value) {
+                                                            echo "<option value='".$value['_id']."'>".$value['name']."</option>";
+                                                        }
+                                                    ?>
+                                                </select>
+                                            </div>
+                                            <input type="text" name="newToolDesc" id="newToolDesc" hidden>
+                                            <div class="form-check">
+                                                <label class="form-check-label" for="defaultCheck1">Click to register your tool</label>
+                                                <input type="checkbox" value="true" id="registerToolCheckbox" name="registerToolCheckbox">
+                                                
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row display-hide" id="row-registertool">
+                                        <div class="col-md-12 col-sm-12">
+                                            <div class="portlet light bordered">
+                                                <div class="portlet-title">
+                                                        <span class=" font-dark bold uppercase">REGISTER YOUR TOOL</span>
+                                                    <div class="tools">
+                                                        <a href="javascript:;" class="collapse"></a>
+                                                    </div>
+                                                </div>
+                                                <div class="portlet-body registerTool">
+                                                    <!-- Tool form -->
+                                                    <div class="form-group">
+                                                        <label for="toolName"><b>Tool's name:</b><span style="color:red;">*</span></label>
+                                                        <input type="text" name="toolName" id="toolName" class="form-control" 
+                                                        placeholder="Enter your tool's name" required="">
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="descTool"><b>Description: </b><span style="color:red;">*</span></label>
+                                                        <textarea name="descTool" id="descTool" class="form-control" 
+                                                        placeholder="Your description here" rows="3" required></textarea>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="tool_access_type"><b>Tool Access Type: </b><span style="color:red;">*</span></label>
+                                                        <select class="form-control" name="tool_access_type" id="tool_access_type">
+                                                            <option value="command-line">command-line</option>
+                                                            <option value="REST/OpenAP">REST/OpenAP</option>
+                                                            <option value="SOAP/WSDL">SOAP/WSDL</option>
+                                                            <option value="Web">Web</option>
+                                                            <option value="other">other</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="link"><b>Link: </b></label>
+                                                        <input class="form-control" type="url" name="link" id="link">
+                                                    </div>
+                                                    <button class="btn blue" id ="getToolInfo">Save</button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -235,7 +298,6 @@ $commmunities = getCommunities();
                 </div>
                 <!-- /.modal-dialog -->
             </div>
-
             <?php
 
             require "../htmlib/footer.inc.php";

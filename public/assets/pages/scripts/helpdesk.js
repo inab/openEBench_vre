@@ -1,4 +1,13 @@
 //var baseURL = $('#base-url').val();
+/*
+ * Modal popup
+ */
+// Get the modal
+var modal = $('#modalDialog');
+
+// Get the  element that closes the modal
+var span = $(".close");
+
 var Helpdesk = function() {
 
     var handleHelpdesk = function() {
@@ -55,7 +64,7 @@ var Helpdesk = function() {
             },
 
             submitHandler: function(form) {
-
+                console.log($("form").serialize())
             	form.submit();
 
             }
@@ -64,6 +73,7 @@ var Helpdesk = function() {
         $('#helpdesk input').keypress(function(e) {
             if (e.which == 13) {
                 if ($('#helpdesk').validate().form()) {
+                    console.log($("form").serialize())
                     $('#helpdesk').submit(); //form validation success, call ajax form submit
                 }
                 return false;
@@ -84,13 +94,13 @@ var Helpdesk = function() {
 }();
 
 
-jQuery(document).ready(function() {
+$(document).ready(function(){
     Helpdesk.init();
     var selectedOption = $('#Request').val();
     fillForm(selectedOption);
     $('#BEList').trigger('change');
-    
 
+    
 });
 
 function fillForm(option) {
@@ -99,7 +109,8 @@ function fillForm(option) {
         $('#row-tools').show();
         $('#row-communities').hide();
         $('#row-benchEvent').hide();
-        $('#label-msg').html("Message details");
+        $('#row-tool').hide();
+        $('#row-registertool').hide();
     }else if(option == "tooldev"){
         $('#label-msg').html("Please tell us which kind of tool(s) you want to integrate in the VRE");
     }else if(option == "roleUpgrade"){
@@ -107,34 +118,42 @@ function fillForm(option) {
         $('#commmunity').prop('disabled', false);
         $('#row-communities').show();
         $('#row-benchEvent').show();
+        $('#row-tool').show();
+        $('#row-registertool').hide();
         roleUpgrade();
     }else{
         $('#Tool').prop('disabled', true);
         $('#row-tools').hide();
         $('#row-communities').hide();
-        $('#label-msg').html("Message details");
     }
 }
 
 function roleUpgrade () {
     //get data --> AJAX TODO -> get user logged, get approver name
     $.ajax({
-       url: 'applib/helpdeskPetitions.php?getActors'
+        url: 'applib/helpdeskPetitions.php?getActors'
      }).done(function(data) {
-       var fileinfo = JSON.parse(data);
+        var fileinfo = JSON.parse(data);
 
-       //if user already have manager/owner roles, not show
-       var requester = fileinfo['Name']+" "+fileinfo['Surname'];
-       var roleToupgrade = "contributor";
-       var community_name = $( "#commmunityList option:selected" ).text();
-       var be_name = $( "#BEList option:selected" ).text();
+        //if user already have manager/owner roles, not show
+        var requester = fileinfo['Name']+" "+fileinfo['Surname'];
+        var roleToupgrade = "contributor";
+        var community_name = $("#commmunityList option:selected" ).text();
+        var be_name = $("#BEList option:selected" ).text();
+        var registerTool = $('#registerToolCheckbox:checked').val() == undefined ? false: true;
+        if (registerTool) {
+            newTool = "Tool to register: "+$("#newToolDesc").val()
+        }else {
+            newTool = "Any new tool to register."
+        }
 
-
-       //subject
-       $("#Subject").val("Request to upgrade role for "+requester);
-       //message
-       $("#Message").html("Dear user,\n\nThe user "+requester+" would like to upgrade its role to "+roleToupgrade+".\
-       \n Community: "+community_name+".\n BenchmarkingEvent: "+be_name+".\nIf you agree on that, please accept that request on OpenEBench. \n\nRegards, \n\nOEB team.");
+        //subject
+        $("#Subject").val("Request to upgrade role for "+requester);
+        //message
+        $("#Message").val("Dear user,\n\nThe user "+requester+" would like to upgrade its role to "+roleToupgrade+".\
+        \n Community: "+community_name+".\n BenchmarkingEvent: "+be_name+".\
+        \n "+newTool+"\
+        \nIf you agree on that, please accept that request on OpenEBench. \n\nRegards, \n\nOEB team.");
 
    })
 }
@@ -163,5 +182,42 @@ $('#commmunityList').on('change',function(){
         $('#BEList').html('<option value="">Select a Benchmarking event </option>'); 
     }
 });
+$('#row-tool').on('change',function(){
+    roleUpgrade();
+})
 
+// When the user clicks anywhere outside of the modal, close it
+$('body').bind('click', function(e){
+    if($(e.target).hasClass("modal")){
+        modal.hide();
+    }
+});
 
+$('#registerToolCheckbox').on('change',function(){
+    if ($('#registerToolCheckbox:checked').val() == "true") {
+        $('#row-registertool').show();
+        roleUpgrade();
+    }else {
+        $('#row-registertool').hide();
+        roleUpgrade();
+    }
+})
+
+document.getElementById("getToolInfo").addEventListener("click", function(event){
+    event.preventDefault()
+    var newTool = {};
+    $(".registerTool input").each(function() {
+        newTool[this.name] = this.value
+    }) 
+    $(".registerTool textarea").each(function() {
+        newTool[this.name] = this.value
+    }) 
+    $(".registerTool select").each(function() {
+        newTool[this.name] = this.value
+    }) 
+    $("#newToolDesc").val(JSON.stringify(newTool))
+    roleUpgrade()
+    //console.log(JSON.stringify(newTool))
+    
+    
+})
