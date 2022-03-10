@@ -166,10 +166,12 @@ foreach (array_values(CountriesDAO::selectCountries(array(), $ops)) as $v)
                                                         </div>
                                                         <div class="form-group">
                                                             <label class="control-label">Surname</label>
-                                                            <input name="Surname" type="text" value="<?php echo $_SESSION['User']['Surname']; ?>" class="form-control" id="surname-usr-profile" /> </div>
+                                                            <input name="Surname" type="text" value="<?php echo $_SESSION['User']['Surname']; ?>" class="form-control" id="surname-usr-profile" /> 
+                                                        </div>
                                                         <div class="form-group">
                                                             <label class="control-label">Institution</label>
-                                                            <input name="Inst" type="text" value="<?php echo $_SESSION['User']['Inst']; ?>" class="form-control" /> </div>
+                                                            <input name="Inst" type="text" value="<?php echo $_SESSION['User']['Inst']; ?>" class="form-control" /> 
+                                                        </div>
                                                         <div class="form-group">
                                                             <label class="control-label">Country</label>
                                                             <select name="Country" class="form-control">
@@ -183,6 +185,10 @@ foreach (array_values(CountriesDAO::selectCountries(array(), $ops)) as $v)
                                                                 endforeach;
                                                                 ?>
                                                             </select>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="control-label">ORCID</label>
+                                                            <input name="orcid" type="text" value="<?php echo $_SESSION['User']['TokenInfo']['orcid']; ?>" class="form-control" readonly/> 
                                                         </div>
                                                         <!-- <div class="form-group">
                                                             <label class="control-label">OEB Community</label>
@@ -371,10 +377,10 @@ foreach (array_values(CountriesDAO::selectCountries(array(), $ops)) as $v)
                                                         <label class="control-label">Token User information<i class="icon-question tooltips" data-container="body" data-html="true" data-placement="right" data-original-title="<p align='left' style='margin:0'>Information returned by Oauth2 provider when the user token is beared</p>"></i></label>
                                                         <br />
                                                         <pre><?php echo json_encode($_SESSION['User']['TokenInfo'], JSON_PRETTY_PRINT); ?></pre>
-						    </div>
+                                                    </div>
 
-						<br/>
-						<br/>
+                                                <br/>
+                                                <br/>
 						<span class="caption-subject font-blue-madison bold uppercase">Linked Accounts</span>
 
 							
