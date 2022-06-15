@@ -1,0 +1,167 @@
+{
+	"id": "https://github.com/inab/OEB_level2_data_migration/submission-form-json-schemas",
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"title": "Schema that defines the set of fields to be filled for a submission to OpenEBench database",
+	"type": "object",
+	"properties": {
+		"consolidated_oeb_data": {
+			"title": "Consolidated dataset path or URL",
+			"description": "Path or publicly reachable URL to the consolidated dataset, coming from an OpenEBench standardized benchmarking workflow (e.g.https://github.com/inab/TCGA_benchmarking_workflow",
+			"type": "string",
+			"readonly": true,
+			"options": {
+			    "hidden": true
+			 }
+		},
+		"data_visibility": {
+			"title": "Datasets visibility",
+			"description": "The desired visibility of the submitted datasets, which must be acknowledged by the APIs",
+			"type": "string",
+			"enum": ["public", "community", "challenge", "participant"],
+			"default": "public",
+			"readonly": true
+		},
+		
+		"benchmarking_event_id": {
+			"title": "Benchmarking event",
+			"description": "The unique id of the benchmarking event the dataset belongs to, as is returned by the API",
+			"type": "string",
+			"pattern": "^OEBE[0-9]{3}[A-Z0-9]{7}$",
+			"readonly": true
+		},
+		"participant_file": {
+			"title": "Participant file associated",
+			"description": "Path or URI (e.g. DOI) to the participant file associated with the consolidated results",
+			"type": "string",
+			"readonly": true
+		},
+		"community_id": {
+			"title": "OEB community",
+			"description": "The unique id of the community where the data should be uploaded. Should come from VRE workflow",
+			"type": "string",
+			"pattern": "^OEBC[0-9]{3}$",
+			"options": {
+			    "hidden": true
+			 }
+		},
+		"tool_id": {
+			"title": "Participant Tool",
+			"description": "The id of the tool used to generate the dataset. Should be selected by uploader, using API",
+			"type": "string",
+			"pattern": "^OEBT[0-9]{3}[A-Z0-9]{7}$",
+			"options": {
+			    "hidden": true
+			 }
+			
+		},
+		"tool_selection": {
+			"title": "Participant Tool",
+			"description": "The id of the tool used to generate the dataset. Should be selected by uploader, using API",
+			"type": "string",
+			"format": "selectize",
+			"enum": [""],
+			"options": {
+			    "selectize": {
+					"load": "load",
+					"render": "render",
+					"placeholder": "Name of your tool",
+					"valueField": "_id",
+					"labelField": "name",
+					"searchField": "name",
+					"options": []
+			    }
+			}
+		},
+
+		"dataset_submission_id": {
+			"title": "Dataset submission id",
+			"description": "The unique identifier of the dataset which will hold the identifiers of all the loaded/updated datasets. Beware, this id should be unique! If it is not set, a UUIDv1 is used",
+			"type": "string",
+			"options": {
+			    "hidden": true
+			 }
+		},
+		"data_version": {
+			"title": "Version",
+			"description": "Version (or release date) of the dataset",
+			"minLength": 1,
+			"type": "string",
+			"options": {
+			    "hidden": true
+			 }
+		},
+		"workflow_oeb_id": {
+			"title": "OEB Workflow",
+			"description": "The id of the workflow (as a tool) used to compute the assessment metrics. Should be associated to VRE tool",
+			"type": "string",
+			"pattern": "^OEBT[0-9]{3}[A-Z0-9]{7}$",
+			"options": {
+			    "hidden": true
+			 }
+		},
+		"data_contacts": {
+			"title": "Contacts",
+			"description": "Emails of the dataset contact(s). Should be registered in Mongo and OIDC, as they are going to be used to do the proper internal mappings",
+			"type": "array",
+			"minItems": 1,
+			"uniqueItems": true,
+			"items": {
+				"type": "string",
+				"format": "autocomplete",
+				"options": {
+				    "autocomplete": {
+					"search": "search_zza",
+					"getResultValue": "getResultValue_zza",
+					"renderResult": "renderResult_zza",
+					"autoSelect": true
+				    }
+				}
+			}
+		},
+		"data_model_repo": {
+			"title": "OpenEBench benchmarking data model repository",
+			"description": "The git repository URI, needed to check out the data model",
+			"type": "string",
+			"format": "uri",
+			"minLength": 1,
+			"default": "https://github.com/inab/benchmarking-data-model.git",
+			"options": {
+			    "hidden": true
+			 }
+		},
+		"data_model_tag": {
+			"title": "Data model tag",
+			"description": "Either the tag, branch or checkout hash needed to fetch the right version of the data model",
+			"type": "string",
+			"minLength": 1,
+			"default": "6495b7317f830ad739591be2de1e279ea6c4c0d8",
+			"options": {
+			    "hidden": true
+			 }
+		},
+		"data_model_reldir": {
+			"title": "Data model relative path",
+			"description": "Within a checked-out copy of the benchmarking data model repository, the relative path to the data model",
+			"type": "string",
+			"format": "uri-reference",
+			"default": "json-schemas/1.0.x",
+			"options": {
+			    "hidden": true
+			 }
+		}
+	},
+	"required": [
+		"consolidated_oeb_data",
+		"data_visibility",
+		"benchmarking_event_id",
+		"participant_file",
+		"community_id",
+		"data_version",
+		"workflow_oeb_id",
+		"data_contacts",
+		"data_model_repo",
+		"data_model_tag"
+	],
+	"additionalProperties": false
+
+}

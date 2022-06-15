@@ -117,11 +117,11 @@
   .page-header.navbar .menu-toggler > span,
   .page-header.navbar .menu-toggler > span:before,
   .page-header.navbar .menu-toggler > span:after {
-    background: #858585; }
+    background: #fff; }
   .page-header.navbar .menu-toggler > span:hover {
-    background: #858585; }
+    background: #fff; }
     .page-header.navbar .menu-toggler > span:hover:before, .page-header.navbar .menu-toggler > span:hover:after {
-      background: #858585; }
+      background: #fff; }
   .page-header.navbar .menu-toggler.th-toggle-exit > span {
     background-color: transparent !important; }
 

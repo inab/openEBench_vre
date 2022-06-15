@@ -115,7 +115,7 @@ $tool   = getTool_fromId($toolId,1);
 		 <!-- END PORTLET 1: PROJECT -->
 
 		 <!-- BEGIN PORTLET 2: SECTION 1 -->
-		 <div class="portlet box blue form-block-header" id="form-block-header1">
+		 <div class="portlet box blue-oleo form-block-header" id="form-block-header1">
 		     <div class="portlet-title">
 			 <div class="caption">
 			  <i class="fa fa-cogs" ></i> Tool settings
@@ -157,7 +157,7 @@ $tool   = getTool_fromId($toolId,1);
     	      </div>
 
     	      <div class="form-actions">
-    		  <button type="submit" class="btn blue" style="float:right;">
+    		  <button type="submit" class="btn green" style="float:right;">
     		      <i class="fa fa-check"></i> Compute</button>
     	      </div>
     	      </form>

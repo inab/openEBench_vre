@@ -155,7 +155,7 @@ if (!$inPaths[0]['path']) {
 
 
 								<!-- BEGIN PORTLET 2: SECTION 1 -->
-								<div class="portlet box blue form-block-header" id="form-block-header1">
+								<div class="portlet box blue-oleo form-block-header" id="form-block-header1">
 									<div class="portlet-title">
 										<div class="caption">
 											<i class="fa fa-cogs"></i> Tool settings
@@ -197,7 +197,7 @@ if (!$inPaths[0]['path']) {
 					</div>
 
 					<div class="form-actions blockToolForm">
-						<button type="submit" class="btn blue" style="float:right;">
+						<button type="submit" class="btn green" style="float:right;">
 							<i class="fa fa-check"></i> Compute</button>
 					</div>
 					</form>

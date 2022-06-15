@@ -253,6 +253,8 @@ switch (pathinfo($_SERVER['PHP_SELF'])['filename']) {
 			<script src="tools/QFO_6/assets/js/output.js?v=<?php echo rand(); ?>" type="text/javascript"></script>
 		<?php } elseif (dirname($_SERVER['PHP_SELF']) == '/tools/TCGA_CD') { ?>
 			<script src="tools/TCGA_CD/assets/js/output.js?v=<?php echo rand(); ?>" type="text/javascript"></script>
+		<?php } elseif (dirname($_SERVER['PHP_SELF']) == '/tools/APAEVAL_2021') { ?>
+			<script src="tools/APAEVAL_2021/assets/js/output.js?v=<?php echo rand(); ?>" type="text/javascript"></script>
 		<?php } else { ?>
 			<script src="tools/TCGA_CD/assets/js/output.js?v=<?php echo rand(); ?>" type="text/javascript"></script>
 		<?php }

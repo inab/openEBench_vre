@@ -514,7 +514,7 @@ function getContactsIds($email){
  */
 //var_dump(getDatasetsQL());
 function getDatasetsQL () {
-  $data_query = '{"query":"{getDatasets(datasetFilters: {community_id: \\"OEBC001\\"}){id\\n        name\\n        version\\n        description\\n        community_ids\\n        visibility        \\n        type\\n        datalink{\\n            uri\\n        }\\n        \\n\\n\\n    }\\n}","variables":{}}';
+  $data_query = '{"query":"{getDatasets(datasetFilters: {community_id: \\"OEBC002\\"}){_id\\n        name\\n        version\\n        description\\n        community_ids\\n        visibility        \\n        type\\n        datalink{\\n            uri\\n        }\\n        \\n\\n\\n    }\\n}","variables":{}}';
   $url = $GLOBALS['OEB_sciapi'];
   $headers= array('Content-Type: application/json');
 

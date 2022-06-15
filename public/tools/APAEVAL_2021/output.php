@@ -15,31 +15,43 @@ if(!isset($_REQUEST['execution'])){
 	redirect($GLOBALS['BASEURL'].'workspace/');
 }
 
-// prepare download button for TAR file
+$executions= explode(",",$_REQUEST['execution']);
 
-$wd  = $GLOBALS['dataDir'].$_SESSION['User']['id']."/".$_SESSION['User']['activeProject']."/".$GLOBALS['tmpUser_dir']."/outputs_".$_REQUEST['execution'];
-if (!is_dir($wd)){
-	$_SESSION['errorData']['Error'][]="Cannot visualize your results. They are not accessible anymore. Try logging again, please.";
-	redirect($GLOBALS['BASEURL'].'workspace/');
+// find unTARed data in tmp dir
+$data_wds      = array(); // list of unTARed temporal directories, one per execution
+$data_ids      = array(); // list of file_ids for each temporal directory
+$data_pathTemps= array(); // list of files to be passed to the OEB viewer
+foreach ($executions as $execution){
+	// build temporal directories
+	$wd  = $GLOBALS['dataDir'].$_SESSION['User']['id']."/".$_SESSION['User']['activeProject']."/".$GLOBALS['tmpUser_dir']."/outputs_".$execution;
+	if (!is_dir($wd)){
+		$_SESSION['errorData']['Error'][]="Cannot visualize your results. They are not accessible anymore. Try logging again, please. ($wd)";
+		redirect($GLOBALS['BASEURL'].'workspace/');
+	}
+	array_push($data_wds,$wd);
+
+	// get file_ids from index 
+	$indexFile = $wd.'/index';
+	$results = file($indexFile);
+	array_push($data_ids,$results);
+
+	// prepare data for custom viewer
+	$inner_data  = glob("$wd/*", GLOB_ONLYDIR);
+	if (!isset($inner_data[0])){
+	        $_SESSION['errorData']['Error'][]="Cannot display the run output. Received results do not contain the expected data or are empty.";
+	        redirect($GLOBALS['BASEURL'].'workspace/');
+	}	
+	$viewerfolder = fromAbsPath_toPath($inner_data[0]);
+	$pathTemp = 'workspace/workspace.php?op=openPlainFileFromPath&fnPath='.$viewerfolder;
+	array_push($data_pathTemps,$pathTemp);
 }
-$indexFile = $wd.'/index';
-$results = file($indexFile);
 
-// prepare data for custom viewer
-$untared_data  = glob("$wd/*", GLOB_ONLYDIR);
-if (!isset($untared_data[0])){
-        $_SESSION['errorData']['Error'][]="Cannot display the run output. Received results do not contain the expected data or are empty.";
-        redirect($GLOBALS['BASEURL'].'workspace/');
-}
-$viewerfolder = fromAbsPath_toPath($untared_data[0]);
-$pathTemp = 'workspace/workspace.php?op=openPlainFileFromPath&fnPath='.$viewerfolder;
+// build data-dir for custom viewer
+$data_dir = "[\"".implode("\", \"",$data_pathTemps)."\"]";
 
-#$pathTemp = 'workspace/workspace.php?op=openPlainFileFromPath&fnPath='.$_SESSION['User']['id']."/".$_SESSION['User']['activeProject']."/.tmp/outputs_".$_REQUEST['execution'];
 
 // get tool metadata
 $tool = getTool_fromId($toolid, 1);
-
-
 
 //////////////////////////////////////////////////////////////////// print page
 
@@ -104,9 +116,11 @@ $tool = getTool_fromId($toolid, 1);
                             Along with the chart these results are also transformed to a table which separates the participants in different groups.
 
                         </p>
-                        <div class="note note-info" style="padding-bottom:7px;">
-									<h4><a href="workspace/workspace.php?op=downloadFile&fn=<?php echo $results[0]; ?>" style="text-decoration:none;"><i class="fa fa-download"></i> Download all the raw data in a compressed tar.gz file </a></h4>
-								</div>
+			<?php foreach ($data_ids as $results){ ?>
+                            <div class="note note-info" style="padding-bottom:7px;">
+			    <h4><a href="workspace/workspace.php?op=downloadFile&fn=<?php echo $results[0]; ?>" style="text-decoration:none;"><i class="fa fa-download"></i> Download all the raw data in a compressed tar.gz file </a></h4>
+			    </div>
+			<?php } ?>
 			   				</div>
 						</div>
 
@@ -114,7 +128,7 @@ $tool = getTool_fromId($toolid, 1);
 			    	<div class="col-md-12">
 						<div class="panel-group accordion">
 				  			<div class="panel panel-default">
-							  <div id="custom_body" data-dir=<?php echo("$pathTemp") ?> x-label="Recall" y-label="Precision" ></div> 
+							  <div id="custom_body" data-dir='<?php echo("$data_dir") ?>' x-label="Recall" y-label="Precision" ></div>
 	    			</div>
 				</div>
 
@@ -124,8 +138,6 @@ $tool = getTool_fromId($toolid, 1);
                 <!-- END CONTENT BODY -->
                 </div>
                 <!-- END CONTENT -->
-
-<script src="tools/<?php echo $toolid;?>/assets/js/output.js" type="text/javascript"></script>
 
 <?php 
 

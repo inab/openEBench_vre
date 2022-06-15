@@ -161,10 +161,10 @@ $commmunities = getCommunities();
                                     <div class="row display-hide" id="row-tool">
                                         <div class="col-md-12">
                                             <div class="form-group">
-                                                <label class="control-label"><b>Select your tool </b></b><span style="color:red;">*</span></label>
-                                                <small>Select your tool. If your tool is not in the list, click to register it.</small>
+                                                <label class="control-label"><b>Select your tool/group </b></b><span style="color:red;">*</span></label>
+                                                <small>Select your tool/group. If your tool/group is not in the list, click to register it.</small>
                                                 <select name="toolList" id="toolList" class="form-control" >
-                                                    <option value="">Select a tool </option>
+                                                    <option value="">Select a tool or group</option>
                                                     <?php 
                                                         $tools = json_decode(getTools(), true);
                                                         foreach ($tools as $value) {
@@ -175,7 +175,7 @@ $commmunities = getCommunities();
                                             </div>
                                             <input type="text" name="newToolDesc" id="newToolDesc" hidden>
                                             <div class="form-check">
-                                                <label class="form-check-label" for="defaultCheck1">Click to register your tool</label>
+                                                <label class="form-check-label" for="defaultCheck1">Click to register your tool/group</label>
                                                 <input type="checkbox" value="true" id="registerToolCheckbox" name="registerToolCheckbox">
                                                 
                                             </div>
@@ -185,7 +185,7 @@ $commmunities = getCommunities();
                                         <div class="col-md-12 col-sm-12">
                                             <div class="portlet light bordered">
                                                 <div class="portlet-title">
-                                                        <span class=" font-dark bold uppercase">REGISTER YOUR TOOL</span>
+                                                        <span class=" font-dark bold uppercase">REGISTER YOUR TOOL/GROUP</span>
                                                     <div class="tools">
                                                         <a href="javascript:;" class="collapse"></a>
                                                     </div>
@@ -216,7 +216,7 @@ $commmunities = getCommunities();
                                                         <label for="link"><b>Link: </b></label>
                                                         <input class="form-control" type="url" name="link" id="link">
                                                     </div>
-                                                    <button class="btn blue" id ="getToolInfo">Save</button>
+                                                    <button class="btn green" id ="getToolInfo">Save</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -245,7 +245,7 @@ $commmunities = getCommunities();
                                     </div>
                                 </div>
                                 <div class="form-actions">
-                                    <button type="submit" class="btn blue"><i class="fa fa-check"></i> Submit</button>
+                                    <button type="submit" class="btn green"><i class="fa fa-check"></i> Submit</button>
                                     <button type="reset" class="btn default">Reset</button>
                                 </div>
                             </div>

@@ -120,7 +120,7 @@ foreach (array_values(CountriesDAO::selectCountries(array(), $ops)) as $v)
                                         <div class="portlet-title tabbable-line">
                                             <div class="caption caption-md">
                                                 <i class="icon-globe theme-font hide"></i>
-                                                <span class="caption-subject font-blue-madison bold uppercase">Profile Account</span>
+                                                <span class="caption-subject bold uppercase">Profile Account</span>
                                             </div>
                                             <ul class="nav nav-tabs">
                                                 <li class="active">
@@ -381,7 +381,7 @@ foreach (array_values(CountriesDAO::selectCountries(array(), $ops)) as $v)
 
                                                 <br/>
                                                 <br/>
-						<span class="caption-subject font-blue-madison bold uppercase">Linked Accounts</span>
+						<span class="caption-subject bold uppercase">Linked Accounts</span>
 
 							
                                                     <!--EUDAT/B2SHARE ACCOUNT-->

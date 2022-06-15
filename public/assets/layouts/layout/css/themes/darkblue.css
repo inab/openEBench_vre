@@ -117,11 +117,11 @@
   .page-header.navbar .menu-toggler > span,
   .page-header.navbar .menu-toggler > span:before,
   .page-header.navbar .menu-toggler > span:after {
-    background: #a7b5c6; }
+    background: #fff; }
   .page-header.navbar .menu-toggler > span:hover {
-    background: #a7b5c6; }
+    background: #fff; }
     .page-header.navbar .menu-toggler > span:hover:before, .page-header.navbar .menu-toggler > span:hover:after {
-      background: #a7b5c6; }
+      background: #fff; }
   .page-header.navbar .menu-toggler.th-toggle-exit > span {
     background-color: transparent !important; }
 
@@ -413,14 +413,14 @@
     .page-sidebar .sidebar-toggler > span,
     .page-sidebar .sidebar-toggler > span:before,
     .page-sidebar .sidebar-toggler > span:after {
-      background: #a7b5c6; }
+      background: #fff  !important; }
     .page-sidebar-closed.page-sidebar-fixed .page-sidebar:hover .sidebar-toggler > span:hover,
     .page-sidebar .sidebar-toggler > span:hover {
-      background: #a7b5c6; }
+      background: #fff  !important; }
       .page-sidebar-closed.page-sidebar-fixed .page-sidebar:hover .sidebar-toggler > span:hover:before, .page-sidebar-closed.page-sidebar-fixed .page-sidebar:hover .sidebar-toggler > span:hover:after,
       .page-sidebar .sidebar-toggler > span:hover:before,
       .page-sidebar .sidebar-toggler > span:hover:after {
-        background: #a7b5c6; }
+        background: #fff  !important; }
     .page-sidebar-closed.page-sidebar-fixed .page-sidebar:hover .sidebar-toggler.th-toggle-exit > span,
     .page-sidebar .sidebar-toggler.th-toggle-exit > span {
       background-color: transparent !important; }

@@ -366,7 +366,7 @@ sort($visualizers);
 				<?php if (allowedRoles($_SESSION['User']['Type'], $GLOBALS['ADMIN']) || allowedRoles($_SESSION['User']['Type'], $GLOBALS['TOOLDEV'])) { ?>
 					<li class="nav-item  <?php if ($currentSection == 'mg') { ?>active open<?php } ?>">
 						<a href="javascript:;" class="nav-link nav-toggle">
-							<i class="fa fa-tasks" style="color: #B4B4B4;"></i>
+							<i class="fa fa-tasks" style="color: #fff;"></i>
 							<span class="title">Management</span>
 							<?php if ($currentSection == 'mg') { ?><span class="selected"></span><?php } ?>
 							<span class="arrow <?php if ($currentSection == 'mg') { ?>open<?php } ?>"></span>
@@ -392,10 +392,10 @@ sort($visualizers);
 				<?php } ?>
 
 				<!-- results section -->
-				<?php if (allowedRoles($_SESSION['User']['Type'], $GLOBALS['ADMIN']) || allowedRoles($_SESSION['User']['Type'], $GLOBALS['TOOLDEV'])) { ?>
+				<?php if (allowedRoles($_SESSION['User']['Type'], $GLOBALS['NO_GUEST'])) { ?>
 					<li class="nav-item  <?php if ($currentSection == 'mg') { ?>active open<?php } ?>">
 						<a href="javascript:;" class="nav-link nav-toggle">
-							<i class="fa fa-list" style="color: #B4B4B4;"></i>
+							<i class="fa fa-list" style="color: #fff;"></i>
 							<span class="title">Results</span>
 							<?php if ($currentSection == 'mg') { ?><span class="selected"></span><?php } ?>
 							<span class="arrow <?php if ($currentSection == 'mg') { ?>open<?php } ?>"></span>
@@ -422,7 +422,7 @@ sort($visualizers);
 
 					<li class="nav-item  <?php if ($currentSection == 'pb') { ?>active open<?php } ?>">
 						<a href="javascript:;" class="nav-link nav-toggle">
-							<i class="fa fa-upload" style="color: #B4B4B4;"></i>
+							<i class="fa fa-upload" style="color: #fff;"></i>
 							<span class="title">Publish</span>
 							<?php if ($currentSection == 'pb') { ?><span class="selected"></span><?php } ?>
 							<span class="arrow <?php if ($currentSection == 'pb') { ?>open<?php } ?>"></span>
@@ -532,8 +532,8 @@ sort($visualizers);
 					</li>
 				<?php } ?>
 
-				<li class="nav-item active open beta-long" style="color:#b4bcc8;margin-left:18px;margin-top:10px;font-size:12px;">This is the 1.1 version of <?php echo $GLOBALS['AppPrefix']; ?> VRE</li>
-				<li class="nav-item active open beta-short" style="color:#b4bcc8;margin-left:8px;margin-top:10px;font-size:12px;display:none;">v1.1</li>
+				<li class="nav-item active open beta-long" style="color:#FFFFFF;margin-left:18px;margin-top:10px;font-size:12px;">This is the 1.1 version of <?php echo $GLOBALS['AppPrefix']; ?> VRE</li>
+				<li class="nav-item active open beta-short" style="color:#fff;margin-left:8px;margin-top:10px;font-size:12px;display:none;">v1.1</li>
 
 			</ul>
 			<!-- END SIDEBAR MENU -->

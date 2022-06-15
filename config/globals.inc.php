@@ -16,8 +16,10 @@ $GLOBALS['TIMEOUT']   = 3600; // session and cookies timeout
 // Email
 $GLOBALS['mail_credentials'] = __DIR__."/mail.conf"; // SMTP credentials
 $GLOBALS['FROMNAME']  = "OpenEBench VRE Dev"; // 'From' for VRE tickets and notifications
-$GLOBALS['ADMINMAIL'] = "openebench@bsc.es"; // BBC address for VRE ticket emails
-$GLOBALS['MAIL_SUPPORT_OEB'] = "openebench-support@bsc.es";
+//$GLOBALS['ADMINMAIL'] = "openebench@bsc.es"; // BBC address for VRE ticket emails
+$GLOBALS['ADMINMAIL'] = "meritxell.ferret@bsc.es";
+//$GLOBALS['MAIL_SUPPORT_OEB'] = "openebench-support@bsc.es";
+$GLOBALS['MAIL_SUPPORT_OEB'] = "meritxell.ferret@bsc.es";
 
 //OEB-API
 $GLOBALS['OEBapi_credentials'] = __DIR__."/oeb_api.conf"; 
@@ -346,8 +348,8 @@ $GLOBALS['eudat_community_schema_id'] = "176df0a6-8c8e-424d-a5c1-34b1d84a580c";
 
 //schema from oeb (submission)
 #$GLOBALS['oeb_submission_pusher']=""; // Root directory of the pusher local installation
-$GLOBALS['oeb_submission_schema'] = "https://raw.githubusercontent.com/inab/OEB_level2_data_migration/master/submission_form_schema.json";
-
+#$GLOBALS['oeb_submission_schema'] = "https://raw.githubusercontent.com/inab/OEB_level2_data_migration/master/submission_form_schema.json";
+$GLOBALS['oeb_submission_schema'] = 'vre/oeb_publish/oeb/schema.json';
 
 /*****NOTIFICATIONS ******/
 $GLOBALS['notifications_active'] = true;
