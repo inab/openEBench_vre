@@ -153,7 +153,7 @@ function roleUpgrade () {
         $("#Message").val("Dear user,\n\nThe user "+requester+" would like to upgrade its role to "+roleToupgrade+".\
         \n Community: "+community_name+".\n BenchmarkingEvent: "+be_name+".\
         \n "+newTool+"\
-        \nIf you agree on that, please accept that request on OpenEBench. \n\nRegards, \n\nOEB team.");
+        \nIf you agree on that, please update the corresponding data (tool, role and contact) in OpenEBench database. \n\nRegards, \n\nOEB team.");
 
    })
 }

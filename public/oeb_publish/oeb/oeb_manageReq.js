@@ -12,7 +12,6 @@ $(document).ready(function() {
         createTableApprover();
         $("#loading-datatable").hide();
         //permisions depending on the role
-        console.log(roles)
         if (roles['roles'].length == 0) {
             $("#beSelector").attr('disabled','disabled');
             $("#warning-notAllowed").show();

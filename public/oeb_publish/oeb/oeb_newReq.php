@@ -23,8 +23,6 @@ foreach ($outputExe_files as $key => $value) {
     }
 }
 
-//var_dump(downloadNCFile('https://wRjtBnWMaLEcMna:235cb25f5a2ce98ba1f0f06a6d49b21f@dev-openebench.bsc.es/nextcloud/public.php/webdav/'));
-
 ?>
 
 <body class="page-header-fixed page-sidebar-closed-hide-logo page-content-white 
@@ -129,7 +127,6 @@ foreach ($outputExe_files as $key => $value) {
             <div class="row">
                 <div class="col-md-12 col-sm-12">
                     <div class="portlet light bordered">
-                        <?php var_dump($_SESSION['User']['TokenInfo']['oeb:roles']); ?>
                         <div class="portlet-title">
                             <div class="caption">
                                 <i class="icon-share font-dark hide"></i>

@@ -455,7 +455,7 @@ function proceedRequest_register_NC($fileId, $metaForm) {
 
         }elseif ($datatype == "tool_statistics") {
             $filter =  array("data_type" => $datatype , "parentDir" => $executionfolder_id);
-            $tar_id = getGSFiles_filteredBy($filter)[0]['_id'];
+            $tar_id = reset(getGSFiles_filteredBy($filter))['_id'];
             $filesToUpload[$datatype] = $tar_id;
         }
     }
@@ -478,7 +478,6 @@ function proceedRequest_register_NC($fileId, $metaForm) {
     $conn = new nc_Connection();
     $pathNC = $community."/".$benchmarkingEvent_id."/".$_SESSION['User']['id']."/".$executionfolder_name;
     $filesurls = [];
-    
     foreach ($filesToUpload as $key => $fileId) {
         if (!$url_file = getAttr_fromGSFileId($fileId, "urls")[0]['url']){
             // UPLOAD file
@@ -496,7 +495,10 @@ function proceedRequest_register_NC($fileId, $metaForm) {
     //error uploading files
 	if (in_array(false, array_values($filesurls))) {
         array_push($log, "Petition created with identifier: ".$req_id);
-        array_push($log, "Error uploading files to nextcloud.");
+        array_push($log, "Error uploading files to nextcloud: ".$filesToUpload[1].$filesToUpload[0]);
+        array_push($log, $executionfolder_id);
+        array_push($log, $datatype_files_publish[1]);
+        array_push($log, $filesToUpload['tool_statisticsf']);
         $newRequest->setCurrentStatus("error");
                 
 		// return error msg via BlockResponse

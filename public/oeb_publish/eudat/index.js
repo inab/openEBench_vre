@@ -21,7 +21,8 @@ $(document).ready(function () {
       "bPaginate": false,
       "bFilter": true, 
       rowCallback: function( row, data, index ) {
-        if(data['oeb_id'] == null){
+        console.log(data)
+        if(data['OEB_dataset_id'] == null){
           $(row).css('color', 'silver');
         }
       },
@@ -52,7 +53,7 @@ $(document).ready(function () {
         { data: null }, //0
         { data: "path" }, //1
         { data: "data_type" }, //2
-        { data: "oeb_id" }, //3
+        { data: "OEB_dataset_id" }, //3
         { data: "oeb_eudatDOI" }, //4
       ],
       drawCallback: function() {
@@ -66,7 +67,7 @@ $(document).ready(function () {
         searchable: false,
         orderable: false,
         render: function ( data, type, row ) {
-          if (row['oeb_id']){
+          if (row['OEB_dataset_id']){
             return '<input type="radio" name="file" value="' +row['_id'] +'">'
           } else return '<input disabled type="radio" name="file" value="' +row['_id'] +'">'
           
@@ -86,7 +87,7 @@ $(document).ready(function () {
       {
         targets: 1,
         render: function (data, type, row) {
-          if (row['oeb_id']){
+          if (row['OEB_dataset_id']){
             return "<b>" + data.split("/").reverse()[1] +"</b>/" + data.split("/").pop()
           } else {
             return "<b>" + data.split("/").reverse()[1] +"</b>/" + data.split("/")

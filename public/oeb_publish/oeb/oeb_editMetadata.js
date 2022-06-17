@@ -21,9 +21,13 @@ $(document).ready(function () {
 			var OEBinfo = JSON.parse(data);
 			$.ajax({
 				type: 'POST',
-				url: CONTROLLER + "?action=getContactOEB",
+				url: CONTROLLER + "?action=getUserInfo",
 				data: currentURL
-        	}).done(function(contactOEBUser) {
+        	}).done(function(data) {
+          
+          	var userinfo = JSON.parse(data);
+
+			
 
 			//get schema
 			$.getJSON(oeb_submission_schema, function (data) {
@@ -48,7 +52,7 @@ $(document).ready(function () {
 						
 						//2. Contacts list
 						"search_zza": function search(contacts_editor, input) {
-							var url = CONTROLLER + '?action=getContacts';
+							var url = CONTROLLER + '?action=getContacts&community_id=' + OEBinfo['community_id'];
 
 							return new Promise(function (resolve) {
 								if (input.length < 1) {
@@ -115,15 +119,7 @@ $(document).ready(function () {
 
 				//set values 
 				$('.je-object__title label').html("<b>Edit metadata for file " + fileinfo["path"].split("/").pop() + "</b>");
-
-				editor.getEditor("root.consolidated_oeb_data").setValue(fileinfo['path']);
-
-				editor.getEditor("root.benchmarking_event_id").setValue(filesObj["benchmarkingEvent_id"]);
-				editor.getEditor("root.participant_file").setValue(fileinfo['fileSource_path']); //Path participant file
-				editor.getEditor("root.community_id").setValue(OEBinfo['community_id']);
-				editor.getEditor("root.workflow_oeb_id").setValue(filesObj['tool']);
-				editor.getEditor("root.data_version").setValue("1");
-				editor.getEditor("root.data_contacts.0").setValue(contactOEBUser);
+				
 				$(".form-text:eq(6)" ).append(". <b>If your tool does not appear in list, contact with: \
 					</b><a href=\"mailto:"+mail_support_oeb+"\">"+mail_support_oeb+"</a>.");
 				
@@ -136,6 +132,13 @@ $(document).ready(function () {
 				$("#loading-datatable").hide();
 
 				editor.on('change', function () {
+					editor.getEditor("root.consolidated_oeb_data").setValue(fileinfo['path']);
+					editor.getEditor("root.benchmarking_event_id").setValue(filesObj["benchmarkingEvent_id"]);
+					editor.getEditor("root.participant_file").setValue(fileinfo['fileSource_path']); //Path participant file
+					editor.getEditor("root.community_id").setValue(OEBinfo['community_id']);
+					editor.getEditor("root.workflow_oeb_id").setValue(filesObj['tool']);
+					editor.getEditor("root.data_version").setValue("1");
+					editor.getEditor("root.data_contacts.0").setValue(userinfo['Email']);
 					// Validate the editor's current value against the schema
 					$('#sendForm').prop('disabled', true);
 					var errors = editor.validate();
@@ -155,8 +158,9 @@ $(document).ready(function () {
 		});
 
 		});
+		
 	});
-
+	
 	$('#sendForm').on("click", function () {
 		if (valid) {
 			var toolId = $('select.selectized,input.selectized').val();
@@ -169,14 +173,7 @@ $(document).ready(function () {
 			});
 			editor.getEditor("root.data_contacts").setValue(contactsList);
 			
-			//check tool can be submitted 
-			$.ajax({
-				type: 'POST',
-				url: CONTROLLER + "?action=toolToSubmit",
-				data: { "metadata": formData }
-
-			}).done(function(data) {
-				if (data == '0'){
+			
 					$("#myModal").modal();
 					$("#summaryContent").html("<pre>"+formData+"</pre>")
 
@@ -226,12 +223,9 @@ $(document).ready(function () {
 				
 					});
 
-				} else{
-					$("#toolSubmit span").html(editor.getEditor('root.tool_selection').getValue())
-					$("#toolSubmit").show();
-				}
+				
 			
-			})
+			
 
 		}
 	})

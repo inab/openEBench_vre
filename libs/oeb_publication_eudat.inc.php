@@ -50,7 +50,7 @@ function oeb_publish_file_eudat($fn, $metadata, $userEudatToken){
     //register doi to VRE
     if (!registerDOIToVRE($fn, $doi)){
         $response_json->setCode(400);
-        $response_json->setMessage("Error register DOI "+doi+" to VRE database");
+        $response_json->setMessage("Error register DOI "+$doi+" to VRE database");
         return $response_json->getResponse();    
     }
     /*

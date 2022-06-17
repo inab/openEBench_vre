@@ -8,7 +8,6 @@ $(document).ready(function() {
     //get user roles
     getRoles().done(function(r) {
         var roles = JSON.parse(r)
-        console.log(roles)
         table1 = createSelectableTable();
 
         //permisions depending on the role
@@ -78,7 +77,6 @@ $(document).ready(function() {
         } else {
             $('#btn-selected-files').prop("disabled", true)
         }
-        console.log(arrayOfFiles)
     })
 })
 
@@ -193,6 +191,8 @@ function createSelectableTable(){
                         
                     } else if(row['current_status'] == null){
                         r = "<div><span class='badge badge-secondary'><b>Not submitted</b></span>"
+                    } else if(row['current_status'] == "error"){
+                        r = "<div><span class='badge badge-danger'><b>Error</b></span>"
                     }
                     return r;
                     

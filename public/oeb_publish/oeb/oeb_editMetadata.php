@@ -10,11 +10,6 @@ require "../../htmlib/header.inc.php";
 //project list of the user
 $projects = getProjects_byOwner();
 
-//$communities = getCommunities("OEBC004", "name");
-//var_dump($communities);
-//var_dump($_SESSION['errorData']['Warning']);
-
-
 if (!is_null ($_SESSION['User']['TokenInfo']['oeb:roles'])) {
     $communityList = getCommunitiesFromRoles($_SESSION['User']['TokenInfo']['oeb:roles']);
 } else {

@@ -348,8 +348,7 @@ $GLOBALS['eudat_community_schema_id'] = "176df0a6-8c8e-424d-a5c1-34b1d84a580c";
 
 //schema from oeb (submission)
 #$GLOBALS['oeb_submission_pusher']=""; // Root directory of the pusher local installation
-#$GLOBALS['oeb_submission_schema'] = "https://raw.githubusercontent.com/inab/OEB_level2_data_migration/master/submission_form_schema.json";
-$GLOBALS['oeb_submission_schema'] = 'vre/oeb_publish/oeb/schema.json';
+$GLOBALS['oeb_submission_schema'] = "https://raw.githubusercontent.com/inab/OEB_level2_data_migration/master/submission_form_schema.json";
 
 /*****NOTIFICATIONS ******/
 $GLOBALS['notifications_active'] = true;
