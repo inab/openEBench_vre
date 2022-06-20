@@ -167,7 +167,8 @@ $(document).ready(function () {
         $("#myError").show();
         $("input").attr('disabled','disabled');
 
-      } else if (!result.hasOwnProperty("tokenEudat")){
+      } 
+       if (!result.hasOwnProperty("tokenEudat")){
 				$("#myError").addClass("alert alert-warning");
         $("#myError").append("<h4><b>No B2share token is set </b></h4>");
         $("#myError").append("<p>You haven't set any token for B2share remote \

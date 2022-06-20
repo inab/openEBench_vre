@@ -36,10 +36,13 @@ if($_REQUEST) {
 	}elseif(isset($_REQUEST['action']) && $_REQUEST['action'] == "getRole") {
 		$block_json ="{}";
 		$roles = array();
-		$roles["roles"] = getBEFromRoles($_SESSION['User']['TokenInfo']['oeb:roles']);
+		if(isset($_SESSION['User']['TokenInfo']['oeb:roles'])){
+			$roles["roles"] = getBEFromRoles($_SESSION['User']['TokenInfo']['oeb:roles']);
+		} else $roles["roles"] = [];
+		
 		if (isset($_SESSION['User']['linked_accounts']['b2share']['access_token'])){
 			$roles["tokenEudat"]=true;
-		}
+		} 
 		$block_json = json_encode($roles, JSON_PRETTY_PRINT);
 		echo $block_json;
 		exit; 
