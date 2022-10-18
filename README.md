@@ -3,7 +3,7 @@ Virtual Research Environment
 
 VRE is a web-based collaborative working environment providing its users with a set of ready-to-use services (datasets, analysis tools and visualizaters) for supporting a research lifecycle. It is written in PHP, HTML and Javascript.
 
-### Flavors
+# Flavors
 
 Several research projects has adopted the VRE framework for its project-specific purposes. For example:
 
@@ -11,7 +11,7 @@ Several research projects has adopted the VRE framework for its project-specific
 - OpenEBench : https://openebench.bsc.es/vre
 
 
-### Code structure
+# Code structure
 
 - composer.json: 3rd party software requirements
 - [config](./config) : configuration files 
