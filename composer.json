@@ -1,7 +1,7 @@
 {
     "require": {
         "auth0/auth0-php": "^5.0",
-        "czproject/git-php": "^3.17",
+        "czproject/git-php": "^4.0",
         "easyrdf/easyrdf": "*",
         "justinrainbow/json-schema": "^5.2",
         "league/oauth2-google": "^2.0",
